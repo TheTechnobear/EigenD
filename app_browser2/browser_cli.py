@@ -19,6 +19,7 @@
 #
 
 import wx
+import wx.adv
 import picross
 import piw
 import random
@@ -72,7 +73,7 @@ class ViewManager(agent.Agent):
         self.add_verb2(3,'maximise([],None)',callback=self.__maximise)
         self.add_verb2(4,'cancel([],None,role(from,[concrete,proto(talker),singular]))',self.__cancel_from)
         
-        self.font=wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+        self.font=wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
         self.font.SetPointSize(fonts.DEFAULT_PTS)
 
         self[12]=atom.Atom(domain=domain.BoundedInt(5,20,rest=11),names='text',protocols='nostage',policy=atom.default_policy(self.__set_fontsize))
@@ -299,7 +300,7 @@ class browserApp(gui.App):
         if imageName:
             image=wx.Image(imageName,wx.BITMAP_TYPE_PNG)
             bmp=image.ConvertToBitmap()
-            wx.SplashScreen(bmp,wx.SPLASH_CENTRE_ON_SCREEN|wx.SPLASH_TIMEOUT,2000,None,-1)
+            wx.adv.SplashScreen(bmp,wx.adv.SPLASH_CENTRE_ON_SCREEN|wx.adv.SPLASH_TIMEOUT,2000,None)
             wx.Yield()
         print 'browser starting 2'
         self.agent = ViewManager(name)

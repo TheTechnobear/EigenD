@@ -164,9 +164,9 @@ class TopPanel(wx.Window):
         evt.Skip()
 
     def doPaint(self,dc):
-        font=wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+        font=wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
         font.SetPointSize(11)
-	dc.SetFont(font)
+        dc.SetFont(font)
 
         size=self.GetClientSize()
         dc.GradientFillLinear(wx.Rect(0,0,size[0],size[1]),colours.horPanelGradient1,colours.horPanelGradient2,wx.SOUTH)

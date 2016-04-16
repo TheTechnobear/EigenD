@@ -25,7 +25,7 @@ from app_browser2 import displayutils
 class ListPanel(wx.Window):
     def __init__(self,parent,size,agent,style=wx.BORDER_NONE | wx.VSCROLL):
         wx.Window.__init__(self,parent,-1,size=size,style=style)  
-	self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(colours.borderGradient1)
         self.model=agent[8].model
         self.model.addListListener(self)
@@ -41,7 +41,7 @@ class ListPanel(wx.Window):
 	# XXX
         #self.font=wx.Font(13,wx.FONTFAMILY_MODERN,wx.FONTSTYLE_NORMAL,weight=wx.FONTWEIGHT_LIGHT)
 
-        self.font=wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+        self.font=wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
         self.font.SetPointSize(13)
 
         self.mainFrame=parent

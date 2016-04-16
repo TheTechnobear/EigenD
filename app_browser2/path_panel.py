@@ -39,7 +39,7 @@ class PathPanel(wx.Window):
         self.aux_oldv=1
         self.aux_oldh=-1
 #        self.font=wx.Font(13,wx.FONTFAMILY_MODERN,wx.FONTSTYLE_NORMAL,weight=wx.FONTWEIGHT_LIGHT)
-        self.font=wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+        self.font=wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
         self.font.SetPointSize(11)
 
 

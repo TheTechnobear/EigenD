@@ -119,9 +119,9 @@ class InfoPanel(wx.Window):
 	   dc=wx.BufferedDC(wx.ClientDC(self))
         dc.Clear()
 
-        font=wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
+        font=wx.SystemSettings.GetFont(wx.SYS_DEFAULT_GUI_FONT)
         font.SetPointSize(11)
-	dc.SetFont(font)
+        dc.SetFont(font)
 
         brush=dc.GetBrush()
         brush.SetColour(colours.borderGradient1)
