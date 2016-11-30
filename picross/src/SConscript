@@ -47,7 +47,7 @@ if env['IS_LINUX']:
 if env['IS_WINDOWS']:
     pic_files=pic_files+Split('pic_thread_win32.cpp pic_usb_win32.cpp pic_winloop.cpp pic_tool_win32.cpp pic_power_win32.cpp')
     pic_env.Append(LIBS=Split('shell32'))
-    pic_env.PiSharedLibrary('pic',pic_files,libraries=Split('openwindev'),package='eigend',public=True,locked=True)
+    pic_env.PiSharedLibrary('pic',pic_files,libraries=Split('libusb-1.0'),package='eigend',public=True,locked=True)
 
 pic_pip_env = env.Clone()
 pic_pip_env.PiPipBinding('picross_native',env.Pipfile('picross.pip'),libraries=Split('pic'),package='eigend')

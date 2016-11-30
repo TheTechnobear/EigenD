@@ -22,6 +22,9 @@
 Import('env')
 
 if env['IS_WINDOWS']:
+    env.PiBinaryDLL('libusb-1.0',package='eigend')
+
+if env['IS_WINDOWS']:
     env.PiBinaryDLL('openwindev',package='eigend')
     env.PiRuntime('eigend')
 

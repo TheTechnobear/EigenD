@@ -131,6 +131,7 @@ class PiWindowsEnvironment(generic_tools.PiGenericEnvironment):
         self.Append(CCFLAGS='/EHsc /w34355 /MD /O2 /fp:fast /arch:SSE2 /DWIN32')
         self.Replace(PI_PLATFORMTYPE='windows')
         self.Append(LINKFLAGS=Split('/MANIFEST /INCREMENTAL:NO /LARGEADDRESSAWARE'))
+#       self.Append(LINKFLAGS=Split('/MANIFEST /INCREMENTAL:NO /LARGEADDRESSAWARE /MACHINE:X64'))
         self.Append(SHLINK=' $LIBMAPPER')
         self.Append(LINK=' $LIBMAPPER')
         self.Append(LIBS=Split('shell32'))

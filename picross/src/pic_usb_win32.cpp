@@ -1,14 +1,17 @@
-
+#include <WinSock2.h>
+#include <WS2tcpip.h>
+#include <Windows.h>
 
 #include <stdlib.h>
 #include <errno.h>
 #include <ctype.h>
 #include <memory>
-#include <mbstring.h>
 #include <stdio.h>
-#include <io.h>
+#include <string.h>
 #include <string>
 #include <set>
+
+#include <resources/libusb.h>
 
 #include <picross/pic_thread.h>
 #include <picross/pic_error.h>
@@ -18,150 +21,141 @@
 #include <picross/pic_fastalloc.h>
 #include <picross/pic_strbase.h>
 #include <picross/pic_ilist.h>
-#include <picross/pic_windows.h>
-#include <initguid.h>
-#include <resources/openwindev.h>
 
-#define FRAMES_PER_URB_ADVANCED      16
-#define FRAMES_PER_URB_LEGACY        1
 
-#define URBS_PER_PIPE_ADVANCED	    (64/FRAMES_PER_URB_ADVANCED)
-#define BUFFERS_PER_PIPE_ADVANCED	(4*URBS_PER_PIPE_ADVANCED)
-#define URBS_PER_PIPE_LEGACY        64
-#define BUFFERS_PER_PIPE_LEGACY	    (8*URBS_PER_PIPE_LEGACY)
+// URB = request block
+// each block has a number of packets , referred to (by eigend at least) as frames
+// frame is expected to be delivered in a certain time, and is queued up if recvd early (as we want time consistent) 
+// the interval per frame is nanoSec/8000 for high speed, and nanoSec/1000 for low speed (
+
+
+
+// the following may need to be refined
+// ALLOCATED_URBS_READ - we need extra urbs as the poll is responsible for pulling off recieve queue
+// if this is slow then we will run out of URBS
+// if we run out we 'steal' from the recieve queue, this means the client misses some messages but
+// so issue a warning, but continue
+
+// need to determine best numbers for these!
+//#define URBS_PER_PIPE_READ    	    32
+//#define FRAMES_PER_URB_READ         8
+#define URBS_PER_PIPE_READ    	    16
+#define FRAMES_PER_URB_READ         4
+#define ALLOCATED_URBS_READ   	    32
 
 #define URBS_PER_PIPE_WRITE         16
+#define FRAMES_PER_URB_WRITE        8
+
+#define HISPEED_INC (1.0/8.0)
+#define LOSPEED_INC (1.0)
+
+#define LOG_SINGLE(x) x
 
 namespace
 {
 	struct usbpipe_out_t;
 	struct usbpipe_in_t;
 
+    // outbound buffer
+    struct usbbuf_out_t: pic::element_t<0>, pic::element_t<1>, virtual pic::lckobject_t
+    {
+        usbbuf_out_t(usbpipe_out_t *pipe);
+        ~usbbuf_out_t();
+
+        usbpipe_out_t *pipe_;
+        libusb_transfer* buffer_;
+        unsigned size_;
+        unsigned psize_;
+    };
+
+	
+	// outbound pipe, with queue
+	struct usbpipe_out_t: virtual pic::lckobject_t
+	{
+		usbpipe_out_t(pic::usbdevice_t::impl_t *dev, pic::usbdevice_t::iso_out_pipe_t *pipe);
+		~usbpipe_out_t();
+
+		// callback from libusb
+		static void LIBUSB_CALL completed(struct libusb_transfer* transfer);
+		// submit buffer to usb
+		void submit(usbbuf_out_t *buf);
+
+		void append_free_queue(usbbuf_out_t *buf);
+		usbbuf_out_t *pop_free_queue();
+
+		pic::mutex_t out_pipe_lock_;
+		pic::usbdevice_t::iso_out_pipe_t *pipe_;
+		pic::usbdevice_t::impl_t *device_;
+		pic::ilist_t<usbbuf_out_t,0,true> buffer_list_;
+		pic::ilist_t<usbbuf_out_t,1> free_queue_;
+		unsigned piperef_;
+		unsigned size_;
+		libusb_device_handle *dhandle_;
+	};
+	
+	// inbound buffer
     struct usbbuf_in_t: pic::element_t<0>, pic::element_t<1>, virtual pic::lckobject_t
     {
         usbbuf_in_t(usbpipe_in_t *pipe);
         ~usbbuf_in_t();
 
-        EIGENHARP_USB_PACKET_HDR *headers() { return (EIGENHARP_USB_PACKET_HDR *)buffer_; }
-        unsigned char *payload() { return buffer_+packets_*sizeof(EIGENHARP_USB_PACKET_HDR); }
-
         usbpipe_in_t *pipe_;
-        unsigned char *buffer_;
+        libusb_transfer *buffer_;
+        
         unsigned size_;
         unsigned psize_;
-        unsigned packets_;
         bool completed_;
         unsigned consumed_;
+        unsigned long long time_;
+        unsigned long long frame_;
     };
 
-    struct usbbuf_out_t: pic::element_t<0>, virtual pic::lckobject_t
-    {
-        usbbuf_out_t(usbpipe_out_t *pipe);
-        ~usbbuf_out_t();
-
-        EIGENHARP_USB_PACKET_HDR *headers() { return (EIGENHARP_USB_PACKET_HDR *)buffer_; }
-        unsigned char *payload() { return buffer_+packets_*sizeof(EIGENHARP_USB_PACKET_HDR); }
-
-        usbpipe_out_t *pipe_;
-        unsigned char *buffer_;
-        unsigned size_;
-        unsigned psize_;
-        unsigned packets_;
-    };
-
-	struct usburb_t: pic::element_t<0>, pic::element_t<1>, virtual pic::lckobject_t
-	{
-		OVERLAPPED overlapped_;
-        bool in_;
-
-        void completed(unsigned long error, unsigned long br);
-
-        union
-        {
-            usbbuf_in_t *in_buffer_;
-            usbbuf_out_t *out_buffer_;
-        };
-	};
-
+    
+	// inbound pipe, with queue of data
 	struct usbpipe_in_t: virtual pic::lckobject_t
 	{
 		usbpipe_in_t(pic::usbdevice_t::impl_t *dev, pic::usbdevice_t::iso_in_pipe_t *pipe);
-        ~usbpipe_in_t();
+		~usbpipe_in_t();
 
-		void completed(unsigned long error, usburb_t *urb, unsigned long br);
-        void submit(usburb_t *);
-        bool poll_pipe(unsigned long long);
+		// callback from libusb
+		static void LIBUSB_CALL completed(struct libusb_transfer* transfer);
+		// submit buffer to usb
+		void submit(usbbuf_in_t *buf);
+		bool poll_pipe(unsigned long long);
 
 		void start();
-        usbbuf_in_t *pop_free_queue();
-        usbbuf_in_t *pop_receive_queue();
-        void append_free_queue(usbbuf_in_t *buf);
-        void append_receive_queue(usbbuf_in_t *buf);
-        void prepend_receive_queue(usbbuf_in_t *buf);
+		usbbuf_in_t *pop_free_queue();
+		usbbuf_in_t *pop_receive_queue();
+		void append_free_queue(usbbuf_in_t *buf);
+		void append_receive_queue(usbbuf_in_t *buf);
+		void prepend_receive_queue(usbbuf_in_t *buf);
+		void allocate_free_queue();
 
 				
-        CRITICAL_SECTION in_pipe_lock_;
+		pic::mutex_t in_pipe_lock_;
 		pic::usbdevice_t::iso_in_pipe_t *pipe_;
+		
+		pic::ilist_t<usbbuf_in_t,0,true> 	buffer_list_;
+		pic::ilist_t<usbbuf_in_t,1> 		free_queue_;
+		pic::ilist_t<usbbuf_in_t,1> 		receive_queue_;
+
+		pic::usbdevice_t::impl_t *device_;
+
+		unsigned piperef_;
+		unsigned size_;
+		libusb_device_handle *dhandle_;
+
 		unsigned long long frame_;
-        pic::ilist_t<usbbuf_in_t,0,true> buffer_list_;
-        pic::ilist_t<usburb_t,0,true> urb_list_;
-        pic::ilist_t<usbbuf_in_t,1> free_queue_;
-        pic::ilist_t<usbbuf_in_t,1> receive_queue_;
-		pic::usbdevice_t::impl_t *device_;
-		unsigned piperef_;
-		unsigned size_;
-		HANDLE phandle_;
-        bool died_;
-        bool stolen_;
-        bool advanced_;
-        unsigned short packets_;
+		unsigned long long last_;
+		unsigned long long expected_;
+
+		bool died_;
+		bool stolen_;
 	};
-
-	struct usbpipe_out_t: virtual pic::lckobject_t
-	{
-		usbpipe_out_t(pic::usbdevice_t::impl_t *dev, pic::usbdevice_t::iso_out_pipe_t *pipe);
-        ~usbpipe_out_t();
-
-		void completed(unsigned long error, usburb_t *urb, unsigned long br);
-        void submit(usburb_t *u);
-
-        void append_free_queue(usburb_t *urb);
-        usburb_t *pop_free_queue();
-
-        CRITICAL_SECTION out_pipe_lock_;
-		pic::usbdevice_t::impl_t *device_;
-		pic::usbdevice_t::iso_out_pipe_t *pipe_;
-        pic::ilist_t<usbbuf_out_t,0,true> buffer_list_;
-        pic::ilist_t<usburb_t,0,true> urb_list_;
-        pic::ilist_t<usburb_t,1> free_queue_;
-		unsigned piperef_;
-		unsigned size_;
-		HANDLE phandle_;
-        bool advanced_;
-        unsigned short packets_;
-	};
-
-    class SystemError
-    {
-        public:
-            SystemError() { error = GetLastError(); }
-            SystemError(unsigned long e) { error = e; }
-            unsigned long error;
-    };
-
-    std::ostream &operator<<(std::ostream &o, const SystemError &e)
-    {
-        char buffer[512];
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM,NULL,e.error,LANG_NEUTRAL,buffer,256,NULL);
-        unsigned l = strlen(buffer);
-        while(l && isspace(buffer[l-1])) l--;
-        buffer[l] = 0;
-        o << e.error << ": " << buffer;
-        return o;
-    }
 
 };
 
+// bulk pipe for immediate write
 struct pic::usbdevice_t::bulk_out_pipe_t::impl_t: virtual pic::lckobject_t
 {
     impl_t(pic::usbdevice_t::impl_t *dev,pic::usbdevice_t::bulk_out_pipe_t *pipe);
@@ -173,7 +167,7 @@ struct pic::usbdevice_t::bulk_out_pipe_t::impl_t: virtual pic::lckobject_t
     pic::usbdevice_t::bulk_out_pipe_t *pipe_;
     unsigned piperef_;
     unsigned size_;
-    HANDLE phandle_;
+    libusb_device_handle *dhandle_;
 };
 
 struct pic::usbdevice_t::impl_t: pic::thread_t, virtual pic::lckobject_t
@@ -184,35 +178,41 @@ struct pic::usbdevice_t::impl_t: pic::thread_t, virtual pic::lckobject_t
 	bool poll_pipe(unsigned long long);
 	bool add_iso_in(iso_in_pipe_t *p);
 	void set_iso_out(iso_out_pipe_t *p);
-    bool add_bulk_out(bulk_out_pipe_t *p);
+	bool add_bulk_out(bulk_out_pipe_t *p);
 	void start_pipes();
 	void stop_pipes();
-    void detach();
-    void close();
-    void thread_main();
-    void thread_init();
-    bool check_version();
-    void pipes_died(unsigned reason);
+	void detach();
+	void close();
+	void thread_main();
+	void thread_init();
+	void pipes_died(unsigned reason);
 
-    pic::usbdevice_t::power_t *power;
-    std::string name_;
+	libusb_device_handle* open_usb_device(const char* name);
+	
+	libusb_context *usbcontext_;
+	
+	pic::usbdevice_t::power_t *power;
+	std::string name_;
 
+	
 	pic::flipflop_t<pic::lcklist_t<usbpipe_in_t *>::lcktype> inpipes_;
-    pic::flipflop_t<usbpipe_out_t *> pipe_out_;
+	pic::usbdevice_t *device_;
+	pic::flipflop_t<usbpipe_out_t *> pipe_out_;
 
-    HANDLE	dhandle_;
-    HANDLE	iohandle_;
-    char    pathname_[256];
+	libusb_device_handle *dhandle_;
             
-    CRITICAL_SECTION device_lock_;
+	pic::mutex_t  device_lock_;
 
-    pic::usbdevice_t *device_;
-    bool stopping_;
-    bool hispeed_;
-    unsigned count_;
-    bool opened_;
+	bool stopping_;
+	bool died_;
+
+	bool hispeed_;
+	unsigned count_;
+	bool opened_;
+	float inc_;
 };
 
+// enumerate usb devices
 struct pic::usbenumerator_t::impl_t: pic::thread_t, virtual pic::tracked_t, virtual pic::lckobject_t
 {
     impl_t(unsigned short, unsigned short, const f_string_t &, const f_string_t &);
@@ -228,594 +228,629 @@ struct pic::usbenumerator_t::impl_t: pic::thread_t, virtual pic::tracked_t, virt
     f_string_t added_,removed_;
     pic::mutex_t enum_lock_;
     bool stop_;
+    
+	libusb_context *usbcontext_;
 
     std::set<std::string > devices_;
 };
 
-void usburb_t::completed(unsigned long error, unsigned long br)
+
+void buildUsbName(char* buf,unsigned short vendor, unsigned short product,unsigned short address, unsigned short bus)
 {
-    if(in_)
-    {
-        in_buffer_->pipe_->completed(error,this,br);
-    }
-    else
-    {
-        out_buffer_->pipe_->completed(error,this,br);
-    }
+	sprintf(buf,"%04hx.%04hx.%04hx.%04hx",vendor,product,address,bus);
 }
 
-pic::usbdevice_t::bulk_out_pipe_t::impl_t::impl_t(pic::usbdevice_t::impl_t *dev,pic::usbdevice_t::bulk_out_pipe_t *pipe): device_(dev), pipe_(pipe), piperef_(pipe->out_pipe_name()), size_(pipe->out_pipe_size())
+
+// usbpipe_out
+usbpipe_out_t::usbpipe_out_t(pic::usbdevice_t::impl_t *dev, pic::usbdevice_t::iso_out_pipe_t *pipe): 
+		pipe_(pipe), device_(dev), 
+		piperef_(pipe->out_pipe_name()), size_(pipe->out_pipe_size())
 {
-	char buffer[256];
-	char PipeName[512];
-
-    pipe_->impl_ = this;
-
-	sprintf(buffer,"PIPE0%d",piperef_);
-	strcpy(PipeName,device_->pathname_);
-	strcat(PipeName,"\\");
-	strcat(PipeName,buffer);
-
-	if (( phandle_ = CreateFile(PipeName,GENERIC_WRITE|GENERIC_READ,0,NULL,OPEN_EXISTING,0,0)) == INVALID_HANDLE_VALUE)
-	{
-		pic::logmsg() << "CreateFile() for bulk out " << SystemError();
-	}
-}
-
-pic::usbdevice_t::bulk_out_pipe_t::impl_t::~impl_t()
-{
-    CloseHandle(phandle_);
-}
-
-usburb_t *usbpipe_out_t::pop_free_queue()
-{
-    EnterCriticalSection(&out_pipe_lock_);
-    usburb_t *urb = free_queue_.pop_front();
-    LeaveCriticalSection(&out_pipe_lock_);
-    return urb;
-}
-
-void usbpipe_out_t::append_free_queue(usburb_t *urb)
-{
-    EnterCriticalSection(&out_pipe_lock_);
-    free_queue_.append(urb);
-    LeaveCriticalSection(&out_pipe_lock_);
-}
-
-usbbuf_in_t *usbpipe_in_t::pop_free_queue()
-{
-    EnterCriticalSection(&in_pipe_lock_);
-    usbbuf_in_t *buf = free_queue_.pop_front();
-
-    if(!buf)
-    {
-        if(receive_queue_.head() && receive_queue_.head()->completed_)
-        {
-            buf = receive_queue_.pop_front();
-
-            if(!stolen_)
-            {
-                stolen_ = true;
-                pic::logmsg() << "stealing buffers";
-            }
-        }
-    }
-
-    LeaveCriticalSection(&in_pipe_lock_);
-    return buf;
-}
-
-void usbpipe_in_t::append_free_queue(usbbuf_in_t *buf)
-{
-    EnterCriticalSection(&in_pipe_lock_);
-    free_queue_.append(buf);
-    LeaveCriticalSection(&in_pipe_lock_);
-}
-
-usbbuf_in_t *usbpipe_in_t::pop_receive_queue()
-{
-    EnterCriticalSection(&in_pipe_lock_);
-    usbbuf_in_t *buf = receive_queue_.pop_front();
-    LeaveCriticalSection(&in_pipe_lock_);
-    return buf;
-}
-
-void usbpipe_in_t::prepend_receive_queue(usbbuf_in_t *buf)
-{
-    EnterCriticalSection(&in_pipe_lock_);
-    receive_queue_.prepend(buf);
-    LeaveCriticalSection(&in_pipe_lock_);
-}
-
-void usbpipe_in_t::append_receive_queue(usbbuf_in_t *buf)
-{
-    EnterCriticalSection(&in_pipe_lock_);
-    receive_queue_.append(buf);
-    LeaveCriticalSection(&in_pipe_lock_);
-}
-
-void usbpipe_out_t::submit(usburb_t *urb)
-{
-    usbbuf_out_t *buf = urb->out_buffer_;
-
-    memset(&urb->overlapped_,0,sizeof(urb->overlapped_));
-
-    ULONG br;
-    unsigned char *dp = buf->buffer_;
-    unsigned dl = buf->size_;
-
-    if(!advanced_)
-    {
-        dp += packets_*sizeof(EIGENHARP_USB_PACKET_HDR);
-        dl -= packets_*sizeof(EIGENHARP_USB_PACKET_HDR);
-    }
-
-    if (WriteFile(phandle_,dp,dl,&br,&urb->overlapped_) != 0)
-    {
-        pic::logmsg() << "* Completed in WritePacket() NOT EXPECTED *"; // Expecting it to complete in IOCP thread
-        completed(0,urb,br);
-        return;
-    }
-
-    if (GetLastError() == ERROR_IO_PENDING)
-    {
-        EnterCriticalSection(&device_->device_lock_);
-        device_->count_++;
-        LeaveCriticalSection(&device_->device_lock_);
-        return;
-    }
-
-    pic::logmsg() << "WriteFile() " << phandle_ << ' ' << (void *)dp << ' ' << dl << ' ' << SystemError();
-}
-
-void usbpipe_in_t::submit(usburb_t *urb)
-{
-    if(device_->stopping_)
-    {
-        return;
-    }
-
-    if(!(urb->in_buffer_ = pop_free_queue()))
-    {
-        pic::logmsg() << "no iso write buffers";
-        device_->pipes_died(PIPE_UNKNOWN_ERROR);
-        return;
-    }
-
-    memset(urb->in_buffer_->buffer_,0,urb->in_buffer_->size_);
-    memset(&urb->overlapped_,0,sizeof(urb->overlapped_));
-
-    for(unsigned i=0;i<packets_;i++)
-    {
-        urb->in_buffer_->headers()[i].Length = 0xffffffff;
-    }
-
-    ULONG br;
-    unsigned char *dp = urb->in_buffer_->buffer_;
-    unsigned dl = urb->in_buffer_->size_;
-
-    if(!advanced_)
-    {
-        dp += packets_*sizeof(EIGENHARP_USB_PACKET_HDR);
-        dl -= packets_*sizeof(EIGENHARP_USB_PACKET_HDR);
-    }
-
-    urb->in_buffer_->completed_ = false;
-    urb->in_buffer_->consumed_ = 0;
-
-    if(advanced_)
-    {
-        append_receive_queue(urb->in_buffer_);
-    }
-
-    if (ReadFile(phandle_,dp,dl,&br,&urb->overlapped_) != 0)
-    {
-        pic::logmsg() << "* Completed in ReadPacket() NOT EXPECTED *"; // Expecting it to complete in IOCP thread
-        completed(0,urb,br);
-        return;
-    }
-
-    if (GetLastError() == ERROR_IO_PENDING)
-    {
-        EnterCriticalSection(&device_->device_lock_);
-        device_->count_++;
-        LeaveCriticalSection(&device_->device_lock_);
-        return;
-    }
-
-    pic::logmsg() << "ReadFile() " << phandle_ << ' ' << (void *)dp << ' ' << dl << ' ' << SystemError();
-    device_->pipes_died(PIPE_UNKNOWN_ERROR);
-}
-
-usbbuf_out_t::usbbuf_out_t(usbpipe_out_t *pipe): pipe_(pipe)
-{
-    packets_ = pipe_->packets_;
-    psize_ = pipe_->size_;
-    size_ = packets_*(psize_+sizeof(EIGENHARP_USB_PACKET_HDR));
-    buffer_ = (unsigned char *)pic::nb_malloc(PIC_ALLOC_LCK,size_);
-}
-
-usbbuf_out_t::~usbbuf_out_t()
-{
-    pic::nb_free(buffer_);
-}
-
-usbbuf_in_t::usbbuf_in_t(usbpipe_in_t *pipe): pipe_(pipe)
-{
-    packets_ = pipe_->packets_;
-    psize_ = pipe_->size_;
-    size_ = packets_*(psize_+sizeof(EIGENHARP_USB_PACKET_HDR));
-    buffer_ = (unsigned char *)pic::nb_malloc(PIC_ALLOC_LCK,size_);
-}
-
-usbbuf_in_t::~usbbuf_in_t()
-{
-    pic::nb_free(buffer_);
-}
-
-usbpipe_in_t::~usbpipe_in_t()
-{
-    CloseHandle(phandle_);
-}
-
-usbpipe_out_t::~usbpipe_out_t()
-{
-    CloseHandle(phandle_);
-}
-
-usbpipe_out_t::usbpipe_out_t(pic::usbdevice_t::impl_t *dev, pic::usbdevice_t::iso_out_pipe_t *pipe): pipe_(pipe), device_(dev), piperef_(pipe->out_pipe_name()), size_(pipe->out_pipe_size())
-{
-    InitializeCriticalSectionAndSpinCount(&out_pipe_lock_,0x400);
-
-	char buffer[256];
-	char PipeName[512];
-
-	sprintf(buffer,"PIPE0%d",piperef_);
-	strcpy(PipeName,device_->pathname_);
-	strcat(PipeName,"\\");
-	strcat(PipeName,buffer);
-
-	if (( phandle_ = CreateFile(PipeName,GENERIC_WRITE|GENERIC_READ,0,NULL,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,0)) == INVALID_HANDLE_VALUE)
-	{
-		pic::hurlmsg() << "CreateFile() for iso in " << SystemError();
-    }
-
-    static ULONG_PTR t = piperef_;
-
-    if (CreateIoCompletionPort(phandle_,device_->iohandle_,t,1) == NULL)
-    {
-        pic::hurlmsg() << "CreateIoCompletionPort() " << SystemError();
-    }
-
-    pic::logmsg() << "Pipe Created " << phandle_;
-
-	unsigned long retval = 0;
-    advanced_ = false;
-
-	if (DeviceIoControl(phandle_,IOCTL_EIGENHARP_SET_ADVANCED,NULL,0,0,0,&retval,0)!=0)
-	{
-		pic::logmsg() << "set advanced timestamp mode";
-        advanced_ = true;
-	}
-
-    packets_ = (device_->hispeed_?1:1);
-
     unsigned urb_count = URBS_PER_PIPE_WRITE;
 
     for(unsigned i=0;i<urb_count;i++)
     {
         usbbuf_out_t *buf = new usbbuf_out_t(this);
         buffer_list_.append(buf);
-        usburb_t *urb = new usburb_t;
-        urb_list_.append(urb);
-        urb->in_ = false;
-        urb->out_buffer_ = buf;
-        append_free_queue(urb);
+        append_free_queue(buf);
+    }
+}
+
+usbbuf_out_t *usbpipe_out_t::pop_free_queue()
+{
+    pic::mutex_t::guard_t guard(&out_pipe_lock_);
+    usbbuf_out_t *buf = free_queue_.pop_front();
+    return buf;
+}
+
+void usbpipe_out_t::append_free_queue(usbbuf_out_t* buf)
+{
+	pic::mutex_t::guard_t guard(&out_pipe_lock_);
+    free_queue_.append(buf);
+}
+
+usbpipe_out_t::~usbpipe_out_t()
+{
+}
+
+
+void usbpipe_out_t::submit(usbbuf_out_t *buf)
+{
+	if(device_->stopping_)
+	{
+		return;
+	}
+
+//	LOG_SINGLE(fprintf(stderr,"S"));
+	int status=0;
+	if((status=libusb_submit_transfer(buf->buffer_))>=0)
+	{
+		pic::mutex_t::guard_t guard(&(device_->device_lock_));
+		device_->count_++;
+		return;
+	}
+
+	device_->died_ = true;
+	device_->stopping_ = true;
+	pic::logmsg() << "usbpipe_out_t::submit failed : " << libusb_error_name(status) << " (" << status << ")";
+}
+
+void usbpipe_out_t::completed(libusb_transfer* transfer)
+{
+//	LOG_SINGLE(fprintf(stderr,"C"));
+    usbbuf_out_t *buf = (usbbuf_out_t *)(transfer->user_data);
+    buf->pipe_->append_free_queue(buf);
+    
+    {
+    pic::mutex_t::guard_t guard(&(buf->pipe_->device_->device_lock_));
+    buf->pipe_->device_->count_--;
+    }
+    
+    int status = transfer->status;
+    if(status!=LIBUSB_TRANSFER_COMPLETED)
+    {
+        pic::logmsg() << "usbpipe_out_t::completed not completed " << libusb_error_name(status) << " (" << status << ")";
+    }
+    else
+    {
+    	// we also need to check status of every packet to see if it was transferred
+    	for(int i=0;i<transfer->num_iso_packets;i++)
+    	{
+    		libusb_iso_packet_descriptor desc=transfer->iso_packet_desc[i];
+    		if(desc.status!=LIBUSB_TRANSFER_COMPLETED)
+    		{
+    	        pic::logmsg() << "usbpipe_out_t::completed not completed packet" << libusb_error_name(desc.status) << " (" << desc.status << ")" 
+    	        			<< " len = " << desc.length << " actual= " << desc.actual_length;
+    		}
+    	}
+    }
+}
+
+//usbbuf_out_t
+usbbuf_out_t::usbbuf_out_t(usbpipe_out_t *pipe): pipe_(pipe)
+{
+	psize_ = pipe_->size_;
+	size_ = pipe_->size_*FRAMES_PER_URB_WRITE;
+
+	buffer_ = libusb_alloc_transfer(FRAMES_PER_URB_WRITE);
+	
+	buffer_->dev_handle = pipe_->device_->dhandle_;
+	buffer_->endpoint = pipe_->piperef_;
+	buffer_->flags = 0 ; //LIBUSB_TRANSFER_FREE_BUFFER;
+	buffer_->type = LIBUSB_TRANSFER_TYPE_ISOCHRONOUS;
+	buffer_->timeout = 0;
+	buffer_->status = LIBUSB_TRANSFER_COMPLETED;
+	buffer_->length = size_;
+	buffer_->actual_length = 0;
+	buffer_->callback = usbpipe_out_t::completed;
+	buffer_->user_data = this;
+	buffer_->num_iso_packets = FRAMES_PER_URB_WRITE;
+	buffer_->buffer = (unsigned char *) pic::nb_malloc(PIC_ALLOC_LCK,buffer_->length);
+
+}
+
+usbbuf_out_t::~usbbuf_out_t()
+{
+    libusb_free_transfer(buffer_);
+}
+
+
+
+//iso_out_guard_t
+pic::usbdevice_t::iso_out_guard_t::iso_out_guard_t(usbdevice_t *d): impl_(d->impl()), current_(0), guard_(0), dirty_(false)
+{
+    pic::flipflop_t<usbpipe_out_t *>::guard_t pipe_out(impl_->pipe_out_);
+
+    usbpipe_out_t *p = pipe_out.value();
+
+    if(p)
+    {
+    	usbbuf_out_t *u = p->pop_free_queue();
+
+        if(u)
+        {
+//        	LOG_SINGLE(fprintf(stderr,"G"));
+            guard_ = u;
+            current_ = u->buffer_->buffer;
+
+            for(int i=0;i<u->buffer_->num_iso_packets;i++)
+            {
+		u->buffer_->iso_packet_desc[i].length=u->psize_;
+            }
+
+            memset(current_,0,u->size_);
+            dirty_ = false;
+        }
+        else
+        {
+            pic::logmsg() << "iso_out_guard_t::ctor: no buffers";
+        }
     }
 
 }
 
-usbpipe_in_t::usbpipe_in_t(pic::usbdevice_t::impl_t *dev, pic::usbdevice_t::iso_in_pipe_t *pipe): pipe_(pipe), frame_(0ULL), device_(dev), piperef_(pipe->in_pipe_name()), size_(pipe->in_pipe_size()), died_(false), stolen_(false)
+pic::usbdevice_t::iso_out_guard_t::~iso_out_guard_t()
 {
-    InitializeCriticalSectionAndSpinCount(&in_pipe_lock_,0x400);
+    pic::flipflop_t<usbpipe_out_t *>::guard_t pipe_out(impl_->pipe_out_);
+    usbpipe_out_t *p = pipe_out.value();
+    usbbuf_out_t *u = (usbbuf_out_t *)guard_;
 
-	char buffer[256];
-	char PipeName[512];
+//	LOG_SINGLE(fprintf(stderr,"@"));
+    if(p && u)
+    {
+//    	LOG_SINGLE(fprintf(stderr,"1"));
+        if(dirty_)
+        {
+//        	LOG_SINGLE(fprintf(stderr,"2"));
+            p->submit(u);
+        }
+        else
+        {
+            p->append_free_queue(u);
+        }
+    }
+}
 
-	sprintf(buffer,"PIPE0%d",piperef_);
-	strcpy(PipeName,device_->pathname_);
-	strcat(PipeName,"\\");
-	strcat(PipeName,buffer);
+unsigned char *pic::usbdevice_t::iso_out_guard_t::advance()
+{
+    pic::flipflop_t<usbpipe_out_t *>::guard_t pipe_out(impl_->pipe_out_);
+    usbpipe_out_t *p = pipe_out.value();
+    usbbuf_out_t *u = (usbbuf_out_t *)guard_;
 
-	if (( phandle_ = CreateFile(PipeName,GENERIC_WRITE|GENERIC_READ,0,NULL,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,0)) == INVALID_HANDLE_VALUE)
-	{
-		pic::hurlmsg() << "CreateFile() for iso in " << SystemError();
+    if(p && u && dirty_)
+    {
+        p->submit(u);
+        guard_ = 0;
+        current_ = 0;
+
+//    	LOG_SINGLE(fprintf(stderr,"A"));
+        u = p->pop_free_queue();
+
+        if(u)
+        {
+            guard_ = u;
+            current_ = u->buffer_->buffer;
+
+            for(int i=0;i<u->buffer_->num_iso_packets;i++)
+            {
+                u->buffer_->iso_packet_desc[i].length = u->psize_;
+            }
+
+            memset(current_,0,u->size_);
+            dirty_ = false;
+        }
+        else
+        {
+            pic::logmsg() << "iso_out_guard_t::advance(): no buffers";
+        }
     }
 
-    static ULONG_PTR t = piperef_;
+    return current_;
+}
 
-    if (CreateIoCompletionPort(phandle_,device_->iohandle_,t,1) == NULL)
+
+// usbpipe_in_t 
+
+usbpipe_in_t::usbpipe_in_t(pic::usbdevice_t::impl_t *dev, pic::usbdevice_t::iso_in_pipe_t *pipe): 
+		pipe_(pipe),device_(dev), piperef_(pipe->in_pipe_name()),
+		size_(pipe->in_pipe_size()), frame_(0ULL),  died_(false),
+		stolen_(false)
+{
+	LOG_SINGLE(pic::logmsg() << "pic::usbdevice_t::usbpipe_in_t::impl_t " << piperef_ ; )
+
+	for(unsigned i=0;i<ALLOCATED_URBS_READ;i++)
     {
-        pic::hurlmsg() << "CreateIoCompletionPort() " << SystemError();
-    }
-
-    pic::logmsg() << "Pipe Created " << phandle_;
-
-	unsigned long retval = 0;
-    advanced_ = false;
-
-	if (DeviceIoControl(phandle_,IOCTL_EIGENHARP_SET_ADVANCED,NULL,0,0,0,&retval,0)!=0)
-	{
-		pic::logmsg() << "set advanced timestamp mode";
-        advanced_ = true;
-	}
-
-    packets_ = (device_->hispeed_?8:1)*(advanced_?FRAMES_PER_URB_ADVANCED:FRAMES_PER_URB_LEGACY);
-
-    unsigned buf_count = advanced_?BUFFERS_PER_PIPE_ADVANCED:BUFFERS_PER_PIPE_LEGACY;
-
-    for(unsigned i=0;i<buf_count;i++)
-    {
-        usbbuf_in_t *buf = new usbbuf_in_t(this);
+    	usbbuf_in_t *buf = new usbbuf_in_t(this);
+    	buffer_list_.append(buf);
         free_queue_.append(buf);
-        buffer_list_.append(buf);
     }
-
-    unsigned urb_count = advanced_?URBS_PER_PIPE_ADVANCED:URBS_PER_PIPE_LEGACY;
-
-    for(unsigned i=0;i<urb_count;i++)
-    {
-        usburb_t *urb = new usburb_t;
-        urb->in_ = true;
-        urb_list_.append(urb);
-    }
-
 }
 
-void pic::usbdevice_t::impl_t::thread_main()
-{
-	OVERLAPPED *overlapped;
-	unsigned long key;
-	unsigned long br;
-	int ok;
 
-    for(;;)
+usbpipe_in_t::~usbpipe_in_t()
+{
+}
+
+
+
+void usbpipe_in_t::submit(usbbuf_in_t *buf)
+{
+    if(device_->stopping_)
+    {
+//        LOG_SINGLE(fprintf(stderr,"!"));
+        return;
+    }
+    int len = size_*FRAMES_PER_URB_READ;
+
+    //LOG_SINGLE(fprintf(stderr,"S"));
+    buf->consumed_ = 0;
+    buf->frame_ = frame_;
+    frame_ += FRAMES_PER_URB_READ;
+    buf->buffer_->length=len;
+    buf->buffer_->actual_length=0;
+    for(int i=0;i<FRAMES_PER_URB_READ;i++)
+    {
+        buf->buffer_->iso_packet_desc[i].length = size_;
+        buf->buffer_->iso_packet_desc[i].status = LIBUSB_TRANSFER_COMPLETED;
+        buf->buffer_->iso_packet_desc[i].actual_length = 0;
+    }
+
+    int status;
+
+    if((status=libusb_submit_transfer(buf->buffer_))>=0)
+    {
+        pic::mutex_t::guard_t guard(&(device_->device_lock_));;
+        device_->count_++;
+        return;
+    }
+
+    pic::logmsg() << "usbpipe_in_t::submit error " << libusb_error_name(status) << " (" << status << ")";
+    device_->died_ = true;
+    device_->stopping_ = true;
+    device_->pipes_died(PIPE_UNKNOWN_ERROR);
+}
+
+usbbuf_in_t *usbpipe_in_t::pop_free_queue()
+{
+	pic::mutex_t::guard_t guard(&in_pipe_lock_);
+    usbbuf_in_t *buf = free_queue_.pop_front();
+    if(!buf)
 	{
-        if(stopping_)
-        {
-            unsigned c;
-
-            EnterCriticalSection(&device_lock_);
-            c = count_;
-            LeaveCriticalSection(&device_lock_);
-
-            if(c == 0)
-            {
-                pic::logmsg() << "queue has drained";
-                break;
-            }
-        }
-
-        ok = GetQueuedCompletionStatus(iohandle_,&br,&key,&overlapped,5000);
-
-        unsigned long error = 0;
-        
-        if(!ok)
-        {
-            if(!(error = GetLastError()))
-            {
-                error = WAIT_TIMEOUT;
-            }
-        }
-
-
-        if(overlapped)
-        {
-            usburb_t *urb = PIC_STRBASE(usburb_t,overlapped,overlapped_);
-
-            EnterCriticalSection(&device_lock_);
-            count_--;
-            LeaveCriticalSection(&device_lock_);
-
-            urb->completed(error,br);
-        }
-
-        if (error==0 || error==WAIT_TIMEOUT) // timed out
-        {
-            continue;
-        }
-
-        if(!stopping_)
-        {
-            pic::logmsg() << "GetQueuedCompletionStatus " << SystemError(error);
-        }
-
-        pipes_died(PIPE_UNKNOWN_ERROR);
+		if((buf = receive_queue_.pop_front()))
+		{
+			if(!stolen_)
+			{
+				stolen_ = true;
+				pic::logmsg() << "usbpipe_in_t::pop_free_queue() stealing buffers";
+			}
+		}
 	}
-
-	return;
+    return buf;
 }
 
-void usbpipe_out_t::completed(unsigned long error, usburb_t *urb, unsigned long size)
+void usbpipe_in_t::append_free_queue(usbbuf_in_t *buf)
 {
-    append_free_queue(urb);
-
-    if(error)
-    {
-        pic::logmsg() << "iso write error " << error << ' ' << size;
-    }
+	pic::mutex_t::guard_t guard(&in_pipe_lock_);
+    free_queue_.append(buf);
 }
 
-void usbpipe_in_t::completed(unsigned long error, usburb_t *urb, unsigned long size)
+
+usbbuf_in_t *usbpipe_in_t::pop_receive_queue()
 {
-    usbbuf_in_t *buf = urb->in_buffer_;
-    urb->in_buffer_ = 0;
+	pic::mutex_t::guard_t guard(&in_pipe_lock_);
+    usbbuf_in_t *buf = receive_queue_.pop_front();
+    return buf;
+}
 
-    submit(urb);
+void usbpipe_in_t::prepend_receive_queue(usbbuf_in_t *buf)
+{
+	pic::mutex_t::guard_t guard(&in_pipe_lock_);
+    receive_queue_.prepend(buf);
+}
 
-    if(!error)
+void usbpipe_in_t::append_receive_queue(usbbuf_in_t *buf)
+{
+    pic::mutex_t::guard_t guard(&in_pipe_lock_);
+    receive_queue_.append(buf);
+}
+
+void usbpipe_in_t::completed(libusb_transfer* transfer)
+{
+    usbbuf_in_t *buf = (usbbuf_in_t *)(transfer->user_data);
+    usbpipe_in_t *pipe = buf->pipe_;
+
+    buf->time_ = pic_microtime();
+
+    //const unsigned char *p = libusb_get_iso_packet_buffer(buf->buffer_,0);
+    //printf("Buf %d [",pipe->piperef_);
+    //for(int c=0;c<transfer->length;c++) printf("%02x",(unsigned) (*(p+c)));
+    //printf("] %d %d %d\n",transfer->status, transfer->num_iso_packets,transfer->actual_length);
+
+    // LOG_SINGLE(fprintf(stderr,"C"));
+    int status = transfer->status;
+    if(status!=LIBUSB_TRANSFER_COMPLETED)
     {
-        EIGENHARP_USB_PACKET_HDR *hdr = (EIGENHARP_USB_PACKET_HDR *)(buf->buffer_);
-        unsigned frame_inc = (advanced_?FRAMES_PER_URB_ADVANCED:FRAMES_PER_URB_LEGACY)*((device_->hispeed_)?8:1);
-
-        if(!advanced_)
-        {
-            if(packets_==1)
-            {
-                hdr[0].Length = size;
-                hdr[0].Time = pic_microtime();
-                hdr[0].Frame = frame_;
-            }
-            else
-            {
-                unsigned long long t = pic_microtime();
-                unsigned long long inc = device_->hispeed_?125:1000;
-
-                t -= (packets_-1)*inc;
-
-                hdr[0].Length = size_;
-                hdr[0].Time = t;
-                hdr[0].Frame = frame_;
-
-                for(unsigned i=1;i<packets_;i++)
-                {
-                    hdr[i].Length = size_;
-                    hdr[i].Time = hdr[i-1].Time+inc;
-                    hdr[i].Frame = hdr[i-1].Frame+1;
-                }
-            }
-
-            frame_ += frame_inc;
-        }
-        else
-        {
-            unsigned long long frame = hdr[0].Frame;
-
-            if(frame_ && (frame != frame_+frame_inc))
-            {
-                if(device_->hispeed_)
-                {
-                    pic::logmsg() << "pipe " << piperef_ << " dropped frame: got " << frame/8 << ':' << frame%8 << " expected " << (frame_+frame_inc)/8 << ':' << (frame_+frame_inc)%8;
-                }
-                else
-                {
-                    pic::logmsg() << "pipe " << piperef_ << " dropped frame: got " << frame << " expected " << (frame_+frame_inc);
-                }
-            }
-
-            frame_ = frame;
-        }
+        pic::logmsg() << "usbpipe_in_t::completed unsuccessful " << libusb_error_name(status) << " (" << status << ")";
+    }
+    else
+    {
+	//if(transfer->length!=transfer->actual_length)
+	//{
+	//pic::logmsg() << "usbpipe_in_t::completed underfilled packet " << libusb_error_name(transfer->status) << " (" << transfer->status << ")" 
+        //			<< " len = " << transfer->length << " actual= " << transfer->actual_length;
+	//}
+    	// we also need to check status of every packet to see if it was transferred
+    	for(int i=0;i<transfer->num_iso_packets;i++)
+    	{
+    		libusb_iso_packet_descriptor desc=transfer->iso_packet_desc[i];
+    		if(desc.status!=LIBUSB_TRANSFER_COMPLETED)
+    		{
+    	        	pic::logmsg() << "usbpipe_in_t::completed not completed packet" << libusb_error_name(desc.status) << " (" << desc.status << ")" 
+    	        			<< " len = " << desc.length << " actual= " << desc.actual_length;
+    		}
+		//else if(desc.length!=desc.actual_length)
+		//{
+    	        //pic::logmsg() << "usbpipe_in_t::completed underfilled packet " << libusb_error_name(desc.status) << " (" << desc.status << ")" 
+    	        // 		<< " len = " << desc.length << " actual= " << desc.actual_length;
+		//}
+    	}
     }
 
-    buf->completed_ = true;
-
-    if(!advanced_)
-    {
-        if(!error && size)
-        {
-            append_receive_queue(buf);
-        }
-        else
-        {
-            append_free_queue(buf);
-        }
-    }
+	pipe->append_receive_queue(buf);
+	{
+	    pic::mutex_t::guard_t guard(&(buf->pipe_->device_->device_lock_));
+		pipe->device_->count_--;
+	}
+    if(!pipe->device_->stopping_)
+	{
+		if((buf = pipe->pop_free_queue()) != 0)
+		{
+			pipe->submit(buf);
+			return;
+		}
+		pic::logmsg() << "usbpipe_in_t::completed free queue starved";
+	}
 }
 
 
 void usbpipe_in_t::start()
 {
-    usburb_t *urb;
+	LOG_SINGLE(pic::logmsg() << "usbpipe_in_t::start()" ;  )
+	frame_ = 0;
+	expected_ = 0;
+	last_ = 0;
 
-    for(urb=urb_list_.head(); urb; urb = urb_list_.next(urb))
+	for(int i=0;i<URBS_PER_PIPE_READ;i++)
+	{
+		usbbuf_in_t *buf;
+
+		if((buf = pop_free_queue()) != 0)
+		{
+			submit(buf);
+		}
+	}
+}
+
+bool usbpipe_in_t::poll_pipe(unsigned long long t)
+{
+//	LOG_SINGLE(pic::logmsg() << "usbpipe_in_t::poll_pipe()" ;  )
+	usbbuf_in_t *buf = NULL;
+    unsigned long long inc = device_->inc_;
+    bool stolen = stolen_;
+    stolen_=false;
+				
+	while((buf=pop_receive_queue()) != 0)
+	{
+
+	    //LOG_SINGLE(fprintf(stderr,"R"));
+
+        if(buf->frame_ != expected_ && !stolen)  
+        {
+        	// note: we expect out of order frames if we have stolen from the recieve queue
+        	LOG_SINGLE(pic::logmsg() << "poll_pipe frame out of order F:"<< buf->frame_ << " E:"<< expected_;)
+        }
+
+        while(buf->consumed_ < FRAMES_PER_URB_READ )
+        {
+            libusb_iso_packet_descriptor *h = &buf->buffer_->iso_packet_desc[buf->consumed_];
+            const unsigned char *p = libusb_get_iso_packet_buffer(buf->buffer_,buf->consumed_);
+            unsigned long long adj_time = buf->time_+inc*buf->consumed_;
+            if(adj_time <= last_)
+            {
+                adj_time = last_+1;
+            }
+
+            if(t && adj_time >= t)
+            {
+//            	LOG_SINGLE(pic::logmsg() << "poll_pipe recv early T:"<< t<< " A:"<< adj_time;)
+                expected_ = buf->frame_;
+                prepend_receive_queue(buf);
+                last_ = t-1;
+                return false;//stolen;
+            }
+//        	LOG_SINGLE(pic::logmsg() << "poll_pipe DATA L:" << h->actual_length << " F: "<< buf->frame_<< " P:" << buf->consumed_ <<  " A:" << adj_time;)
+			if(h->actual_length>0)
+			{
+            	pipe_->call_pipe_data(p,h->actual_length,buf->frame_+buf->consumed_,adj_time,t);
+			}
+            last_ = adj_time;
+            buf->consumed_++;
+        }
+
+        expected_ = buf->frame_+FRAMES_PER_URB_READ;
+	    // LOG_SINGLE(fprintf(stderr,"+"));
+        append_free_queue(buf);
+	}
+
+    last_ = t-1;
+    return false;//stolen;
+}
+
+//usbbuf_in_t
+usbbuf_in_t::usbbuf_in_t(usbpipe_in_t *pipe): pipe_(pipe)
+{
+    psize_ = pipe_->size_;
+    size_ = psize_*FRAMES_PER_URB_READ;
+
+    buffer_ = libusb_alloc_transfer(FRAMES_PER_URB_READ);
+
+    buffer_->dev_handle = pipe_->device_->dhandle_;
+    buffer_->flags = 0; //LIBUSB_TRANSFER_FREE_BUFFER;
+    buffer_->endpoint = pipe_->piperef_;
+    buffer_->type = LIBUSB_TRANSFER_TYPE_ISOCHRONOUS;
+    buffer_->timeout = 0;
+    buffer_->status = LIBUSB_TRANSFER_COMPLETED;
+    buffer_->length = size_;
+    buffer_->actual_length = 0;
+    buffer_->callback = usbpipe_in_t::completed;
+    buffer_->user_data = this;
+    buffer_->num_iso_packets = FRAMES_PER_URB_READ;
+    buffer_->buffer = (unsigned char *) pic::nb_malloc(PIC_ALLOC_LCK,buffer_->length);
+
+    for(int i=0;i<FRAMES_PER_URB_READ;i++)
     {
-        submit(urb);
+        buffer_->iso_packet_desc[i].length = psize_;
+        buffer_->iso_packet_desc[i].status = LIBUSB_TRANSFER_COMPLETED;
+        buffer_->iso_packet_desc[i].actual_length = 0;
     }
+
+}
+
+usbbuf_in_t::~usbbuf_in_t()
+{
+    libusb_free_transfer(buffer_);
+}
+
+
+
+// bulk_out_pipe_t
+pic::usbdevice_t::bulk_out_pipe_t::impl_t::impl_t(pic::usbdevice_t::impl_t *dev,pic::usbdevice_t::bulk_out_pipe_t *pipe): device_(dev), pipe_(pipe), 
+		piperef_(pipe->out_pipe_name()), size_(pipe->out_pipe_size()),dhandle_(dev->dhandle_)
+{
+    pipe_->impl_ = this;
+}
+
+pic::usbdevice_t::bulk_out_pipe_t::impl_t::~impl_t()
+{
 }
 
 void pic::usbdevice_t::bulk_out_pipe_t::impl_t::bulk_write(const void *data, unsigned len, unsigned timeout)
 {
-	unsigned long BytesSent =  0;
-
-	if (WriteFile(phandle_,data,len,&BytesSent,0) == 0)
+	int bytesSent=0;
+	int status=0;
+	status=libusb_bulk_transfer(dhandle_,piperef_,(unsigned char *) data,(int) len,&bytesSent,timeout);
+	if(status<0)
 	{
-        pic::logmsg() << "bulk write failed " << SystemError();
+        pic::logmsg() << "bulk_out_pipe_t::impl_t::bulk_write failed :" << libusb_error_name(status) << " (" << status << ")";
 	}
 }
 
-bool pic::usbdevice_t::impl_t::check_version()
+int affinity()
 {
-	unsigned long retval = 0;
-    char version[32];
-
-	if (DeviceIoControl(dhandle_,IOCTL_EIGENHARP_GET_VERSION,NULL,0,version,32,&retval,0)==0)
-	{
-        strcpy(version,"1.0.0");
-	}
-
-    unsigned da,db,dc;
-    unsigned ca,cb,cc;
-
-    sscanf(version,"%u.%u.%u",&da,&db,&dc);
-    sscanf(EigenHarp_CurrentVersion(),"%u.%u.%u",&ca,&cb,&cc);
-
-    pic::logmsg() << "Current driver version: " << da << '.' << db << '.' << dc;
-    pic::logmsg() << "Compiled in driver version: " << ca << '.' << cb << '.' << cc;
-
-    if(da<ca) return false;
-    if(da>ca) return true;
-
-    if(db<cb) return false;
-    if(db>cb) return true;
-
-    if(dc<cc) return false;
-
-    return true;
+    const char* e=getenv("PI_USB_THREAD_AFFINITY");
+    if(e==NULL) return 0;
+    return atoi(e);
 }
 
-pic::usbdevice_t::impl_t::impl_t(const char *name, unsigned iface, pic::usbdevice_t *dev): thread_t(PIC_THREAD_PRIORITY_REALTIME), device_(dev), pipe_out_(0), stopping_(false), count_(0), opened_(false)
+
+//usbdevice_t::impl_t
+pic::usbdevice_t::impl_t::impl_t(const char *name, unsigned iface, pic::usbdevice_t *dev) : 
+		thread_t(PIC_THREAD_PRIORITY_REALTIME,affinity()), device_(dev), pipe_out_(0), stopping_(false), count_(0), opened_(false)
 {
-    InitializeCriticalSectionAndSpinCount(&device_lock_,0x400);
-	
-	if ((dhandle_ = CreateFile (name,GENERIC_READ | GENERIC_WRITE,FILE_SHARE_READ | FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL)) == INVALID_HANDLE_VALUE)
-	{
-		pic::hurlmsg() << "CreateFile() " << SystemError();
+	// intialise libusb, open the device and claim the interface
+	int status=0,speed=0;
+
+	if(libusb_init(&usbcontext_)<0)
+    {
+    	pic::logmsg() << "pic::usbdevice_t::impl_t : cannot initialise libusb for " << name;
+    	return;
     }
-
-    opened_ = true;
-
-    ULONG speed;
-	unsigned long retval = 0;
-    char version[32];
-
-	if (DeviceIoControl(dhandle_,IOCTL_EIGENHARP_GET_VERSION,NULL,0,version,32,&retval,0)==0)
-	{
-		pic::logmsg() << "can't get driver version";
+    
+    dhandle_=open_usb_device(name);
+    
+    if(dhandle_== 0ULL) return;
+    
+//	libusb_set_detach_kernel_driver(dhandle_,1);
+	status = libusb_claim_interface(dhandle_, iface);
+	if (status != LIBUSB_SUCCESS) {
+		pic::logmsg() << "pic::usbdevice_t::impl_t  claim_interface failed: %s\n", libusb_error_name(status);
+		return;
 	}
+	opened_ = true;    
+
+	// determine if high speed usb device
+    speed = libusb_get_device_speed(libusb_get_device(dhandle_));
+
+    hispeed_=true;
+    if(speed != LIBUSB_SPEED_HIGH && speed != LIBUSB_SPEED_SUPER)
+    {
+	LOG_SINGLE(pic::logmsg() << "usbdevice opened low speed" ;  )
+    	hispeed_=false;
+    }
     else
     {
-        pic::logmsg() << "USB driver is version " << version;
-        pic::logmsg() << "Compiled in driver is version " << EigenHarp_CurrentVersion();
+	LOG_SINGLE(pic::logmsg() << "usbdevice opened high speed" ;  )
     }
+    inc_=hispeed_?HISPEED_INC:LOSPEED_INC;
+ 
+	LOG_SINGLE(pic::logmsg() << "usbdevice opened successfully" ;  )
 
-	if (DeviceIoControl(dhandle_,IOCTL_EIGENHARP_GET_SPEED,NULL,0,&speed,sizeof(ULONG),&retval,0)==0)
-	{
-		pic::logmsg() << "can't get speed; assuming full speed";
-        speed = 0;
-	}
-
-    hispeed_ = (speed!=0)?true:false;
-
-    pic::logmsg() << "Opened " << (hispeed_?"High":"Full") << " Speed Usb Device " << name;
-
-    strcpy(pathname_,name);
-
-    if ((iohandle_ = CreateIoCompletionPort(INVALID_HANDLE_VALUE,NULL,0,1)) == NULL)
-    {
-        CloseHandle(dhandle_);
-        pic::hurlmsg() << "CreateIoCompletionPort() " << SystemError();
-    }
+	return;
 }
+
+libusb_device_handle* pic::usbdevice_t::impl_t::open_usb_device(const char* name)
+{
+	libusb_device_handle *device=0ULL;
+	libusb_device *dev, **devs;
+	
+	// here we have to look for the device that we found in the enumeration...
+	// we need to take care as there may be more than one... im uniquely identifying in buildUsbName
+	pic::logmsg() << "pic::usbdevice_t::impl_t::open_usb_device " << name;
+	ssize_t cnt = libusb_get_device_list(usbcontext_, &devs);
+    try
+    {
+
+        int i=0;
+        unsigned short vendor,product,addr,busNum;
+ 	    char buffer[21];
+
+	    while ((int) cnt>0 && (dev = devs[i++]) != NULL) {
+        	struct libusb_device_descriptor desc;
+        	int r = libusb_get_device_descriptor(dev, &desc);
+        	if (r < 0) {
+        		pic::logmsg() << "pic::usbdevice_t::impl_t::open_usb_device : failed to get device descriptor";
+        	    goto end;
+        	}
+
+			product=desc.idProduct;
+        	vendor=desc.idVendor;
+        	busNum=libusb_get_bus_number(dev);
+        	addr=libusb_get_device_address(dev);
+       	    buildUsbName(buffer,vendor,product,addr,busNum);
+            name_ = name;
+    		pic::logmsg() << "pic::usbdevice_t::impl_t::open_usb_device: trying device " << buffer;
+       	    if(strcmp(name,buffer)==0)
+       	    {
+        		pic::logmsg() << "pic::usbdevice_t::impl_t::open_usb_device: found device " << name;
+        		int status = libusb_open(dev, &device);
+        		if(status<0)
+        		{
+        			device=0ULL;
+        			pic::logmsg() << "pic::usbdevice_t::impl_t::open_usb_device failed" <<  libusb_error_name(status);
+        			goto end;
+        		}
+        		pic::logmsg() << "pic::usbdevice_t::impl_t::open_usb_device: opened device " << name;
+        		goto end;
+       	    }
+        }        
+        
+    }
+	CATCHLOG()
+end:
+    libusb_free_device_list(devs, 1);
+    return device;
+}
+
 
 bool pic::usbdevice_t::add_bulk_out(bulk_out_pipe_t *p)
 {
@@ -878,6 +913,8 @@ void pic::usbdevice_t::impl_t::set_iso_out(iso_out_pipe_t *p)
 pic::usbdevice_t::impl_t::~impl_t()
 {
     close();
+
+    libusb_exit(usbcontext_);
 }
 
 void pic::usbdevice_t::impl_t::close()
@@ -885,9 +922,10 @@ void pic::usbdevice_t::impl_t::close()
     detach();
     if(opened_)
     {
-        CloseHandle(dhandle_);
-        DeleteCriticalSection(&device_lock_);
-        opened_ = false;
+    	PIC_ASSERT(dhandle_!=0ULL);
+    	libusb_release_interface(dhandle_, 0);
+    	libusb_close(dhandle_);
+    	opened_ = false;
     }
 }
 
@@ -903,10 +941,11 @@ void pic::usbdevice_t::impl_t::pipes_died(unsigned reason)
 
 bool pic::usbdevice_t::impl_t::poll_pipe(unsigned long long t)
 {
+	//	LOG_SINGLE(pic::logmsg() << "usbdevice_t::impl_t::poll_pipe" ;  )
     pic::flipflop_t<pic::lcklist_t<usbpipe_in_t *>::lcktype>::guard_t g(inpipes_);
     pic::lcklist_t<usbpipe_in_t *>::lcktype::const_iterator i;
-    bool stolen = false;
 
+    bool stolen=false;
     for(i=g.value().begin(); i!=g.value().end(); i++)
     {
         if((*i)->poll_pipe(t))
@@ -918,55 +957,10 @@ bool pic::usbdevice_t::impl_t::poll_pipe(unsigned long long t)
     return stolen;
 }
 
-bool usbpipe_in_t::poll_pipe(unsigned long long t)
-{
-	usbbuf_in_t *buf = NULL;
-
-    bool stolen = stolen_;
-    stolen_ = false;
-
-	while((buf=pop_receive_queue()) != 0)
-	{	
-        while(buf->consumed_ < buf->packets_)
-        {
-            EIGENHARP_USB_PACKET_HDR *h = &buf->headers()[buf->consumed_];
-            const unsigned char *p = buf->payload()+buf->consumed_*buf->psize_;
-
-            if(!h->Length)
-            {
-                buf->consumed_++;
-                continue;
-            }
-
-            if(h->Length >= 0xffff)
-            {
-                break;
-            }
-
-            if(t && h->Time>t)
-            {
-                break;
-            }
-
-            pipe_->call_pipe_data(p,h->Length,h->Frame,h->Time,t);
-            buf->consumed_++;
-        }
-
-        if(buf->consumed_ < buf->packets_)
-        {
-            prepend_receive_queue(buf);
-            return stolen;
-        }
-
-        append_free_queue(buf);
-	}
-
-	return stolen;
-}
 
 pic::usbdevice_t::usbdevice_t(const char *name, unsigned iface)
 {
-	pic::logmsg() << "usb device created";
+	pic::logmsg() << "pic::usbdevice_t::usbdevice_t usb device create " << name << " iface " << iface ;
 	impl_ = new usbdevice_t::impl_t(name,iface,this);
 }
 
@@ -991,6 +985,50 @@ void pic::usbdevice_t::impl_t::stop_pipes()
     wait();
 }
 
+
+void pic::usbdevice_t::impl_t::thread_main()
+{
+    for(;;)
+    {
+        if(stopping_ )
+        {
+            pic::logmsg() << "usbdevice_t::impl_t::thread_main()- stopping...";
+            unsigned c;
+
+            {
+        		pic::mutex_t::guard_t guard(&(device_lock_));
+                c = count_;
+            }
+
+            if(c == 0)
+            {
+               	pic::logmsg() << "usbdevice_t::impl_t::thread_main()- stopped";
+                break;
+            }
+        }
+
+		// handle events for 1 second, then wake up to see if we are stopping, and 
+        // and check to see that we are still sending requests
+        int status;
+        struct timeval tv;
+        tv.tv_sec = 1;
+        tv.tv_usec = 0;
+
+        if((status=libusb_handle_events_timeout_completed(usbcontext_,&tv,0))<0)
+        {
+            if(status == LIBUSB_ERROR_INTERRUPTED) continue;  // this can be caused by some posix events, normal to just re-poll
+        	pic::logmsg() << "usbdevice_t::impl_t::thread_main() USB thread dying: " << libusb_error_name(status) << " (" << status << ")";
+            break;
+        }
+    }
+
+    pipes_died(PIPE_UNKNOWN_ERROR);
+    died_ = true;
+    stopping_ = true;	
+	return;
+}
+
+
 void pic::usbdevice_t::impl_t::thread_init()
 {
 	pic::lcklist_t<usbpipe_in_t *>::lcktype::const_iterator i;
@@ -1014,26 +1052,14 @@ void pic::usbdevice_t::impl_t::start_pipes()
         return;
     }
 
-    if(!check_version())
-    {
-        stopping_ = true;
-
-        if(power)
-        {
-            power->pipe_died(PIPE_BAD_DRIVER);
-        }
-
-        return;
-    }
-
 	stopping_ = false;
     run();
-	pic::logmsg() << "pipes started!" ; 
+	pic::logmsg() << "usbdevice_t::impl_t::start_pipes() : pipes started!" ; 
 }
 
 void pic::usbdevice_t::impl_t::detach()
 {
-    pic::logmsg() << "detaching client";
+    pic::logmsg() << "usbdevice_t::impl_t::detach() : detaching client";
 
     stop_pipes();
 
@@ -1054,7 +1080,7 @@ void pic::usbdevice_t::impl_t::detach()
 
 	power = 0;
 	//device_ = NULL;
-    pic::logmsg() << "done detaching client";
+    pic::logmsg() << "usbdevice_t::impl_t::detach() : done detaching client";
 }
 
 void pic::usbdevice_t::stop_pipes()
@@ -1074,60 +1100,32 @@ bool pic::usbdevice_t::poll_pipe(unsigned long long t)
 
 void pic::usbdevice_t::control_in(unsigned char type, unsigned char req, unsigned short val, unsigned short ind, void *buffer, unsigned len, unsigned timeout)
 {
-	EIGENHARP_USB_VENDOR_MSG request;
-	unsigned long retval = 0;
+    int status = libusb_control_transfer(impl_->dhandle_,type,req,val,ind,(unsigned char *)buffer,len,timeout);
 
-	memset( &request,0,sizeof( request ));
-
-	request.Request_Type = type;
-	request.Request = req;
-	request.Value = val;
-	request.Index = ind;
-	request.Length = len;
-
-	if (DeviceIoControl(impl_->dhandle_,IOCTL_EIGENHARP_GET_BUFFER,&request,sizeof(EIGENHARP_USB_VENDOR_MSG),buffer,len,&retval,0)==0)
-	{
-		pic::logmsg() << "can't do control_in request " << SystemError() << ' ' << std::hex << (int)type << ':' << (int)req;
+    if(status < 0)
+    {
+    	pic::logmsg() << "pic::usbdevice_t::control_in request failed: " << status << " - " << libusb_error_name(status) << ' ' << std::hex << (int)type << ':' << (int)req;
 	}
 }
 
 void pic::usbdevice_t::control_out(unsigned char type, unsigned char req, unsigned short val, unsigned short ind, const void *buffer, unsigned len, unsigned timeout)
 {
-    unsigned char request[128+sizeof(EIGENHARP_USB_VENDOR_MSG)];
-    EIGENHARP_USB_VENDOR_MSG *reqhdr = (EIGENHARP_USB_VENDOR_MSG *)request;
-	unsigned long retval = 0;
+    int status = libusb_control_transfer(impl_->dhandle_,type,req,val,ind,(unsigned char *)buffer,len,timeout);
 
-	memset(request,0,sizeof(EIGENHARP_USB_VENDOR_MSG));
-	reqhdr->Request_Type = type;
-	reqhdr->Request = req;
-	reqhdr->Value = val; //address
-	reqhdr->Index = ind; // index 0
-	reqhdr->Length = len;
-    memcpy(&request[sizeof(EIGENHARP_USB_VENDOR_MSG)],buffer,len);
-		
-	if( DeviceIoControl(impl_->dhandle_,IOCTL_EIGENHARP_SET_BUFFER,request,len+sizeof(EIGENHARP_USB_VENDOR_MSG),NULL,0,&retval,0)==0)
-	{
-		pic::logmsg() << "can't do control_out request " << SystemError() << ' ' << std::hex << (int)type << ':' << (int)req;
+    if(status < 0)
+    {
+       	pic::logmsg() << "pic::usbdevice_t::control_out request failed: " << status << " - " << libusb_error_name(status) << ' ' << std::hex << (int)type << ':' << (int)req;
 	}
 }
 
 void pic::usbdevice_t::control(unsigned char type, unsigned char req, unsigned short val, unsigned short ind, unsigned timeout)
 {
-	EIGENHARP_USB_VENDOR_MSG request;
-	unsigned long retval = 0;
+    int status = libusb_control_transfer(impl_->dhandle_,type,req,val,ind,0,0,timeout);
 
-	memset(&request,0,sizeof(request));
-	request.Request_Type = type;
-	request.Request = req;
-	request.Value = val; //address
-	request.Index = ind; // index 0
-	request.Length = 0;
-		
-	if (DeviceIoControl(impl_->dhandle_,IOCTL_EIGENHARP_SET_BUFFER,&request,sizeof(EIGENHARP_USB_VENDOR_MSG),NULL,0,&retval,0)==0)
-	{
-		pic::logmsg() << "can't do control request " << SystemError() << ' ' << std::hex << (int)type << ':' << (int)req;
+    if(status < 0)
+    {
+       	pic::logmsg() << "pic::usbdevice_t::control request failed: " << status << " - " << libusb_error_name(status) << ' ' << std::hex << (int)type << ':' << (int)req;
 	}
-	
 }
 
 void pic::usbdevice_t::bulk_out_pipe_t::bulk_write(const void *data, unsigned len, unsigned timeout)
@@ -1155,152 +1153,108 @@ const char *pic::usbdevice_t::name()
     return impl_->name_.c_str();
 }
 
-pic::usbdevice_t::iso_out_guard_t::iso_out_guard_t(usbdevice_t *d): impl_(d->impl()), current_(0), guard_(0), dirty_(false)
-{
-    pic::flipflop_t<usbpipe_out_t *>::guard_t pipe_out(impl_->pipe_out_);
 
-    usbpipe_out_t *p = pipe_out.value();
-
-    if(p)
-    {
-        usburb_t *u = p->pop_free_queue();
-
-        if(u)
-        {
-            guard_ = u;
-            current_ = u->out_buffer_->payload();
-
-            for(unsigned i=0;i<p->packets_;i++)
-            {
-                u->out_buffer_->headers()[i].Length = (i==0)?p->size_:0;
-                u->out_buffer_->headers()[i].Frame = (i==0)?1:0;
-                u->out_buffer_->headers()[i].Time = 0;
-            }
-
-            memset(current_,0,p->packets_*p->size_);
-            dirty_ = false;
-        }
-        else
-        {
-            pic::logmsg() << "iso write: no buffers";
-        }
-    }
-}
-
-pic::usbdevice_t::iso_out_guard_t::~iso_out_guard_t()
-{
-    pic::flipflop_t<usbpipe_out_t *>::guard_t pipe_out(impl_->pipe_out_);
-    usbpipe_out_t *p = pipe_out.value();
-    usburb_t *u = (usburb_t *)guard_;
-
-    if(p && u)
-    {
-        if(dirty_)
-        {
-            p->submit(u);
-        }
-        else
-        {
-            p->append_free_queue(u);
-        }
-    }
-}
-
-unsigned char *pic::usbdevice_t::iso_out_guard_t::advance()
-{
-    pic::flipflop_t<usbpipe_out_t *>::guard_t pipe_out(impl_->pipe_out_);
-    usbpipe_out_t *p = pipe_out.value();
-    usburb_t *u = (usburb_t *)guard_;
-
-    if(p && u && dirty_)
-    {
-        p->submit(u);
-        guard_ = 0;
-        current_ = 0;
-
-        u = p->pop_free_queue();
-
-        if(u)
-        {
-            guard_ = u;
-            current_ = u->out_buffer_->payload();
-
-            for(unsigned i=0;i<p->packets_;i++)
-            {
-                u->out_buffer_->headers()[i].Length = (i==0)?p->size_:0;
-                u->out_buffer_->headers()[i].Frame = 0;
-                u->out_buffer_->headers()[i].Time = 0;
-            }
-
-            memset(current_,0,p->packets_*p->size_);
-            dirty_ = false;
-        }
-        else
-        {
-            pic::logmsg() << "iso write: no buffers";
-        }
-    }
-
-    return current_;
-}
-
+//pic::usbenumerator_t
 pic::usbenumerator_t::impl_t::impl_t(unsigned short v, unsigned short p, const f_string_t &a, const f_string_t &r): pic::thread_t(0), vendor_(v), product_(p), added_(a), removed_(r)
 {
+    if(libusb_init(&usbcontext_)<0)
+    {
+    	pic::logmsg() << "pic::usbenumerator_t : cannot initialise libusb for enumerator";
+    }
 }
 
 pic::usbenumerator_t::impl_t::~impl_t()
 {
     tracked_invalidate();
     stop();
+
+    libusb_exit(usbcontext_);
 }
 
-static void attached__(void *ss_, unsigned short vid, unsigned short pid, const char *name)
-{
-    std::set<std::string> *ss = (std::set<std::string> *)ss_;
-    ss->insert(name);
-}
+
 
 void pic::usbenumerator_t::impl_t::thread_pass()
 {
-    std::set<std::string> working;
+	pic::logmsg() << "pic::usbenumerator_t::thread_pass : seaerching V " << vendor_ << " P " << product_;
 
-    working.clear();
-    EigenHarp_Enumerate(vendor_,product_,attached__,&working);
+	std::set<std::string> working;
+	working.clear();
 
-    std::set<std::string>::const_iterator i;
-
-    pic::mutex_t::guard_t g(enum_lock_);
-
-    for(i=devices_.begin(); i!=devices_.end(); i++)
+	int count = 0;
+    libusb_device **devs;
+	ssize_t cnt = libusb_get_device_list(usbcontext_, &devs);
+    try
     {
-        if(working.find(*i)==working.end())
-        {
-            printf("device detached %s\n",i->c_str());
 
-            try
-            {
-                removed_(i->c_str());
-            }
-            CATCHLOG()
+        libusb_device *dev;
+        int idx=0;
+        while ((int) cnt>0 && (dev = devs[idx++]) != NULL) {
+        	struct libusb_device_descriptor desc;
+        	int r = libusb_get_device_descriptor(dev, &desc);
+        	if (r < 0) {
+        		pic::logmsg() << "pic::usbenumerator_t::enumerate : failed to get device descriptor";
+        	    libusb_free_device_list(devs, 1);
+        		libusb_exit(usbcontext_);
+        		return;
+        	}
+        	
+        	count++;
+        	
+        	unsigned busNum= libusb_get_bus_number(dev);
+        	unsigned addr= libusb_get_device_address(dev);
+        	pic::logmsg() << "pic::usbenumerator_t::enumerate details : "
+        				<< " V " << desc.idVendor
+        				<< " P " << desc.idProduct
+        				<< " B " << busNum
+        				<< " A " << addr;
+        	
+        	if (desc.idVendor==vendor_ &&  desc.idProduct==product_)
+        	{
+        	    char buffer[21];
+        	    buildUsbName(buffer,desc.idVendor,desc.idProduct,addr,busNum);
+            	pic::logmsg() << "pic::usbenumerator_t::enumerate found : " << buffer;
+                working.insert(buffer);
+        	}
         }
+        
+        // compare to existing set
+		std::set<std::string>::const_iterator i;
+		
+		pic::mutex_t::guard_t g(enum_lock_);
+		
+		for(i=devices_.begin(); i!=devices_.end(); i++)
+		{
+			if(working.find(*i)==working.end())
+			{
+				pic::logmsg() << "usb device detached" << i->c_str();
+		
+				try
+				{
+					removed_(i->c_str());
+				}
+				CATCHLOG()
+			}
+		}
+		
+		for(i=working.begin(); i!=working.end(); i++)
+		{
+			if(devices_.find(*i)==devices_.end())
+			{
+				pic::logmsg() << "usb device attached" << i->c_str();
+				try
+				{
+					added_(i->c_str());
+				}
+				CATCHLOG()
+			}
+		}
+		
+		devices_ = working;
     }
+	CATCHLOG()
+    libusb_free_device_list(devs, 1);
 
-    for(i=working.begin(); i!=working.end(); i++)
-    {
-        if(devices_.find(*i)==devices_.end())
-        {
-            printf("device attached %s\n",i->c_str());
-
-            try
-            {
-                added_(i->c_str());
-            }
-            CATCHLOG()
-        }
-    }
-
-    devices_ = working;
- }
+}
 
 void pic::usbenumerator_t::impl_t::thread_init()
 {
@@ -1316,7 +1270,7 @@ void pic::usbenumerator_t::impl_t::thread_main()
     while(!stop_)
     {
         thread_pass();
-        Sleep(1000);
+        pic_microsleep(1000);
     }
 }
 
@@ -1345,20 +1299,66 @@ void pic::usbenumerator_t::stop()
     impl_->stop();
 }
 
-static void eh_callback__(void *ctx, unsigned short, unsigned short, const char *dev)
-{
-    (*(pic::f_string_t *)ctx)(dev);
-}
 
 unsigned pic::usbenumerator_t::enumerate(unsigned short vendor, unsigned short product, const f_string_t &callback)
 {
+	pic::logmsg() << "pic::usbenumerator_t::enumerate : seaerching V " << vendor << " P " << product;
+	libusb_context* context;
+	libusb_init(&context);
+    int count = 0;
+    libusb_device **devs;
+	ssize_t cnt = libusb_get_device_list(context, &devs);
     try
     {
-        f_string_t f2(callback);
-        return EigenHarp_Enumerate(vendor,product,eh_callback__,(void *)&f2);
+
+        int i=0;
+        libusb_device *dev;
+        
+        while ((int) cnt>0 && (dev = devs[i++]) != NULL) {
+        	struct libusb_device_descriptor desc;
+        	int r = libusb_get_device_descriptor(dev, &desc);
+        	if (r < 0) {
+        		pic::logmsg() << "pic::usbenumerator_t::enumerate : failed to get device descriptor";
+        	    libusb_free_device_list(devs, 1);
+        		libusb_exit(context);
+        		return 0;
+        	}
+        	
+        	count++;
+        	
+        	unsigned busNum= libusb_get_bus_number(dev);
+        	unsigned addr= libusb_get_device_address(dev);
+        	pic::logmsg() << "pic::usbenumerator_t::enumerate details : "
+        				<< " V " << desc.idVendor
+        				<< " P " << desc.idProduct
+        				<< " B " << busNum
+        				<< " A " << addr;
+        	
+//            uint8_t path[8];
+//        	r = libusb_get_port_numbers(dev, path, sizeof(path));
+//        	if (r > 0) {
+//            	pic::logmsg() << "pic::usbenumerator_t::enumerate path : " << path[0];
+//        		for (j = 1; j < r; j++)
+//        		{
+//                	pic::logmsg() << "pic::usbenumerator_t::enumerate path : :"<< j << " - " << path[j];
+//        		}
+//        	}
+        	
+        	if (desc.idVendor==vendor &&  desc.idProduct==product)
+        	{
+        	    char buffer[21];
+        	    buildUsbName(buffer,vendor,product,addr,busNum);
+//        	    unsigned long name;
+            	pic::logmsg() << "pic::usbenumerator_t::enumerate found : " << buffer;
+                callback(buffer);
+        	}
+        }        
+        
     }
-    CATCHLOG();
-    return 0;
+	CATCHLOG()
+    libusb_free_device_list(devs, 1);
+	libusb_exit(context);
+    return count;
 }
 
 int pic::usbenumerator_t::gc_traverse(void *v,void *a) const
