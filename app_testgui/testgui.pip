@@ -1,0 +1,58 @@
+<<<
+#include "testgui.h"
+>>>
+
+class c2p0[testgui::c2p0_t]
+{
+    c2p0()
+
+    virtual void set_args(const char *) = 0
+    virtual stdstr get_logfile() = 0
+
+    inline token(self,args)
+    <<<
+        return PyCObject_FromVoidPtr(self,0);
+    >>>
+}
+
+class c2p[testgui::c2p_t]
+{
+    c2p()
+    virtual void initialise(p2c *,const stdstr &) = 0
+    virtual void quit() = 0
+
+    inline token(self,args)
+    <<<
+        return PyCObject_FromVoidPtr(self,0);
+    >>>
+}
+
+class p2c[testgui::p2c_t]
+{
+    p2c()
+    virtual void agentAdded(const stdstr &)=0
+    virtual void agentRemoved(const stdstr &)=0
+    virtual void agentChanged(const stdstr &)=0
+
+    virtual void instanceRemoved(const stdstr &)=0
+    virtual void portRemoved(const stdstr &)=0
+    virtual void report_error(const stdstr &, const stdstr &)=0
+    virtual void nameChanged(const stdstr &)=0
+    virtual void connectionAdded(const stdstr &)=0
+    virtual void stateChanged(const char *)=0
+    virtual void test_string(const char *)=0
+    virtual void instanceName(const stdstr &, const stdstr &)=0
+    virtual void agents_updated(const strset &)=0
+    virtual void instances_updated(const strset &)=0
+    virtual void sourcekeys_updated(const stdstr &, const stdstr &)=0
+
+    virtual void cinfo_updated(const stdstr &,const stdstr &,const strset &)=0
+    virtual void finfo_updated(const stdstr &,const stdstr &,const strset &)=0
+    virtual void enumerate_updated(const stdstr &, const stdstr &,int, int)=0
+    virtual void activated(const stdstr &)=0
+    virtual void current(const stdstr &,const stdstr &)=0
+
+    virtual void loaded(float)=0
+    virtual void value_changed(const stdstr &)=0;
+    virtual void connectionPossible(const stdstr &, const stdstr &, bool)=0
+}

@@ -1,0 +1,28 @@
+Import('env')
+
+testgui_files = Split("""
+    TestGuiApp.cpp MainComponent.cpp 
+    ejuce.cpp ejuce_laf.cpp epython.cpp
+""")
+
+widget_libs = Split('pic pia piw pie pijuce')
+env.Append(CPPPATH='.')
+env.Append(CPPPATH='../lib_juce/modules')
+
+if env['IS_WINDOWS']:
+    env.Append(CCFLAGS='/D_WINDOWS /DNDEBUG /arch:SSE2')
+    env.Append(LINKFLAGS="/nodefaultlib:libcmt.lib")
+    env.Append(LINKFLAGS=' WS2_32.Lib ')
+
+if env['IS_LINUX']:
+    env.Append(CCFLAGS='-DLINUX -DNDEBUG')
+    env.Append(CPPPATH='/usr/include/freetype2')
+    env.Append(LIBS=Split('X11 freetype Xext asound'))
+
+if env['IS_MACOSX']:
+    env.Append(CCFLAGS="-DNDEBUG")
+    env.Append(PI_HIRES=True)
+
+env.PiGuiProgram('TestGui',testgui_files,libraries=widget_libs,appname='TestGui',package='eigend')
+env.PiPipBinding('testgui_native','testgui.pip',libraries=widget_libs,package='eigend')
+env.PiPythonPackage(package='eigend')
