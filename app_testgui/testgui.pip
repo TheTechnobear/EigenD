@@ -21,6 +21,8 @@ class c2p[testgui::c2p_t]
     virtual void initialise(p2c *,const stdstr &) = 0
     virtual void quit() = 0
 
+    virtual void get_agents()=0
+
     inline token(self,args)
     <<<
         return PyCObject_FromVoidPtr(self,0);

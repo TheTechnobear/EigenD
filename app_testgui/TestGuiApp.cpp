@@ -30,6 +30,17 @@
 // #include "WorkbenchFrame.h"
 // #include "MenuManager.h"
 
+//  XXX put these convertion functions somewhere else
+String stdToJuceString(const std::string& stdString)
+{
+    return String::fromUTF8(stdString.c_str());
+}
+
+std::string juceToStdString(const String& juceString)
+{
+    return std::string(juceString.toUTF8());
+}
+
 class BackendFactory
 {
     public:
@@ -40,6 +51,7 @@ class BackendFactory
 
 
 const static String TESTGUI_VERSION="0.0.1";
+
 
 
 class TestGuiApp;
@@ -58,6 +70,18 @@ class EigenLogger
         pic::f_string_t logger_;
 };
 
+class TestConnnection : public testgui::p2c_t 
+{
+public:
+    TestConnnection(epython::PythonBackend *backend);
+    ~TestConnnection();
+    void initialise_backend(String scope);
+    void get_agents();
+private:
+    epython::PythonBackend *python_backend_;
+    testgui::c2p_t* backend_;
+};
+
 class MainWindow  : public DocumentWindow,public BackendFactory
 {
     public:
@@ -74,6 +98,8 @@ class MainWindow  : public DocumentWindow,public BackendFactory
         // MenuManager* menuManager_;
         pic::f_string_t logger_;
         TestGuiApp* app_;
+        TestConnnection* conn_;
+
 };
 
 class TestGuiApp : public ejuce::Application, public BackendFactory, virtual public pic::tracked_t
@@ -97,6 +123,34 @@ private:
     pia::context_t context_;
     FILE *logfile_;
 };
+
+
+
+TestConnnection::TestConnnection(epython::PythonBackend *backend) 
+{
+    python_backend_ = backend;
+    backend_ = (testgui::c2p_t *)python_backend_->mediator();
+    if(!backend_) 
+    {
+        fprintf(stderr,"TestConnnection::TestConnnection : backend invalid");
+    }
+}
+
+TestConnnection::~TestConnnection() 
+{
+    // delete python_backend_;  python_backend_ = 0;
+}
+
+void TestConnnection::initialise_backend(String scope)
+{
+    if(backend_) backend_->initialise(this,juceToStdString(scope));
+}
+
+void TestConnnection::get_agents()
+{
+    if(backend_) backend_->get_agents();
+}
+
 
 MainWindow::MainWindow( TestGuiApp* app, const pic::f_string_t &log) : DocumentWindow ("TestGui", Colours::lightgrey, DocumentWindow::allButtons, true), logger_(log), app_(app)
 
@@ -137,6 +191,17 @@ MainWindow::MainWindow( TestGuiApp* app, const pic::f_string_t &log) : DocumentW
     setResizeLimits(600,320,4000,3000);
     setResizable(true,true);
     setVisible (true);
+
+    epython::PythonBackend* backend = getBackend();
+    if(backend) 
+    {
+        conn_ = new TestConnnection(backend);
+        conn_->initialise_backend("");
+        conn_->get_agents();
+    } else 
+    {
+        conn_=0;
+    }
 }
 
 epython::PythonBackend *MainWindow::getBackend()
@@ -146,6 +211,8 @@ epython::PythonBackend *MainWindow::getBackend()
 
 MainWindow::~MainWindow()
 {
+    if(conn_) delete conn_;
+    conn_ = 0;
 }
 
 pic::f_string_t MainWindow::make_logger(const char *prefix)
@@ -195,6 +262,7 @@ void TestGuiApp::initialise (const String& commandLine)
         testgui::c2p0_t *backend = (testgui::c2p0_t *)python_backend0_->mediator();
         if(backend)
         {
+            log("TestGuiApp::initialise : OK");
             backend->set_args(commandLine.toUTF8());
             std::string logfile=backend->get_logfile();
             if(logfile.length()>0)
@@ -202,6 +270,14 @@ void TestGuiApp::initialise (const String& commandLine)
                 logfile_ = pic::fopen(logfile,"w");
             }
         }
+        else 
+        {
+            log("TestGuiApp::initialise : unable to initiliase backend");
+        }
+    }
+    else 
+    {
+        log("TestGuiApp::initialise : unable to initiliase backend0");
     }
 
     main_window_ = new MainWindow(this, primary_logger);
@@ -213,8 +289,10 @@ epython::PythonBackend* TestGuiApp::getBackend()
 
     if(b0->init_python("app_testgui.testgui","main"))
     {
+        log("TestGuiApp::getBackend : OK");
         return b0;
     }
+    log("TestGuiApp::getBackend : unable to initiliase python backend0");
 
     delete b0;
     return 0;

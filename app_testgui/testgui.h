@@ -45,6 +45,7 @@ namespace testgui
         virtual ~c2p_t() { }
         virtual void initialise(p2c_t *p2c, const std::string &scope) = 0;
         virtual void quit() = 0;
+        virtual void get_agents() = 0;
      };
 
 }
