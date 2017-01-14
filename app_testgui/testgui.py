@@ -22,7 +22,8 @@ import testgui_native
 import piw
 import zlib
 import sys
-from pi import database,agent,logic,node, async,rpc,index,plumber,resource,paths, help_manager,utils
+from pi import atom,collection,const,domain,policy,bundles,action
+from pi import database,agent,logic,node,async,rpc,index,plumber,resource,paths, help_manager,utils
 from pisession import session
 #from pibelcanto import lexicon
 from app_testgui import upgrade
@@ -87,7 +88,7 @@ class Database(database.SimpleDatabase):
         #print "object_added",id,'(',proxy.id(),')'
         s=id.split('#')
         name_part=s[0]
-        if not(name_part=="<workbench>" and len(s)>1):
+        if not(name_part=="<testgui>" and len(s)>1):
             if not name_part in self.__addedList:
                 self.__addedList.append(name_part)
 
@@ -198,6 +199,7 @@ class Agent(agent.Agent):
         self.__backend = backend
         self.__database = backend.database()
         agent.Agent.__init__(self,signature=upgrade.Signature(),names="testgui",volatile=True)
+        self[1] = atom.Atom(domain=domain.Bool(), init=False, names='test', policy=atom.default_policy(self.__test))
         # self.__state = WorkbenchState()
         # self.set_private(self.__state)
         # self.__current_state = ''
@@ -235,6 +237,9 @@ class Agent(agent.Agent):
     def rpc_dumpid(self,arg):
         self.__database.dump_connections(arg)
         pass
+
+    def __test(self,v):
+        print "test agent : ", v
 
 
 class Backend0(testgui_native.c2p0):
