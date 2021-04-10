@@ -557,8 +557,9 @@ struct pic::lockfile_t::impl_t
 
     ~impl_t()
     {
-        if(fd_>=0)
-            ::close(fd_);
+        //ARMHACK
+        // if(fd_>=0)
+        //     ::close(fd_);
     }
 
     bool lock()

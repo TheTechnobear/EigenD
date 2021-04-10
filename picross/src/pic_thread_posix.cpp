@@ -186,8 +186,10 @@ static void __realtime(pthread_t thread, int pri)
 
 void pic_set_fpu()
 {
+#if defined(PI_MACOSX_8664) || defined(PI_MACOSX_86) || defined(PI_LINUX_86) || defined(PI_LINUX_8664)
     // disable Intel denormal support to stop recursive DSP functions using high CPU for very small numbers
     fesetenv(FE_DFL_DISABLE_SSE_DENORMS_ENV);
+#endif
 }
 
 

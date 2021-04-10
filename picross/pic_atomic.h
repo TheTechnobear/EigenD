@@ -322,7 +322,7 @@ inline static int pic_atomicptrcas(void *p_, void *oval, void *nval)
 
 #include <libkern/OSAtomic.h>
 
-#if defined(PI_MACOSX_86) || defined(PI_MACOSX_8664)
+#if defined(PI_MACOSX_86) || defined(PI_MACOSX_8664) || defined(PI_MACOSX_ARM)
 
 inline static uint32_t pic_atomicinc(pic_atomic_t *p)
 {
@@ -366,7 +366,7 @@ inline static int pic_atomicptrcas(void *p, void *oval, void *nval)
 
 #endif
 
-#if defined(PI_MACOSX_8664) || defined(PI_MACOSX_PPC64)
+#if defined(PI_MACOSX_8664) || defined(PI_MACOSX_PPC64) || defined(PI_MACOSX_ARM)
 
 inline static int pic_atomicptrcas(void *p, void *oval, void *nval)
 {

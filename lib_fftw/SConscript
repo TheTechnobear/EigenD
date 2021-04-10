@@ -322,5 +322,7 @@ if env['IS_WINDOWS']:
 if env['IS_LINUX']:
     env.Append(CCFLAGS='-v -march=core2 -Wno-unused-but-set-variable')
 
-if not env['IS_LINUX_ARMV7L']:
+# ARMHACK
+# if not env['IS_LINUX_ARMV7L']:
+if not env['IS_ARM']:
 	env.PiSharedLibrary('pifftw3',fftw_files,package='eigend',hidden=False)

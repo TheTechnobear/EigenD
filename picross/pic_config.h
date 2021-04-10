@@ -28,8 +28,8 @@
 #define PI_IS_MACOSX 0
 #define PI_IS_WINDOWS 1
 #define __PI_ARCH "win32"
-//#define lround(tt) floor((tt) + 0.5f)
-//#define lroundf(tt) floorf((tt) + 0.5f)
+// #define lround(tt) floor((tt) + 0.5f)
+// #define lroundf(tt) floorf((tt) + 0.5f)
 
 #define NOMINMAX
 #endif
@@ -81,6 +81,11 @@
 #define PI_MACOSX_8664
 #define __PI_ARCH "macosx x86-64"
 #endif
+#if defined(__aarch64__)
+#define PI_MACOSX_ARM
+#define __PI_ARCH "macosx arm-64"
+#endif
+
 #endif
 
 #if !defined(PI_ARCH) || (!defined(PI_LITTLEENDIAN) && !defined(PI_BIGENDIAN))

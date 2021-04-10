@@ -46,7 +46,7 @@ void pic::disable_powersaving(void)
   // Does the App Nap API even exist on this Mac?
   if ([[NSProcessInfo processInfo] respondsToSelector:@selector(beginActivityWithOptions:reason:)]) {
       // If the API exists, then disable App Nap...
-      NSActivityOptions options = NSActivityLatencyCritical or NSActivityUserInitiated;
+      NSActivityOptions options = NSActivityLatencyCritical | NSActivityUserInitiated;
       [[NSProcessInfo processInfo] beginActivityWithOptions: options reason:@"Avoiding hiccups and reduce latency"];
   }
 }

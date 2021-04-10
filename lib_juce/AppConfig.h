@@ -81,7 +81,7 @@
 
 #define DONT_SET_USING_JUCE_NAMESPACE 1
 
-#ifdef PI_MACOSX_8664
+#if defined(PI_MACOSX_8664) || defined(PI_MACOSX_ARM)
 #define JUCE_SUPPORT_CARBON 0
 #else
 #define JUCE_SUPPORT_CARBON 1

@@ -27,6 +27,7 @@ BUILD_TARGET =os.environ.get('BUILD_TARGET','i386')
 def posix_Linux_armv7l():
     import linux_tools
     env = linux_tools.PiLinuxEnvironment('linux-armv7l')
+    env.Replace(IS_ARM=True)
     env.Replace(IS_LINUX_ARMV7L=True)
 #    env.Append(CCFLAGS=' -mno-unaligned-access ')
     return env
@@ -59,6 +60,7 @@ def posix_Linux_i686():
 
 def posix_Darwin_x86_64():
     import darwin_tools
+    env.Replace(IS_MACOS_ARM64=False)
     if BUILD_TARGET == 'x86_64':
         env = darwin_tools.PiDarwinEnvironment('macosx-x86-64')
         env.Replace(IS_MACOSX_86=True)
@@ -68,6 +70,16 @@ def posix_Darwin_x86_64():
         env.Replace(IS_MACOSX_86=True)
         env.Replace(IS_MACOSX_i386=True)
     return env
+
+def posix_Darwin_arm64():
+    import darwin_tools
+    env = darwin_tools.PiDarwinEnvironment('macos-arm64')
+    env.Replace(IS_ARM=True)
+    env.Replace(IS_MACOS_ARM64=True)
+    env.Replace(IS_MACOSX_86=False)
+    env.Replace(IS_MACOSX_i386=False)
+    return env
+
 
 def posix_Darwin_i386():
     import darwin_tools

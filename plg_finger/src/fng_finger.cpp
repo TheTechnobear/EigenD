@@ -284,12 +284,12 @@ void fng::finger_t::impl_t::tick_once(const fng::fingering_t &fingering, unsigne
         yaw_ = yaw_/yaw_count_;
     }
 
-    output_fingering_t output_weight_;
+    // output_fingering_t output_weight_;
     output_weights_t output_weights_;
     pic::lcklist_t<output_fingering_t>::nbtype::iterator ow_; 
     pic::lcklist_t<output_fingering_t>::nbtype::reverse_iterator row_; 
 
-    output_fingering_t output_modifier_;
+    // output_fingering_t output_modifier_;
     output_weights_t output_additions_;
     output_weights_t output_modifiers_;
 

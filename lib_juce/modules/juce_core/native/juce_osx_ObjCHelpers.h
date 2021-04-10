@@ -81,7 +81,8 @@ namespace
 
    #if ! JUCE_IOS
     typedef double (*MsgSendFPRetFn) (id, SEL op, ...);
-    static inline MsgSendFPRetFn getMsgSendFPRetFn() noexcept   { return (MsgSendFPRetFn) (void*) objc_msgSend_fpret; }
+    //ARMHACK
+    // static inline MsgSendFPRetFn getMsgSendFPRetFn() noexcept   { return (MsgSendFPRetFn) (void*) objc_msgSend_fpret; } 
    #endif
    #endif
 }

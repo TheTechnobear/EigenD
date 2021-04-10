@@ -34,5 +34,8 @@ if env['IS_LINUX_ARMV7L']:
 else:
    pc_libs=Split('pifftw3 pisamplerate pic piw pie pia');
 
-pc_env.PiSharedLibrary('convolver',plg_convolver_files,libraries=pc_libs,package='eigend',hidden=False,per_agent='plg_convolver')
-pc_env.PiPipBinding('convolver_native','plg_convolver.pip',libraries=Split('convolver')+pc_libs,package='eigend',per_agent='plg_convolver')
+# ARMHACK
+if not env['IS_MACOS_ARM64']:
+	pc_env.PiSharedLibrary('convolver',plg_convolver_files,libraries=pc_libs,package='eigend',hidden=False,per_agent='plg_convolver')
+	pc_env.PiPipBinding('convolver_native','plg_convolver.pip',libraries=Split('convolver')+pc_libs,package='eigend',per_agent='plg_convolver')
+

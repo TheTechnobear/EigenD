@@ -26,16 +26,16 @@ if (env['IS_MACOSX_8664'] or env['IS_LINUX_8664']):
 env.Append(CPPPATH='../../lib_juce/modules')
 
 native_files = Split("""host.cpp""")
-env.PiSharedLibrary('pihost',native_files,libraries=Split('pijuce ejuce pia piw pic pie midilib'),package='eigend',per_agent='plg_host')
-env.PiPipBinding('host_native','host.pip',libraries=Split('pihost pijuce pia piw pic pie midilib'),package='eigend',per_agent='plg_host')
 
-env.Append(PI_HIRES=True)
-
-scanner_files = Split("scan.cpp")
-env.PiGuiProgram('scanner0',scanner_files,appname='EigenScanner0',package='eigend',libraries=Split('pijuce ejuce pic pia pie'),private=True,di=True)
-
-scanctl_files = Split("scanctl.cpp JucerScanCtlComponent.cpp JucerScanPrgComponent.cpp JucerScanCompleteComponent.cpp")
-env.PiGuiProgram('scanner',scanctl_files,appname='EigenScanner',package='eigend',libraries=Split('pijuce ejuce pic pia pie'),private=True)
+# ARMHACK
+if not env['IS_MACOS_ARM64']:
+	env.PiSharedLibrary('pihost',native_files,libraries=Split('pijuce ejuce pia piw pic pie midilib'),package='eigend',per_agent='plg_host')
+	env.PiPipBinding('host_native','host.pip',libraries=Split('pihost pijuce pia piw pic pie midilib'),package='eigend',per_agent='plg_host')
+	env.Append(PI_HIRES=True)
+	scanner_files = Split("scan.cpp")
+	env.PiGuiProgram('scanner0',scanner_files,appname='EigenScanner0',package='eigend',libraries=Split('pijuce ejuce pic pia pie'),private=True,di=True)
+	scanctl_files = Split("scanctl.cpp JucerScanCtlComponent.cpp JucerScanPrgComponent.cpp JucerScanCompleteComponent.cpp")
+	env.PiGuiProgram('scanner',scanctl_files,appname='EigenScanner',package='eigend',libraries=Split('pijuce ejuce pic pia pie'),private=True)
 
 if env['IS_MACOSX']:
     env.PiEtc('eigend',Split('postflight-host'))

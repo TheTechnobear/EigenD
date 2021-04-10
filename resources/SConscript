@@ -28,6 +28,8 @@ if env['IS_WINDOWS']:
 if env['IS_MACOSX']:
     if env['IS_MACOSX_8664']:
         env.PiBinaryDLL('pico_decoder_x86_64_1_0_0',package='eigend')
+    elif env['IS_MACOS_ARM64']:
+        env.PiBinaryDLL('pico_decoder_arm64_1_0_0',package='eigend')
     else:
         env.PiBinaryDLL('pico_decoder_i386_1_0_0',package='eigend')
 elif env['IS_LINUX']:
