@@ -123,7 +123,7 @@ void SceneList::itemDropped(const SourceDetails &dragSourceDetails)
             ClipList* cl=dynamic_cast<ClipList*>(c);
             if(cl!=0)
             {
-                Point <int> p=dragSourceDetails.localPosition;
+                juce::Point <int> p=dragSourceDetails.localPosition;
                 backend_->addToScene(cl->getSelectedClips(),getInsertionIndexForPosition(p.getX(),p.getY()));
             }
         }

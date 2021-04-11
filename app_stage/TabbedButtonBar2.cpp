@@ -48,7 +48,7 @@ TabBarButton2::TabBarButton2 (const String& name,
       showCloseButton (false),
       isAddTabButton (false)
 {
-    shadow.setShadowProperties (DropShadow(Colour(0.f,0.f,0.f,0.7f), 2, Point<int>(0,0)));
+    shadow.setShadowProperties (DropShadow(Colour(0.f,0.f,0.f,0.7f), 2, juce::Point<int>(0,0)));
     setComponentEffect (&shadow);
     setWantsKeyboardFocus (false);
 
@@ -247,7 +247,7 @@ void TabBarButton2::drawTabButton (Graphics& g,
     
     if(!showCloseButton && !isAddTabButton)
     {
-        DropShadow (Colours::black.withAlpha (0.5f), 2, Point<int> (0, 1)).drawForPath (g, tabShape);
+        DropShadow (Colours::black.withAlpha (0.5f), 2, juce::Point<int> (0, 1)).drawForPath (g, tabShape);
         fillTabButtonShape (g, tabShape, preferredColour, isMouseOver, isMouseDown, isFrontTab);
     
         drawTabButtonText (g, x, y, w, h, preferredColour,

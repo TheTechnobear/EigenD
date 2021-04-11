@@ -172,7 +172,7 @@ XmlElement* ClipList::getSelectedClips()
 
 void ClipList::onInterestedInDragSource(const DragAndDropTarget::SourceDetails &dragSourceDetails)
 {
-        Point <int> p=dragSourceDetails.localPosition;
+        juce::Point <int> p=dragSourceDetails.localPosition;
         int row=getInsertionIndexForPosition(p.getX(),p.getY());
 
         if(p.getY()>0 && p.getX()>0)
@@ -217,7 +217,7 @@ void ClipList::onDropSelf(const DragAndDropTarget::SourceDetails &dragSourceDeta
             }
         }
 
-        Point <int> p=dragSourceDetails.localPosition;
+        juce::Point <int> p=dragSourceDetails.localPosition;
         
         std::cout<<getName()<<" reorder list: insertionIndex="<<getInsertionIndexForPosition(p.getX(),p.getY())<<std::endl;
 

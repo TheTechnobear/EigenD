@@ -26,7 +26,7 @@ WBTabBarButton::WBTabBarButton (const String& name, WBTabbedButtonBar& owner_)
       closeButton (0),
       showCloseButton (!(name.equalsIgnoreCase("main workspace")))
 {
-	shadow.setShadowProperties(DropShadow(Colour(0.f,0.f,0.f,0.7f),2, Point<int>(0,0)));
+	shadow.setShadowProperties(DropShadow(Colour(0.f,0.f,0.f,0.7f),2, juce::Point<int>(0,0)));
 	setComponentEffect (&shadow);
 	setWantsKeyboardFocus (false);
 

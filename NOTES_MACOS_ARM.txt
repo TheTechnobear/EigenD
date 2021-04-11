@@ -1,13 +1,19 @@
-
-
 ## STATUS
-not even close to working ;) 
 
-many things building on mac mini 1, some plugins disabled see hacks at bottom
-need the pico decoder to continue which I need to build 
+Running in development !
+
+limited testing shows hardware and software working
+
+discussions on going at : https://community.polyexpression.com/t/eigend-apple-silicon-it-lives
 
 
 
+## limitations/issues
+- convolver is disabled
+- minor graphics issues 
+- vsts not showing in workbench- hosting untested
+
+see below for more details 
 
 
 ## BUILDING
@@ -24,21 +30,15 @@ make
 
 
 ## NOTES
-- Python , EigenD runtime, ships with only 32bit Python (2.7.10), Im using the one on the M1 which is 2.7.16 - we dont know if compatible!
-also Ive not looked for site packages yet... main concern is wx-python?
-
 - Carbon is not supported on arm
-
 - can only load arm plugins, no intel emulation is planned - just another bridge?
+- no universal binary (not planned)
 
 
-## TODO
-we can't do a universal build, since most of eigenD is store in /usr/local/pi... 
-so to allow both to exist we would need separate directories for 64 and 32 build, and now arm build!
-need to consider if this is worth the 'overhead' since most users will use 32bit or 64bit intel or arm
 
-.... its possible intel is useful under rosetta but this needs testing due to the python implications
 
+
+------
 
 
 ## hacked code just to get it building!
@@ -51,7 +51,6 @@ pic_resources.cpp : 561 ///HACKED - no close function... move to fopen/fclose?
 
 
 //JUCE
-
 hacked... probably should be updating to new juce which has arm support
 
 https://forum.juce.com/t/juce-and-macos-11-arm/40285/22

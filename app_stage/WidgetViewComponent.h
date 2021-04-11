@@ -164,8 +164,8 @@ public:
         canvasHeight = canvasHeight_;
     }
 
-    const Point<float> pixelsToCanvasUnits(float x, float y);
-    const Point<float> canvasUnitsToPixels(float x, float y);
+    const juce::Point<float> pixelsToCanvasUnits(float x, float y);
+    const juce::Point<float> canvasUnitsToPixels(float x, float y);
     float pixelsToCanvasUnits(float x);
     
     //==============================================================================

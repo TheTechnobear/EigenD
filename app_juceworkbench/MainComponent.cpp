@@ -4556,7 +4556,7 @@ void MainComponent::moveToolMouseUp(const MouseEvent& e)
 
 Component* MainComponent::toolChangeComponent()
 {
-    Point<int> p=getMouseXYRelative();
+    juce::Point<int> p=getMouseXYRelative();
     Component* cc=getComponentAt(p.getX(),p.getY());
     if(cc==0)
     {

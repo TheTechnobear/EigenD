@@ -347,7 +347,7 @@ void WidgetOverlayComponent::mouseUp (const MouseEvent& e)
             // dropped after dragging so update canvas position
             bounds_->checkComponentBounds(this);
             
-            Point<float> position = widgetView_->pixelsToCanvasUnits((float)getX(),(float)getY());
+            juce::Point<float> position = widgetView_->pixelsToCanvasUnits((float)getX(),(float)getY());
             setPositionCanvasUnits(position.getX(), position.getY());
             target_->setPositionCanvasUnits(position.getX(), position.getY());
         }
@@ -357,8 +357,8 @@ void WidgetOverlayComponent::mouseUp (const MouseEvent& e)
     if(e.originalComponent==border)
     {
         // corner resizing dropped so update canvas position and size
-        Point<float> position = widgetView_->pixelsToCanvasUnits((float)getX(),(float)getY());
-        Point<float> size = widgetView_->pixelsToCanvasUnits((float)getWidth(),(float)getHeight());
+        juce::Point<float> position = widgetView_->pixelsToCanvasUnits((float)getX(),(float)getY());
+        juce::Point<float> size = widgetView_->pixelsToCanvasUnits((float)getWidth(),(float)getHeight());
         setBoundsCanvasUnits(position.getX(), position.getY(), size.getX(), size.getY());
         target_->setBoundsCanvasUnits(position.getX(), position.getY(), size.getX(), size.getY());
     }

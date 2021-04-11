@@ -468,7 +468,7 @@ void WidgetViewComponent :: createWidget(const String& sourceDescription, int x,
     String defaultTextPosition = "top";
     
     // reposition on canvas if dropped partially off the edge
-    Point<float> size = canvasUnitsToPixels(defaultWidth, defaultHeight);
+    juce::Point<float> size = canvasUnitsToPixels(defaultWidth, defaultHeight);
     if ((x+size.getX())>canvasWidth_)
         x = (int)(canvasWidth_-size.getX() + 1.0f);
     
@@ -477,7 +477,7 @@ void WidgetViewComponent :: createWidget(const String& sourceDescription, int x,
     
     
     // convert position created on canvas to canvas units
-    Point<float> position = pixelsToCanvasUnits((float)x,(float)y);
+    juce::Point<float> position = pixelsToCanvasUnits((float)x,(float)y);
 
     //--------------------------------------------------------------------------
     // update GUI
@@ -518,8 +518,8 @@ void WidgetViewComponent :: createWidget(const String& sourceDescription, int x,
             }
         }
 
-        Point<float> new_pos = pixelsToCanvasUnits((float)x,(float)y);
-        Point<float> new_size = pixelsToCanvasUnits((float)preferredWidth,(float)preferredHeight);
+        juce::Point<float> new_pos = pixelsToCanvasUnits((float)x,(float)y);
+        juce::Point<float> new_size = pixelsToCanvasUnits((float)preferredWidth,(float)preferredHeight);
 
         newWidgetOverlay->setBoundsCanvasUnits(new_pos.getX(),new_pos.getY(),new_size.getX(),new_size.getY());
         newWidget->setBoundsCanvasUnits(new_pos.getX(),new_pos.getY(),new_size.getX(),new_size.getY());
@@ -800,10 +800,10 @@ void WidgetViewComponent :: resized()
 }
 
 
-const Point<float> WidgetViewComponent :: pixelsToCanvasUnits(float x, float y)
+const juce::Point<float> WidgetViewComponent :: pixelsToCanvasUnits(float x, float y)
 {
     // convert size in view component in pixels to canvas units
-    return Point<float>(canvasWidthAspect_*x/canvasWidth_, canvasHeightAspect_*y/canvasHeight_);
+    return juce::Point<float>(canvasWidthAspect_*x/canvasWidth_, canvasHeightAspect_*y/canvasHeight_);
 }
 
 float WidgetViewComponent :: pixelsToCanvasUnits(float x)
@@ -811,10 +811,10 @@ float WidgetViewComponent :: pixelsToCanvasUnits(float x)
     return canvasWidthAspect_*x/canvasWidth_;
 }
 
-const Point<float> WidgetViewComponent :: canvasUnitsToPixels(float x, float y)
+const juce::Point<float> WidgetViewComponent :: canvasUnitsToPixels(float x, float y)
 {
     // convert size in view component in canvas units to pixels
-    return Point<float>(canvasWidth_*x/canvasWidthAspect_, canvasHeight_*y/canvasHeightAspect_); 
+    return juce::Point<float>(canvasWidth_*x/canvasWidthAspect_, canvasHeight_*y/canvasHeightAspect_); 
 }
 
 

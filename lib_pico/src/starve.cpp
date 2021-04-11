@@ -51,10 +51,10 @@ struct fast_t : pic::thread_t, pico::active_t::delegate_t
 
 int main(int ac, char **av)
 {
-    const char *usbdev = pic::usbenumerator_t::find(0x2139,0x0101).c_str();
+    auto usbdev = pic::usbenumerator_t::find(0x2139,0x0101);
     fast_t fast;
 
-    pico::active_t device(usbdev, &fast);
+    pico::active_t device(usbdev.c_str(), &fast);
     fast.device_ = &device;
 
     for(unsigned k=0; k<18; ++k)
