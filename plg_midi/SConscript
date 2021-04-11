@@ -20,13 +20,11 @@
 
 Import('env')
 
-# ARMHACK
-if not env['IS_MACOS_ARM64']:
-	env.PiPythonPackage(package='eigend',per_agent='plg_midi')
-	env.PiAgent('midi_output','plg_midi','midi_output_plg',cversion='1.0.0')
-	env.PiAgent('midi_converter','plg_midi','midi_converter_plg',cversion='1.0.5')
-	env.PiAgent('midi_clock','plg_midi','midi_clock_plg',cversion='1.0.0')
-	env.PiAgent('midi_input','plg_midi','midi_input_plg',cversion='1.0.0')
-	env.PiAgent('midi_processor','plg_midi','midi_processor_plg',cversion='1.0.0')
-	env.PiAgent('midi_program_chooser','plg_midi','midi_pgm_chooser_plg',cversion='1.0.0')
+env.PiPythonPackage(package='eigend',per_agent='plg_midi')
+env.PiAgent('midi_output','plg_midi','midi_output_plg',cversion='1.0.0')
+env.PiAgent('midi_converter','plg_midi','midi_converter_plg',cversion='1.0.5')
+env.PiAgent('midi_clock','plg_midi','midi_clock_plg',cversion='1.0.0')
+env.PiAgent('midi_input','plg_midi','midi_input_plg',cversion='1.0.0')
+env.PiAgent('midi_processor','plg_midi','midi_processor_plg',cversion='1.0.0')
+env.PiAgent('midi_program_chooser','plg_midi','midi_pgm_chooser_plg',cversion='1.0.0')
 

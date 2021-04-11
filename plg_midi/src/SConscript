@@ -30,7 +30,5 @@ plg_libs=Split("""
 """)
 
 pmhenv.Append(CPPPATH='../../lib_juce/modules')
-# ARMHACK
-if not env['IS_MACOS_ARM64']:
-	pmhenv.PiSharedLibrary('pimidi',plg_files,libraries=plg_libs,package='eigend',per_agent='plg_midi')
-	pmhenv.PiPipBinding('midi_native','midi.pip',libraries=Split('pimidi')+plg_libs,package='eigend',per_agent='plg_midi')
+pmhenv.PiSharedLibrary('pimidi',plg_files,libraries=plg_libs,package='eigend',per_agent='plg_midi')
+pmhenv.PiPipBinding('midi_native','midi.pip',libraries=Split('pimidi')+plg_libs,package='eigend',per_agent='plg_midi')

@@ -32,11 +32,8 @@ midilib_files=Split("""
 midilib_env=env.Clone()
 
 
-
-# ARMHACK
-if not env['IS_MACOS_ARM64']:
-	midilib_env.Append(CPPPATH='../../lib_juce/modules')
-	midilib_env.PiSharedLibrary('midilib',midilib_files,libraries=Split('pia pic pie piw pijuce'),package='eigend',public=True,locked=True)
-	midilib_py=env.Clone()
-	midilib_py.Append(CPPPATH='../../lib_juce/modules')
-	midilib_py.PiPipBinding('midilib_native',env.Pipfile('midilib.pip'),libraries=Split('midilib pic pia pie piw pijuce'),package='eigend')
+midilib_env.Append(CPPPATH='../../lib_juce/modules')
+midilib_env.PiSharedLibrary('midilib',midilib_files,libraries=Split('pia pic pie piw pijuce'),package='eigend',public=True,locked=True)
+midilib_py=env.Clone()
+midilib_py.Append(CPPPATH='../../lib_juce/modules')
+midilib_py.PiPipBinding('midilib_native',env.Pipfile('midilib.pip'),libraries=Split('midilib pic pia pie piw pijuce'),package='eigend')

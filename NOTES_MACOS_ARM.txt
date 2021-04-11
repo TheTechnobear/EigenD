@@ -65,7 +65,3 @@ lib_juce/modules/juce_gui_basics/native/juce_mac_NSViewComponentPeer.mm :636/7  
 libfftw:  disabled  SConfig, no ARM
 plg_convolver disabled SConfig no libfftw
 
-
-bad c=+ from python pip (?) 
-plg_host
-libmidi -> plg_midi, plg_midi_device

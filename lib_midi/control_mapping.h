@@ -96,17 +96,17 @@ namespace midi
 
         float calculate(float norm_data) const;
 
-        const float scale_;
-        const float lo_;
-        const float base_;
-        const float hi_;
-        const bool origin_return_;
-        const float decimation_;
-        const unsigned scope_;
-        const unsigned channel_;
-        const unsigned resolution_;
-        const int secondary_cc_; 
-        const unsigned curve_; 
+        float scale_;
+        float lo_;
+        float base_;
+        float hi_;
+        bool origin_return_;
+        float decimation_;
+        unsigned scope_;
+        unsigned channel_;
+        unsigned resolution_;
+        int secondary_cc_; 
+        unsigned curve_; 
     };
 
     class MIDILIB_DECLSPEC_CLASS decimation_handler_t;
@@ -174,8 +174,8 @@ namespace midi
         mapping_info_t clone_with_secondarycc(int);
         mapping_info_t clone_with_curve(unsigned);
 
-        const int oparam_;
-        const bool enabled_;
+        int oparam_;
+        bool enabled_;
 
         bool is_valid() const { return oparam_>=0 && scale_!=0.0; }
     };
@@ -235,15 +235,6 @@ namespace midi
                 control_map_t map_midi_;
                 global_settings_t settings_;
                 unsigned serial_;
-
-                mapping_t &operator=(const mapping_t &o)
-                {
-                    map_params_ = o.map_params_;
-                    map_midi_ = o.map_midi_;
-                    settings_ = o.settings_;
-                    serial_ = o.serial_;
-                    return *this;
-                }
             };
 
             mapping_observer_t &listener_;
