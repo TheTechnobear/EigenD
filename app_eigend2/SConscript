@@ -43,7 +43,7 @@ echo_files = Split('echo.cpp')
 echo_libs = Split('pic pia piw pie')
 
 
-if (env['IS_MACOSX_8664'] or env['IS_LINUX_8664']):
+if (env['IS_MACOSX_8664'] or env['IS_LINUX_8664'] or env['IS_MACOS_ARM64']):
     env.Append(CCFLAGS='-DPLUGSIN_64')
 
 

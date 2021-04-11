@@ -20,7 +20,7 @@
 
 Import('env')
 
-if (env['IS_MACOSX_8664'] or env['IS_LINUX_8664']):
+if (env['IS_MACOSX_8664'] or env['IS_LINUX_8664'] or env['IS_MACOS_ARM64']):
     env.Append(CCFLAGS='-DPLUGSIN_64')
 
 env.Append(CPPPATH='../../lib_juce/modules')
