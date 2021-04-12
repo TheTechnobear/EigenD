@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "dft.h"
+#include "dft/dft.h"
 
 typedef struct {
      solver super;
@@ -145,27 +145,23 @@ static void awake(plan *ego_, enum wakefulness wakefulness)
      }
 }
 
-static int applicable0(const problem *p_)
+static int applicable(const solver *ego, const problem *p_, 
+		      const planner *plnr)
 {
      const problem_dft *p = (const problem_dft *) p_;
+     UNUSED(ego);
      return (1
 	     && p->sz->rnk == 1
 	     && p->vecsz->rnk == 0
 	     /* FIXME: allow other sizes */
 	     && X(is_prime)(p->sz->dims[0].n)
 
-	     /* FIXME: infinite recursion of bluestein with itself */
+	     /* FIXME: avoid infinite recursion of bluestein with itself.
+		This works because all factors in child problems are 2, 3, 5 */
 	     && p->sz->dims[0].n > 16
-	  );
-}
 
-static int applicable(const solver *ego, const problem *p_, 
-		      const planner *plnr)
-{
-     UNUSED(ego);
-     if (NO_SLOWP(plnr)) return 0;
-     if (!applicable0(p_)) return 0;
-     return 1;
+	     && CIMPLIES(NO_SLOWP(plnr), p->sz->dims[0].n > BLUESTEIN_MAX_SLOW)
+	  );
 }
 
 static void destroy(plan *ego_)
@@ -183,8 +179,7 @@ static void print(const plan *ego_, printer *p)
 
 static INT choose_transform_size(INT minsz)
 {
-     static const INT primes[] = { 2, 3, 5, 0 };
-     while (!X(factors_into)(minsz, primes))
+     while (!X(factors_into_small_primes)(minsz))
 	  ++minsz;
      return minsz;
 }

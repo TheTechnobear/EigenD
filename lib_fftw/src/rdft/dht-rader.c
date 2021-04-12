@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "rdft.h"
+#include "rdft/rdft.h"
 
 /*
  * Compute DHTs of prime sizes using Rader's trick: turn them
@@ -214,6 +214,10 @@ static void awake(plan *ego_, enum wakefulness wakefulness)
 	      ego->omega = 0;
 	      break;
 	 default:
+	      ego->g = X(find_generator)(ego->n);
+	      ego->ginv = X(power_mod)(ego->g, ego->n - 2, ego->n);
+	      A(MULMOD(ego->g, ego->ginv, ego->n) == 1);
+
 	      A(!ego->omega);
 	      ego->omega = mkomega(wakefulness, 
 				   ego->cld_omega,ego->n,ego->npad,ego->ginv);
@@ -242,22 +246,23 @@ static void print(const plan *ego_, printer *p)
      p->putchr(p, ')');
 }
 
-static int applicable0(const problem *p_)
+static int applicable(const solver *ego, const problem *p_, const planner *plnr)
 {
      const problem_rdft *p = (const problem_rdft *) p_;
+     UNUSED(ego);
      return (1
 	     && p->sz->rnk == 1
 	     && p->vecsz->rnk == 0
 	     && p->kind[0] == DHT
 	     && X(is_prime)(p->sz->dims[0].n)
 	     && p->sz->dims[0].n > 2
+	     && CIMPLIES(NO_SLOWP(plnr), p->sz->dims[0].n > RADER_MAX_SLOW)
+	     /* proclaim the solver SLOW if p-1 is not easily
+		factorizable.  Unlike in the complex case where
+		Bluestein can solve the problem, in the DHT case we
+		may have no other choice */
+	     && CIMPLIES(NO_SLOWP(plnr), X(factors_into_small_primes)(p->sz->dims[0].n - 1))
 	  );
-}
-
-static int applicable(const solver *ego, const problem *p, const planner *plnr)
-{
-     UNUSED(ego);
-     return (!NO_SLOWP(plnr) && applicable0(p));
 }
 
 static INT choose_transform_size(INT minsz)
@@ -344,9 +349,6 @@ static plan *mkplan(const solver *ego_, const problem *p_, planner *plnr)
      pln->npad = npad;
      pln->is = is;
      pln->os = os;
-     pln->g = X(find_generator)(n);
-     pln->ginv = X(power_mod)(pln->g, n - 2, n);
-     A(MULMOD(pln->g, pln->ginv, n) == 1);
 
      X(ops_add)(&cld1->ops, &cld2->ops, &pln->super.super.ops);
      pln->super.super.ops.other += (npad/2-1)*6 + npad + n + (n-1) * ego->pad;

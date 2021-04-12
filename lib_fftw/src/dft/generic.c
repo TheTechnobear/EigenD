@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "dft.h"
+#include "dft/dft.h"
 
 typedef struct {
      solver super;
@@ -75,8 +75,9 @@ static void apply(const plan *ego_, R *ri, R *ii, R *ro, R *io)
      INT n = ego->n, is = ego->is, os = ego->os;
      const R *W = ego->td->W;
      E *buf;
+     size_t bufsz = n * 2 * sizeof(E);
 
-     STACK_MALLOC(E *, buf, n * 2 * sizeof(E));
+     BUF_ALLOC(E *, buf, bufsz);
      hartley(n, ri, ii, is, buf, ro, io);
 
      for (i = 1; i + i < n; ++i) {
@@ -86,7 +87,7 @@ static void apply(const plan *ego_, R *ri, R *ii, R *ro, R *io)
 	  W += n - 1;
      }
 
-     STACK_FREE(buf);
+     BUF_FREE(buf, bufsz);
 }
 
 static void awake(plan *ego_, enum wakefulness wakefulness)
@@ -108,29 +109,20 @@ static void print(const plan *ego_, printer *p)
      p->print(p, "(dft-generic-%D)", ego->n);
 }
 
-static int applicable0(const problem *p_)
+static int applicable(const solver *ego, const problem *p_, 
+		      const planner *plnr)
 {
      const problem_dft *p = (const problem_dft *) p_;
+     UNUSED(ego);
+
      return (1
 	     && p->sz->rnk == 1
 	     && p->vecsz->rnk == 0
 	     && (p->sz->dims[0].n % 2) == 1 
+	     && CIMPLIES(NO_LARGE_GENERICP(plnr), p->sz->dims[0].n < GENERIC_MIN_BAD)
+	     && CIMPLIES(NO_SLOWP(plnr), p->sz->dims[0].n > GENERIC_MAX_SLOW)
 	     && X(is_prime)(p->sz->dims[0].n)
 	  );
-}
-
-static int applicable(const solver *ego, const problem *p_, 
-		      const planner *plnr)
-{
-     UNUSED(ego);
-     if (NO_SLOWP(plnr)) return 0;
-     if (!applicable0(p_)) return 0;
-
-     if (NO_LARGE_GENERICP(plnr)) {
-          const problem_dft *p = (const problem_dft *) p_;
-	  if (p->sz->dims[0].n >= GENERIC_MIN_BAD) return 0; 
-     }
-     return 1;
 }
 
 static plan *mkplan(const solver *ego, const problem *p_, planner *plnr)

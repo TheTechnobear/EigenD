@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
 /* direct DFT solver, if we have a codelet */
 
-#include "dft.h"
+#include "dft/dft.h"
 
 typedef struct {
      solver super;
@@ -75,8 +75,9 @@ static void apply_buf(const plan *ego_, R *ri, R *ii, R *ro, R *io)
      R *buf;
      INT vl = ego->vl, n = ego->n, batchsz = compute_batchsize(n);
      INT i;
+     size_t bufsz = n * batchsz * 2 * sizeof(R);
 
-     STACK_MALLOC(R *, buf, n * batchsz * 2 * sizeof(R));
+     BUF_ALLOC(R *, buf, bufsz);
 
      for (i = 0; i < vl - batchsz; i += batchsz) {
 	  dobatch(ego, ri, ii, ro, io, buf, batchsz);
@@ -85,7 +86,7 @@ static void apply_buf(const plan *ego_, R *ri, R *ii, R *ro, R *io)
      }
      dobatch(ego, ri, ii, ro, io, buf, vl - i);
 
-     STACK_FREE(buf);
+     BUF_FREE(buf, bufsz);
 }
 
 static void apply(const plan *ego_, R *ri, R *ii, R *ro, R *io)

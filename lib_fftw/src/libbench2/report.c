@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "bench.h"
+#include "libbench2/bench.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -58,8 +58,8 @@ static void mkstat(double *t, int st, struct stats *a)
 	  for (j = 0; j < i - 1; ++j) {
 	       double t0, t1;
 	       if ((t0 = t[j]) > (t1 = t[j + 1])) {
-		    t[j] = t0;
-		    t[j + 1] = t1;
+		    t[j] = t1;
+		    t[j + 1] = t0;
 	       }
 	  } 
      }
@@ -87,7 +87,7 @@ void report_benchmark(const bench_problem *p, double *t, int st)
 {
      struct stats s;
      mkstat(t, st, &s);
-     ovtpvt("%.5g %.8g %g\n", mflops(p, s.min), s.min, p->setup_time);
+     ovtpvt("%.8g %.8g %g\n", mflops(p, s.min), s.min, p->setup_time);
 }
 
 static void sprintf_time(double x, char *buf, int buflen)
@@ -124,7 +124,7 @@ void report_verbose(const bench_problem *p, double *t, int st)
      sprintf_time(time_min, btmin, 64);
      sprintf_time(p->setup_time, bsetup, 64);
 
-     ovtpvt("Problem: %s, setup: %s, time: %s, %s: %.5g\n",
+     ovtpvt("Problem: %s, setup: %s, time: %s, %s: %.8g\n",
 	    p->pstring, bsetup, bmin, 
 	    copyp ? "fp-move/us" : "``mflops''",
 	    mflops(p, s.min));

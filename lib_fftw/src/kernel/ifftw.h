@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -28,6 +28,7 @@
 #include <stdlib.h>		/* size_t */
 #include <stdarg.h>		/* va_list */
 #include <stddef.h>             /* ptrdiff_t */
+#include <limits.h>             /* INT_MAX */
 
 #if HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -40,6 +41,11 @@
 #if HAVE_INTTYPES_H
 # include <inttypes.h>           /* uintptr_t, maybe */
 #endif
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
 
 /* Windows annoyances -- since tests/hook.c uses some internal
    FFTW functions, we need to given them the dllexport attribute
@@ -62,6 +68,10 @@
   typedef long double R;
 # define X(name) CONCAT(fftwl_, name)
 # define TRIGREAL_IS_LONG_DOUBLE
+#elif defined(FFTW_QUAD)
+  typedef __float128 R;
+# define X(name) CONCAT(fftwq_, name)
+# define TRIGREAL_IS_QUAD
 #else
   typedef double R;
 # define X(name) CONCAT(fftw_, name)
@@ -76,7 +86,7 @@ typedef ptrdiff_t INT;
 /* dummy use of unused parameters to silence compiler warnings */
 #define UNUSED(x) (void)x
 
-#define NELEM(array) ((int) (sizeof(array) / sizeof((array)[0])))
+#define NELEM(array) ((sizeof(array) / sizeof((array)[0])))
 
 #define FFT_SIGN (-1)  /* sign convention for forward transforms */
 extern void X(extract_reim)(int sign, R *c, R **r, R **i);
@@ -85,13 +95,30 @@ extern void X(extract_reim)(int sign, R *c, R **r, R **i);
 
 #define STRINGIZEx(x) #x
 #define STRINGIZE(x) STRINGIZEx(x)
+#define CIMPLIES(ante, post) (!(ante) || (post))
 
-#if defined(HAVE_SSE) || defined(HAVE_SSE2) || defined(HAVE_ALTIVEC) || \
-    defined(HAVE_MIPS_PS)
+/* define HAVE_SIMD if any simd extensions are supported */
+#if defined(HAVE_SSE) || defined(HAVE_SSE2) || \
+      defined(HAVE_AVX) || defined(HAVE_AVX_128_FMA) || \
+      defined(HAVE_AVX2) || defined(HAVE_AVX512) || \
+      defined(HAVE_KCVI) || \
+      defined(HAVE_ALTIVEC) || defined(HAVE_VSX) || \
+      defined(HAVE_MIPS_PS) || \
+      defined(HAVE_GENERIC_SIMD128) || defined(HAVE_GENERIC_SIMD256)
 #define HAVE_SIMD 1
 #else
 #define HAVE_SIMD 0
 #endif
+
+extern int X(have_simd_sse2)(void);
+extern int X(have_simd_avx)(void);
+extern int X(have_simd_avx_128_fma)(void);
+extern int X(have_simd_avx2)(void);
+extern int X(have_simd_avx2_128)(void);
+extern int X(have_simd_avx512)(void);
+extern int X(have_simd_altivec)(void);
+extern int X(have_simd_vsx)(void);
+extern int X(have_simd_neon)(void);
 
 /* forward declarations */
 typedef struct problem_s problem;
@@ -103,11 +130,21 @@ typedef struct scanner_s scanner;
 
 /*-----------------------------------------------------------------------*/
 /* alloca: */
-#if HAVE_SIMD || HAVE_CELL
-#define MIN_ALIGNMENT 16
+#if HAVE_SIMD
+#  if defined(HAVE_KCVI) || defined(HAVE_AVX512)
+#    define MIN_ALIGNMENT 64
+#  elif defined(HAVE_AVX) || defined(HAVE_AVX2) || defined(HAVE_GENERIC_SIMD256)
+#    define MIN_ALIGNMENT 32  /* best alignment for AVX, conservative for
+			       * everything else */
+#  else
+     /* Note that we cannot use 32-byte alignment for all SIMD.  For
+	example, MacOS X malloc is 16-byte aligned, but there was no
+	posix_memalign in MacOS X until version 10.6. */
+#    define MIN_ALIGNMENT 16
+#  endif
 #endif
 
-#ifdef HAVE_ALLOCA
+#if defined(HAVE_ALLOCA) && defined(FFTW_ENABLE_ALLOCA)
    /* use alloca if available */
 
 #ifndef alloca
@@ -134,23 +171,47 @@ void *alloca(size_t);
 #endif
 
 #  ifdef MIN_ALIGNMENT
-#    define STACK_MALLOC(T, p, x)				\
+#    define STACK_MALLOC(T, p, n)				\
      {								\
-         p = (T)alloca((x) + MIN_ALIGNMENT);			\
+         p = (T)alloca((n) + MIN_ALIGNMENT);			\
          p = (T)(((uintptr_t)p + (MIN_ALIGNMENT - 1)) &	\
                (~(uintptr_t)(MIN_ALIGNMENT - 1)));		\
      }
-#    define STACK_FREE(x) 
+#    define STACK_FREE(n) 
 #  else /* HAVE_ALLOCA && !defined(MIN_ALIGNMENT) */
-#    define STACK_MALLOC(T, p, x) p = (T)alloca(x) 
-#    define STACK_FREE(x) 
+#    define STACK_MALLOC(T, p, n) p = (T)alloca(n) 
+#    define STACK_FREE(n) 
 #  endif
 
 #else /* ! HAVE_ALLOCA */
    /* use malloc instead of alloca */
-#  define STACK_MALLOC(T, p, x) p = (T)MALLOC(x, OTHER)
-#  define STACK_FREE(x) X(ifree)(x)
+#  define STACK_MALLOC(T, p, n) p = (T)MALLOC(n, OTHER)
+#  define STACK_FREE(n) X(ifree)(n)
 #endif /* ! HAVE_ALLOCA */
+
+/* allocation of buffers.  If these grow too large use malloc(), else
+   use STACK_MALLOC (hopefully reducing to alloca()). */
+
+/* 64KiB ought to be enough for anybody */
+#define MAX_STACK_ALLOC ((size_t)64 * 1024)
+
+#define BUF_ALLOC(T, p, n)			\
+{						\
+     if (n < MAX_STACK_ALLOC) {			\
+	  STACK_MALLOC(T, p, n);		\
+     } else {					\
+	  p = (T)MALLOC(n, BUFFERS);		\
+     }						\
+}
+
+#define BUF_FREE(p, n)				\
+{						\
+     if (n < MAX_STACK_ALLOC) {			\
+	  STACK_FREE(p);			\
+     } else {					\
+	  X(ifree)(p);				\
+     }						\
+}
 
 /*-----------------------------------------------------------------------*/
 /* define uintptr_t if it is not already defined */
@@ -227,32 +288,8 @@ enum malloc_tag {
 IFFTW_EXTERN void X(ifree)(void *ptr);
 extern void X(ifree0)(void *ptr);
 
-#ifdef FFTW_DEBUG_MALLOC
-
-IFFTW_EXTERN void *X(malloc_debug)(size_t n, enum malloc_tag what,
-			     const char *file, int line);
-#define MALLOC(n, what) X(malloc_debug)(n, what, __FILE__, __LINE__)
-#define NATIVE_MALLOC(n, what) MALLOC(n, what)
-IFFTW_EXTERN void X(malloc_print_minfo)(int vrbose);
-
-#else /* ! FFTW_DEBUG_MALLOC */
-
 IFFTW_EXTERN void *X(malloc_plain)(size_t sz);
 #define MALLOC(n, what)  X(malloc_plain)(n)
-#define NATIVE_MALLOC(n, what) malloc(n)
-
-#endif
-
-#if defined(FFTW_DEBUG) && defined(FFTW_DEBUG_MALLOC) && (defined(HAVE_THREADS) || defined(HAVE_OPENMP))
-extern int X(in_thread);
-#  define IN_THREAD X(in_thread)
-#  define THREAD_ON { int in_thread_save = X(in_thread); X(in_thread) = 1
-#  define THREAD_OFF X(in_thread) = in_thread_save; }
-#else
-#  define IN_THREAD 0
-#  define THREAD_ON 
-#  define THREAD_OFF 
-#endif
 
 /*-----------------------------------------------------------------------*/
 /* low-resolution clock */
@@ -387,7 +424,7 @@ typedef struct {
  
   A tensor of rank -infinity has size 0.
 */
-#define RNK_MINFTY  ((int)(((unsigned) -1) >> 1))
+#define RNK_MINFTY  INT_MAX
 #define FINITE_RNK(rnk) ((rnk) != RNK_MINFTY)
 
 typedef enum { INPLACE_IS, INPLACE_OS } inplace_kind;
@@ -615,9 +652,9 @@ enum {
 
 /* hashtable information */
 enum {
-     BLESSING = 0x1,   /* save this entry */
-     H_VALID = 0x2,    /* valid hastable entry */
-     H_LIVE = 0x4      /* entry is nonempty, implies H_VALID */
+     BLESSING = 0x1u,   /* save this entry */
+     H_VALID = 0x2u,    /* valid hastable entry */
+     H_LIVE = 0x4u      /* entry is nonempty, implies H_VALID */
 };
 
 #define PLNR_L(plnr) ((plnr)->flags.l)
@@ -693,6 +730,9 @@ struct planner_s {
      void (*hook)(struct planner_s *plnr, plan *pln, 
 		  const problem *p, int optimalp);
      double (*cost_hook)(const problem *p, double t, cost_kind k);
+     int (*wisdom_ok_hook)(const problem *p, flags_t flags);
+     void (*nowisdom_hook)(const problem *p);
+     wisdom_state_t (*bogosity_hook)(wisdom_state_t state, const problem *p);
 
      /* solver descriptors */
      slvdesc *slvdescs;
@@ -779,7 +819,7 @@ extern stride X(mkstride)(INT n, INT s);
 void X(stride_destroy)(stride p);
 /* hackery to prevent the compiler from copying the strides array
    onto the stack */
-#define MAKE_VOLATILE_STRIDE(x) (x) = (x) + X(an_INT_guaranteed_to_be_zero)
+#define MAKE_VOLATILE_STRIDE(nptr, x) (x) = (x) + X(an_INT_guaranteed_to_be_zero)
 #else
 
 typedef INT stride;
@@ -792,9 +832,26 @@ typedef INT stride;
 #define fftwl_stride_destroy(p) ((void) p)
 
 /* hackery to prevent the compiler from ``optimizing'' induction
-   variables in codelet loops. */
-#define MAKE_VOLATILE_STRIDE(x) (x) = (x) ^ X(an_INT_guaranteed_to_be_zero)
+   variables in codelet loops.  The problem is that for each K and for
+   each expression of the form P[I + STRIDE * K] in a loop, most
+   compilers will try to lift an induction variable PK := &P[I + STRIDE * K].
+   For large values of K this behavior overflows the
+   register set, which is likely worse than doing the index computation
+   in the first place.
 
+   If we guess that there are more than
+   ESTIMATED_AVAILABLE_INDEX_REGISTERS such pointers, we deliberately confuse
+   the compiler by setting STRIDE ^= ZERO, where ZERO is a value guaranteed to
+   be 0, but the compiler does not know this. 
+
+   16 registers ought to be enough for anybody, or so the amd64 and ARM ISA's
+   seem to imply.
+*/
+#define ESTIMATED_AVAILABLE_INDEX_REGISTERS 16
+#define MAKE_VOLATILE_STRIDE(nptr, x)                   \
+     (nptr <= ESTIMATED_AVAILABLE_INDEX_REGISTERS ?     \
+        0 :                                             \
+      ((x) = (x) ^ X(an_INT_guaranteed_to_be_zero)))
 #endif /* PRECOMPUTE_ARRAY_INDICES */
 
 /*-----------------------------------------------------------------------*/
@@ -808,7 +865,7 @@ void X(solvtab_exec)(const solvtab tbl, planner *p);
 
 /*-----------------------------------------------------------------------*/
 /* pickdim.c */
-int X(pickdim)(int which_dim, const int *buddies, int nbuddies,
+int X(pickdim)(int which_dim, const int *buddies, size_t nbuddies,
 	       const tensor *sz, int oop, int *dp);
 
 /*-----------------------------------------------------------------------*/
@@ -838,8 +895,10 @@ void X(twiddle_awake)(enum wakefulness wakefulness,
 
 /*-----------------------------------------------------------------------*/
 /* trig.c */
-#ifdef TRIGREAL_IS_LONG_DOUBLE
+#if defined(TRIGREAL_IS_LONG_DOUBLE)
    typedef long double trigreal;
+#elif defined(TRIGREAL_IS_QUAD)
+   typedef __float128 trigreal;
 #else
    typedef double trigreal;
 #endif
@@ -874,11 +933,18 @@ INT X(first_divisor)(INT n);
 int X(is_prime)(INT n);
 INT X(next_prime)(INT n);
 int X(factors_into)(INT n, const INT *primes);
+int X(factors_into_small_primes)(INT n);
 INT X(choose_radix)(INT r, INT n);
 INT X(isqrt)(INT n);
 INT X(modulo)(INT a, INT n);
 
 #define GENERIC_MIN_BAD 173 /* min prime for which generic becomes bad */
+
+/* thresholds below which certain solvers are considered SLOW.  These are guesses
+   believed to be conservative */
+#define GENERIC_MAX_SLOW     16
+#define RADER_MAX_SLOW       32
+#define BLUESTEIN_MAX_SLOW   24
 
 /*-----------------------------------------------------------------------*/
 /* rader.c: */
@@ -900,6 +966,7 @@ void X(tile2d)(INT n0l, INT n0u, INT n1l, INT n1u, INT tilesz,
 	       void (*f)(INT n0l, INT n0u, INT n1l, INT n1u, void *args),
 	       void *args);
 void X(cpy1d)(R *I, R *O, INT n0, INT is0, INT os0, INT vl);
+void X(zero1d_pair)(R *O0, R *O1, INT n0, INT os0);
 void X(cpy2d)(R *I, R *O,
 	      INT n0, INT is0, INT os0,
 	      INT n1, INT is1, INT os1,
@@ -940,30 +1007,27 @@ typedef void (*cpy2d_func)(R *I, R *O,
 			   INT n1, INT is1, INT os1,
 			   INT vl);
 
-#if HAVE_CELL
-int X(cell_transpose_applicable)(R *I, const iodim *d, INT vl);
-void X(cell_transpose)(R *I, INT n, INT s0, INT s1, INT vl);
-int X(cell_copy_applicable)(R *I, R *O, const iodim *n, const iodim *v);
-void X(cell_copy)(R *I, R *O, const iodim *n, const iodim *v);
-#endif
-
 /*-----------------------------------------------------------------------*/
 /* misc stuff */
 void X(null_awake)(plan *ego, enum wakefulness wakefulness);
 double X(iestimate_cost)(const planner *, const plan *, const problem *);
 
+#ifdef FFTW_RANDOM_ESTIMATOR
+extern unsigned X(random_estimate_seed);
+#endif
+
 double X(measure_execution_time)(const planner *plnr, 
 				 plan *pln, const problem *p);
-int X(alignment_of)(R *p);
+IFFTW_EXTERN int X(ialignment_of)(R *p);
 unsigned X(hash)(const char *s);
 INT X(nbuf)(INT n, INT vl, INT maxnbuf);
-int X(nbuf_redundant)(INT n, INT vl, int which, 
-		      const INT *maxnbuf, int nmaxnbuf);
+int X(nbuf_redundant)(INT n, INT vl, size_t which, 
+		      const INT *maxnbuf, size_t nmaxnbuf);
 INT X(bufdist)(INT n, INT vl);
 int X(toobig)(INT n);
-int X(ct_uglyp)(INT min_n, INT n, INT r);
+int X(ct_uglyp)(INT min_n, INT v, INT n, INT r);
 
-#if HAVE_SIMD || HAVE_CELL
+#if HAVE_SIMD
 R *X(taint)(R *p, INT s);
 R *X(join_taint)(R *p1, R *p2);
 #define TAINT(p, s) X(taint)(p, s)
@@ -977,24 +1041,17 @@ R *X(join_taint)(R *p1, R *p2);
 #define JOIN_TAINT(p1, p2) p1
 #endif
 
-#ifdef FFTW_DEBUG_ALIGNMENT
-#  define ASSERT_ALIGNED_DOUBLE {		\
-     double __foo;				\
-     CK(!(((uintptr_t) &__foo) & 0x7));		\
-}
-#else
-#  define ASSERT_ALIGNED_DOUBLE 
-#endif /* FFTW_DEBUG_ALIGNMENT */
-
-
+#define ASSERT_ALIGNED_DOUBLE  /*unused, legacy*/
 
 /*-----------------------------------------------------------------------*/
 /* macros used in codelets to reduce source code size */
 
 typedef R E;  /* internal precision of codelets. */
 
-#ifdef FFTW_LDOUBLE
+#if defined(FFTW_LDOUBLE)
 #  define K(x) ((E) x##L)
+#elif defined(FFTW_QUAD)
+#  define K(x) ((E) x##Q)
 #else
 #  define K(x) ((E) x)
 #endif
@@ -1079,55 +1136,8 @@ static __inline__ E FNMS(E a, E b, E c)
 #define FNMS(a, b, c) ((c) - ((a) * (b)))
 #endif
 
-/* stack-alignment hackery */
-#ifdef __ICC /* Intel's compiler for ia32 */
-#define WITH_ALIGNED_STACK(what)				\
-{								\
-     /*								\
-      * Simply calling alloca seems to do the right thing.	\
-      * The size of the allocated block seems to be irrelevant.	\
-      */							\
-     _alloca(16);						\
-     what							\
-}
-#endif
-
-#if defined(__GNUC__) && defined(__i386__) && !defined(WITH_ALIGNED_STACK) \
-    && !(defined(__MACOSX__) || defined(__APPLE__)) /* OSX ABI is aligned */
-/*
- * horrible hack to align the stack to a 16-byte boundary.
- *
- * We assume a gcc version >= 2.95 so that
- * -mpreferred-stack-boundary works.  Otherwise, all bets are
- * off.  However, -mpreferred-stack-boundary does not create a
- * stack alignment, but it only preserves it.  Unfortunately,
- * many versions of libc on linux call main() with the wrong
- * initial stack alignment, with the result that the code is now
- * pessimally aligned instead of having a 50% chance of being
- * correct.
- */
-
-#define WITH_ALIGNED_STACK(what)				\
-{								\
-     /*								\
-      * Use alloca to allocate some memory on the stack.	\
-      * This alerts gcc that something funny is going		\
-      * on, so that it does not omit the frame pointer		\
-      * etc.							\
-      */							\
-     (void)__builtin_alloca(16);				\
-								\
-     /*								\
-      * Now align the stack pointer				\
-      */							\
-     __asm__ __volatile__ ("andl $-16, %esp");			\
-								\
-     what							\
-}
-#endif
-
-#ifndef WITH_ALIGNED_STACK
-#define WITH_ALIGNED_STACK(what) what
-#endif
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif /* __cplusplus */
 
 #endif /* __IFFTW_H__ */

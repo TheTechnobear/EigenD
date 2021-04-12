@@ -1,5 +1,5 @@
-c     Copyright (c) 2003, 2007-8 Matteo Frigo
-c     Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+c     Copyright (c) 2003, 2007-14 Matteo Frigo
+c     Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
 c     
 c     This program is free software; you can redistribute it and/or modify
 c     it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@ c     GNU General Public License for more details.
 c     
 c     You should have received a copy of the GNU General Public License
 c     along with this program; if not, write to the Free Software
-c     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+c     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "rdft.h"
+#include "rdft/rdft.h"
 
 typedef struct {
      solver super;
@@ -76,8 +76,9 @@ static void apply_r2hc(const plan *ego_, R *I, R *O)
      INT n = ego->n, is = ego->is, os = ego->os;
      const R *W = ego->td->W;
      E *buf;
+     size_t bufsz = n * sizeof(E);
 
-     STACK_MALLOC(E *, buf, n * sizeof(E));
+     BUF_ALLOC(E *, buf, bufsz);
      hartley_r2hc(n, I, is, buf, O);
 
      for (i = 1; i + i < n; ++i) {
@@ -85,7 +86,7 @@ static void apply_r2hc(const plan *ego_, R *I, R *O)
 	  W += n - 1;
      }
 
-     STACK_FREE(buf);
+     BUF_FREE(buf, bufsz);
 }
 
 
@@ -130,8 +131,9 @@ static void apply_hc2r(const plan *ego_, R *I, R *O)
      INT n = ego->n, is = ego->is, os = ego->os;
      const R *W = ego->td->W;
      E *buf;
+     size_t bufsz = n * sizeof(E);
 
-     STACK_MALLOC(E *, buf, n * sizeof(E));
+     BUF_ALLOC(E *, buf, bufsz);
      hartley_hc2r(n, I, is, buf, O);
 
      for (i = 1; i + i < n; ++i) {
@@ -139,7 +141,7 @@ static void apply_hc2r(const plan *ego_, R *I, R *O)
 	  W += n - 1;
      }
 
-     STACK_FREE(buf);
+     BUF_FREE(buf, bufsz);
 }
 
 
@@ -166,29 +168,19 @@ static void print(const plan *ego_, printer *p)
 	      ego->n);
 }
 
-static int applicable0(const S *ego, const problem *p_)
+static int applicable(const S *ego, const problem *p_, 
+		      const planner *plnr)
 {
      const problem_rdft *p = (const problem_rdft *) p_;
      return (1
 	     && p->sz->rnk == 1
 	     && p->vecsz->rnk == 0
 	     && (p->sz->dims[0].n % 2) == 1 
+	     && CIMPLIES(NO_LARGE_GENERICP(plnr), p->sz->dims[0].n < GENERIC_MIN_BAD)
+	     && CIMPLIES(NO_SLOWP(plnr), p->sz->dims[0].n > GENERIC_MAX_SLOW)
 	     && X(is_prime)(p->sz->dims[0].n)
 	     && p->kind[0] == ego->kind
 	  );
-}
-
-static int applicable(const S *ego, const problem *p_, 
-		      const planner *plnr)
-{
-     if (NO_SLOWP(plnr)) return 0;
-     if (!applicable0(ego, p_)) return 0;
-
-     if (NO_LARGE_GENERICP(plnr)) {
-          const problem_rdft *p = (const problem_rdft *) p_;
-	  if (p->sz->dims[0].n >= GENERIC_MIN_BAD) return 0; 
-     }
-     return 1;
 }
 
 static plan *mkplan(const solver *ego_, const problem *p_, planner *plnr)

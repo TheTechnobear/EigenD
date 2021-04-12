@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 1997-1999 Massachusetts Institute of Technology
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *)
 
@@ -78,9 +78,9 @@ let reorder l =
 	  List.map 
 	    (fun (a, x) -> ((a, x), (overlap va x, List.length x))) b in
 	let c' =
-	  Sort.list 
-	    (fun (_, (a, la)) (_, (b, lb)) -> 
-	      la < lb or a > b)
+	  List.sort 
+	    (fun (_, (a, la)) (_, (b, lb)) ->
+              if la < lb || a > b then -1 else 1)
 	    c in
 	let b' = List.map (fun (a, _) -> a) c' in
 	a :: (loop b') in
@@ -273,7 +273,7 @@ let rec rewrite_declarations force_declarations
   let m = !Magic.number_of_variables in
 
   let declare_it declared =
-    if (force_declarations or List.length declared >= m) then
+    if (force_declarations || List.length declared >= m) then
       ([], declared)
     else
       (declared, [])

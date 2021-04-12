@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,15 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 /* openmp.c: thread spawning via OpenMP  */
 
-#include "threads.h"
-
-#ifdef HAVE_OPENMP
+#include "threads/threads.h"
 
 #if !defined(_OPENMP)
 #error OpenMP enabled but not using an OpenMP compiler
@@ -60,7 +58,22 @@ void X(spawn_loop)(int loopmax, int nthr, spawn_function proc, void *data)
      block_size = (loopmax + nthr - 1) / nthr;
      nthr = (loopmax + block_size - 1) / block_size;
 
-     THREAD_ON; /* prevent debugging mode from failing under threads */
+     if (X(spawnloop_callback)) { /* user-defined spawnloop backend */
+          spawn_data *sdata;
+          STACK_MALLOC(spawn_data *, sdata, sizeof(spawn_data) * nthr);
+          for (i = 0; i < nthr; ++i) {
+               spawn_data *d = &sdata[i];
+               d->max = (d->min = i * block_size) + block_size;
+               if (d->max > loopmax)
+                    d->max = loopmax;
+               d->thr_num = i;
+               d->data = data;
+          }
+          X(spawnloop_callback)(proc, sdata, sizeof(spawn_data), nthr, X(spawnloop_callback_data));
+          STACK_FREE(sdata);
+          return;
+     }
+
 #pragma omp parallel for private(d)
      for (i = 0; i < nthr; ++i) {
 	  d.max = (d.min = i * block_size) + block_size;
@@ -70,11 +83,14 @@ void X(spawn_loop)(int loopmax, int nthr, spawn_function proc, void *data)
 	  d.data = data;
 	  proc(&d);
      }
-     THREAD_OFF; /* prevent debugging mode from failing under threads */
 }
 
 void X(threads_cleanup)(void)
 {
 }
 
-#endif /* HAVE_OPENMP */
+/* FIXME [Matteo Frigo 2015-05-25] What does "thread-safe"
+   mean for openmp? */
+void X(threads_register_planner_hooks)(void)
+{
+}

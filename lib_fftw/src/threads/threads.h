@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,16 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 #ifndef __THREADS_H__
 #define __THREADS_H__
 
-#include "ifftw.h"
-#include "ct.h"
-#include "hc2hc.h"
+#include "kernel/ifftw.h"
+#include "dft/ct.h"
+#include "rdft/hc2hc.h"
 
 typedef struct {
      int min, max, thr_num;
@@ -37,13 +37,17 @@ void X(spawn_loop)(int loopmax, int nthreads,
 int X(ithreads_init)(void);
 void X(threads_cleanup)(void);
 
+typedef void (*spawnloop_function)(spawn_function, spawn_data *, size_t, int, void *);
+extern spawnloop_function X(spawnloop_callback);
+extern void *X(spawnloop_callback_data);
+
 /* configurations */
 
 void X(dft_thr_vrank_geq1_register)(planner *p);
 void X(rdft_thr_vrank_geq1_register)(planner *p);
 void X(rdft2_thr_vrank_geq1_register)(planner *p);
 
-ct_solver *X(mksolver_ct_threads)(size_t size, INT r, int dec, 
+ct_solver *X(mksolver_ct_threads)(size_t size, INT r, int dec,
 				  ct_mkinferior mkcldw,
 				  ct_force_vrecursion force_vrecursionp);
 hc2hc_solver *X(mksolver_hc2hc_threads)(size_t size, INT r, hc2hc_mkinferior mkcldw);
@@ -51,4 +55,6 @@ hc2hc_solver *X(mksolver_hc2hc_threads)(size_t size, INT r, hc2hc_mkinferior mkc
 void X(threads_conf_standard)(planner *p);
 void X(threads_register_hooks)(void);
 void X(threads_unregister_hooks)(void);
+void X(threads_register_planner_hooks)(void);
+
 #endif /* __THREADS_H__ */

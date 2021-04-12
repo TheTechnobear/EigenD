@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "ifftw.h"
+#include "kernel/ifftw.h"
 #include <string.h>
 #include <stddef.h>
 #include <stdarg.h>
@@ -72,7 +72,7 @@ static void eat_blanks(scanner *sc)
      UNGETCHR(sc, ch);
 }
 
-static void mygets(scanner *sc, char *s, size_t maxlen)
+static void mygets(scanner *sc, char *s, int maxlen)
 {
      char *s0 = s;
      int ch;
@@ -80,7 +80,7 @@ static void mygets(scanner *sc, char *s, size_t maxlen)
      A(maxlen > 0);
      while ((ch = GETCHR(sc)) != EOF && !isspace(ch)
 	    && ch != ')' && ch != '(' && s < s0 + maxlen)
-	  *s++ = ch;
+	  *s++ = (char)(ch & 0xFF);
      *s = 0;
      UNGETCHR(sc, ch);
 }
@@ -124,7 +124,7 @@ static int vscan(scanner *sc, const char *format, va_list ap)
      const char *s = format;
      char c;
      int ch = 0;
-     size_t fmt_len;
+     int fmt_len;
 
      while ((c = *s++)) {
 	  fmt_len = 0;
@@ -152,7 +152,7 @@ static int vscan(scanner *sc, const char *format, va_list ap)
 		       case 'M': {
 			    md5uint *x = va_arg(ap, md5uint *);
 			    *x = (md5uint)
-				    (0xffffffffUL & getlong(sc, 16, &ch));
+				    (0xFFFFFFFF & getlong(sc, 16, &ch));
 			    if (!ch) return 0;
 			    break;
 		       }

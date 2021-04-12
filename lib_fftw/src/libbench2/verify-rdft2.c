@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -84,7 +84,7 @@ static void cpyhc2(R *ra, R *ia,
      k.k.apply = cpyhc20;
      k.n = tensor_sz(sza);
      k.scalea = scalea;
-     if (!FINITE_RNK(sza->rnk) || sza->rnk == 0)
+     if (!BENCH_FINITE_RNK(sza->rnk) || sza->rnk == 0)
 	  k.as = 0;
      else
 	  k.as = sza->dims[0].os;
@@ -121,7 +121,7 @@ static void icpyhc2(R *ra, R *ia,
      k.k.apply = icpyhc20;
      k.n = tensor_sz(sza);
      k.scalea = scalea;
-     if (!FINITE_RNK(sza->rnk) || sza->rnk == 0)
+     if (!BENCH_FINITE_RNK(sza->rnk) || sza->rnk == 0)
 	  k.as = 0;
      else
 	  k.as = sza->dims[0].is;
@@ -148,13 +148,13 @@ static void rdft2_apply(dofft_closure *k_,
      totalsz = tensor_append(p->vecsz, p->sz);
      pckdsz = verify_pack(totalsz, 2);
      n2 = tensor_sz(totalsz);
-     if (FINITE_RNK(p->sz->rnk) && p->sz->rnk > 0)
+     if (BENCH_FINITE_RNK(p->sz->rnk) && p->sz->rnk > 0)
 	  n2 = (n2 / p->sz->dims[p->sz->rnk - 1].n) * 
 	       (p->sz->dims[p->sz->rnk - 1].n / 2 + 1);
      ri = (bench_real *) p->in;
      ro = (bench_real *) p->out;
 
-     if (FINITE_RNK(p->sz->rnk) && p->sz->rnk > 0 && n2 > 0) {
+     if (BENCH_FINITE_RNK(p->sz->rnk) && p->sz->rnk > 0 && n2 > 0) {
 	  probsz2 = tensor_copy_sub(p->sz, p->sz->rnk - 1, 1);
 	  totalsz2 = tensor_copy_sub(totalsz, 0, totalsz->rnk - 1);
 	  pckdsz2 = tensor_copy_sub(pckdsz, 0, pckdsz->rnk - 1);
@@ -232,7 +232,7 @@ void verify_rdft2(bench_problem *p, int rounds, double tol, errors *e)
 
      BENCH_ASSERT(p->kind == PROBLEM_REAL);
 
-     if (!FINITE_RNK(p->sz->rnk) || !FINITE_RNK(p->vecsz->rnk))
+     if (!BENCH_FINITE_RNK(p->sz->rnk) || !BENCH_FINITE_RNK(p->vecsz->rnk))
 	  return;      /* give up */
 
      k.k.apply = rdft2_apply;

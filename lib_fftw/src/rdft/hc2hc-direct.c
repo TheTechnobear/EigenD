@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "hc2hc.h"
+#include "rdft/hc2hc.h"
 
 typedef struct {
      hc2hc_solver super;
@@ -100,8 +100,9 @@ static void apply_buf(const plan *ego_, R *IO)
      INT mb = ego->mb, me = ego->me, ms = ego->ms;
      INT batchsz = compute_batchsize(r);
      R *buf;
+     size_t bufsz = r * batchsz * 2 * sizeof(R);
 
-     STACK_MALLOC(R *, buf, r * batchsz * 2 * sizeof(R));
+     BUF_ALLOC(R *, buf, bufsz);
 
      for (i = 0; i < v; ++i, IO += ego->vs) {
 	  R *IOp = IO;
@@ -117,7 +118,7 @@ static void apply_buf(const plan *ego_, R *IO)
 	  cldm->apply((plan *) cldm, IO + ms * (m/2), IO + ms * (m/2));
      }
 
-     STACK_FREE(buf);
+     BUF_FREE(buf, bufsz);
 }
 
 static void awake(plan *ego_, enum wakefulness wakefulness)
@@ -166,14 +167,14 @@ static int applicable0(const S *ego, rdft_kind kind, INT r)
 	  );
 }
 
-static int applicable(const S *ego, rdft_kind kind, INT r, INT m,
+static int applicable(const S *ego, rdft_kind kind, INT r, INT m, INT v,
 		      const planner *plnr)
 {
      if (!applicable0(ego, kind, r))
           return 0;
 
      if (NO_UGLYP(plnr) && X(ct_uglyp)((ego->bufferedp? (INT)512 : (INT)16),
-				       m * r, r)) 
+				       v, m * r, r)) 
 	  return 0;
 
      return 1;
@@ -198,7 +199,7 @@ static plan *mkcldw(const hc2hc_solver *ego_,
 	  0, awake, print, destroy
      };
 
-     if (!applicable(ego, kind, r, m, plnr))
+     if (!applicable(ego, kind, r, m, v, plnr))
           return (plan *)0;
 
      cld0 = X(mkplan_d)(
@@ -241,6 +242,9 @@ static plan *mkcldw(const hc2hc_solver *ego_,
 
      if (ego->bufferedp) 
 	  pln->super.super.ops.other += 4 * r * (pln->me - pln->mb) * v;
+
+     pln->super.super.could_prune_now_p =
+	  (!ego->bufferedp && r >= 5 && r < 64 && m >= r);
 
      return &(pln->super.super);
 

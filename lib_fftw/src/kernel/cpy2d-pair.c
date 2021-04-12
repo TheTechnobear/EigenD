@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 /* out of place copy routines for pairs of isomorphic 2D arrays */
-#include "ifftw.h"
+#include "kernel/ifftw.h"
 
 void X(cpy2d_pair)(R *I0, R *I1, R *O0, R *O1,
 		   INT n0, INT is0, INT os0,
@@ -34,6 +34,15 @@ void X(cpy2d_pair)(R *I0, R *I1, R *O0, R *O1,
 	       O0[i0 * os0 + i1 * os1] = x0;
 	       O1[i0 * os0 + i1 * os1] = x1;
 	  }
+}
+
+void X(zero1d_pair)(R *O0, R *O1, INT n0, INT os0)
+{
+     INT i0;
+     for (i0 = 0; i0 < n0; ++i0) {
+          O0[i0 * os0] = 0;
+          O1[i0 * os0] = 0;
+     }
 }
 
 /* like cpy2d_pair, but read input contiguously if possible */

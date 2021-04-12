@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 1997-1999 Massachusetts Institute of Technology
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *)
 
@@ -145,7 +145,7 @@ let info string =
 (* iota n produces the list [0; 1; ...; n - 1] *)
 let iota n = forall [] cons 0 n identity
 
-(* interval a b produces the list [a; 1; ...; b - 1] *)
+(* interval a b produces the list [a; a + 1; ...; b - 1] *)
 let interval a b = List.map ((+) a) (iota (b - a))
 
 (*

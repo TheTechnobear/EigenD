@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "api.h"
+#include "api/api.h"
 #include <stdio.h>
 
 /* getc()/putc() are *unbelievably* slow on linux.  Looks like glibc
@@ -67,5 +67,15 @@ int X(import_wisdom_from_file)(FILE *input_file)
      planner *plnr = X(the_planner)();
      int ret = plnr->adt->imprt(plnr, s);
      X(scanner_destroy)(s);
+     return ret;
+}
+
+int X(import_wisdom_from_filename)(const char *filename)
+{
+     FILE *f = fopen(filename, "r");
+     int ret;
+     if (!f) return 0; /* error opening file */
+     ret = X(import_wisdom_from_file)(f);
+     if (fclose(f)) ret = 0; /* error closing file */
      return ret;
 }

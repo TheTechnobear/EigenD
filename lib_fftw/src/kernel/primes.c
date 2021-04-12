@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "ifftw.h"
+#include "kernel/ifftw.h"
 
 /***************************************************************************/
 
@@ -82,9 +82,9 @@ static INT get_prime_factors(INT n, INT *primef)
 
      A(n % 2 == 0); /* this routine is designed only for even n */
      primef[size++] = (INT)2;
-     do
+     do {
 	  n >>= 1;
-     while ((n & 1) == 0);
+     } while ((n & 1) == 0);
 
      if (n == 1)
 	  return size;
@@ -92,9 +92,9 @@ static INT get_prime_factors(INT n, INT *primef)
      for (i = 3; i * i <= n; i += 2)
 	  if (!(n % i)) {
 	       primef[size++] = i;
-	       do
+	       do {
 		    n /= i;
-	       while (!(n % i));
+	       } while (!(n % i));
 	  }
      if (n == 1)
 	  return size;
@@ -204,3 +204,9 @@ INT X(modulo)(INT a, INT n)
 	  return (n - 1) - ((-(a + (INT)1)) % n);
 }
 
+/* TRUE if N factors into small primes */
+int X(factors_into_small_primes)(INT n)
+{
+     static const INT primes[] = { 2, 3, 5, 0 };
+     return X(factors_into)(n, primes);
+}

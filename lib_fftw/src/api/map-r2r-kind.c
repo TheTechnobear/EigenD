@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "api.h"
-#include "rdft.h"
+#include "api/api.h"
+#include "rdft/rdft.h"
 
 rdft_kind *X(map_r2r_kind)(int rank, const X(r2r_kind) * kind)
 {
@@ -27,7 +27,7 @@ rdft_kind *X(map_r2r_kind)(int rank, const X(r2r_kind) * kind)
      rdft_kind *k;
 
      A(FINITE_RNK(rank));
-     k = (rdft_kind *) MALLOC(rank * sizeof(rdft_kind), PROBLEMS);
+     k = (rdft_kind *) MALLOC((unsigned)rank * sizeof(rdft_kind), PROBLEMS);
      for (i = 0; i < rank; ++i) {
 	  rdft_kind m;
           switch (kind[i]) {

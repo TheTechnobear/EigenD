@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "bench.h"
+#include "libbench2/bench.h"
 #include "my-getopt.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,7 +67,7 @@ int bench_main(int argc, char *argv[])
      report = report_verbose; /* default */
      verbose = 0;
 
-     tol = SINGLE_PRECISION ? 1.0e-3 : 1.0e-10;
+     tol = SINGLE_PRECISION ? 1.0e-3 : (QUAD_PRECISION ? 1e-29 : 1.0e-10);
 
      main_init(&argc, &argv);
 
@@ -147,6 +147,8 @@ int bench_main(int argc, char *argv[])
 	      case 402: /* --print-precision */
 		   if (SINGLE_PRECISION)
 			ovtpvt("single\n");
+		   else if (QUAD_PRECISION)
+			ovtpvt("quad\n");
 		   else if (LDOUBLE_PRECISION)
 			ovtpvt("long-double\n");
 		   else if (DOUBLE_PRECISION)

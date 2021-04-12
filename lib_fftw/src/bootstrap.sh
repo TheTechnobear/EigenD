@@ -11,14 +11,10 @@
 ############################################################################
 
 touch ChangeLog
-touch genfft/.depend
 
 echo "PLEASE IGNORE WARNINGS AND ERRORS"
 
-# paranoia: sometimes autoconf doesn't get things right the first time
 rm -rf autom4te.cache
-autoreconf --verbose --install --symlink --force
-autoreconf --verbose --install --symlink --force
 autoreconf --verbose --install --symlink --force
 
 rm -f config.cache
@@ -27,5 +23,4 @@ rm -f config.cache
 # rebuild of codelets whenever genfft changes
 (
     ./configure --disable-shared --enable-maintainer-mode --enable-threads $*
-    (cd genfft; make depend)
 )

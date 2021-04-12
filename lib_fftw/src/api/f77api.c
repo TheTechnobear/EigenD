@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,15 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "api.h"
-#include "dft.h"
-#include "rdft.h"
+#include "api/api.h"
+#include "dft/dft.h"
+#include "rdft/rdft.h"
 
-#include "x77.h"
+#include "api/x77.h"
 
 /* if F77_FUNC is not defined, then we don't know how to mangle identifiers
    for the Fortran linker, and we must omit the f77 API. */
@@ -38,7 +38,7 @@ static int *reverse_n(int rnk, const int *n)
      int *nrev;
      int i;
      A(FINITE_RNK(rnk));
-     nrev = (int *) MALLOC(sizeof(int) * rnk, PROBLEMS);
+     nrev = (int *) MALLOC(sizeof(int) * (unsigned)rnk, PROBLEMS);
      for (i = 0; i < rnk; ++i)
           nrev[rnk - i - 1] = n[i];
      return nrev;
@@ -52,7 +52,7 @@ static X(iodim) *make_dims(int rnk, const int *n,
      X(iodim) *dims;
      int i;
      A(FINITE_RNK(rnk));
-     dims = (X(iodim) *) MALLOC(sizeof(X(iodim)) * rnk, PROBLEMS);
+     dims = (X(iodim) *) MALLOC(sizeof(X(iodim)) * (unsigned)rnk, PROBLEMS);
      for (i = 0; i < rnk; ++i) {
           dims[i].n = n[i];
           dims[i].is = is[i];
@@ -93,7 +93,7 @@ static X(r2r_kind) *ints2kinds(int rnk, const int *ik)
 	  int i;
 	  X(r2r_kind) *k;
 
-	  k = (X(r2r_kind) *) MALLOC(sizeof(X(r2r_kind)) * rnk, PROBLEMS);
+	  k = (X(r2r_kind) *) MALLOC(sizeof(X(r2r_kind)) * (unsigned)rnk, PROBLEMS);
 	  /* reverse order for Fortran -> C */
 	  for (i = 0; i < rnk; ++i)
 	       k[i] = (X(r2r_kind)) ik[rnk - 1 - i];

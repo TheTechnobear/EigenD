@@ -1,4 +1,5 @@
-#include "ifftw.h"
+#include "kernel/ifftw.h"
+
 
 extern void X(codelet_e01_8)(planner *);
 extern void X(codelet_e10_8)(planner *);

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "ifftw.h"
+#include "kernel/ifftw.h"
 
-#if HAVE_SIMD || HAVE_CELL
+#if HAVE_SIMD
 #  define ALGN 16
 #else
    /* disable the alignment machinery, because it will break,
@@ -30,7 +30,7 @@
 #endif
 
 /* NONPORTABLE */
-int X(alignment_of)(R *p)
+int X(ialignment_of)(R *p)
 {
 #if ALGN == 0
      UNUSED(p);

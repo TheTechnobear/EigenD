@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -22,8 +22,13 @@
 #ifndef __DFT_H__
 #define __DFT_H__
 
-#include "ifftw.h"
-#include "codelet-dft.h"
+#include "kernel/ifftw.h"
+#include "dft/codelet-dft.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif /* __cplusplus */
 
 /* problem.c: */
 typedef struct {
@@ -76,8 +81,8 @@ void X(ct_genericbuf_register)(planner *p);
 /* configurations */
 void X(dft_conf_standard)(planner *p);
 
-#if HAVE_CELL
-  void X(dft_conf_cell)(planner *p);
-#endif
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif /* __cplusplus */
 
 #endif /* __DFT_H__ */

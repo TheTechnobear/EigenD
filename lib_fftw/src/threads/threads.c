@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -22,9 +22,9 @@
    function.  The first portion of this file is a set of macros to
    spawn and join threads on various systems. */
 
-#include "threads.h"
+#include "threads/threads.h"
+#include "api/api.h"
 
-#ifdef HAVE_THREADS
 #if defined(USING_POSIX_THREADS)
 
 #include <pthread.h>
@@ -33,7 +33,7 @@
 #  include <unistd.h>
 #endif
 
-/* imlementation of semaphores and mutexes: */
+/* implementation of semaphores and mutexes: */
 #if (defined(_POSIX_SEMAPHORES) && (_POSIX_SEMAPHORES >= 200112L))
 
    /* If optional POSIX semaphores are supported, use them to
@@ -43,7 +43,7 @@
 
    typedef sem_t os_sem_t;
 
-   static void os_sem_init(os_sem_t *s) { sem_init(s, 1, 0); }
+   static void os_sem_init(os_sem_t *s) { sem_init(s, 0, 0); }
    static void os_sem_destroy(os_sem_t *s) { sem_destroy(s); }
 
    static void os_sem_down(os_sem_t *s)
@@ -65,7 +65,7 @@
       safest choice.
    */
    typedef sem_t os_mutex_t;
-   static void os_mutex_init(os_mutex_t *s) { sem_init(s, 1, 1); }
+   static void os_mutex_init(os_mutex_t *s) { sem_init(s, 0, 1); }
    #define os_mutex_destroy os_sem_destroy
    #define os_mutex_lock os_sem_down
    #define os_mutex_unlock os_sem_up
@@ -77,8 +77,8 @@
       variables */
    typedef pthread_mutex_t os_mutex_t;
 
-   static void os_mutex_init(os_mutex_t *s) 
-   { 
+   static void os_mutex_init(os_mutex_t *s)
+   {
 	pthread_mutex_init(s, (pthread_mutexattr_t *)0);
    }
 
@@ -90,7 +90,7 @@
 	pthread_mutex_t m;
 	pthread_cond_t c;
 	volatile int x;
-   } os_sem_t; 
+   } os_sem_t;
 
    static void os_sem_init(os_sem_t *s)
    {
@@ -113,7 +113,7 @@
    static void os_sem_down(os_sem_t *s)
    {
 	pthread_mutex_lock(&s->m);
-	while (s->x <= 0) 
+	while (s->x <= 0)
 	     pthread_cond_wait(&s->c, &s->m);
 	--s->x;
 	pthread_mutex_unlock(&s->m);
@@ -131,14 +131,14 @@
 
 #define FFTW_WORKER void *
 
-static void os_create_thread(FFTW_WORKER (*worker)(void *arg), 
+static void os_create_thread(FFTW_WORKER (*worker)(void *arg),
 			     void *arg)
 {
      pthread_attr_t attr;
      pthread_t tid;
 
      pthread_attr_init(&attr);
-     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM); 
+     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
      pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
      pthread_create(&tid, &attr, worker, (void *)arg);
@@ -150,6 +150,12 @@ static void os_destroy_thread(void)
      pthread_exit((void *)0);
 }
 
+/* support for static mutexes */
+typedef pthread_mutex_t os_static_mutex_t;
+#define OS_STATIC_MUTEX_INITIALIZER PTHREAD_MUTEX_INITIALIZER
+static void os_static_mutex_lock(os_static_mutex_t *s) { pthread_mutex_lock(s); }
+static void os_static_mutex_unlock(os_static_mutex_t *s) { pthread_mutex_unlock(s); }
+
 #elif defined(__WIN32__) || defined(_WIN32) || defined(_WINDOWS)
 /* hack: windef.h defines INT for its own purposes and this causes
    a conflict with our own INT in ifftw.h.  Divert the windows
@@ -157,48 +163,49 @@ static void os_destroy_thread(void)
 #define INT magnus_ab_INTegro_seclorum_nascitur_ordo
 #include <windows.h>
 #include <process.h>
+#include <intrin.h>
 #undef INT
 
 typedef HANDLE os_mutex_t;
 
-static void os_mutex_init(os_mutex_t *s) 
-{ 
+static void os_mutex_init(os_mutex_t *s)
+{
      *s = CreateMutex(NULL, FALSE, NULL);
 }
 
-static void os_mutex_destroy(os_mutex_t *s) 
-{ 
+static void os_mutex_destroy(os_mutex_t *s)
+{
      CloseHandle(*s);
 }
 
 static void os_mutex_lock(os_mutex_t *s)
-{ 
+{
      WaitForSingleObject(*s, INFINITE);
 }
 
-static void os_mutex_unlock(os_mutex_t *s) 
-{ 
+static void os_mutex_unlock(os_mutex_t *s)
+{
      ReleaseMutex(*s);
 }
 
 typedef HANDLE os_sem_t;
 
-static void os_sem_init(os_sem_t *s) 
+static void os_sem_init(os_sem_t *s)
 {
      *s = CreateSemaphore(NULL, 0, 0x7FFFFFFFL, NULL);
 }
 
-static void os_sem_destroy(os_sem_t *s) 
-{ 
+static void os_sem_destroy(os_sem_t *s)
+{
      CloseHandle(*s);
 }
 
-static void os_sem_down(os_sem_t *s) 
-{ 
+static void os_sem_down(os_sem_t *s)
+{
      WaitForSingleObject(*s, INFINITE);
 }
 
-static void os_sem_up(os_sem_t *s) 
+static void os_sem_up(os_sem_t *s)
 {
      ReleaseSemaphore(*s, 1, NULL);
 }
@@ -222,7 +229,22 @@ static void os_destroy_thread(void)
      _endthreadex(0);
 }
 
-
+/* windows does not have statically-initialized mutexes---fake a
+   spinlock */
+typedef volatile LONG os_static_mutex_t;
+#define OS_STATIC_MUTEX_INITIALIZER 0
+static void os_static_mutex_lock(os_static_mutex_t *s)
+{
+     while (InterlockedExchange(s, 1) == 1) {
+          YieldProcessor();
+          Sleep(0);
+     }
+}
+static void os_static_mutex_unlock(os_static_mutex_t *s)
+{
+     LONG old = InterlockedExchange(s, 0);
+     A(old == 1);
+}
 #else
 #error "No threading layer defined"
 #endif
@@ -239,7 +261,7 @@ struct worker {
 
 static struct worker *make_worker(void)
 {
-     struct worker *q = MALLOC(sizeof(*q), OTHER);
+     struct worker *q = (struct worker *)MALLOC(sizeof(*q), OTHER);
      os_sem_init(&q->ready);
      os_sem_init(&q->done);
      return q;
@@ -312,7 +334,7 @@ static struct worker *dequeue(void)
 
      WITH_QUEUE_LOCK({
 	  q = worker_queue;
-	  if (q) 
+	  if (q)
 	       worker_queue = q->cdr;
      });
 
@@ -333,7 +355,7 @@ static void kill_workforce(void)
      w.proc = 0;
 
      WITH_QUEUE_LOCK({
-	  /* tell all workers that they must terminate.  
+	  /* tell all workers that they must terminate.
 
 	     Because workers enqueue themselves before signaling the
 	     completion of the work, all workers belong to the worker queue
@@ -351,14 +373,18 @@ static void kill_workforce(void)
      });
 }
 
+static os_static_mutex_t initialization_mutex = OS_STATIC_MUTEX_INITIALIZER;
+
 int X(ithreads_init)(void)
 {
-     os_mutex_init(&queue_lock);
-     os_sem_init(&termination_semaphore);
+     os_static_mutex_lock(&initialization_mutex); {
+          os_mutex_init(&queue_lock);
+          os_sem_init(&termination_semaphore);
 
-     WITH_QUEUE_LOCK({
-	  worker_queue = 0;
-     })
+          WITH_QUEUE_LOCK({
+               worker_queue = 0;
+          });
+     } os_static_mutex_unlock(&initialization_mutex);
 
      return 0; /* no error */
 }
@@ -373,7 +399,6 @@ int X(ithreads_init)(void)
 void X(spawn_loop)(int loopmax, int nthr, spawn_function proc, void *data)
 {
      int block_size;
-     struct work *r;
      int i;
 
      A(loopmax >= 0);
@@ -390,42 +415,57 @@ void X(spawn_loop)(int loopmax, int nthr, spawn_function proc, void *data)
      block_size = (loopmax + nthr - 1) / nthr;
      nthr = (loopmax + block_size - 1) / block_size;
 
-     THREAD_ON; /* prevent debugging mode from failing under threads */
-     STACK_MALLOC(struct work *, r, sizeof(struct work) * nthr);
-	  
-     /* distribute work: */
-     for (i = 0; i < nthr; ++i) {
-	  struct work *w = &r[i];
-	  spawn_data *d = &w->d;
-
-	  d->max = (d->min = i * block_size) + block_size;
-	  if (d->max > loopmax)
-	       d->max = loopmax;
-	  d->thr_num = i;
-	  d->data = data;
-	  w->proc = proc;
-	   
-	  if (i == nthr - 1) {
-	       /* do the work ourselves */
-	       proc(d);
-	  } else {
-	       /* assign a worker to W */
-	       w->q = dequeue();
-
-	       /* tell worker w->q to do it */
-	       w->q->w = w; /* Dirac could have written this */
-	       os_sem_up(&w->q->ready);
-	  }
+     if (X(spawnloop_callback)) { /* user-defined spawnloop backend */
+          spawn_data *sdata;
+          STACK_MALLOC(spawn_data *, sdata, sizeof(spawn_data) * nthr);
+          for (i = 0; i < nthr; ++i) {
+               spawn_data *d = &sdata[i];
+               d->max = (d->min = i * block_size) + block_size;
+               if (d->max > loopmax)
+                    d->max = loopmax;
+               d->thr_num = i;
+               d->data = data;
+          }
+          X(spawnloop_callback)(proc, sdata, sizeof(spawn_data), nthr, X(spawnloop_callback_data));
+          STACK_FREE(sdata);
      }
+     else {
+          struct work *r;
+          STACK_MALLOC(struct work *, r, sizeof(struct work) * nthr);
 
-     for (i = 0; i < nthr - 1; ++i) { 
-	  struct work *w = &r[i];
-	  os_sem_down(&w->q->done);
-	  enqueue(w->q);
+          /* distribute work: */
+          for (i = 0; i < nthr; ++i) {
+               struct work *w = &r[i];
+               spawn_data *d = &w->d;
+
+               d->max = (d->min = i * block_size) + block_size;
+               if (d->max > loopmax)
+                    d->max = loopmax;
+               d->thr_num = i;
+               d->data = data;
+               w->proc = proc;
+
+               if (i == nthr - 1) {
+                    /* do the work ourselves */
+                    proc(d);
+               } else {
+                    /* assign a worker to W */
+                    w->q = dequeue();
+
+                    /* tell worker w->q to do it */
+                    w->q->w = w; /* Dirac could have written this */
+                    os_sem_up(&w->q->ready);
+               }
+          }
+
+          for (i = 0; i < nthr - 1; ++i) {
+               struct work *w = &r[i];
+               os_sem_down(&w->q->done);
+               enqueue(w->q);
+          }
+
+          STACK_FREE(r);
      }
-
-     STACK_FREE(r);
-     THREAD_OFF; /* prevent debugging mode from failing under threads */
 }
 
 void X(threads_cleanup)(void)
@@ -435,4 +475,27 @@ void X(threads_cleanup)(void)
      os_sem_destroy(&termination_semaphore);
 }
 
-#endif /* HAVE_THREADS */
+static os_static_mutex_t install_planner_hooks_mutex = OS_STATIC_MUTEX_INITIALIZER;
+static os_mutex_t planner_mutex;
+static int planner_hooks_installed = 0;
+
+static void lock_planner_mutex(void)
+{
+     os_mutex_lock(&planner_mutex);
+}
+
+static void unlock_planner_mutex(void)
+{
+     os_mutex_unlock(&planner_mutex);
+}
+
+void X(threads_register_planner_hooks)(void)
+{
+     os_static_mutex_lock(&install_planner_hooks_mutex); {
+          if (!planner_hooks_installed) {
+               os_mutex_init(&planner_mutex);
+               X(set_planner_hooks)(lock_planner_mutex, unlock_planner_mutex);
+               planner_hooks_installed = 1;
+          }
+     } os_static_mutex_unlock(&install_planner_hooks_mutex);
+}

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,17 +14,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "api.h"
-#include "rdft.h"
+#include "api/api.h"
+#include "rdft/rdft.h"
 
 /* guru interface: requires care in alignment, r - i, etcetera. */
 void X(execute_split_dft_r2c)(const X(plan) p, R *in, R *ro, R *io)
-WITH_ALIGNED_STACK({
+{
      plan_rdft2 *pln = (plan_rdft2 *) p->pln;
      problem_rdft2 *prb = (problem_rdft2 *) p->prb;
      pln->apply((plan *) pln, in, in + (prb->r1 - prb->r0), ro, io);
-})
+}

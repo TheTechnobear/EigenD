@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 1997-1999 Massachusetts Institute of Technology
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *)
 
@@ -62,7 +62,7 @@ let mone = of_int (-1)
 (* comparison predicate for real numbers *)
 let equal (N x) (N y) = (* use both relative and absolute error *)
   let absdiff = abs_num (x -/ y) in
-  absdiff <=/ pepsilon or
+  absdiff <=/ pepsilon ||
   absdiff <=/ pepsilon */ (abs_num x +/ abs_num y)
 
 let is_zero = equal zero

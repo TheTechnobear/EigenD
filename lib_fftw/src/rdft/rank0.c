@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
 /* plans for rank-0 RDFTs (copy operations) */
 
-#include "rdft.h"
+#include "rdft/rdft.h"
 
 #ifdef HAVE_STRING_H
 #include <string.h>		/* for memcpy() */
@@ -214,7 +214,7 @@ static int applicable_memcpy(const P *pln, const problem_rdft *p)
    transposes of vl-tuples ... for large vl it should be more
    efficient to use memcpy than the tiled stuff). */
 
-static void memcpy_loop(INT cpysz, int rnk, const iodim *d, R *I, R *O)
+static void memcpy_loop(size_t cpysz, int rnk, const iodim *d, R *I, R *O)
 {
      INT i, n = d->n, is = d->is, os = d->os;
      if (rnk == 1)
@@ -289,85 +289,6 @@ static void apply_ip_sq_tiledbuf(const plan *ego_, R *I, R *O)
 #define applicable_ip_sq_tiledbuf applicable_ip_sq_tiled
 
 /**************************************************************/
-#if HAVE_CELL
-/* rank 2, in place, square transpose, using Cell SPEs */
-static void apply_ip_cell(const plan *ego_, R *I, R *O)
-{
-     const P *ego = (const P *) ego_;
-     UNUSED(O);
-     transpose(ego->d, ego->rnk, ego->vl, I, X(cell_transpose));
-}
-
-
-static int applicable_ip_cell(const P *pln, const problem_rdft *p)
-{
-     R *I = p->I;
-     int i;
-     iodim *d;
-
-     for (i = 0, d = pln->d; i < pln->rnk - 2; ++i, ++d) {
-	  I = TAINT(I, d->is);
-	  I = TAINT(I, d->os);
-     }
-
-     return (1
-	     && p->I == p->O
-	     && pln->rnk >= 2
-	     && transposep(pln)
-	     && X(cell_transpose_applicable)(I, d, pln->vl)
-	  );
-}
-
-/* out of place copies using Cell SPEs */
-static void apply_cell(const plan *ego_, R *I, R *O)
-{
-     const P *ego = (const P *) ego_;
-
-     if (ego->vl == 2) {
-	  X(cell_copy)(I, O, ego->d + 0, ego->d + 1);
-     } else {
-	  const iodim vone = {1, 0, 0};
-	  const iodim *v = 0;
-	  iodim n;
-	  n.n = ego->vl / 2; n.is = 2; n.os = 2;
-
-	  /* canonicalize to rank 1 plus vl */
-	  switch (ego->rnk) {
-	      case 0: v = &vone; break;
-	      case 1: v = ego->d; break;
-	  }
-
-	  X(cell_copy)(I, O, &n, v);
-     }
-}
-
-static int applicable_cell(const P *pln, const problem_rdft *p)
-{
-     if (pln->vl == 2) {
-	  return (1
-		  && pln->rnk == 2
-		  && X(cell_copy_applicable)(p->I, p->O,
-					     pln->d + 0, pln->d + 1)
-	       );
-     } else if ((pln->vl % 2) == 0) { /* SPE handles pairs only */
-	  const iodim vone = {1, 0, 0};
-	  const iodim *v;
-	  iodim n;
-	  n.n = pln->vl / 2; n.is = 2; n.os = 2;
-
-	  /* canonicalize to rank 1 plus vl */
-	  switch (pln->rnk) {
-	      case 0: v = &vone; break;
-	      case 1: v = pln->d; break;
-	      default: return 0;
-	  }
-
-	  return X(cell_copy_applicable)(p->I, p->O, &n, v);
-     } else 
-	  return 0;
-}
-#endif
-/**************************************************************/
 static int applicable(const S *ego, const problem *p_)
 {
      const problem_rdft *p = (const problem_rdft *) p_;
@@ -410,6 +331,7 @@ static plan *mkplan(const solver *ego_, const problem *p_, planner *plnr)
      pln = MKPLAN_RDFT(P, &padt, ego->apply);
 
      retval = fill_iodim(pln, p);
+     (void)retval; /* UNUSED unless DEBUG */
      A(retval);
      A(pln->vl > 0); /* because FINITE_RNK(p->vecsz->rnk) holds */
      pln->nam = ego->nam;
@@ -436,10 +358,6 @@ void X(rdft_rank0_register)(planner *p)
 	  { apply_tiled,    applicable_tiled,    "rdft-rank0-tiled" },
 	  { apply_tiledbuf, applicable_tiledbuf, "rdft-rank0-tiledbuf" },
 	  { apply_ip_sq,    applicable_ip_sq,    "rdft-rank0-ip-sq" },
-#if HAVE_CELL
-	  { apply_cell,     applicable_cell,     "rdft-rank0-cell" },
-	  { apply_ip_cell,  applicable_ip_cell,  "rdft-rank0-ip-cell" },
-#endif
 	  { 
 	       apply_ip_sq_tiled,
 	       applicable_ip_sq_tiled,

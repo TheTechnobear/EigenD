@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -24,10 +24,10 @@
    compiler manglings (via redefinition of F77). */
 
 FFTW_VOIDFUNC F77(execute, EXECUTE)(X(plan) * const p)
-WITH_ALIGNED_STACK({
+{
      plan *pln = (*p)->pln;
      pln->adt->solve(pln, (*p)->prb);
-})
+}
 
 FFTW_VOIDFUNC F77(destroy_plan, DESTROY_PLAN)(X(plan) *p)
 {
@@ -77,6 +77,21 @@ FFTW_VOIDFUNC F77(print_plan, PRINT_PLAN)(X(plan) * const p)
 FFTW_VOIDFUNC F77(flops,FLOPS)(X(plan) *p, double *add, double *mul, double *fma)
 {
      X(flops)(*p, add, mul, fma);
+}
+
+FFTW_VOIDFUNC F77(estimate_cost,ESTIMATE_COST)(double *cost, X(plan) * const p)
+{
+     *cost = X(estimate_cost)(*p);
+}
+
+FFTW_VOIDFUNC F77(cost,COST)(double *cost, X(plan) * const p)
+{
+     *cost = X(cost)(*p);
+}
+
+FFTW_VOIDFUNC F77(set_timelimit,SET_TIMELIMIT)(double *t)
+{
+     X(set_timelimit)(*t);
 }
 
 /******************************** DFT ***********************************/
@@ -157,20 +172,20 @@ FFTW_VOIDFUNC F77(plan_guru_split_dft, PLAN_GURU_SPLIT_DFT)(X(plan) *p, int *ran
 }
 
 FFTW_VOIDFUNC F77(execute_dft, EXECUTE_DFT)(X(plan) * const p, C *in, C *out)
-WITH_ALIGNED_STACK({
+{
      plan_dft *pln = (plan_dft *) (*p)->pln;
      if ((*p)->sign == FFT_SIGN)
           pln->apply((plan *) pln, in[0], in[0]+1, out[0], out[0]+1);
      else
           pln->apply((plan *) pln, in[0]+1, in[0], out[0]+1, out[0]);
-})
+}
 
 FFTW_VOIDFUNC F77(execute_split_dft, EXECUTE_SPLIT_DFT)(X(plan) * const p,
 					       R *ri, R *ii, R *ro, R *io)
-WITH_ALIGNED_STACK({
+{
      plan_dft *pln = (plan_dft *) (*p)->pln;
      pln->apply((plan *) pln, ri, ii, ro, io);
-})
+}
 
 /****************************** DFT r2c *********************************/
 
@@ -252,19 +267,19 @@ FFTW_VOIDFUNC F77(plan_guru_split_dft_r2c, PLAN_GURU_SPLIT_DFT_R2C)(
 }
 
 FFTW_VOIDFUNC F77(execute_dft_r2c, EXECUTE_DFT_R2C)(X(plan) * const p, R *in, C *out)
-WITH_ALIGNED_STACK({
+{
      plan_rdft2 *pln = (plan_rdft2 *) (*p)->pln;
      problem_rdft2 *prb = (problem_rdft2 *) (*p)->prb;
      pln->apply((plan *) pln, in, in + (prb->r1 - prb->r0), out[0], out[0]+1);
-})
+}
 
 FFTW_VOIDFUNC F77(execute_split_dft_r2c, EXECUTE_SPLIT_DFT_R2C)(X(plan) * const p,
 						       R *in, R *ro, R *io)
-WITH_ALIGNED_STACK({
+{
      plan_rdft2 *pln = (plan_rdft2 *) (*p)->pln;
      problem_rdft2 *prb = (problem_rdft2 *) (*p)->prb;
      pln->apply((plan *) pln, in, in + (prb->r1 - prb->r0), ro, io);
-})
+}
 
 /****************************** DFT c2r *********************************/
 
@@ -346,19 +361,19 @@ FFTW_VOIDFUNC F77(plan_guru_split_dft_c2r, PLAN_GURU_SPLIT_DFT_C2R)(
 }
 
 FFTW_VOIDFUNC F77(execute_dft_c2r, EXECUTE_DFT_C2R)(X(plan) * const p, C *in, R *out)
-WITH_ALIGNED_STACK({
+{
      plan_rdft2 *pln = (plan_rdft2 *) (*p)->pln;
      problem_rdft2 *prb = (problem_rdft2 *) (*p)->prb;
      pln->apply((plan *) pln, out, out + (prb->r1 - prb->r0), in[0], in[0]+1);
-})
+}
 
 FFTW_VOIDFUNC F77(execute_split_dft_c2r, EXECUTE_SPLIT_DFT_C2R)(X(plan) * const p,
 					   R *ri, R *ii, R *out)
-WITH_ALIGNED_STACK({
+{
      plan_rdft2 *pln = (plan_rdft2 *) (*p)->pln;
      problem_rdft2 *prb = (problem_rdft2 *) (*p)->prb;
      pln->apply((plan *) pln, out, out + (prb->r1 - prb->r0), ri, ii);
-})
+}
 
 /****************************** r2r *********************************/
 
@@ -437,7 +452,7 @@ FFTW_VOIDFUNC F77(plan_guru_r2r, PLAN_GURU_R2R)(
 }
 
 FFTW_VOIDFUNC F77(execute_r2r, EXECUTE_R2R)(X(plan) * const p, R *in, R *out)
-WITH_ALIGNED_STACK({
+{
      plan_rdft *pln = (plan_rdft *) (*p)->pln;
      pln->apply((plan *) pln, in, out);
-})
+}

@@ -1,17 +1,18 @@
 /* Re-use libbench2 and the test program, but override bench_main so that
    we can have different command-line syntax. */
-#include "my-getopt.h"
-#include "bench.h"
+#include "libbench2/my-getopt.h"
+#include "libbench2/bench.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <fftw3.h>
+#include "api/fftw3.h"
 #include <string.h>
 #include <time.h>
 
 #if defined(HAVE_THREADS) || defined(HAVE_OPENMP)
-#define HAVE_SMP
+#  define HAVE_SMP
+   extern int threads_ok;
 #endif
 
 #define CONCAT(prefix, name) prefix ## name
@@ -19,6 +20,8 @@
 #define FFTW(x) CONCAT(fftwf_, x)
 #elif defined(BENCHFFT_LDOUBLE)
 #define FFTW(x) CONCAT(fftwl_, x)
+#elif defined(BENCHFFT_QUAD)
+#define FFTW(x) CONCAT(fftwq_, x)
 #else
 #define FFTW(x) CONCAT(fftw_, x)
 #endif
@@ -37,7 +40,7 @@ int verbose;
 static void do_problem(bench_problem *p)
 {
      if (verbose)
-	  printf("PLANNING PROBLEM: %s\n", p->pstring);
+	  printf("Planning transform: %s\n", p->pstring);
      /* BENCH_ASSERT(can_do(p)); */
      problem_alloc(p);
      setup(p);
@@ -66,11 +69,6 @@ static int prob_size_cmp(const void *p1_, const void *p2_)
      return (sz(*p1) - sz(*p2));
 }
 
-/* By default, don't allow fftw-wisdom tool to use threads; we don't
-   want users to put threads wisdom in the system wisdom, which would
-   break the wisdom for any non-threads program trying to use it. */
-#define USE_SMP 0
-
 static struct my_option options[] =
 {
   {"help", NOARG, 'h'},
@@ -90,7 +88,7 @@ static struct my_option options[] =
   {"no-system-wisdom", NOARG, 'n'},
   {"wisdom-file", REQARG, 'w'},
 
-#if USE_SMP && defined(HAVE_SMP)
+#ifdef HAVE_SMP
   {"threads", REQARG, 'T'},
 #endif
 
@@ -118,7 +116,7 @@ static void help(FILE *f, const char *program_name)
  "             -x, --exhaustive: plan in EXHAUSTIVE mode (may be slow)\n"
  "       -n, --no-system-wisdom: don't read /etc/fftw/ system wisdom file\n"
  "  -w FILE, --wisdom-file=FILE: read wisdom from FILE (stdin if -)\n"
-#if USE_SMP && defined(HAVE_SMP)
+#ifdef HAVE_SMP
  "            -T N, --threads=N: plan with N threads\n"
 #endif
 	  "\nSize syntax: <type><inplace><direction><geometry>\n"
@@ -167,8 +165,10 @@ int bench_main(int argc, char *argv[])
      usewisdom = 0;
 
      bench_srand(1);
-#if USE_SMP && defined(HAVE_SMP)
-     BENCH_ASSERT(FFTW(init_threads)());
+#ifdef HAVE_SMP
+     /* do not configure FFTW with threads, unless the
+	user requests -T */
+     threads_ok = 0;
 #endif
 
      while ((c = my_getopt(argc, argv, options)) != -1) {
@@ -182,8 +182,8 @@ int bench_main(int argc, char *argv[])
 		   printf("fftw-wisdom tool for FFTW version " VERSION ".\n");
 		   printf(
 "\n"
-"Copyright (c) 2003, 2007-8 Matteo Frigo\n"
-"Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology\n"
+"Copyright (c) 2003, 2007-14 Matteo Frigo\n"
+"Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology\n"
 "\n"
 "This program is free software; you can redistribute it and/or modify\n"
 "it under the terms of the GNU General Public License as published by\n"
@@ -197,7 +197,7 @@ int bench_main(int argc, char *argv[])
 "\n"
 "You should have received a copy of the GNU General Public License\n"
 "along with this program; if not, write to the Free Software\n"
-"Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA\n"
+"Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA\n"
 			);
 		   exit(EXIT_SUCCESS);
 		   break;
@@ -248,12 +248,12 @@ int bench_main(int argc, char *argv[])
 		   FILE *w = stdin;
 		   if (strcmp(my_optarg, "-") && !(w = fopen(my_optarg, "r"))) {
 			fprintf(stderr,
-				"fftw-wisdom: error opening \"%s\"", my_optarg);
+				"fftw-wisdom: error opening \"%s\": ", my_optarg);
 			perror("");
 			exit(EXIT_FAILURE);
 		   }
 		   if (!FFTW(import_wisdom_from_file)(w)) {
-			fprintf(stderr, "fftw_wisdom: error reading wisdom"
+			fprintf(stderr, "fftw_wisdom: error reading wisdom "
 				"from \"%s\"\n", my_optarg);
 			exit(EXIT_FAILURE);
 		   }
@@ -262,14 +262,12 @@ int bench_main(int argc, char *argv[])
 		   break;
 	      }
 
-#if USE_SMP && defined(HAVE_SMP)
+#ifdef HAVE_SMP
 	      case 'T':
 		   nthreads = atoi(my_optarg);
-		   if (nthreads > 1) {
-			fprintf(stderr, "fftw-wisdom: "
-				"not compiled with thread support\n");
-			exit(EXIT_FAILURE);
-		   }
+		   if (nthreads < 1) nthreads = 1;
+		   threads_ok = 1;
+		   BENCH_ASSERT(FFTW(init_threads)());
 		   break;
 #endif
 

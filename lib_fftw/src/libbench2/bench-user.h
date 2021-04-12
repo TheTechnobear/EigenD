@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
@@ -27,6 +27,7 @@ extern "C" {
 
 /* benchmark program definitions for user code */
 #include "config.h"
+#include <limits.h>
 
 #if HAVE_STDDEF_H
 #include <stddef.h>
@@ -40,6 +41,8 @@ extern "C" {
 typedef float bench_real;
 #elif defined(BENCHFFT_LDOUBLE)
 typedef long double bench_real;
+#elif defined(BENCHFFT_QUAD)
+typedef __float128 bench_real;
 #else
 typedef double bench_real;
 #endif
@@ -55,6 +58,13 @@ typedef bench_real bench_complex[2];
 #define SINGLE_PRECISION (!DOUBLE_PRECISION && sizeof(bench_real) == sizeof(float))
 #undef LDOUBLE_PRECISION
 #define LDOUBLE_PRECISION (!DOUBLE_PRECISION && sizeof(bench_real) == sizeof(long double))
+
+#undef QUAD_PRECISION
+#ifdef BENCHFFT_QUAD
+#define QUAD_PRECISION (!LDOUBLE_PRECISION && sizeof(bench_real) == sizeof(__float128))
+#else
+#define QUAD_PRECISION 0
+#endif
 
 typedef enum { PROBLEM_COMPLEX, PROBLEM_REAL, PROBLEM_R2R } problem_kind_t;
 
@@ -77,7 +87,7 @@ typedef struct {
 
 bench_tensor *mktensor(int rnk);
 void tensor_destroy(bench_tensor *sz);
-int tensor_sz(const bench_tensor *sz);
+size_t tensor_sz(const bench_tensor *sz);
 bench_tensor *tensor_compress(const bench_tensor *sz);
 int tensor_unitstridep(bench_tensor *t);
 int tensor_rowmajorp(bench_tensor *t);
@@ -96,8 +106,8 @@ void tensor_obounds(bench_tensor *t, int *lbp, int *ubp);
  
   A tensor of rank -infinity has size 0.
 */
-#define RNK_MINFTY  ((int)(((unsigned) -1) >> 1))
-#define FINITE_RNK(rnk) ((rnk) != RNK_MINFTY)
+#define BENCH_RNK_MINFTY  INT_MAX
+#define BENCH_FINITE_RNK(rnk) ((rnk) != BENCH_RNK_MINFTY)
 
 typedef struct {
      problem_kind_t kind;

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "ifftw.h"
+#include "kernel/ifftw.h"
 
 tensor *X(mktensor)(int rnk) 
 {
@@ -29,20 +29,20 @@ tensor *X(mktensor)(int rnk)
 
 #if defined(STRUCT_HACK_KR)
      if (FINITE_RNK(rnk) && rnk > 1)
-	  x = (tensor *)MALLOC(sizeof(tensor) + (rnk - 1) * sizeof(iodim),
+	  x = (tensor *)MALLOC(sizeof(tensor) + (unsigned)(rnk - 1) * sizeof(iodim),
 				    TENSORS);
      else
 	  x = (tensor *)MALLOC(sizeof(tensor), TENSORS);
 #elif defined(STRUCT_HACK_C99)
      if (FINITE_RNK(rnk))
-	  x = (tensor *)MALLOC(sizeof(tensor) + rnk * sizeof(iodim),
+	  x = (tensor *)MALLOC(sizeof(tensor) + (unsigned)rnk * sizeof(iodim),
 				    TENSORS);
      else
 	  x = (tensor *)MALLOC(sizeof(tensor), TENSORS);
 #else
      x = (tensor *)MALLOC(sizeof(tensor), TENSORS);
      if (FINITE_RNK(rnk) && rnk > 0)
-          x->dims = (iodim *)MALLOC(sizeof(iodim) * rnk, TENSORS);
+          x->dims = (iodim *)MALLOC(sizeof(iodim) * (unsigned)rnk, TENSORS);
      else
           x->dims = 0;
 #endif

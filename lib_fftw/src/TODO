@@ -1,5 +1,13 @@
 TODO before FFTW-$2\pi$:
 
+* figure out how to autodetect NEON at runtime
+
+* figure out the arm cycle counter business
+
+* Wisdom: make it clear that it is specific to the exact fftw version
+  and configuration.  Report error codes when reading wisdom.  Maybe
+  have multiple system wisdom files, one per version?
+
 * DCT/DST codelets?  which kinds?
 
 * investigate the addition-chain trig computation
@@ -33,5 +41,3 @@ TODO before FFTW-$2\pi$:
   to allow SIMD to be used.
 
 * memoize triggen.
-
-* eliminate alignment hacks, which ought to be obsolete by now.

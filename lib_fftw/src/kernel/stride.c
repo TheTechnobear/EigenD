@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "ifftw.h"
+#include "kernel/ifftw.h"
 
 const INT X(an_INT_guaranteed_to_be_zero) = 0;
 
@@ -26,7 +26,10 @@ const INT X(an_INT_guaranteed_to_be_zero) = 0;
 stride X(mkstride)(INT n, INT s)
 {
      int i;
-     INT *p = (INT *) MALLOC(n * sizeof(INT), STRIDES);
+     INT *p;
+
+     A(n >= 0);
+     p = (INT *) MALLOC((size_t)n * sizeof(INT), STRIDES);
 
      for (i = 0; i < n; ++i)
           p[i] = s * i;

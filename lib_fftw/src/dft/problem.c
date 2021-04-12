@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "dft.h"
+#include "dft/dft.h"
 #include <stddef.h>
 
 static void destroy(problem *ego_)
@@ -36,10 +36,10 @@ static void hash(const problem *p_, md5 *m)
      X(md5int)(m, p->ri == p->ro);
      X(md5INT)(m, p->ii - p->ri);
      X(md5INT)(m, p->io - p->ro);
-     X(md5int)(m, X(alignment_of)(p->ri));
-     X(md5int)(m, X(alignment_of)(p->ii));
-     X(md5int)(m, X(alignment_of)(p->ro));
-     X(md5int)(m, X(alignment_of)(p->io));
+     X(md5int)(m, X(ialignment_of)(p->ri));
+     X(md5int)(m, X(ialignment_of)(p->ii));
+     X(md5int)(m, X(ialignment_of)(p->ro));
+     X(md5int)(m, X(ialignment_of)(p->io));
      X(tensor_md5)(m, p->sz);
      X(tensor_md5)(m, p->vecsz);
 }
@@ -49,8 +49,8 @@ static void print(const problem *ego_, printer *p)
      const problem_dft *ego = (const problem_dft *) ego_;
      p->print(p, "(dft %d %d %d %D %D %T %T)", 
 	      ego->ri == ego->ro,
-	      X(alignment_of)(ego->ri),
-	      X(alignment_of)(ego->ro),
+	      X(ialignment_of)(ego->ri),
+	      X(ialignment_of)(ego->ro),
 	      (INT)(ego->ii - ego->ri), 
 	      (INT)(ego->io - ego->ro),
 	      ego->sz,

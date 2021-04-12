@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,11 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "ifftw.h"
+#include "kernel/ifftw.h"
 
 
 /* Given a solver which_dim, a vector sz, and whether or not the
@@ -60,10 +60,11 @@ static int really_pickdim(int which_dim, const tensor *sz, int oop, int *dp)
 
 /* Like really_pickdim, but only returns 1 if no previous "buddy"
    which_dim in the buddies list would give the same dim. */
-int X(pickdim)(int which_dim, const int *buddies, int nbuddies,
+int X(pickdim)(int which_dim, const int *buddies, size_t nbuddies,
 	       const tensor *sz, int oop, int *dp)
 {
-     int i, d1;
+     size_t i;
+     int d1;
 
      if (!really_pickdim(which_dim, sz, oop, dp))
           return 0;

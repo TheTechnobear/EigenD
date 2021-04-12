@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 #include "ct-hc2c.h"
-#include "dft.h"
+#include "dft/dft.h"
 
 typedef struct {
      plan_rdft2 super;
@@ -127,8 +127,8 @@ static int applicable0(const hc2c_solver *ego, const problem *p_, planner *plnr)
 	     && p->sz->dims[0].n > r);
 }
 
-int X(hc2c_applicable)(const hc2c_solver *ego, const problem *p_,
-		       planner *plnr)
+static int hc2c_applicable(const hc2c_solver *ego, const problem *p_,
+                           planner *plnr)
 {
      const problem_rdft2 *p;
 
@@ -156,7 +156,7 @@ static plan *mkplan(const solver *ego_, const problem *p_, planner *plnr)
 	  X(rdft2_solve), awake, print, destroy
      };
 
-     if (!X(hc2c_applicable)(ego, p_, plnr))
+     if (!hc2c_applicable(ego, p_, plnr))
           return (plan *) 0;
 
      p = (const problem_rdft2 *) p_;

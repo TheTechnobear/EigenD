@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,18 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 /* common routines for Cooley-Tukey algorithms */
 
-#include "ifftw.h"
+#include "kernel/ifftw.h"
 
 #define POW2P(n) (((n) > 0) && (((n) & ((n) - 1)) == 0))
 
 /* TRUE if radix-r is ugly for size n */
-int X(ct_uglyp)(INT min_n, INT n, INT r)
+int X(ct_uglyp)(INT min_n, INT v, INT n, INT r)
 {
-     return (n <= min_n) || (POW2P(n) && (n / r) <= 4);
+     return (n <= min_n) || (POW2P(n) && (v * (n / r)) <= 4);
 }

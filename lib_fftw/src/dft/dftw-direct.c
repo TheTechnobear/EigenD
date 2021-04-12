@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "ct.h"
+#include "dft/ct.h"
 
 typedef struct {
      ct_solver super;
@@ -105,8 +105,9 @@ static void apply_buf(const plan *ego_, R *rio, R *iio)
      INT batchsz = compute_batchsize(r);
      R *buf;
      INT mb = ego->mb, me = ego->me;
+     size_t bufsz = r * batchsz * 2 * sizeof(R);
 
-     STACK_MALLOC(R *, buf, r * batchsz * 2 * sizeof(R));
+     BUF_ALLOC(R *, buf, bufsz);
 
      for (i = 0; i < v; ++i, rio += ego->vs, iio += ego->vs) {
 	  for (j = mb; j + batchsz < me; j += batchsz) 
@@ -115,7 +116,7 @@ static void apply_buf(const plan *ego_, R *rio, R *iio)
 	  dobatch(ego, rio, iio, j, me, buf);
      }
 
-     STACK_FREE(buf);
+     BUF_FREE(buf, bufsz);
 }
 
 /*************************************************************
@@ -170,7 +171,7 @@ static int applicable0(const S *ego,
 
 	  /* check for alignment/vector length restrictions */
 	  && ((*extra_iter = 0,
-	       e->genus->okp(e, rio, iio, ivs, 0, m, mb, me, ms, plnr))
+	       e->genus->okp(e, rio, iio, irs, ivs, m, mb, me, ms, plnr))
 	      ||
 	      (*extra_iter = 1,
 	       (1
@@ -179,13 +180,13 @@ static int applicable0(const S *ego,
 		   Generating the proper twiddle factors is a pain in
 		   this case */
 		&& mb == 0 && me == m
-		&& e->genus->okp(e, rio, iio, ivs, 0, m, 
-				 mb, me - 1, ms, plnr)
-		&& e->genus->okp(e, rio, iio, ivs, 0, m, 
-				 me - 1, me + 1, ms, plnr))))
+		&& e->genus->okp(e, rio, iio, irs, ivs,
+				 m, mb, me - 1, ms, plnr)
+		&& e->genus->okp(e, rio, iio, irs, ivs,
+				 m, me - 1, me + 1, ms, plnr))))
 
-	  && (e->genus->okp(e, rio + ivs, iio + ivs, ivs, 0, m, 
-			    mb, me - *extra_iter, ms, plnr))
+	  && (e->genus->okp(e, rio + ivs, iio + ivs, irs, ivs,
+			    m, mb, me - *extra_iter, ms, plnr))
 
 	  );
 }
@@ -240,7 +241,7 @@ static int applicable(const S *ego,
      }
 
      if (NO_UGLYP(plnr) && X(ct_uglyp)((ego->bufferedp? (INT)512 : (INT)16),
-				       m * r, r))
+				       v, m * r, r))
 	  return 0;
 
      if (m * r > 262144 && NO_FIXED_RADIX_LARGE_NP(plnr))

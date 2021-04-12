@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,14 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
 /* direct RDFT solver, using r2c codelets */
 
-#include "rdft.h"
+#include "rdft/rdft.h"
 
 typedef struct {
      solver super;
@@ -130,8 +130,9 @@ static void iterate(const P *ego, R *I, R *O,
      INT n = ego->n;
      INT i;
      INT batchsz = compute_batchsize(n);
+     size_t bufsz = n * batchsz * sizeof(R);
 
-     STACK_MALLOC(R *, buf, n * batchsz * sizeof(R));
+     BUF_ALLOC(R *, buf, bufsz);
 
      for (i = 0; i < vl - batchsz; i += batchsz) {
 	  dobatch(ego, I, O, buf, batchsz);
@@ -140,7 +141,7 @@ static void iterate(const P *ego, R *I, R *O,
      }
      dobatch(ego, I, O, buf, vl - i);
 
-     STACK_FREE(buf);
+     BUF_FREE(buf, bufsz);
 }
 
 static void apply_buf_r2hc(const plan *ego_, R *I, R *O)

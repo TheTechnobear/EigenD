@@ -14,22 +14,22 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
-#include "bench.h"
+#include "libbench2/bench.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <math.h>
 
+#if defined(HAVE_MALLOC_H)
+#  include <malloc.h>
+#endif
+
 #if defined(HAVE_DECL_MEMALIGN) && !HAVE_DECL_MEMALIGN
-#  if defined(HAVE_MALLOC_H)
-#    include <malloc.h>
-#  else
 extern void *memalign(size_t, size_t);
-#  endif
 #endif
 
 #if defined(HAVE_DECL_POSIX_MEMALIGN) && !HAVE_DECL_POSIX_MEMALIGN
@@ -50,6 +50,9 @@ double bench_drand(void)
 {
      return drand48() - 0.5;
 }
+#  if defined(HAVE_DECL_SRAND48) && !HAVE_DECL_SRAND48
+extern void srand48(long);
+#  endif
 void bench_srand(int seed)
 {
      srand48(seed);
@@ -180,20 +183,19 @@ void *bench_malloc(size_t n)
      void *p;
      if (n == 0) n = 1;
 
-#if defined(WITH_OUR_MALLOC16) && (MIN_ALIGNMENT == 16)
-     /* Our own 16-byte aligned malloc/free.  Assumes sizeof(void*) is
+#if defined(WITH_OUR_MALLOC)
+     /* Our own aligned malloc/free.  Assumes sizeof(void*) is
 	a power of two <= 8 and that malloc is at least
 	sizeof(void*)-aligned.  Assumes size_t = uintptr_t.  */
      {
 	  void *p0;
-	  if ((p0 = malloc(n + 16))) {
-	       p = (void *) (((size_t) p0 + 16) & (~((size_t) 15)));
+	  if ((p0 = malloc(n + MIN_ALIGNMENT))) {
+	       p = (void *) (((size_t) p0 + MIN_ALIGNMENT) & (~((size_t) (MIN_ALIGNMENT - 1))));
 	       *((void **) p - 1) = p0;
 	  }
 	  else
 	       p = (void *) 0;
      }
-#    define OUR_FREE16     
 #elif defined(HAVE_MEMALIGN)
      p = memalign(MIN_ALIGNMENT, n);
 #elif defined(HAVE_POSIX_MEMALIGN)
@@ -217,7 +219,7 @@ void *bench_malloc(size_t n)
 
 void bench_free(void *p)
 {
-#ifdef OUR_FREE16
+#ifdef WITH_OUR_MALLOC
      if (p) free(*((void **) p - 1));
 #else
      real_free(p);

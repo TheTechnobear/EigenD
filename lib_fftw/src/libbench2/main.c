@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "bench.h"
+#include "libbench2/bench.h"
 
 /* On some systems, we are required to define a dummy main-like
    routine (called "MAIN__" or something similar in order to link a C
@@ -35,5 +35,5 @@
 /* in a separate file so that the user can override it */
 int main(int argc, char *argv[])
 {
-     return aligned_main(argc, argv);
+     return bench_main(argc, argv);
 }

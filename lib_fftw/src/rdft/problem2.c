@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#include "dft.h"
-#include "rdft.h"
+#include "dft/dft.h"
+#include "rdft/rdft.h"
 #include <stddef.h>
 
 static void destroy(problem *ego_)
@@ -37,10 +37,10 @@ static void hash(const problem *p_, md5 *m)
      X(md5int)(m, p->r0 == p->cr);
      X(md5INT)(m, p->r1 - p->r0);
      X(md5INT)(m, p->ci - p->cr);
-     X(md5int)(m, X(alignment_of)(p->r0));
-     X(md5int)(m, X(alignment_of)(p->r1));
-     X(md5int)(m, X(alignment_of)(p->cr)); 
-     X(md5int)(m, X(alignment_of)(p->ci)); 
+     X(md5int)(m, X(ialignment_of)(p->r0));
+     X(md5int)(m, X(ialignment_of)(p->r1));
+     X(md5int)(m, X(ialignment_of)(p->cr)); 
+     X(md5int)(m, X(ialignment_of)(p->ci)); 
      X(md5int)(m, p->kind);
      X(tensor_md5)(m, p->sz);
      X(tensor_md5)(m, p->vecsz);

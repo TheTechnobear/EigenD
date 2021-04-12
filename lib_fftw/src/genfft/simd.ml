@@ -1,7 +1,7 @@
 (*
  * Copyright (c) 1997-1999 Massachusetts Institute of Technology
- * Copyright (c) 2003, 2007-8 Matteo Frigo
- * Copyright (c) 2003, 2007-8 Massachusetts Institute of Technology
+ * Copyright (c) 2003, 2007-14 Matteo Frigo
+ * Copyright (c) 2003, 2007-14 Massachusetts Institute of Technology
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  *)
 
@@ -172,20 +172,10 @@ and unparse_ast ast =
             (unparse_code code) ^
 	    "}\n"
 
-(* ---- *)
-  and unparse_plus = function
-    | [] -> ""
-    | (CUminus a :: b) -> " - " ^ (parenthesize a) ^ (unparse_plus b)
-    | (a :: b) -> " + " ^ (parenthesize a) ^ (unparse_plus b)
-  and parenthesize x = match x with
-  | (CVar _) -> unparse_ast x
-  | (CCall _) -> unparse_ast x
-  | (Integer _) -> unparse_ast x
-  | _ -> "(" ^ (unparse_ast x) ^ ")"
-
   in match ast with 
   | Asch a -> (unparse_annotated true a)
   | Return x -> "return " ^ unparse_ast x ^ ";"
+  | Simd_leavefun -> "VLEAVE();"
   | For (a, b, c, d) ->
       "for (" ^
       unparse_ast a ^ "; " ^ unparse_ast b ^ "; " ^ unparse_ast c
