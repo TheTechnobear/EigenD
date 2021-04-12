@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 static StringArray readDeadMansPedalFile (const File& file)
 {
@@ -44,18 +46,7 @@ PluginDirectoryScanner::PluginDirectoryScanner (KnownPluginList& listToAddTo,
       allowAsync (allowPluginsWhichRequireAsynchronousInstantiation)
 {
     directoriesToSearch.removeRedundantPaths();
-
-    filesOrIdentifiersToScan = format.searchPathsForPlugins (directoriesToSearch, recursive, allowAsync);
-
-    // If any plugins have crashed recently when being loaded, move them to the
-    // end of the list to give the others a chance to load correctly..
-    for (auto& crashed : readDeadMansPedalFile (deadMansPedalFile))
-        for (int j = filesOrIdentifiersToScan.size(); --j >= 0;)
-            if (crashed == filesOrIdentifiersToScan[j])
-                filesOrIdentifiersToScan.move (j, -1);
-
-    applyBlacklistingsFromDeadMansPedal (listToAddTo, deadMansPedalFile);
-    nextIndex.set (filesOrIdentifiersToScan.size());
+    setFilesOrIdentifiersToScan (format.searchPathsForPlugins (directoriesToSearch, recursive, allowAsync));
 }
 
 PluginDirectoryScanner::~PluginDirectoryScanner()
@@ -64,6 +55,21 @@ PluginDirectoryScanner::~PluginDirectoryScanner()
 }
 
 //==============================================================================
+void PluginDirectoryScanner::setFilesOrIdentifiersToScan (const StringArray& filesOrIdentifiers)
+{
+    filesOrIdentifiersToScan = filesOrIdentifiers;
+
+    // If any plugins have crashed recently when being loaded, move them to the
+    // end of the list to give the others a chance to load correctly..
+    for (auto& crashed : readDeadMansPedalFile (deadMansPedalFile))
+        for (int j = filesOrIdentifiersToScan.size(); --j >= 0;)
+            if (crashed == filesOrIdentifiersToScan[j])
+                filesOrIdentifiersToScan.move (j, -1);
+
+    applyBlacklistingsFromDeadMansPedal (list, deadMansPedalFile);
+    nextIndex.set (filesOrIdentifiersToScan.size());
+}
+
 String PluginDirectoryScanner::getNextPluginFileThatWillBeScanned() const
 {
     return format.getNameOfPluginFromIdentifier (filesOrIdentifiersToScan [nextIndex.get() - 1]);
@@ -71,7 +77,7 @@ String PluginDirectoryScanner::getNextPluginFileThatWillBeScanned() const
 
 void PluginDirectoryScanner::updateProgress()
 {
-    progress = (1.0f - nextIndex.get() / (float) filesOrIdentifiersToScan.size());
+    progress = (1.0f - (float) nextIndex.get() / (float) filesOrIdentifiersToScan.size());
 }
 
 bool PluginDirectoryScanner::scanNextFile (bool dontRescanIfAlreadyInList,
@@ -129,3 +135,5 @@ void PluginDirectoryScanner::applyBlacklistingsFromDeadMansPedal (KnownPluginLis
     for (auto& crashedPlugin : readDeadMansPedalFile (file))
         list.addToBlacklist (crashedPlugin);
 }
+
+} // namespace juce

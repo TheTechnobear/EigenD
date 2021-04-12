@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,13 +23,16 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 struct ImageCache::Pimpl     : private Timer,
                                private DeletedAtShutdown
 {
     Pimpl() {}
-    ~Pimpl() { clearSingletonInstance(); }
+    ~Pimpl() override { clearSingletonInstance(); }
 
-    juce_DeclareSingleton_SingleThreaded_Minimal (ImageCache::Pimpl)
+    JUCE_DECLARE_SINGLETON_SINGLETHREADED_MINIMAL (ImageCache::Pimpl)
 
     Image getFromHashCode (const int64 hashCode) noexcept
     {
@@ -108,7 +110,7 @@ struct ImageCache::Pimpl     : private Timer,
     JUCE_DECLARE_NON_COPYABLE (Pimpl)
 };
 
-juce_ImplementSingleton_SingleThreaded (ImageCache::Pimpl)
+JUCE_IMPLEMENT_SINGLETON (ImageCache::Pimpl)
 
 
 //==============================================================================
@@ -163,3 +165,5 @@ void ImageCache::releaseUnusedImages()
 {
     Pimpl::getInstance()->releaseUnusedImages();
 }
+
+} // namespace juce

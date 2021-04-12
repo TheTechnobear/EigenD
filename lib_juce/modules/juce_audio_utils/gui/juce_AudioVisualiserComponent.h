@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -40,6 +39,8 @@
     for fancy additional features that you'd like it to support! If you're building a
     real-world app that requires more powerful waveform display, you'll probably want to
     create your own component instead.
+
+    @tags{Audio}
 */
 class JUCE_API AudioVisualiserComponent  : public Component,
                                            private Timer
@@ -49,7 +50,7 @@ public:
     AudioVisualiserComponent (int initialNumChannels);
 
     /** Destructor. */
-    ~AudioVisualiserComponent();
+    ~AudioVisualiserComponent() override;
 
     /** Changes the number of channels that the visualiser stores. */
     void setNumChannels (int numChannels);
@@ -74,7 +75,7 @@ public:
         The number of channels provided here is expected to match the number of channels
         that this AudioVisualiserComponent has been told to use.
     */
-    void pushBuffer (const AudioSampleBuffer& bufferToPush);
+    void pushBuffer (const AudioBuffer<float>& bufferToPush);
 
     /** Pushes a buffer of channels data.
         The number of channels provided here is expected to match the number of channels
@@ -119,8 +120,6 @@ public:
 
 private:
     struct ChannelInfo;
-    friend struct ChannelInfo;
-    friend struct ContainerDeletePolicy<ChannelInfo>;
 
     OwnedArray<ChannelInfo> channels;
     int numSamples, inputSamplesPerBlock;
@@ -130,3 +129,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioVisualiserComponent)
 };
+
+} // namespace juce

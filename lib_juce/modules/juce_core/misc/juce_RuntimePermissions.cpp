@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,23 +20,17 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 #if ! JUCE_ANDROID  // We currently don't request runtime permissions on any other platform
                     // than Android, so this file contains a dummy implementation for those.
                     // This may change in the future.
 
-void RuntimePermissions::request (PermissionID /*permission*/, Callback callback)
-{
-    callback (true);
-}
-
-bool RuntimePermissions::isRequired (PermissionID /*permission*/)
-{
-    return false;
-}
-
-bool RuntimePermissions::isGranted (PermissionID /*permission*/)
-{
-    return true;
-}
+void RuntimePermissions::request (PermissionID, Callback callback)   { callback (true); }
+bool RuntimePermissions::isRequired (PermissionID) { return false; }
+bool RuntimePermissions::isGranted (PermissionID) { return true; }
 
 #endif
+
+} // namespace juce

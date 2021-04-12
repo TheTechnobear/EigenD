@@ -59,7 +59,7 @@
 */
 class EnumPropertyEditor  : public Component,
                             public AtomEditor,
-                            public ComboBoxListener
+                            public ComboBox::Listener
 {
 public:
     //==============================================================================

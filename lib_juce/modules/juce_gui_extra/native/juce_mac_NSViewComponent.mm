@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 struct NSViewResizeWatcher
 {
@@ -40,10 +42,12 @@ struct NSViewResizeWatcher
         callback = [cls.createInstance() init];
         ViewFrameChangeCallbackClass::setTarget (callback, this);
 
+        JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wundeclared-selector")
         [[NSNotificationCenter defaultCenter]  addObserver: callback
                                                   selector: @selector (frameChanged:)
                                                       name: NSViewFrameDidChangeNotification
                                                     object: view];
+        JUCE_END_IGNORE_WARNINGS_GCC_LIKE
     }
 
     void detachViewWatcher()
@@ -67,7 +71,11 @@ private:
         ViewFrameChangeCallbackClass()  : ObjCClass<NSObject> ("JUCE_NSViewCallback_")
         {
             addIvar<NSViewResizeWatcher*> ("target");
+
+            JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wundeclared-selector")
             addMethod (@selector (frameChanged:),  frameChanged, "v@:@");
+            JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+
             registerClass();
         }
 
@@ -79,7 +87,7 @@ private:
     private:
         static void frameChanged (id self, SEL, NSNotification*)
         {
-            if (NSViewResizeWatcher* const target = getIvar<NSViewResizeWatcher*> (self, "target"))
+            if (auto* target = getIvar<NSViewResizeWatcher*> (self, "target"))
                 target->viewResized();
         }
 
@@ -95,7 +103,7 @@ class NSViewAttachment  : public ReferenceCountedObject,
                           private NSViewResizeWatcher
 {
 public:
-    NSViewAttachment (NSView* const v, Component& comp)
+    NSViewAttachment (NSView* v, Component& comp)
         : ComponentMovementWatcher (&comp),
           view (v), owner (comp),
           currentPeer (nullptr)
@@ -110,7 +118,7 @@ public:
         attachViewWatcher (view);
     }
 
-    ~NSViewAttachment()
+    ~NSViewAttachment() override
     {
         detachViewWatcher();
         removeFromParent();
@@ -131,9 +139,9 @@ public:
 
     void componentMovedOrResized (bool /*wasMoved*/, bool /*wasResized*/) override
     {
-        if (ComponentPeer* const peer = owner.getTopLevelComponent()->getPeer())
+        if (auto* peer = owner.getTopLevelComponent()->getPeer())
         {
-            NSRect r = makeNSRect (peer->getAreaCoveredBy (owner));
+            auto r = makeNSRect (peer->getAreaCoveredBy (owner));
             r.origin.y = [[view superview] frame].size.height - (r.origin.y + r.size.height);
             [view setFrame: r];
         }
@@ -141,7 +149,7 @@ public:
 
     void componentPeerChanged() override
     {
-        ComponentPeer* const peer = owner.getPeer();
+        auto* peer = owner.getPeer();
 
         if (currentPeer != peer)
         {
@@ -149,7 +157,7 @@ public:
 
             if (peer != nullptr)
             {
-                NSView* const peerView = (NSView*) peer->getNativeHandle();
+                auto peerView = (NSView*) peer->getNativeHandle();
                 [peerView addSubview: view];
                 componentMovedOrResized (false, false);
             }
@@ -179,7 +187,8 @@ public:
 
     NSView* const view;
 
-    typedef ReferenceCountedObjectPtr<NSViewAttachment> Ptr;
+    using Ptr = ReferenceCountedObjectPtr<NSViewAttachment>;
+
 private:
     Component& owner;
     ComponentPeer* currentPeer;
@@ -198,11 +207,11 @@ private:
 NSViewComponent::NSViewComponent() {}
 NSViewComponent::~NSViewComponent() {}
 
-void NSViewComponent::setView (void* const view)
+void NSViewComponent::setView (void* view)
 {
     if (view != getView())
     {
-        NSViewAttachment::Ptr old = attachment;
+        auto old = attachment;
 
         attachment = nullptr;
 
@@ -223,7 +232,7 @@ void NSViewComponent::resizeToFitView()
 {
     if (attachment != nullptr)
     {
-        NSRect r = [static_cast<NSViewAttachment*> (attachment.get())->view frame];
+        auto r = [static_cast<NSViewAttachment*> (attachment.get())->view frame];
         setBounds (Rectangle<int> ((int) r.size.width, (int) r.size.height));
     }
 }
@@ -236,7 +245,9 @@ void NSViewComponent::alphaChanged()
         (static_cast<NSViewAttachment*> (attachment.get()))->updateAlpha();
 }
 
-ReferenceCountedObject* NSViewComponent::attachViewToComponent (Component& comp, void* const view)
+ReferenceCountedObject* NSViewComponent::attachViewToComponent (Component& comp, void* view)
 {
     return new NSViewAttachment ((NSView*) view, comp);
 }
+
+} // namespace juce

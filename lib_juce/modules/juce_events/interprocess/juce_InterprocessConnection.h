@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,7 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 class InterprocessConnectionServer;
 class MemoryBlock;
@@ -42,7 +43,12 @@ class MemoryBlock;
     To act as a socket server and create connections for one or more client, see the
     InterprocessConnectionServer class.
 
+    IMPORTANT NOTE: Your derived Connection class *must* call `disconnect` in its destructor
+    in order to cancel any pending messages before the class is destroyed.
+
     @see InterprocessConnectionServer, Socket, NamedPipe
+
+    @tags{Events}
 */
 class JUCE_API  InterprocessConnection
 {
@@ -110,21 +116,31 @@ public:
                                             to the pipe, or -1 for an infinite timeout
         @param mustNotExist   if set to true, the method will fail if the pipe already exists
         @returns true if the pipe was created, or false if it fails (e.g. if another process is
-                 already using using the pipe)
+                 already using the pipe)
     */
     bool createPipe (const String& pipeName, int pipeReceiveMessageTimeoutMs, bool mustNotExist = false);
 
-    /** Disconnects and closes any currently-open sockets or pipes. */
-    void disconnect();
+    /** Whether the disconnect call should trigger callbacks. */
+    enum class Notify { no, yes };
+
+    /** Disconnects and closes any currently-open sockets or pipes.
+
+        Derived classes *must* call this in their destructors in order to avoid undefined
+        behaviour.
+
+        @param timeoutMs      the time in ms to wait before killing the thread by force
+        @param notify         whether or not to call `connectionLost`
+    */
+    void disconnect (int timeoutMs = -1, Notify notify = Notify::yes);
 
     /** True if a socket or pipe is currently active. */
     bool isConnected() const;
 
     /** Returns the socket that this connection is using (or nullptr if it uses a pipe). */
-    StreamingSocket* getSocket() const noexcept                 { return socket; }
+    StreamingSocket* getSocket() const noexcept                 { return socket.get(); }
 
     /** Returns the pipe that this connection is using (or nullptr if it uses a socket). */
-    NamedPipe* getPipe() const noexcept                         { return pipe; }
+    NamedPipe* getPipe() const noexcept                         { return pipe.get(); }
 
     /** Returns the name of the machine at the other end of this connection.
         This may return an empty string if the name is unknown.
@@ -175,31 +191,36 @@ public:
 
 private:
     //==============================================================================
-    WeakReference<InterprocessConnection>::Master masterReference;
-    friend class WeakReference<InterprocessConnection>;
-    CriticalSection pipeAndSocketLock;
-    ScopedPointer<StreamingSocket> socket;
-    ScopedPointer<NamedPipe> pipe;
-    bool callbackConnectionState;
+    ReadWriteLock pipeAndSocketLock;
+    std::unique_ptr<StreamingSocket> socket;
+    std::unique_ptr<NamedPipe> pipe;
+    bool callbackConnectionState = false;
     const bool useMessageThread;
     const uint32 magicMessageHeader;
-    int pipeReceiveMessageTimeout;
+    int pipeReceiveMessageTimeout = -1;
 
     friend class InterprocessConnectionServer;
-    void initialiseWithSocket (StreamingSocket*);
-    void initialiseWithPipe (NamedPipe*);
+    void initialise();
+    void initialiseWithSocket (std::unique_ptr<StreamingSocket>);
+    void initialiseWithPipe (std::unique_ptr<NamedPipe>);
     void deletePipeAndSocket();
     void connectionMadeInt();
     void connectionLostInt();
     void deliverDataInt (const MemoryBlock&);
-    bool readNextMessageInt();
+    bool readNextMessage();
+    int readData (void*, int);
 
     struct ConnectionThread;
-    friend struct ConnectionThread;
-    friend struct ContainerDeletePolicy<ConnectionThread>;
-    ScopedPointer<ConnectionThread> thread;
+    std::unique_ptr<ConnectionThread> thread;
+    std::atomic<bool> threadIsRunning { false };
+
+    class SafeAction;
+    std::shared_ptr<SafeAction> safeAction;
+
     void runThread();
     int writeData (void*, int);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (InterprocessConnection)
 };
+
+} // namespace juce

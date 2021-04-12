@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -31,6 +31,8 @@
     go into the list.
 
     @see WildcardFileFilter, DirectoryContentsList, FileListComponent, FileBrowserComponent
+
+    @tags{Core}
 */
 class JUCE_API  FileFilter
 {
@@ -65,3 +67,5 @@ protected:
     //==============================================================================
     String description;
 };
+
+} // namespace juce

@@ -52,7 +52,7 @@ CreateToolComponent::CreateToolComponent (const std::set<std::string>& agents)
     addAndMakeVisible (comboBox = new ComboBox ("categoryBox"));
     comboBox->setEditableText (false);
     comboBox->setJustificationType (Justification::centredLeft);
-    comboBox->setTextWhenNothingSelected (String::empty);
+    comboBox->setTextWhenNothingSelected (String());
     comboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     comboBox->addListener (this);
 

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,21 +23,23 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     A subclass of this is used to drive a ListBox.
 
     @see ListBox
+
+    @tags{GUI}
 */
 class JUCE_API  ListBoxModel
 {
 public:
     //==============================================================================
     /** Destructor. */
-    virtual ~ListBoxModel()  {}
+    virtual ~ListBoxModel() = default;
 
     //==============================================================================
     /** This has to return the number of items in the list.
@@ -156,12 +157,6 @@ public:
 
     /** You can override this to return a custom mouse cursor for each row. */
     virtual MouseCursor getMouseCursorForRow (int row);
-
-private:
-   #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
-    // This method's signature has changed to take a MouseEvent parameter - please update your code!
-    JUCE_DEPRECATED_WITH_BODY (virtual int backgroundClicked(), { return 0; })
-   #endif
 };
 
 
@@ -174,6 +169,8 @@ private:
     more specialised tasks, it can supply a custom component to fill each row.
 
     @see ComboBox, TableListBox
+
+    @tags{GUI}
 */
 class JUCE_API  ListBox  : public Component,
                            public SettableTooltipClient
@@ -189,7 +186,7 @@ public:
              ListBoxModel* model = nullptr);
 
     /** Destructor. */
-    ~ListBox();
+    ~ListBox() override;
 
 
     //==============================================================================
@@ -379,11 +376,11 @@ public:
     /** Scrolls if necessary to make sure that a particular row is visible. */
     void scrollToEnsureRowIsOnscreen (int row);
 
-    /** Returns a pointer to the vertical scrollbar. */
-    ScrollBar* getVerticalScrollBar() const noexcept;
+    /** Returns a reference to the vertical scrollbar. */
+    ScrollBar& getVerticalScrollBar() const noexcept;
 
-    /** Returns a pointer to the horizontal scrollbar. */
-    ScrollBar* getHorizontalScrollBar() const noexcept;
+    /** Returns a reference to the horizontal scrollbar. */
+    ScrollBar& getHorizontalScrollBar() const noexcept;
 
     /** Finds the row index that contains a given x,y position.
         The position is relative to the ListBox's top-left.
@@ -418,7 +415,7 @@ public:
 
     /** Finds the row component for a given row in the list.
 
-        The component returned will have been created using createRowComponent().
+        The component returned will have been created using ListBoxModel::refreshComponentForRow().
 
         If the component for this row is off-screen or if the row is out-of-range,
         this will return nullptr.
@@ -494,10 +491,10 @@ public:
         The component will be deleted when setHeaderComponent() is called with a
         different component, or when the listbox is deleted.
     */
-    void setHeaderComponent (Component* newHeaderComponent);
+    void setHeaderComponent (std::unique_ptr<Component> newHeaderComponent);
 
     /** Returns whatever header component was set with setHeaderComponent(). */
-    Component* getHeaderComponent() const noexcept      { return headerComponent; }
+    Component* getHeaderComponent() const noexcept      { return headerComponent.get(); }
 
     /** Changes the width of the rows in the list.
 
@@ -576,9 +573,9 @@ private:
     friend class ListViewport;
     friend class TableListBox;
     ListBoxModel* model;
-    ScopedPointer<ListViewport> viewport;
-    ScopedPointer<Component> headerComponent;
-    ScopedPointer<MouseListener> mouseMoveSelector;
+    std::unique_ptr<ListViewport> viewport;
+    std::unique_ptr<Component> headerComponent;
+    std::unique_ptr<MouseListener> mouseMoveSelector;
     SparseSet<int> selected;
     int totalItems = 0, rowHeight = 22, minimumRowWidth = 0;
     int outlineThickness = 0;
@@ -598,3 +595,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ListBox)
 };
+
+} // namespace juce

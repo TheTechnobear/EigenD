@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,14 +20,16 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     An input stream that reads from a local file.
 
     @see InputStream, FileOutputStream, File::createInputStream
+
+    @tags{Core}
 */
 class JUCE_API  FileInputStream  : public InputStream
 {
@@ -42,7 +44,7 @@ public:
     explicit FileInputStream (const File& fileToRead);
 
     /** Destructor. */
-    ~FileInputStream();
+    ~FileInputStream() override;
 
     //==============================================================================
     /** Returns the file that this stream is reading from. */
@@ -75,12 +77,14 @@ public:
 private:
     //==============================================================================
     const File file;
-    void* fileHandle;
-    int64 currentPosition;
-    Result status;
+    void* fileHandle = nullptr;
+    int64 currentPosition = 0;
+    Result status { Result::ok() };
 
     void openHandle();
     size_t readInternal (void*, size_t);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileInputStream)
 };
+
+} // namespace juce

@@ -57,7 +57,7 @@
 */
 class SingleInputEditor  : public Component,
                            public TextEditor::Listener,
-                           public ButtonListener
+                           public Button::Listener
 {
 public:
     //==============================================================================

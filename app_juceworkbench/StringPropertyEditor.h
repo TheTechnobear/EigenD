@@ -66,7 +66,7 @@ public:
                                                                     //[/Comments]
 */
 class StringPropertyEditor  : public Component,
-                              public TextEditorListener,
+                              public TextEditor::Listener,
                               public AtomEditor
 {
 public:

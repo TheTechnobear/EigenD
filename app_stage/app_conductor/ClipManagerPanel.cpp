@@ -47,7 +47,7 @@
 //==============================================================================
 ClipManagerPanel::ClipManagerPanel (ClipManagerBackend* backend)
 {
-    addAndMakeVisible (fileBrowser = new FileBrowserComponent (13,File::nonexistent,0,0));
+    addAndMakeVisible (fileBrowser = new FileBrowserComponent (13,File(),0,0));
     fileBrowser->setName ("fileBrowser");
 
     addAndMakeVisible (clipSelectorPanel = new ClipLibraryTable (backend));

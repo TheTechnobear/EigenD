@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,14 +20,16 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     Encapsulates a MIDI message.
 
     @see MidiMessageSequence, MidiOutput, MidiInput
+
+    @tags{Audio}
 */
 class JUCE_API  MidiMessage
 {
@@ -81,19 +83,19 @@ public:
         complete message, and will return the number of bytes it used. This lets
         you read a sequence of midi messages from a file or stream.
 
-        @param data             the data to read from
-        @param maxBytesToUse    the maximum number of bytes it's allowed to read
-        @param numBytesUsed     returns the number of bytes that were actually needed
-        @param lastStatusByte   in a sequence of midi messages, the initial byte
-                                can be dropped from a message if it's the same as the
-                                first byte of the previous message, so this lets you
-                                supply the byte to use if the first byte of the message
-                                has in fact been dropped.
-        @param timeStamp        the time to give the midi message - this value doesn't
-                                use any particular units, so will be application-specific
+        @param data                     the data to read from
+        @param maxBytesToUse            the maximum number of bytes it's allowed to read
+        @param numBytesUsed             returns the number of bytes that were actually needed
+        @param lastStatusByte           in a sequence of midi messages, the initial byte
+                                        can be dropped from a message if it's the same as the
+                                        first byte of the previous message, so this lets you
+                                        supply the byte to use if the first byte of the message
+                                        has in fact been dropped.
+        @param timeStamp                the time to give the midi message - this value doesn't
+                                        use any particular units, so will be application-specific
         @param sysexHasEmbeddedLength   when reading sysexes, this flag indicates whether
-                                to expect the data to begin with a variable-length field
-                                indicating its size
+                                        to expect the data to begin with a variable-length
+                                        field indicating its size
     */
     MidiMessage (const void* data, int maxBytesToUse,
                  int& numBytesUsed, uint8 lastStatusByte,
@@ -170,6 +172,11 @@ public:
         The units for the timestamp will be application-specific.
     */
     void addToTimeStamp (double delta) noexcept         { timeStamp += delta; }
+
+    /** Return a copy of this message with a new timestamp.
+        The units for the timestamp will be application-specific - see the notes for getTimeStamp().
+    */
+    MidiMessage withTimeStamp (double newTimestamp) const;
 
     //==============================================================================
     /** Returns the midi channel associated with the message.
@@ -394,7 +401,7 @@ public:
     /** Returns true if the message is an aftertouch event.
 
         For aftertouch events, use the getNoteNumber() method to find out the key
-        that it applies to, and getAftertouchValue() to find out the amount. Use
+        that it applies to, and getAfterTouchValue() to find out the amount. Use
         getChannel() to find out the channel.
 
         @see getAftertouchValue, getNoteNumber
@@ -495,6 +502,11 @@ public:
         @see allSoundOff
     */
     bool isAllSoundOff() const noexcept;
+
+    /** Checks whether this message is a reset all controllers message.
+        @see allControllerOff
+    */
+    bool isResetAllControllers() const noexcept;
 
     /** Creates an all-notes-off message.
         @param channel              the midi channel, in the range 1 to 16
@@ -846,11 +858,45 @@ public:
     //==============================================================================
     /** Reads a midi variable-length integer.
 
-        @param data             the data to read the number from
-        @param numBytesUsed     on return, this will be set to the number of bytes that were read
+        This signature has been deprecated in favour of the safer
+        readVariableLengthValue.
+
+        The `data` argument indicates the data to read the number from,
+        and `numBytesUsed` is used as an out-parameter to indicate the number
+        of bytes that were read.
     */
-    static int readVariableLengthVal (const uint8* data,
-                                      int& numBytesUsed) noexcept;
+    JUCE_DEPRECATED (static int readVariableLengthVal (const uint8* data,
+                                                       int& numBytesUsed) noexcept);
+
+    /** Holds information about a variable-length value which was parsed
+        from a stream of bytes.
+
+        A valid value requires that `bytesUsed` is greater than 0.
+    */
+    struct VariableLengthValue
+    {
+        VariableLengthValue() = default;
+
+        VariableLengthValue (int valueIn, int bytesUsedIn)
+            : value (valueIn), bytesUsed (bytesUsedIn) {}
+
+        bool isValid() const noexcept  { return bytesUsed > 0; }
+
+        int value = 0;
+        int bytesUsed = 0;
+    };
+
+    /** Reads a midi variable-length integer, with protection against buffer overflow.
+
+        @param data             the data to read the number from
+        @param maxBytesToUse    the number of bytes in the region following `data`
+        @returns                a struct containing the parsed value, and the number
+                                of bytes that were read. If parsing fails, both the
+                                `value` and `bytesUsed` fields will be set to 0 and
+                                `isValid()` will return false
+    */
+    static VariableLengthValue readVariableLengthValue (const uint8* data,
+                                                        int maxBytesToUse) noexcept;
 
     /** Based on the first byte of a short midi message, this uses a lookup table
         to return the message length (either 1, 2, or 3 bytes).
@@ -936,3 +982,5 @@ private:
     inline uint8* getData() const noexcept        { return isHeapAllocated() ? packedData.allocatedData : (uint8*) packedData.asBytes; }
     uint8* allocateSpace (int);
 };
+
+} // namespace juce

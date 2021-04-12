@@ -142,14 +142,14 @@ Button* TabBarButton2::createTabBarCloseButton()
 	
 	
     DrawableComposite normalImage;
-    normalImage.addAndMakeVisible (ellipse.createCopy());
-    normalImage.addAndMakeVisible (dp.createCopy());
+    normalImage.addAndMakeVisible (ellipse.createCopy().release());
+    normalImage.addAndMakeVisible (dp.createCopy().release());
 	
     dp.setFill (Colour (0xcc000000));
 	
     DrawableComposite overImage;
-    overImage.addAndMakeVisible (ellipse.createCopy());
-    overImage.addAndMakeVisible (dp.createCopy());
+    overImage.addAndMakeVisible (ellipse.createCopy().release());
+    overImage.addAndMakeVisible (dp.createCopy().release());
 	
     DrawableButton* db = new DrawableButton ("closeTab", DrawableButton::ImageFitted);
     db->setImages (&normalImage, &overImage, 0);
@@ -185,14 +185,14 @@ void TabBarButton2::drawAddTabButton (Graphics& g, int x, int y, int w, int h, b
 	
 	
     DrawableComposite normalImage;
-    normalImage.addAndMakeVisible (ellipse.createCopy());
-    normalImage.addAndMakeVisible (dp.createCopy());
+    normalImage.addAndMakeVisible (ellipse.createCopy().release());
+    normalImage.addAndMakeVisible (dp.createCopy().release());
 	
     dp.setFill (Colour (0xcc000000));
 	
     DrawableComposite overImage;
-    overImage.addAndMakeVisible (ellipse.createCopy());
-    overImage.addAndMakeVisible (dp.createCopy());
+    overImage.addAndMakeVisible (ellipse.createCopy().release());
+    overImage.addAndMakeVisible (dp.createCopy().release());
 
     float size = (float)h*0.65f;
 	
@@ -206,6 +206,11 @@ void TabBarButton2::drawAddTabButton (Graphics& g, int x, int y, int w, int h, b
 
 }
 
+void swapVariables(int& a, int& b) {
+    int x=a;
+    a=b;
+    b=x;
+}
 
 void TabBarButton2::drawTabButton (Graphics& g,
                                       int w, int h,
@@ -847,7 +852,7 @@ void TabbedButtonBar2::setCurrentTabIndex (int newIndex, const bool sendChangeMe
         if (sendChangeMessage_)
             sendChangeMessage ();
 		
-        currentTabChanged (newIndex, newIndex >= 0 ? tabs [newIndex] : String::empty);
+        currentTabChanged (newIndex, newIndex >= 0 ? tabs [newIndex] : String());
     }
 }
 

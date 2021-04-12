@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 DialogWindow::DialogWindow (const String& name, Colour colour,
                             const bool escapeCloses, const bool onDesktop)
@@ -60,7 +62,7 @@ void DialogWindow::resized()
 
     if (escapeKeyTriggersCloseButton)
     {
-        if (Button* const close = getCloseButton())
+        if (auto* close = getCloseButton())
         {
             const KeyPress esc (KeyPress::escapeKey, 0, 0);
 
@@ -99,15 +101,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE (DefaultDialogWindow)
 };
 
-DialogWindow::LaunchOptions::LaunchOptions() noexcept
-    : dialogBackgroundColour (Colours::lightgrey),
-      componentToCentreAround (nullptr),
-      escapeKeyTriggersCloseButton (true),
-      useNativeTitleBar (true),
-      resizable (true),
-      useBottomRightCornerResizer (false)
-{
-}
+DialogWindow::LaunchOptions::LaunchOptions() noexcept {}
 
 DialogWindow* DialogWindow::LaunchOptions::create()
 {
@@ -118,12 +112,12 @@ DialogWindow* DialogWindow::LaunchOptions::create()
 
 DialogWindow* DialogWindow::LaunchOptions::launchAsync()
 {
-    DialogWindow* const d = create();
+    auto* d = create();
     d->enterModalState (true, nullptr, true);
     return d;
 }
 
-#if JUCE_MODAL_LOOPS_PERMITTED || DOXYGEN
+#if JUCE_MODAL_LOOPS_PERMITTED
 int DialogWindow::LaunchOptions::runModal()
 {
     return launchAsync()->runModalLoop();
@@ -174,3 +168,5 @@ int DialogWindow::showModalDialog (const String& dialogTitle,
     return o.runModal();
 }
 #endif
+
+} // namespace juce

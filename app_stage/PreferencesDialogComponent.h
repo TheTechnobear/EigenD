@@ -64,8 +64,8 @@ class ViewPreferencesComponent;
                                                                     //[/Comments]
 */
 class PreferencesDialogComponent  : public Component,
-                                    public TextEditorListener,
-                                    public ButtonListener
+                                    public TextEditor::Listener,
+                                    public Button::Listener
 {
 public:
     //==============================================================================

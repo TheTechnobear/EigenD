@@ -55,7 +55,7 @@ String AgentTreeViewItem::getUniqueName() const
     if (xml != 0)
         return xml->getStringAttribute("name");
     else
-        return String::empty;
+        return String();
 }
 
 bool AgentTreeViewItem::mightContainSubItems()

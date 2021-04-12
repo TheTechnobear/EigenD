@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,6 +19,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 ChannelRemappingAudioSource::ChannelRemappingAudioSource (AudioSource* const source_,
                                                           const bool deleteSourceWhenDeleted)
@@ -142,9 +145,9 @@ void ChannelRemappingAudioSource::getNextAudioBlock (const AudioSourceChannelInf
 }
 
 //==============================================================================
-XmlElement* ChannelRemappingAudioSource::createXml() const
+std::unique_ptr<XmlElement> ChannelRemappingAudioSource::createXml() const
 {
-    XmlElement* e = new XmlElement ("MAPPINGS");
+    auto e = std::make_unique<XmlElement> ("MAPPINGS");
     String ins, outs;
 
     const ScopedLock sl (lock);
@@ -180,3 +183,5 @@ void ChannelRemappingAudioSource::restoreFromXml (const XmlElement& e)
             remappedOutputs.add (outs[i].getIntValue());
     }
 }
+
+} // namespace juce

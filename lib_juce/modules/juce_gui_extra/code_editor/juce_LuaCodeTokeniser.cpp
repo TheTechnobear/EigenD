@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 struct LuaTokeniserFunctions
 {
@@ -65,7 +67,7 @@ struct LuaTokeniserFunctions
                 break;
         }
 
-        for (int i = 0; k[i] != 0; ++i)
+        for (int i = 0; k[i] != nullptr; ++i)
             if (token.compare (CharPointer_ASCII (k[i])) == 0)
                 return true;
 
@@ -76,12 +78,12 @@ struct LuaTokeniserFunctions
     static int parseIdentifier (Iterator& source) noexcept
     {
         int tokenLength = 0;
-        String::CharPointerType::CharType possibleIdentifier [100];
+        String::CharPointerType::CharType possibleIdentifier[100];
         String::CharPointerType possible (possibleIdentifier);
 
         while (CppTokeniserFunctions::isIdentifierBody (source.peekNextChar()))
         {
-            const juce_wchar c = source.nextChar();
+            auto c = source.nextChar();
 
             if (tokenLength < 20)
                 possible.write (c);
@@ -105,7 +107,7 @@ struct LuaTokeniserFunctions
     {
         source.skipWhitespace();
 
-        const juce_wchar firstChar = source.peekNextChar();
+        auto firstChar = source.peekNextChar();
 
         switch (firstChar)
         {
@@ -116,7 +118,7 @@ struct LuaTokeniserFunctions
         case '5':   case '6':   case '7':   case '8':   case '9':
         case '.':
         {
-            int result = CppTokeniserFunctions::parseNumber (source);
+            auto result = CppTokeniserFunctions::parseNumber (source);
 
             if (result == LuaTokeniser::tokenType_error)
             {
@@ -154,7 +156,7 @@ struct LuaTokeniserFunctions
         case '-':
         {
             source.skip();
-            int result = CppTokeniserFunctions::parseNumber (source);
+            auto result = CppTokeniserFunctions::parseNumber (source);
 
             if (source.peekNextChar() == '-')
             {
@@ -228,8 +230,10 @@ CodeEditorComponent::ColourScheme LuaTokeniser::getDefaultColourScheme()
 
     CodeEditorComponent::ColourScheme cs;
 
-    for (unsigned int i = 0; i < sizeof (types) / sizeof (types[0]); ++i)  // (NB: numElementsInArray doesn't work here in GCC4.2)
-        cs.set (types[i].name, types[i].colour);
+    for (auto& t : types)
+        cs.set (t.name, Colour (t.colour));
 
     return cs;
 }
+
+} // namespace juce

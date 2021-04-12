@@ -231,7 +231,7 @@ void FindComponent::listBoxItemDoubleClicked(int row, const MouseEvent& e)
 
 String FindComponent::getTooltipForRow(int row)
 {
-    return String::empty;
+    return String();
 }
 
 //[/MiscUserCode]

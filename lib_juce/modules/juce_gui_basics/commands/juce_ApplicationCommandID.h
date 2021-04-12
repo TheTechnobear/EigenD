@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /** A type used to hold the unique ID for an application command.
@@ -35,7 +34,7 @@
     @see ApplicationCommandInfo, ApplicationCommandManager,
          ApplicationCommandTarget, KeyPressMappingSet
 */
-typedef int CommandID;
+using CommandID = int;
 
 
 //==============================================================================
@@ -45,7 +44,7 @@ typedef int CommandID;
     here to help different apps to use the same numeric values for them.
 
     Of course you don't have to use these, but some of them are used internally by
-    Juce - e.g. the quit ID is recognised as a command by the JUCEApplication class.
+    JUCE - e.g. the quit ID is recognised as a command by the JUCEApplication class.
 
     @see ApplicationCommandInfo, ApplicationCommandManager,
          ApplicationCommandTarget, KeyPressMappingSet
@@ -87,3 +86,5 @@ namespace StandardApplicationCommandIDs
         redo           = 0x1009
     };
 }
+
+} // namespace juce

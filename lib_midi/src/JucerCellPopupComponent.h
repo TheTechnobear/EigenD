@@ -41,9 +41,9 @@
 */
 class CellPopupComponent  : public Component,
                             public MessageListener,
-                            public SliderListener,
-                            public ButtonListener,
-                            public ComboBoxListener
+                            public Slider::Listener,
+                            public Button::Listener,
+                            public ComboBox::Listener
 {
 public:
     //==============================================================================

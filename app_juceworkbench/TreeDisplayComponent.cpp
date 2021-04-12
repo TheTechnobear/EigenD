@@ -53,7 +53,7 @@ TreeDisplayComponent::TreeDisplayComponent (Atom* atom, int nf, int nc)
     treeView_=new TreeView("treeview");
     treeView_ ->setColour(TreeView::linesColourId,Colour(0xffffffff));
 
-    BrowseTreeViewItem* rootItem=new BrowseTreeViewItem(atom,String::empty, nf, nc);
+    BrowseTreeViewItem* rootItem=new BrowseTreeViewItem(atom,String(), nf, nc);
     rootItem->setExpandable(true);
     rootItem->setDisplayText(String("root"));
     treeView_->setRootItem(rootItem);

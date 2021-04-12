@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -32,8 +32,10 @@
     is to keep some static Identifier objects for the things you use often.
 
     @see NamedValueSet, ValueTree
+
+    @tags{Core}
 */
-class JUCE_API  Identifier
+class JUCE_API  Identifier  final
 {
 public:
     /** Creates a null identifier. */
@@ -126,3 +128,5 @@ public:
 private:
     String name;
 };
+
+} // namespace juce

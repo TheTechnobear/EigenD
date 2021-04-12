@@ -78,7 +78,7 @@ DeleteWireConfirmation::DeleteWireConfirmation (std::vector<String> wires)
     textBox->setScrollbarsShown (true);
     textBox->setCaretVisible (false);
     textBox->setPopupMenuEnabled (true);
-    textBox->setText (String::empty);
+    textBox->setText (String());
 
 
     //[UserPreSize]

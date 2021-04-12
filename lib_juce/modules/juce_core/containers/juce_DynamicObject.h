@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -33,6 +33,8 @@
     An instance of a DynamicObject can be used to store named properties, and
     by subclassing hasMethod() and invokeMethod(), you can give your object
     methods.
+
+    @tags{Core}
 */
 class JUCE_API  DynamicObject  : public ReferenceCountedObject
 {
@@ -40,9 +42,9 @@ public:
     //==============================================================================
     DynamicObject();
     DynamicObject (const DynamicObject&);
-    ~DynamicObject();
+    ~DynamicObject() override;
 
-    typedef ReferenceCountedObjectPtr<DynamicObject> Ptr;
+    using Ptr = ReferenceCountedObjectPtr<DynamicObject>;
 
     //==============================================================================
     /** Returns true if the object has a property with this name.
@@ -76,7 +78,7 @@ public:
         call, then it invokes it.
 
         This method is virtual to allow more dynamic invocation to used for objects
-        where the methods may not already be set as properies.
+        where the methods may not already be set as properties.
     */
     virtual var invokeMethod (Identifier methodName,
                               const var::NativeFunctionArgs& args);
@@ -85,7 +87,7 @@ public:
 
         This is basically the same as calling setProperty (methodName, (var::NativeFunction) myFunction), but
         helps to avoid accidentally invoking the wrong type of var constructor. It also makes
-        the code easier to read,
+        the code easier to read.
     */
     void setMethod (Identifier methodName, var::NativeFunction function);
 
@@ -113,16 +115,18 @@ public:
         never need to call it directly, but it's virtual so that custom object types
         can stringify themselves appropriately.
     */
-    virtual void writeAsJSON (OutputStream&, int indentLevel, bool allOnOneLine);
+    virtual void writeAsJSON (OutputStream&, int indentLevel, bool allOnOneLine, int maximumDecimalPlaces);
 
 private:
     //==============================================================================
     NamedValueSet properties;
 
    #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
-    // These methods have been deprecated - use var::invoke instead
+    // This method has been deprecated - use var::invoke instead
     virtual void invokeMethod (const Identifier&, const var*, int) {}
    #endif
 
     JUCE_LEAK_DETECTOR (DynamicObject)
 };
+
+} // namespace juce

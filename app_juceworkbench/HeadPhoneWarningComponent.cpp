@@ -64,7 +64,7 @@ HeadPhoneWarningComponent::HeadPhoneWarningComponent (String msg)
     label->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (label2 = new Label ("new label",
-                                           String::empty));
+                                           String()));
     label2->setFont (Font (15.00f, Font::plain));
     label2->setJustificationType (Justification::centred);
     label2->setEditable (false, false, false);

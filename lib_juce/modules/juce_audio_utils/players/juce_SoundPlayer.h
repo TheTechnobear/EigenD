@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,7 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -32,15 +32,17 @@
     simple sounds.
 
     @see AudioProcessor, AudioProcessorGraph
+
+    @tags{Audio}
 */
-class JUCE_API  SoundPlayer             : public AudioIODeviceCallback
+class JUCE_API  SoundPlayer   : public AudioIODeviceCallback
 {
 public:
     //==============================================================================
     SoundPlayer();
 
     /** Destructor. */
-    virtual ~SoundPlayer();
+    ~SoundPlayer() override;
 
     //==============================================================================
     /** Plays a sound from a file. */
@@ -77,8 +79,12 @@ public:
         @param deleteWhenFinished If this is true then the audio source will
                                   be deleted once the device manager has finished
                                   playing.
+        @param sampleRateOfSource The sample rate of the source. If this is zero, JUCE
+                                  will assume that the sample rate is the same as the
+                                  audio output device.
      */
-    void play (PositionableAudioSource* audioSource, bool deleteWhenFinished = false);
+    void play (PositionableAudioSource* audioSource, bool deleteWhenFinished = false,
+               double sampleRateOfSource = 0.0);
 
     /** Plays the sound from an audio sample buffer.
 
@@ -91,7 +97,7 @@ public:
         multiple outputs so that something is sent to all output channels. If it
         is false, then the buffer will just be played on the first output channels.
      */
-    void play (AudioSampleBuffer* buffer,
+    void play (AudioBuffer<float>* buffer,
                bool deleteWhenFinished = false,
                bool playOnAllOutputChannels = false);
 
@@ -126,3 +132,5 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SoundPlayer)
 };
+
+} // namespace juce

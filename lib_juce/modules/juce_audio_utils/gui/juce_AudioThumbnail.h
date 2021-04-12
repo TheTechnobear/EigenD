@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -45,6 +44,8 @@
     be loaded and saved to avoid having to scan the file again.
 
     @see AudioThumbnailCache, AudioThumbnailBase
+
+    @tags{Audio}
 */
 class JUCE_API  AudioThumbnail    : public AudioThumbnailBase
 {
@@ -66,7 +67,7 @@ public:
                     AudioThumbnailCache& cacheToUse);
 
     /** Destructor. */
-    ~AudioThumbnail();
+    ~AudioThumbnail() override;
 
     //==============================================================================
     /** Clears and resets the thumbnail. */
@@ -107,7 +108,7 @@ public:
     /** Adds a block of level data to the thumbnail.
         Call reset() before using this, to tell the thumbnail about the data format.
     */
-    void addBlock (int64 sampleNumberInSource, const AudioSampleBuffer& newData,
+    void addBlock (int64 sampleNumberInSource, const AudioBuffer<float>& newData,
                    int startOffsetInBuffer, int numSamples) override;
 
     //==============================================================================
@@ -199,21 +200,15 @@ private:
     class ThumbData;
     class CachedWindow;
 
-    friend class LevelDataSource;
-    friend class ThumbData;
-    friend class CachedWindow;
-    friend struct ContainerDeletePolicy<LevelDataSource>;
-    friend struct ContainerDeletePolicy<ThumbData>;
-    friend struct ContainerDeletePolicy<CachedWindow>;
-
-    ScopedPointer<LevelDataSource> source;
-    ScopedPointer<CachedWindow> window;
+    std::unique_ptr<LevelDataSource> source;
+    std::unique_ptr<CachedWindow> window;
     OwnedArray<ThumbData> channels;
 
-    int32 samplesPerThumbSample;
-    int64 totalSamples, numSamplesFinished;
-    int32 numChannels;
-    double sampleRate;
+    int32 samplesPerThumbSample = 0;
+    std::atomic<int64> totalSamples { 0 };
+    int64 numSamplesFinished = 0;
+    int32 numChannels = 0;
+    double sampleRate = 0;
     CriticalSection lock;
 
     void clearChannelData();
@@ -223,3 +218,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioThumbnail)
 };
+
+} // namespace juce

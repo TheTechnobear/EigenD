@@ -74,7 +74,7 @@ SingleInputEditor::SingleInputEditor (Wire* w, String srcName)
     textEditor->setScrollbarsShown (true);
     textEditor->setCaretVisible (true);
     textEditor->setPopupMenuEnabled (true);
-    textEditor->setText (String::empty);
+    textEditor->setText (String());
 
     addAndMakeVisible (incrementButton = new TextButton ("incrementButton"));
     incrementButton->setButtonText (TRANS("+"));
@@ -96,7 +96,7 @@ SingleInputEditor::SingleInputEditor (Wire* w, String srcName)
     fromLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (srcLabel = new Label ("srcLabel",
-                                             String::empty));
+                                             String()));
     srcLabel->setFont (Font (15.00f, Font::plain));
     srcLabel->setJustificationType (Justification::centredLeft);
     srcLabel->setEditable (false, false, false);
@@ -111,7 +111,7 @@ SingleInputEditor::SingleInputEditor (Wire* w, String srcName)
     textEditor2->setScrollbarsShown (true);
     textEditor2->setCaretVisible (true);
     textEditor2->setPopupMenuEnabled (true);
-    textEditor2->setText (String::empty);
+    textEditor2->setText (String());
 
     addAndMakeVisible (label = new Label ("new label",
                                           TRANS("Filter on input:")));
@@ -302,7 +302,7 @@ String SingleInputEditor::getUsing()
     {
         return String(u_);
     }
-    return String::empty;
+    return String();
 }
 
 String SingleInputEditor::getFilter()
@@ -318,7 +318,7 @@ String SingleInputEditor::getControl()
     }
     else
     {
-        return String::empty;
+        return String();
     }
 }
 
@@ -326,7 +326,7 @@ void SingleInputEditor::setUsingText(int u)
 {
     if(u<1)
     {
-        textEditor->setText (String::empty,false);
+        textEditor->setText (String(),false);
     }
     else
     {

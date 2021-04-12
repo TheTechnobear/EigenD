@@ -48,11 +48,11 @@
 DuplicatePanel::DuplicatePanel ()
 {
     addAndMakeVisible (usingButton = new ToggleButton ("usingButton"));
-    usingButton->setButtonText (String::empty);
+    usingButton->setButtonText (String());
     usingButton->addListener (this);
 
     addAndMakeVisible (filterButton = new ToggleButton ("filterButton"));
-    filterButton->setButtonText (String::empty);
+    filterButton->setButtonText (String());
     filterButton->addListener (this);
 
     addAndMakeVisible (label = new Label ("new label",

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,14 +23,16 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     A button that contains a filled shape.
 
     @see Button, ImageButton, TextButton, ArrowButton
+
+    @tags{GUI}
 */
 class JUCE_API  ShapeButton  : public Button
 {
@@ -50,7 +51,7 @@ public:
                  Colour downColour);
 
     /** Destructor. */
-    ~ShapeButton();
+    ~ShapeButton() override;
 
     //==============================================================================
     /** Sets the shape to use.
@@ -79,9 +80,9 @@ public:
     /** Sets the colours to use for drawing the shape when the button's toggle state is 'on'. To enable this behaviour, use the
         shouldUseOnColours() method.
 
-        @param normalColour     the colour to fill the shape with when the mouse isn't over and the button's toggle state is 'on'
-        @param overColour       the colour to use when the mouse is over the shape and the button's toggle state is 'on'
-        @param downColour       the colour to use when the button is in the pressed-down state and the button's toggle state is 'on'
+        @param normalColourOn   the colour to fill the shape with when the mouse isn't over and the button's toggle state is 'on'
+        @param overColourOn     the colour to use when the mouse is over the shape and the button's toggle state is 'on'
+        @param downColourOn     the colour to use when the button is in the pressed-down state and the button's toggle state is 'on'
      */
     void setOnColours (Colour normalColourOn,
                        Colour overColourOn,
@@ -106,7 +107,7 @@ public:
     void setBorderSize (BorderSize<int> border);
 
     /** @internal */
-    void paintButton (Graphics&, bool isMouseOverButton, bool isButtonDown) override;
+    void paintButton (Graphics&, bool, bool) override;
 
 private:
     //==============================================================================
@@ -121,3 +122,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ShapeButton)
 };
+
+} // namespace juce

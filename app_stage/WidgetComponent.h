@@ -38,7 +38,7 @@ class ResizableLabel;
 
 //==============================================================================
 
-class WidgetComponent : public CanvasComponent, public SliderListener, public Button::Listener, public Timer, public MessageListener
+class WidgetComponent : public CanvasComponent, public Slider::Listener, public Button::Listener, public Timer, public MessageListener
 #if STAGE_BUILD==DESKTOP
                         , public TooltipClient
 #endif // STAGE_BUILD==DESKTOP

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 namespace CDReaderHelpers
 {
@@ -289,7 +291,7 @@ public:
     BYTE readType;
 
 private:
-    ScopedPointer<CDController> controller;
+    std::unique_ptr<CDController> controller;
 
     bool testController (int readType, CDController* newController, CDReadBuffer& bufferToUse);
 };
@@ -890,7 +892,7 @@ void CDDeviceHandle::openDrawer (bool shouldBeOpen)
 
 bool CDDeviceHandle::testController (const int type, CDController* const newController, CDReadBuffer& rb)
 {
-    controller = newController;
+    controller.reset (newController);
     readType = (BYTE) type;
 
     controller->deviceInfo = this;
@@ -995,7 +997,7 @@ AudioCDReader* AudioCDReader::createReaderForCD (const int deviceIndex)
 
         if (h != INVALID_HANDLE_VALUE)
         {
-            ScopedPointer<AudioCDReader> cd (new AudioCDReader (new CDDeviceWrapper (list [deviceIndex], h)));
+            std::unique_ptr<AudioCDReader> cd (new AudioCDReader (new CDDeviceWrapper (list [deviceIndex], h)));
 
             if (cd->lengthInSamples > 0)
                 return cd.release();
@@ -1176,7 +1178,7 @@ int AudioCDReader::getLastIndex() const
 int AudioCDReader::getIndexAt (int samplePos)
 {
     using namespace CDReaderHelpers;
-    CDDeviceWrapper* const device = static_cast<CDDeviceWrapper*> (handle);
+    auto* device = static_cast<CDDeviceWrapper*> (handle);
 
     const int frameNeeded = samplePos / samplesPerFrame;
 
@@ -1210,7 +1212,7 @@ int AudioCDReader::getIndexAt (int samplePos)
 Array<int> AudioCDReader::findIndexesInTrack (const int trackNumber)
 {
     using namespace CDReaderHelpers;
-    Array <int> indexes;
+    Array<int> indexes;
 
     const int trackStart = getPositionOfTrackStart (trackNumber);
     const int trackEnd = getPositionOfTrackStart (trackNumber + 1);
@@ -1257,7 +1259,7 @@ Array<int> AudioCDReader::findIndexesInTrack (const int trackNumber)
 
     if (needToScan)
     {
-        CDDeviceWrapper* const device = static_cast<CDDeviceWrapper*> (handle);
+        auto* device = static_cast<CDDeviceWrapper*> (handle);
 
         int pos = trackStart;
         int last = -1;
@@ -1309,3 +1311,5 @@ void AudioCDReader::ejectDisk()
     using namespace CDReaderHelpers;
     static_cast<CDDeviceWrapper*> (handle)->deviceHandle.openDrawer (true);
 }
+
+} // namespace juce

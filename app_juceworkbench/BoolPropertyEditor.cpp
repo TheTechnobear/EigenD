@@ -65,7 +65,7 @@ BoolPropertyEditor::BoolPropertyEditor ()
     //[UserPreSize]
     LookAndFeel::getDefaultLookAndFeel().setColour(TextButton::buttonColourId,Colour(0xffaeaeae));
     disabled_=false;
-    warning_=String::empty;
+    warning_=String();
     atom_=0;
     //[/UserPreSize]
 

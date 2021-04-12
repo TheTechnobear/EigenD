@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -34,6 +33,24 @@
 #endif
 
 #include "juce_box2d.h"
+
+JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wconversion",
+                                     "-Wsign-conversion",
+                                     "-Wfloat-conversion",
+                                     "-Wcast-align",
+                                     "-Wswitch-enum",
+                                     "-Wswitch-default",
+                                     "-Wunused-but-set-variable",
+                                     "-Wzero-as-null-pointer-constant")
+
+#include <cstdarg>
+
+using int8   = juce::int8;
+using int16  = juce::int16;
+using int32  = juce::int32;
+using uint8  = juce::uint8;
+using uint16 = juce::uint16;
+using uint32 = juce::uint32;
 
 #include "box2d/Collision/b2BroadPhase.cpp"
 #include "box2d/Collision/b2CollideCircle.cpp"
@@ -81,7 +98,6 @@
 #include "box2d/Dynamics/Joints/b2WheelJoint.cpp"
 #include "box2d/Rope/b2Rope.cpp"
 
-namespace juce
-{
 #include "utils/juce_Box2DRenderer.cpp"
-}
+
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE

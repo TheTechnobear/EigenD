@@ -26,8 +26,8 @@ struct term_t::impl_t: public ReferenceCountedObject
     impl_t(unsigned type): type_(type) { }
     virtual ~impl_t() { }
 
-    virtual String pred() const { return String::empty; }
-    virtual String value() const { return String::empty; }
+    virtual String pred() const { return String(); }
+    virtual String value() const { return String(); }
     virtual unsigned arity() const { return 0; }
     virtual term_t arg(unsigned) const { return term_t(); }
     virtual void set_arg(unsigned,const term_t &) {}
@@ -989,7 +989,7 @@ unsigned term_t::arity() const
 
 String term_t::pred() const
 {
-    return impl_.get()?impl_->pred():String::empty;
+    return impl_.get()?impl_->pred():String();
 }
 
 String term_t::value() const

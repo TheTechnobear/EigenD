@@ -64,7 +64,7 @@ public:
                                                                     //[/Comments]
 */
 class XYComponent  : public Component,
-                     public ButtonListener
+                     public Button::Listener
 {
 public:
     //==============================================================================

@@ -61,7 +61,7 @@ class CoursePanelContainer;
                                                                     //[/Comments]
 */
 class StrummerEditor  : public Component,
-                        public ButtonListener
+                        public Button::Listener
 {
 public:
     //==============================================================================

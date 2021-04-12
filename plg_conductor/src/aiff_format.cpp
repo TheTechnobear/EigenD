@@ -252,7 +252,7 @@ void cdtr::aiff_format_t::teardown()
         }
         xml_labels = 0;
 
-        if(xml_file_ != juce::File::nonexistent)
+        if(xml_file_.exists())
         {
             xml_document_->writeToFile(xml_file_, "");
         }
@@ -263,7 +263,7 @@ void cdtr::aiff_format_t::teardown()
         labels_.clear();
     }
 
-    if(audio_file_ != juce::File::nonexistent)
+    if(audio_file_.exists())
     {
         bool moved = false;
         do
@@ -279,7 +279,7 @@ void cdtr::aiff_format_t::teardown()
         audio_file_ = juce::File();
     }
 
-    if(xml_file_ != juce::File::nonexistent)
+    if(xml_file_.exists())
     {
         bool moved = false;
         do

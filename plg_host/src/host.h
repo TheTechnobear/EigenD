@@ -70,8 +70,8 @@ namespace host
 
             std::string to_xml() const
             {
-                std::auto_ptr<juce::XmlElement> element(desc_.createXml());
-                juce::String doc = element->createDocument(juce::String::empty,true);
+                std::unique_ptr<juce::XmlElement> element(desc_.createXml());
+                juce::String doc = element->createDocument(juce::String(),true);
                 return std::string(doc.getCharPointer());
             }
 

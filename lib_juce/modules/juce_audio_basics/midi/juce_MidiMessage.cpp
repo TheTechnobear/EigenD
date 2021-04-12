@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,6 +19,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 namespace MidiHelpers
 {
@@ -54,6 +57,31 @@ uint16 MidiMessage::pitchbendToPitchwheelPos (const float pitchbend,
 }
 
 //==============================================================================
+MidiMessage::VariableLengthValue MidiMessage::readVariableLengthValue (const uint8* data, int maxBytesToUse) noexcept
+{
+    uint32 v = 0;
+
+    // The largest allowable variable-length value is 0x0f'ff'ff'ff which is
+    // represented by the 4-byte stream 0xff 0xff 0xff 0x7f.
+    // Longer bytestreams risk overflowing a 32-bit signed int.
+    const auto limit = jmin (maxBytesToUse, 4);
+
+    for (int numBytesUsed = 0; numBytesUsed < limit; ++numBytesUsed)
+    {
+        const auto i = data[numBytesUsed];
+        v = (v << 7) + (i & 0x7f);
+
+        if (! (i & 0x80))
+            return { (int) v, numBytesUsed + 1 };
+    }
+
+    // If this is hit, the input was malformed. Either there were not enough
+    // bytes of input to construct a full value, or no terminating byte was
+    // found. This implementation only supports variable-length values of up
+    // to four bytes.
+    return {};
+}
+
 int MidiMessage::readVariableLengthVal (const uint8* data, int& numBytesUsed) noexcept
 {
     numBytesUsed = 0;
@@ -90,7 +118,7 @@ int MidiMessage::getMessageLengthFromFirstByte (const uint8 firstByte) noexcept
         1, 2, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
     };
 
-    return messageLengths [firstByte & 0x7f];
+    return messageLengths[firstByte & 0x7f];
 }
 
 //==============================================================================
@@ -221,9 +249,8 @@ MidiMessage::MidiMessage (const void* srcData, int sz, int& numBytesUsed, const 
         }
         else if (byte == 0xff)
         {
-            int n;
-            const int bytesLeft = readVariableLengthVal (src + 1, n);
-            size = jmin (sz + 1, n + 2 + bytesLeft);
+            const auto bytesLeft = readVariableLengthValue (src + 1, sz - 1);
+            size = jmin (sz + 1, bytesLeft.bytesUsed + 2 + bytesLeft.value);
 
             auto dest = allocateSpace (size);
             *dest = (uint8) byte;
@@ -341,6 +368,11 @@ String MidiMessage::getDescription() const
     return String::toHexString (getRawData(), getRawDataSize());
 }
 
+MidiMessage MidiMessage::withTimeStamp (double newTimestamp) const
+{
+    return { *this, newTimestamp };
+}
+
 int MidiMessage::getChannel() const noexcept
 {
     auto data = getRawData();
@@ -449,8 +481,8 @@ MidiMessage MidiMessage::aftertouchChange (const int channel,
                                            const int aftertouchValue) noexcept
 {
     jassert (channel > 0 && channel <= 16); // valid channels are numbered 1 to 16
-    jassert (isPositiveAndBelow (noteNum, (int) 128));
-    jassert (isPositiveAndBelow (aftertouchValue, (int) 128));
+    jassert (isPositiveAndBelow (noteNum, 128));
+    jassert (isPositiveAndBelow (aftertouchValue, 128));
 
     return MidiMessage (MidiHelpers::initialByte (0xa0, channel),
                         noteNum & 0x7f,
@@ -471,7 +503,7 @@ int MidiMessage::getChannelPressureValue() const noexcept
 MidiMessage MidiMessage::channelPressureChange (const int channel, const int pressure) noexcept
 {
     jassert (channel > 0 && channel <= 16); // valid channels are numbered 1 to 16
-    jassert (isPositiveAndBelow (pressure, (int) 128));
+    jassert (isPositiveAndBelow (pressure, 128));
 
     return MidiMessage (MidiHelpers::initialByte (0xd0, channel), pressure & 0x7f);
 }
@@ -519,7 +551,7 @@ int MidiMessage::getPitchWheelValue() const noexcept
 MidiMessage MidiMessage::pitchWheel (const int channel, const int position) noexcept
 {
     jassert (channel > 0 && channel <= 16); // valid channels are numbered 1 to 16
-    jassert (isPositiveAndBelow (position, (int) 0x4000));
+    jassert (isPositiveAndBelow (position, 0x4000));
 
     return MidiMessage (MidiHelpers::initialByte (0xe0, channel),
                         position & 127, (position >> 7) & 127);
@@ -560,7 +592,7 @@ MidiMessage MidiMessage::controllerEvent (const int channel, const int controlle
 MidiMessage MidiMessage::noteOn (const int channel, const int noteNumber, const uint8 velocity) noexcept
 {
     jassert (channel > 0 && channel <= 16);
-    jassert (isPositiveAndBelow (noteNumber, (int) 128));
+    jassert (isPositiveAndBelow (noteNumber, 128));
 
     return MidiMessage (MidiHelpers::initialByte (0x90, channel),
                         noteNumber & 127, MidiHelpers::validVelocity (velocity));
@@ -574,7 +606,7 @@ MidiMessage MidiMessage::noteOn (const int channel, const int noteNumber, const 
 MidiMessage MidiMessage::noteOff (const int channel, const int noteNumber, uint8 velocity) noexcept
 {
     jassert (channel > 0 && channel <= 16);
-    jassert (isPositiveAndBelow (noteNumber, (int) 128));
+    jassert (isPositiveAndBelow (noteNumber, 128));
 
     return MidiMessage (MidiHelpers::initialByte (0x80, channel),
                         noteNumber & 127, MidiHelpers::validVelocity (velocity));
@@ -588,7 +620,7 @@ MidiMessage MidiMessage::noteOff (const int channel, const int noteNumber, float
 MidiMessage MidiMessage::noteOff (const int channel, const int noteNumber) noexcept
 {
     jassert (channel > 0 && channel <= 16);
-    jassert (isPositiveAndBelow (noteNumber, (int) 128));
+    jassert (isPositiveAndBelow (noteNumber, 128));
 
     return MidiMessage (MidiHelpers::initialByte (0x80, channel), noteNumber & 127, 0);
 }
@@ -615,6 +647,12 @@ bool MidiMessage::isAllSoundOff() const noexcept
     return data[1] == 120 && (data[0] & 0xf0) == 0xb0;
 }
 
+bool MidiMessage::isResetAllControllers() const noexcept
+{
+    auto data = getRawData();
+    return (data[0] & 0xf0) == 0xb0 && data[1] == 121;
+}
+
 MidiMessage MidiMessage::allControllersOff (const int channel) noexcept
 {
     return controllerEvent (channel, 121, 0);
@@ -635,7 +673,7 @@ bool MidiMessage::isSysEx() const noexcept
 
 MidiMessage MidiMessage::createSysExMessage (const void* sysexData, const int dataSize)
 {
-    HeapBlock<uint8> m ((size_t) dataSize + 2);
+    HeapBlock<uint8> m (dataSize + 2);
 
     m[0] = 0xf0;
     memcpy (m + 1, sysexData, (size_t) dataSize);
@@ -661,7 +699,7 @@ bool MidiMessage::isActiveSense() const noexcept    { return *getRawData() == 0x
 int MidiMessage::getMetaEventType() const noexcept
 {
     auto data = getRawData();
-    return *data != 0xff ? -1 : data[1];
+    return (size < 2 || *data != 0xff) ? -1 : data[1];
 }
 
 int MidiMessage::getMetaEventLength() const noexcept
@@ -670,8 +708,8 @@ int MidiMessage::getMetaEventLength() const noexcept
 
     if (*data == 0xff)
     {
-        int n;
-        return jmin (size - 2, readVariableLengthVal (data + 2, n));
+        const auto var = readVariableLengthValue (data + 2, size - 2);
+        return jmax (0, jmin (size - 2 - var.bytesUsed, var.value));
     }
 
     return 0;
@@ -681,10 +719,9 @@ const uint8* MidiMessage::getMetaEventData() const noexcept
 {
     jassert (isMetaEvent());
 
-    int n;
     auto d = getRawData() + 2;
-    readVariableLengthVal (d, n);
-    return d + n;
+    const auto var = readVariableLengthValue (d, size - 2);
+    return d + var.bytesUsed;
 }
 
 bool MidiMessage::isTrackMetaEvent() const noexcept         { return getMetaEventType() == 0; }
@@ -961,7 +998,7 @@ bool MidiMessage::isMidiMachineControlGoto (int& hours, int& minutes, int& secon
         hours = data[7] % 24;   // (that some machines send out hours > 24)
         minutes = data[8];
         seconds = data[9];
-        frames = data[10];
+        frames  = data[10];
 
         return true;
     }
@@ -980,10 +1017,10 @@ String MidiMessage::getMidiNoteName (int note, bool useSharps, bool includeOctav
     static const char* const sharpNoteNames[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
     static const char* const flatNoteNames[]  = { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" };
 
-    if (isPositiveAndBelow (note, (int) 128))
+    if (isPositiveAndBelow (note, 128))
     {
-        String s (useSharps ? sharpNoteNames [note % 12]
-                            : flatNoteNames  [note % 12]);
+        String s (useSharps ? sharpNoteNames[note % 12]
+                            : flatNoteNames [note % 12]);
 
         if (includeOctaveNumber)
             s << (note / 12 + (octaveNumForMiddleC - 5));
@@ -996,7 +1033,7 @@ String MidiMessage::getMidiNoteName (int note, bool useSharps, bool includeOctav
 
 double MidiMessage::getMidiNoteInHertz (const int noteNumber, const double frequencyOfA) noexcept
 {
-    return frequencyOfA * pow (2.0, (noteNumber - 69) / 12.0);
+    return frequencyOfA * std::pow (2.0, (noteNumber - 69) / 12.0);
 }
 
 bool MidiMessage::isMidiNoteBlack (int noteNumber) noexcept
@@ -1076,7 +1113,7 @@ const char* MidiMessage::getRhythmInstrumentName (const int n)
         NEEDS_TRANS("Open Cuica"),          NEEDS_TRANS("Mute Triangle"),   NEEDS_TRANS("Open Triangle")
     };
 
-    return (n >= 35 && n <= 81) ? names [n - 35] : nullptr;
+    return (n >= 35 && n <= 81) ? names[n - 35] : nullptr;
 }
 
 const char* MidiMessage::getControllerName (const int n)
@@ -1119,3 +1156,173 @@ const char* MidiMessage::getControllerName (const int n)
 
     return isPositiveAndBelow (n, numElementsInArray (names)) ? names[n] : nullptr;
 }
+
+//==============================================================================
+//==============================================================================
+#if JUCE_UNIT_TESTS
+
+struct MidiMessageTest  : public UnitTest
+{
+    MidiMessageTest()
+        : UnitTest ("MidiMessage", UnitTestCategories::midi)
+    {}
+
+    void runTest() override
+    {
+        using std::begin;
+        using std::end;
+
+        beginTest ("ReadVariableLengthValue should return valid, backward-compatible results");
+        {
+            const std::vector<uint8> inputs[]
+            {
+                { 0x00 },
+                { 0x40 },
+                { 0x7f },
+                { 0x81, 0x00 },
+                { 0xc0, 0x00 },
+                { 0xff, 0x7f },
+                { 0x81, 0x80, 0x00 },
+                { 0xc0, 0x80, 0x00 },
+                { 0xff, 0xff, 0x7f },
+                { 0x81, 0x80, 0x80, 0x00 },
+                { 0xc0, 0x80, 0x80, 0x00 },
+                { 0xff, 0xff, 0xff, 0x7f }
+            };
+
+            const int outputs[]
+            {
+                0x00,
+                0x40,
+                0x7f,
+                0x80,
+                0x2000,
+                0x3fff,
+                0x4000,
+                0x100000,
+                0x1fffff,
+                0x200000,
+                0x8000000,
+                0xfffffff,
+            };
+
+            expectEquals (std::distance (begin (inputs), end (inputs)),
+                          std::distance (begin (outputs), end (outputs)));
+
+            size_t index = 0;
+
+            JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
+            JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4996)
+
+            for (const auto& input : inputs)
+            {
+                auto copy = input;
+
+                while (copy.size() < 16)
+                    copy.push_back (0);
+
+                const auto result = MidiMessage::readVariableLengthValue (copy.data(),
+                                                                          (int) copy.size());
+
+                expect (result.isValid());
+                expectEquals (result.value, outputs[index]);
+                expectEquals (result.bytesUsed, (int) inputs[index].size());
+
+                int legacyNumUsed = 0;
+                const auto legacyResult = MidiMessage::readVariableLengthVal (copy.data(),
+                                                                              legacyNumUsed);
+
+                expectEquals (result.value, legacyResult);
+                expectEquals (result.bytesUsed, legacyNumUsed);
+
+                ++index;
+            }
+
+            JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+            JUCE_END_IGNORE_WARNINGS_MSVC
+        }
+
+        beginTest ("ReadVariableLengthVal should return 0 if input is truncated");
+        {
+            for (size_t i = 0; i != 16; ++i)
+            {
+                std::vector<uint8> input;
+                input.resize (i, 0xFF);
+
+                const auto result = MidiMessage::readVariableLengthValue (input.data(),
+                                                                          (int) input.size());
+
+                expect (! result.isValid());
+                expectEquals (result.value, 0);
+                expectEquals (result.bytesUsed, 0);
+            }
+        }
+
+        const std::vector<uint8> metaEvents[]
+        {
+            // Format is 0xff, followed by a 'kind' byte, followed by a variable-length
+            // 'data-length' value, followed by that many data bytes
+            { 0xff, 0x00, 0x02, 0x00, 0x00 },                   // Sequence number
+            { 0xff, 0x01, 0x00 },                               // Text event
+            { 0xff, 0x02, 0x00 },                               // Copyright notice
+            { 0xff, 0x03, 0x00 },                               // Track name
+            { 0xff, 0x04, 0x00 },                               // Instrument name
+            { 0xff, 0x05, 0x00 },                               // Lyric
+            { 0xff, 0x06, 0x00 },                               // Marker
+            { 0xff, 0x07, 0x00 },                               // Cue point
+            { 0xff, 0x20, 0x01, 0x00 },                         // Channel prefix
+            { 0xff, 0x2f, 0x00 },                               // End of track
+            { 0xff, 0x51, 0x03, 0x01, 0x02, 0x03 },             // Set tempo
+            { 0xff, 0x54, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 }, // SMPTE offset
+            { 0xff, 0x58, 0x04, 0x01, 0x02, 0x03, 0x04 },       // Time signature
+            { 0xff, 0x59, 0x02, 0x01, 0x02 },                   // Key signature
+            { 0xff, 0x7f, 0x00 },                               // Sequencer-specific
+        };
+
+        beginTest ("MidiMessage data constructor works for well-formed meta-events");
+        {
+            const auto status = (uint8) 0x90;
+
+            for (const auto& input : metaEvents)
+            {
+                int bytesUsed = 0;
+                const MidiMessage msg (input.data(), (int) input.size(), bytesUsed, status);
+
+                expect (msg.isMetaEvent());
+                expectEquals (msg.getMetaEventLength(), (int) input.size() - 3);
+                expectEquals (msg.getMetaEventType(), (int) input[1]);
+            }
+        }
+
+        beginTest ("MidiMessage data constructor works for malformed meta-events");
+        {
+            const auto status = (uint8) 0x90;
+
+            const auto runTest = [&] (const std::vector<uint8>& input)
+            {
+                int bytesUsed = 0;
+                const MidiMessage msg (input.data(), (int) input.size(), bytesUsed, status);
+
+                expect (msg.isMetaEvent());
+                expectEquals (msg.getMetaEventLength(), jmax (0, (int) input.size() - 3));
+                expectEquals (msg.getMetaEventType(), input.size() >= 2 ? input[1] : -1);
+            };
+
+            runTest ({ 0xff });
+
+            for (const auto& input : metaEvents)
+            {
+                auto copy = input;
+                copy[2] = 0x40; // Set the size of the message to more bytes than are present
+
+                runTest (copy);
+            }
+        }
+    }
+};
+
+static MidiMessageTest midiMessageTests;
+
+#endif
+
+} // namespace juce

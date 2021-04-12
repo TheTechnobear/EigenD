@@ -59,8 +59,8 @@ class TreeDisplayComponent;
                                                                     //[/Comments]
 */
 class BrowseEditor  : public Component,
-                      public ComboBoxListener,
-                      public ButtonListener
+                      public ComboBox::Listener,
+                      public Button::Listener
 {
 public:
     //==============================================================================

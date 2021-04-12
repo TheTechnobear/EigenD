@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -42,15 +42,17 @@
     times you may prefer to use MessageManager::callAsync() with a lambda.
 
     @see MessageManager::callAsync, MessageListener, ActionListener, ChangeListener
+
+    @tags{Events}
 */
 class JUCE_API  CallbackMessage   : public MessageManager::MessageBase
 {
 public:
     //==============================================================================
-    CallbackMessage() noexcept {}
+    CallbackMessage() = default;
 
     /** Destructor. */
-    ~CallbackMessage() {}
+    ~CallbackMessage() override = default;
 
     //==============================================================================
     /** Called when the message is delivered.
@@ -61,10 +63,12 @@ public:
         Note that like all other messages, this object will be deleted immediately
         after this method has been invoked.
     */
-    virtual void messageCallback() = 0;
+    virtual void messageCallback() override = 0;
 
 private:
     // Avoid the leak-detector because for plugins, the host can unload our DLL with undelivered
     // messages still in the system event queue. These aren't harmful, but can cause annoying assertions.
     JUCE_DECLARE_NON_COPYABLE (CallbackMessage)
 };
+
+} // namespace juce

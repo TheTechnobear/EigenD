@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 PreferencesPanel::PreferencesPanel()
     : buttonSize (70)
@@ -50,12 +52,12 @@ void PreferencesPanel::addSettingsPage (const String& title,
                                         const Drawable* overIcon,
                                         const Drawable* downIcon)
 {
-    DrawableButton* const button = new DrawableButton (title, DrawableButton::ImageAboveTextLabel);
+    auto* button = new DrawableButton (title, DrawableButton::ImageAboveTextLabel);
     buttons.add (button);
 
     button->setImages (icon, overIcon, downIcon);
     button->setRadioGroupId (1);
-    button->addListener (this);
+    button->onClick = [this] { clickedPage(); };
     button->setClickingTogglesState (true);
     button->setWantsKeyboardFocus (false);
     addAndMakeVisible (button);
@@ -66,7 +68,7 @@ void PreferencesPanel::addSettingsPage (const String& title,
         setCurrentPage (title);
 }
 
-void PreferencesPanel::addSettingsPage (const String& title, const void* imageData, const int imageDataSize)
+void PreferencesPanel::addSettingsPage (const String& title, const void* imageData, int imageDataSize)
 {
     DrawableImage icon, iconOver, iconDown;
     icon.setImage (ImageCache::getFromMemory (imageData, imageDataSize));
@@ -118,35 +120,37 @@ void PreferencesPanel::setCurrentPage (const String& pageName)
     {
         currentPageName = pageName;
 
-        currentPage = nullptr;
-        currentPage = createComponentForPage (pageName);
+        currentPage.reset();
+        currentPage.reset (createComponentForPage (pageName));
 
         if (currentPage != nullptr)
         {
-            addAndMakeVisible (currentPage);
+            addAndMakeVisible (currentPage.get());
             currentPage->toBack();
             resized();
         }
 
-        for (int i = 0; i < buttons.size(); ++i)
+        for (auto* b : buttons)
         {
-            if (buttons.getUnchecked(i)->getName() == pageName)
+            if (b->getName() == pageName)
             {
-                buttons.getUnchecked(i)->setToggleState (true, dontSendNotification);
+                b->setToggleState (true, dontSendNotification);
                 break;
             }
         }
     }
 }
 
-void PreferencesPanel::buttonClicked (Button*)
+void PreferencesPanel::clickedPage()
 {
-    for (int i = 0; i < buttons.size(); ++i)
+    for (auto* b : buttons)
     {
-        if (buttons.getUnchecked(i)->getToggleState())
+        if (b->getToggleState())
         {
-            setCurrentPage (buttons.getUnchecked(i)->getName());
+            setCurrentPage (b->getName());
             break;
         }
     }
 }
+
+} // namespace juce

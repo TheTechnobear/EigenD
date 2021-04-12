@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,9 +23,16 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
+//==============================================================================
+/**
+    The latest JUCE look-and-feel style, as introduced in 2017.
+    @see LookAndFeel, LookAndFeel_V1, LookAndFeel_V2, LookAndFeel_V3
 
+    @tags{GUI}
+*/
 class JUCE_API  LookAndFeel_V4   : public LookAndFeel_V3
 {
 public:
@@ -88,7 +94,7 @@ public:
     LookAndFeel_V4 (ColourScheme);
 
     /** Destructor. */
-    ~LookAndFeel_V4();
+    ~LookAndFeel_V4() override;
 
     //==============================================================================
     void setColourScheme (ColourScheme);
@@ -105,13 +111,19 @@ public:
     void drawDocumentWindowTitleBar (DocumentWindow&, Graphics&, int, int, int, int, const Image*, bool) override;
 
     //==============================================================================
-    void drawButtonBackground (Graphics&, Button&, const Colour& backgroundColour,
-                               bool isMouseOverButton, bool isButtonDown) override;
+    Font getTextButtonFont (TextButton&, int buttonHeight) override;
 
-    void drawToggleButton (Graphics&, ToggleButton&, bool isMouseOverButton, bool isButtonDown) override;
+    void drawButtonBackground (Graphics&, Button&, const Colour& backgroundColour,
+                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+
+    void drawToggleButton (Graphics&, ToggleButton&,
+                           bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
     void drawTickBox (Graphics&, Component&,
                       float x, float y, float w, float h,
-                      bool ticked, bool isEnabled, bool isMouseOverButton, bool isButtonDown) override;
+                      bool ticked, bool isEnabled,
+                      bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+
+    void changeToggleButtonWidthToFitText (ToggleButton&) override;
 
     //==============================================================================
     AlertWindow* createAlertWindow (const String& title, const String& message,
@@ -155,7 +167,7 @@ public:
                                      Button* goUpButton) override;
 
     void drawFileBrowserRow (Graphics&, int width, int height,
-                             const String& filename, Image* icon,
+                             const File& file, const String& filename, Image* icon,
                              const String& fileSizeDescription, const String& fileTimeDescription,
                              bool isDirectory, bool isItemSelected, int itemIndex,
                              DirectoryContentsDisplayComponent&) override;
@@ -184,6 +196,8 @@ public:
     void positionComboBoxText (ComboBox&, Label&) override;
 
     //==============================================================================
+    int getSliderThumbRadius (Slider&) override;
+
     void drawLinearSlider (Graphics&, int x, int y, int width, int height,
                            float sliderPos, float minSliderPos, float maxSliderPos,
                            const Slider::SliderStyle, Slider&) override;
@@ -194,6 +208,8 @@ public:
 
     void drawPointer (Graphics&, float x, float y, float diameter,
                       const Colour&, int direction) noexcept;
+
+    Label* createSliderTextBox (Slider&) override;
 
     //==============================================================================
     void drawTooltip (Graphics&, const String& text, int width, int height) override;
@@ -226,7 +242,7 @@ public:
 
 private:
     //==============================================================================
-    void drawLinearProgressBar (Graphics&, ProgressBar&, int width, int height, double progress);
+    void drawLinearProgressBar (Graphics&, ProgressBar&, int width, int height, double progress, const String&);
     void drawCircularProgressBar (Graphics&, ProgressBar&, const String&);
 
     int getPropertyComponentIndent (PropertyComponent&);
@@ -238,3 +254,5 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LookAndFeel_V4)
 };
+
+} // namespace juce

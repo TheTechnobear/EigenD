@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,12 +23,15 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 //==============================================================================
 /** This class is used to hold a few look and feel base classes which are associated
     with classes that may not be present because they're from modules other than
     juce_gui_basics.
+
+    @tags{GUI}
 */
 struct JUCE_API  ExtraLookAndFeelBaseClasses
 {
@@ -37,7 +39,7 @@ struct JUCE_API  ExtraLookAndFeelBaseClasses
     /** This abstract base class is implemented by LookAndFeel classes. */
     struct JUCE_API  LassoComponentMethods
     {
-        virtual ~LassoComponentMethods() {}
+        virtual ~LassoComponentMethods() = default;
 
         virtual void drawLasso (Graphics&, Component& lassoComp) = 0;
     };
@@ -46,7 +48,7 @@ struct JUCE_API  ExtraLookAndFeelBaseClasses
     /** This abstract base class is implemented by LookAndFeel classes. */
     struct JUCE_API  KeyMappingEditorComponentMethods
     {
-        virtual ~KeyMappingEditorComponentMethods() {}
+        virtual ~KeyMappingEditorComponentMethods() = default;
 
         virtual void drawKeymapChangeButton (Graphics&, int width, int height, Button&, const String& keyDescription) = 0;
     };
@@ -55,7 +57,7 @@ struct JUCE_API  ExtraLookAndFeelBaseClasses
     /** This abstract base class is implemented by LookAndFeel classes. */
     struct JUCE_API  AudioDeviceSelectorComponentMethods
     {
-        virtual ~AudioDeviceSelectorComponentMethods() {}
+        virtual ~AudioDeviceSelectorComponentMethods() = default;
 
         virtual void drawLevelMeter (Graphics&, int width, int height, float level) = 0;
     };
@@ -71,6 +73,8 @@ struct JUCE_API  ExtraLookAndFeelBaseClasses
     instantiate, see LookAndFeel_V1, LookAndFeel_V2 and LookAndFeel_V3.
 
     @see LookAndFeel_V1, LookAndFeel_V2, LookAndFeel_V3
+
+    @tags{GUI}
 */
 class JUCE_API  LookAndFeel   : public ScrollBar::LookAndFeelMethods,
                                 public Button::LookAndFeelMethods,
@@ -99,7 +103,8 @@ class JUCE_API  LookAndFeel   : public ScrollBar::LookAndFeelMethods,
                                 public StretchableLayoutResizerBar::LookAndFeelMethods,
                                 public ExtraLookAndFeelBaseClasses::KeyMappingEditorComponentMethods,
                                 public ExtraLookAndFeelBaseClasses::AudioDeviceSelectorComponentMethods,
-                                public ExtraLookAndFeelBaseClasses::LassoComponentMethods
+                                public ExtraLookAndFeelBaseClasses::LassoComponentMethods,
+                                public SidePanel::LookAndFeelMethods
 {
 public:
     //==============================================================================
@@ -107,7 +112,7 @@ public:
     LookAndFeel();
 
     /** Destructor. */
-    virtual ~LookAndFeel();
+    ~LookAndFeel() override;
 
     //==============================================================================
     /** Returns the current default look-and-feel for a component to use when it
@@ -162,14 +167,23 @@ public:
     /** Returns the typeface that should be used for a given font.
         The default implementation just does what you'd expect it to, but you can override
         this if you want to intercept fonts and use your own custom typeface object.
+        @see setDefaultTypeface
     */
     virtual Typeface::Ptr getTypefaceForFont (const Font&);
 
-    /** Allows you to change the default sans-serif font.
+    /** Allows you to supply a default typeface that will be returned as the default
+        sans-serif font.
+        Instead of a typeface object, you can specify a typeface by name using the
+        setDefaultSansSerifTypefaceName() method.
+        You can perform more complex typeface substitutions by overloading
+        getTypefaceForFont() but this lets you easily set a global typeface.
+    */
+    void setDefaultSansSerifTypeface (Typeface::Ptr newDefaultTypeface);
 
+    /** Allows you to change the default sans-serif font.
         If you need to supply your own Typeface object for any of the default fonts, rather
         than just supplying the name (e.g. if you want to use an embedded font), then
-        you should instead override getTypefaceForFont() to create and return the typeface.
+        you can instead call setDefaultSansSerifTypeface() with an object to use.
     */
     void setDefaultSansSerifTypefaceName (const String& newName);
 
@@ -181,9 +195,9 @@ public:
 
     //==============================================================================
     /** Creates a new graphics context object. */
-    virtual LowLevelGraphicsContext* createGraphicsContext (const Image& imageToRenderOn,
-                                                            const Point<int>& origin,
-                                                            const RectangleList<int>& initialClip);
+    virtual std::unique_ptr<LowLevelGraphicsContext> createGraphicsContext (const Image& imageToRenderOn,
+                                                                            Point<int> origin,
+                                                                            const RectangleList<int>& initialClip);
 
     void setUsingNativeAlertWindows (bool shouldUseNativeAlerts);
     bool isUsingNativeAlertWindows();
@@ -211,9 +225,6 @@ public:
 
 private:
     //==============================================================================
-    friend class WeakReference<LookAndFeel>;
-    WeakReference<LookAndFeel>::Master masterReference;
-
     struct ColourSetting
     {
         int colourID;
@@ -225,7 +236,11 @@ private:
 
     SortedSet<ColourSetting> colours;
     String defaultSans, defaultSerif, defaultFixed;
-    bool useNativeAlertWindows;
+    Typeface::Ptr defaultTypeface;
+    bool useNativeAlertWindows = false;
 
+    JUCE_DECLARE_WEAK_REFERENCEABLE (LookAndFeel)
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LookAndFeel)
 };
+
+} // namespace juce

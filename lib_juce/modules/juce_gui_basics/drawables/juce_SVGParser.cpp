@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,11 +23,15 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 class SVGState
 {
 public:
     //==============================================================================
-    explicit SVGState (const XmlElement* topLevel)  : topLevelXml (topLevel, nullptr)
+    explicit SVGState (const XmlElement* topLevel, const File& svgFile = {})
+       : originalFile (svgFile), topLevelXml (topLevel, nullptr)
     {
     }
 
@@ -43,15 +46,13 @@ public:
         template <typename OperationType>
         bool applyOperationToChildWithID (const String& id, OperationType& op) const
         {
-            forEachXmlChildElement (*xml, e)
+            for (auto* e : xml->getChildIterator())
             {
                 XmlPath child (e, this);
 
-                if (e->compareAttribute ("id", id))
-                {
-                    op (child);
-                    return true;
-                }
+                if (e->compareAttribute ("id", id)
+                      && ! child->hasTagName ("defs"))
+                    return op (child);
 
                 if (child.applyOperationToChildWithID (id, op))
                     return true;
@@ -70,20 +71,46 @@ public:
         const SVGState* state;
         Path* targetPath;
 
-        void operator() (const XmlPath& xmlPath) const
+        bool operator() (const XmlPath& xmlPath) const
         {
-            state->parsePathElement (xmlPath, *targetPath);
+            return state->parsePathElement (xmlPath, *targetPath);
+        }
+    };
+
+    struct UseTextOp
+    {
+        const SVGState* state;
+        AffineTransform* transform;
+        Drawable* target;
+
+        bool operator() (const XmlPath& xmlPath)
+        {
+            target = state->parseText (xmlPath, true, transform);
+            return target != nullptr;
+        }
+    };
+
+    struct UseImageOp
+    {
+        const SVGState* state;
+        AffineTransform* transform;
+        Drawable* target;
+
+        bool operator() (const XmlPath& xmlPath)
+        {
+            target = state->parseImage (xmlPath, true, transform);
+            return target != nullptr;
         }
     };
 
     struct GetClipPathOp
     {
-        const SVGState* state;
+        SVGState* state;
         Drawable* target;
 
-        void operator() (const XmlPath& xmlPath) const
+        bool operator() (const XmlPath& xmlPath)
         {
-            state->applyClipPath (*target, xmlPath);
+            return state->applyClipPath (*target, xmlPath);
         }
     };
 
@@ -92,9 +119,9 @@ public:
         const SVGState* state;
         ColourGradient* gradient;
 
-        void operator() (const XmlPath& xml) const
+        bool operator() (const XmlPath& xml) const
         {
-            state->addGradientStopsIn (*gradient, xml);
+            return state->addGradientStopsIn (*gradient, xml);
         }
     };
 
@@ -105,11 +132,16 @@ public:
         float opacity;
         FillType fillType;
 
-        void operator() (const XmlPath& xml)
+        bool operator() (const XmlPath& xml)
         {
             if (xml->hasTagNameIgnoringNamespace ("linearGradient")
                  || xml->hasTagNameIgnoringNamespace ("radialGradient"))
+            {
                 fillType = state->getGradientFillType (xml, *path, opacity);
+                return true;
+            }
+
+            return false;
         }
     };
 
@@ -163,10 +195,7 @@ public:
 
         newState.parseSubElements (xml, *drawable);
 
-        drawable->setContentArea (RelativeRectangle (RelativeCoordinate (viewboxXY.x),
-                                                     RelativeCoordinate (viewboxXY.x + newState.viewBoxW),
-                                                     RelativeCoordinate (viewboxXY.y),
-                                                     RelativeCoordinate (viewboxXY.y + newState.viewBoxH)));
+        drawable->setContentArea ({ viewboxXY.x, viewboxXY.y, newState.viewBoxW, newState.viewBoxH });
         drawable->resetBoundingBoxToContentArea();
 
         return drawable;
@@ -210,8 +239,7 @@ public:
                     else
                         path.lineTo (p1);
 
-                    last2 = last;
-                    last = p1;
+                    last2 = last = p1;
                 }
                 break;
 
@@ -282,7 +310,11 @@ public:
                         p3 += last;
                     }
 
-                    p2 = last + (last - last2);
+                    p2 = last;
+
+                    if (CharPointer_ASCII ("CcSs").indexOf (previousCommand) >= 0)
+                        p2 += (last - last2);
+
                     path.cubicTo (p2, p1, p3);
 
                     last2 = p1;
@@ -315,8 +347,11 @@ public:
                     if (isRelative)
                         p1 += last;
 
-                    p2 = CharPointer_ASCII ("QqTt").indexOf (previousCommand) >= 0 ? last + (last - last2)
-                                                                                   : p1;
+                    p2 = last;
+
+                    if (CharPointer_ASCII ("QqTt").indexOf (previousCommand) >= 0)
+                        p2 += (last - last2);
+
                     path.quadraticTo (p2, p1);
 
                     last2 = p2;
@@ -329,18 +364,19 @@ public:
                 if (parseCoordsOrSkip (d, p1, false))
                 {
                     String num;
+                    bool flagValue = false;
 
                     if (parseNextNumber (d, num, false))
                     {
-                        const float angle = degreesToRadians (num.getFloatValue());
+                        auto angle = degreesToRadians (parseSafeFloat (num));
 
-                        if (parseNextNumber (d, num, false))
+                        if (parseNextFlag (d, flagValue))
                         {
-                            const bool largeArc = num.getIntValue() != 0;
+                            auto largeArc = flagValue;
 
-                            if (parseNextNumber (d, num, false))
+                            if (parseNextFlag (d, flagValue))
                             {
-                                const bool sweep = num.getIntValue() != 0;
+                                auto sweep = flagValue;
 
                                 if (parseCoordsOrSkip (d, p2, false))
                                 {
@@ -379,7 +415,7 @@ public:
             case 'z':
                 path.closeSubPath();
                 last = last2 = subpathStart;
-                d = d.findEndOfWhitespace();
+                d.incrementToEndOfWhitespace();
                 currentCommand = 'M';
                 break;
 
@@ -402,6 +438,7 @@ public:
 
 private:
     //==============================================================================
+    const File originalFile;
     const XmlPath topLevelXml;
     float width = 512, height = 512, viewBoxW = 0, viewBoxH = 0;
     AffineTransform transform;
@@ -423,9 +460,9 @@ private:
     }
 
     //==============================================================================
-    void parseSubElements (const XmlPath& xml, DrawableComposite& parentDrawable)
+    void parseSubElements (const XmlPath& xml, DrawableComposite& parentDrawable, bool shouldParseClip = true)
     {
-        forEachXmlChildElement (*xml, e)
+        for (auto* e : xml->getChildIterator())
         {
             const XmlPath child (xml.getChild (e));
 
@@ -435,6 +472,9 @@ private:
 
                 if (! isNone (getStyleAttribute (child, "display")))
                     drawable->setVisible (true);
+
+                if (shouldParseClip)
+                    parseClipPath (child, *drawable);
             }
         }
     }
@@ -449,11 +489,13 @@ private:
 
         auto tag = xml->getTagNameWithoutNamespace();
 
-        if (tag == "g")         return parseGroupElement (xml);
+        if (tag == "g")         return parseGroupElement (xml, true);
         if (tag == "svg")       return parseSVGElement (xml);
         if (tag == "text")      return parseText (xml, true);
+        if (tag == "image")     return parseImage (xml, true);
         if (tag == "switch")    return parseSwitch (xml);
         if (tag == "a")         return parseLinkElement (xml);
+        if (tag == "use")       return parseUseOther (xml);
         if (tag == "style")     parseCSSStyle (xml);
         if (tag == "defs")      parseDefs (xml);
 
@@ -462,7 +504,7 @@ private:
 
     bool parsePathElement (const XmlPath& xml, Path& path) const
     {
-        const String tag (xml->getTagNameWithoutNamespace());
+        auto tag = xml->getTagNameWithoutNamespace();
 
         if (tag == "path")      { parsePath (xml, path);           return true; }
         if (tag == "rect")      { parseRect (xml, path);           return true; }
@@ -471,7 +513,7 @@ private:
         if (tag == "line")      { parseLine (xml, path);           return true; }
         if (tag == "polyline")  { parsePolygon (xml, true, path);  return true; }
         if (tag == "polygon")   { parsePolygon (xml, false, path); return true; }
-        if (tag == "use")       { parseUse (xml, path);            return true; }
+        if (tag == "use")       { return parseUsePath (xml, path); }
 
         return false;
     }
@@ -479,27 +521,24 @@ private:
     DrawableComposite* parseSwitch (const XmlPath& xml)
     {
         if (auto* group = xml->getChildByName ("g"))
-            return parseGroupElement (xml.getChild (group));
+            return parseGroupElement (xml.getChild (group), true);
 
         return nullptr;
     }
 
-    DrawableComposite* parseGroupElement (const XmlPath& xml)
+    DrawableComposite* parseGroupElement (const XmlPath& xml, bool shouldParseTransform)
     {
-        auto drawable = new DrawableComposite();
-
-        setCommonAttributes (*drawable, xml);
-
-        if (xml->hasAttribute ("transform"))
+        if (shouldParseTransform && xml->hasAttribute ("transform"))
         {
             SVGState newState (*this);
             newState.addTransform (xml);
-            newState.parseSubElements (xml, *drawable);
+
+            return newState.parseGroupElement (xml, false);
         }
-        else
-        {
-            parseSubElements (xml, *drawable);
-        }
+
+        auto* drawable = new DrawableComposite();
+        setCommonAttributes (*drawable, xml);
+        parseSubElements (xml, *drawable);
 
         drawable->resetContentAreaAndBoundingBoxToFitChildren();
         return drawable;
@@ -507,7 +546,7 @@ private:
 
     DrawableComposite* parseLinkElement (const XmlPath& xml)
     {
-        return parseGroupElement (xml); // TODO: support for making this clickable
+        return parseGroupElement (xml, true); // TODO: support for making this clickable
     }
 
     //==============================================================================
@@ -579,7 +618,7 @@ private:
         line.lineTo (x2, y2);
     }
 
-    void parsePolygon (const XmlPath& xml, const bool isPolyline, Path& path) const
+    void parsePolygon (const XmlPath& xml, bool isPolyline, Path& path) const
     {
         auto pointsAtt = xml->getStringAttribute ("points");
         auto points = pointsAtt.getCharPointer();
@@ -602,17 +641,35 @@ private:
         }
     }
 
-    void parseUse (const XmlPath& xml, Path& path) const
+    static String getLinkedID (const XmlPath& xml)
     {
         auto link = xml->getStringAttribute ("xlink:href");
 
         if (link.startsWithChar ('#'))
-        {
-            auto linkedID = link.substring (1);
+            return link.substring (1);
 
+        return {};
+    }
+
+    bool parseUsePath (const XmlPath& xml, Path& path) const
+    {
+        auto linkedID = getLinkedID (xml);
+
+        if (linkedID.isNotEmpty())
+        {
             UsePathOp op = { this, &path };
-            topLevelXml.applyOperationToChildWithID (linkedID, op);
+            return topLevelXml.applyOperationToChildWithID (linkedID, op);
         }
+
+        return false;
+    }
+
+    Drawable* parseUseOther (const XmlPath& xml) const
+    {
+        if (auto* drawableText  = parseText (xml, false))    return drawableText;
+        if (auto* drawableImage = parseImage (xml, false))   return drawableImage;
+
+        return nullptr;
     }
 
     static String parseURL (const String& str)
@@ -626,14 +683,15 @@ private:
 
     //==============================================================================
     Drawable* parseShape (const XmlPath& xml, Path& path,
-                          const bool shouldParseTransform = true) const
+                          bool shouldParseTransform = true,
+                          AffineTransform* additonalTransform = nullptr) const
     {
         if (shouldParseTransform && xml->hasAttribute ("transform"))
         {
             SVGState newState (*this);
             newState.addTransform (xml);
 
-            return newState.parseShape (xml, path, false);
+            return newState.parseShape (xml, path, false, additonalTransform);
         }
 
         auto dp = new DrawablePath();
@@ -641,6 +699,10 @@ private:
         dp->setFill (Colours::transparentBlack);
 
         path.applyTransform (transform);
+
+        if (additonalTransform != nullptr)
+            path.applyTransform (*additonalTransform);
+
         dp->setPath (path);
 
         dp->setFill (getPathFillType (path, xml, "fill",
@@ -666,7 +728,6 @@ private:
         if (strokeDashArray.isNotEmpty())
             parseDashArray (strokeDashArray, *dp);
 
-        parseClipPath (xml, *dp);
         return dp;
     }
 
@@ -694,7 +755,7 @@ private:
 
             dashLengths.add (value);
 
-            t = t.findEndOfWhitespace();
+            t.incrementToEndOfWhitespace();
 
             if (*t == ',')
                 ++t;
@@ -726,7 +787,7 @@ private:
         }
     }
 
-    void parseClipPath (const XmlPath& xml, Drawable& d) const
+    bool parseClipPath (const XmlPath& xml, Drawable& d)
     {
         const String clipPath (getStyleAttribute (xml, "clip-path"));
 
@@ -737,39 +798,56 @@ private:
             if (urlID.isNotEmpty())
             {
                 GetClipPathOp op = { this, &d };
-                topLevelXml.applyOperationToChildWithID (urlID, op);
+                return topLevelXml.applyOperationToChildWithID (urlID, op);
             }
         }
+
+        return false;
     }
 
-    void applyClipPath (Drawable& target, const XmlPath& xmlPath) const
+    bool applyClipPath (Drawable& target, const XmlPath& xmlPath)
     {
         if (xmlPath->hasTagNameIgnoringNamespace ("clipPath"))
         {
-            // TODO: implement clipping..
-            ignoreUnused (target);
+            std::unique_ptr<DrawableComposite> drawableClipPath (new DrawableComposite());
+
+            parseSubElements (xmlPath, *drawableClipPath, false);
+
+            if (drawableClipPath->getNumChildComponents() > 0)
+            {
+                setCommonAttributes (*drawableClipPath, xmlPath);
+                target.setClipPath (std::move (drawableClipPath));
+                return true;
+            }
         }
+
+        return false;
     }
 
-    void addGradientStopsIn (ColourGradient& cg, const XmlPath& fillXml) const
+    bool addGradientStopsIn (ColourGradient& cg, const XmlPath& fillXml) const
     {
+        bool result = false;
+
         if (fillXml.xml != nullptr)
         {
-            forEachXmlChildElementWithTagName (*fillXml, e, "stop")
+            for (auto* e : fillXml->getChildWithTagNameIterator ("stop"))
             {
                 auto col = parseColour (fillXml.getChild (e), "stop-color", Colours::black);
 
                 auto opacity = getStyleAttribute (fillXml.getChild (e), "stop-opacity", "1");
-                col = col.withMultipliedAlpha (jlimit (0.0f, 1.0f, opacity.getFloatValue()));
+                col = col.withMultipliedAlpha (jlimit (0.0f, 1.0f, parseSafeFloat (opacity)));
 
-                double offset = e->getDoubleAttribute ("offset");
+                auto offset = parseSafeFloat (e->getStringAttribute ("offset"));
 
                 if (e->getStringAttribute ("offset").containsChar ('%'))
-                    offset *= 0.01;
+                    offset *= 0.01f;
 
-                cg.addColour (jlimit (0.0, 1.0, offset), col);
+                cg.addColour (jlimit (0.0f, 1.0f, offset), col);
+                result = true;
             }
         }
+
+        return result;
     }
 
     FillType getGradientFillType (const XmlPath& fillXml,
@@ -779,12 +857,12 @@ private:
         ColourGradient gradient;
 
         {
-            auto link = fillXml->getStringAttribute ("xlink:href");
+            auto linkedID = getLinkedID (fillXml);
 
-            if (link.startsWithChar ('#'))
+            if (linkedID.isNotEmpty())
             {
                 SetGradientStopsOp op = { this, &gradient, };
-                topLevelXml.applyOperationToChildWithID (link.substring (1), op);
+                topLevelXml.applyOperationToChildWithID (linkedID, op);
             }
         }
 
@@ -866,8 +944,7 @@ private:
 
         FillType type (gradient);
 
-        auto gradientTransform = parseTransform (fillXml->getStringAttribute ("gradientTransform"))
-                                   .followedBy (transform);
+        auto gradientTransform = parseTransform (fillXml->getStringAttribute ("gradientTransform"));
 
         if (gradient.isRadial)
         {
@@ -906,10 +983,10 @@ private:
         float opacity = 1.0f;
 
         if (overallOpacity.isNotEmpty())
-            opacity = jlimit (0.0f, 1.0f, overallOpacity.getFloatValue());
+            opacity = jlimit (0.0f, 1.0f, parseSafeFloat (overallOpacity));
 
         if (fillOpacity.isNotEmpty())
-            opacity *= (jlimit (0.0f, 1.0f, fillOpacity.getFloatValue()));
+            opacity *= jlimit (0.0f, 1.0f, parseSafeFloat (fillOpacity));
 
         String fill (getStyleAttribute (xml, fillAttribute));
         String urlID = parseURL (fill);
@@ -946,7 +1023,8 @@ private:
 
     float getStrokeWidth (const String& strokeWidth) const noexcept
     {
-        return transform.getScaleFactor() * getCoordLength (strokeWidth, viewBoxW);
+        auto transformScale = std::sqrt (std::abs (transform.getDeterminant()));
+        return transformScale * getCoordLength (strokeWidth, viewBoxW);
     }
 
     PathStrokeType getStrokeFor (const XmlPath& xml) const
@@ -957,15 +1035,37 @@ private:
     }
 
     //==============================================================================
-    Drawable* parseText (const XmlPath& xml, bool shouldParseTransform)
+    Drawable* useText (const XmlPath& xml) const
+    {
+        auto translation = AffineTransform::translation (parseSafeFloat (xml->getStringAttribute ("x")),
+                                                         parseSafeFloat (xml->getStringAttribute ("y")));
+
+        UseTextOp op = { this, &translation, nullptr };
+
+        auto linkedID = getLinkedID (xml);
+
+        if (linkedID.isNotEmpty())
+            topLevelXml.applyOperationToChildWithID (linkedID, op);
+
+        return op.target;
+    }
+
+    Drawable* parseText (const XmlPath& xml, bool shouldParseTransform,
+                         AffineTransform* additonalTransform = nullptr) const
     {
         if (shouldParseTransform && xml->hasAttribute ("transform"))
         {
             SVGState newState (*this);
             newState.addTransform (xml);
 
-            return newState.parseText (xml, false);
+            return newState.parseText (xml, false, additonalTransform);
         }
+
+        if (xml->hasTagName ("use"))
+            return useText (xml);
+
+        if (! xml->hasTagName ("text") && ! xml->hasTagNameIgnoringNamespace ("tspan"))
+            return nullptr;
 
         Array<float> xCoords, yCoords, dxCoords, dyCoords;
 
@@ -975,12 +1075,12 @@ private:
         getCoordList (dyCoords, getInheritedAttribute (xml, "dy"), true, false);
 
         auto font = getFont (xml);
-        auto anchorStr = getStyleAttribute(xml, "text-anchor");
+        auto anchorStr = getStyleAttribute (xml, "text-anchor");
 
         auto dc = new DrawableComposite();
         setCommonAttributes (*dc, xml);
 
-        forEachXmlChildElement (*xml, e)
+        for (auto* e : xml->getChildIterator())
         {
             if (e->isTextElement())
             {
@@ -991,10 +1091,14 @@ private:
 
                 dt->setText (text);
                 dt->setFont (font, true);
-                dt->setTransform (transform);
+
+                if (additonalTransform != nullptr)
+                    dt->setTransform (transform.followedBy (*additonalTransform));
+                else
+                    dt->setTransform (transform);
 
                 dt->setColour (parseColour (xml, "fill", Colours::black)
-                                 .withMultipliedAlpha (getStyleAttribute (xml, "fill-opacity", "1").getFloatValue()));
+                                 .withMultipliedAlpha (parseSafeFloat (getStyleAttribute (xml, "fill-opacity", "1"))));
 
                 Rectangle<float> bounds (xCoords[0], yCoords[0] - font.getAscent(),
                                          font.getStringWidthFloat (text), font.getHeight());
@@ -1015,17 +1119,116 @@ private:
 
     Font getFont (const XmlPath& xml) const
     {
-        auto fontSize = getCoordLength (getStyleAttribute (xml, "font-size"), 1.0f);
-
-        int style = getStyleAttribute (xml, "font-style").containsIgnoreCase ("italic") ? Font::italic : Font::plain;
-
-        if (getStyleAttribute (xml, "font-weight").containsIgnoreCase ("bold"))
-            style |= Font::bold;
-
+        Font f;
         auto family = getStyleAttribute (xml, "font-family").unquoted();
 
-        return family.isEmpty() ? Font (fontSize, style)
-                                : Font (family, fontSize, style);
+        if (family.isNotEmpty())
+            f.setTypefaceName (family);
+
+        if (getStyleAttribute (xml, "font-style").containsIgnoreCase ("italic"))
+            f.setItalic (true);
+
+        if (getStyleAttribute (xml, "font-weight").containsIgnoreCase ("bold"))
+            f.setBold (true);
+
+        return f.withPointHeight (getCoordLength (getStyleAttribute (xml, "font-size", "15"), 1.0f));
+    }
+
+    //==============================================================================
+    Drawable* useImage (const XmlPath& xml) const
+    {
+        auto translation = AffineTransform::translation (parseSafeFloat (xml->getStringAttribute ("x")),
+                                                         parseSafeFloat (xml->getStringAttribute ("y")));
+
+        UseImageOp op = { this, &translation, nullptr };
+
+        auto linkedID = getLinkedID (xml);
+
+        if (linkedID.isNotEmpty())
+            topLevelXml.applyOperationToChildWithID (linkedID, op);
+
+        return op.target;
+    }
+
+    Drawable* parseImage (const XmlPath& xml, bool shouldParseTransform,
+                          AffineTransform* additionalTransform = nullptr) const
+    {
+        if (shouldParseTransform && xml->hasAttribute ("transform"))
+        {
+            SVGState newState (*this);
+            newState.addTransform (xml);
+
+            return newState.parseImage (xml, false, additionalTransform);
+        }
+
+        if (xml->hasTagName ("use"))
+            return useImage (xml);
+
+        if (! xml->hasTagName ("image"))
+            return nullptr;
+
+        auto link = xml->getStringAttribute ("xlink:href");
+
+        std::unique_ptr<InputStream> inputStream;
+        MemoryOutputStream imageStream;
+
+        if (link.startsWith ("data:"))
+        {
+            const auto indexOfComma = link.indexOf (",");
+            auto format = link.substring (5, indexOfComma).trim();
+            auto indexOfSemi = format.indexOf (";");
+
+            if (format.substring (indexOfSemi + 1).trim().equalsIgnoreCase ("base64"))
+            {
+                auto mime = format.substring (0, indexOfSemi).trim();
+
+                if (mime.equalsIgnoreCase ("image/png") || mime.equalsIgnoreCase ("image/jpeg"))
+                {
+                    auto base64text = link.substring (indexOfComma + 1).removeCharacters ("\t\n\r ");
+
+                    if (Base64::convertFromBase64 (imageStream, base64text))
+                        inputStream.reset (new MemoryInputStream (imageStream.getData(), imageStream.getDataSize(), false));
+                }
+            }
+        }
+        else
+        {
+            auto linkedFile = originalFile.getParentDirectory().getChildFile (link);
+
+            if (linkedFile.existsAsFile())
+                inputStream = linkedFile.createInputStream();
+        }
+
+        if (inputStream != nullptr)
+        {
+            auto image = ImageFileFormat::loadFrom (*inputStream);
+
+            if (image.isValid())
+            {
+                auto* di = new DrawableImage();
+
+                setCommonAttributes (*di, xml);
+
+                Rectangle<float> imageBounds (parseSafeFloat (xml->getStringAttribute ("x")),
+                                              parseSafeFloat (xml->getStringAttribute ("y")),
+                                              parseSafeFloat (xml->getStringAttribute ("width",  String (image.getWidth()))),
+                                              parseSafeFloat (xml->getStringAttribute ("height", String (image.getHeight()))));
+
+                di->setImage (image.rescaled ((int) imageBounds.getWidth(),
+                                              (int) imageBounds.getHeight()));
+
+                di->setTransformToFit (imageBounds, RectanglePlacement (parsePlacementFlags (xml->getStringAttribute ("preserveAspectRatio").trim())));
+
+                if (additionalTransform != nullptr)
+                    di->setTransform (di->getTransform().followedBy (transform).followedBy (*additionalTransform));
+                else
+                    di->setTransform (di->getTransform().followedBy (transform));
+
+                return di;
+            }
+        }
+
+        return nullptr;
     }
 
     //==============================================================================
@@ -1036,7 +1239,7 @@ private:
     }
 
     //==============================================================================
-    bool parseCoord (String::CharPointerType& s, float& value, const bool allowUnits, const bool isX) const
+    bool parseCoord (String::CharPointerType& s, float& value, bool allowUnits, bool isX) const
     {
         String number;
 
@@ -1050,13 +1253,13 @@ private:
         return true;
     }
 
-    bool parseCoords (String::CharPointerType& s, Point<float>& p, const bool allowUnits) const
+    bool parseCoords (String::CharPointerType& s, Point<float>& p, bool allowUnits) const
     {
         return parseCoord (s, p.x, allowUnits, true)
             && parseCoord (s, p.y, allowUnits, false);
     }
 
-    bool parseCoordsOrSkip (String::CharPointerType& s, Point<float>& p, const bool allowUnits) const
+    bool parseCoordsOrSkip (String::CharPointerType& s, Point<float>& p, bool allowUnits) const
     {
         if (parseCoords (s, p, allowUnits))
             return true;
@@ -1067,15 +1270,15 @@ private:
 
     float getCoordLength (const String& s, const float sizeForProportions) const noexcept
     {
-        float n = s.getFloatValue();
-        const int len = s.length();
+        auto n = parseSafeFloat (s);
+        auto len = s.length();
 
         if (len > 2)
         {
-            const float dpi = 96.0f;
+            auto dpi = 96.0f;
 
-            const juce_wchar n1 = s [len - 2];
-            const juce_wchar n2 = s [len - 1];
+            auto n1 = s[len - 2];
+            auto n2 = s[len - 1];
 
             if (n1 == 'i' && n2 == 'n')         n *= dpi;
             else if (n1 == 'm' && n2 == 'm')    n *= dpi / 25.4f;
@@ -1092,13 +1295,19 @@ private:
         return getCoordLength (xml->getStringAttribute (attName), sizeForProportions);
     }
 
-    void getCoordList (Array<float>& coords, const String& list, bool allowUnits, const bool isX) const
+    void getCoordList (Array<float>& coords, const String& list, bool allowUnits, bool isX) const
     {
         auto text = list.getCharPointer();
         float value;
 
         while (parseCoord (text, value, allowUnits, isX))
             coords.add (value);
+    }
+
+    static float parseSafeFloat (const String& s)
+    {
+        auto n = s.getFloatValue();
+        return (std::isnan (n) || std::isinf (n)) ? 0.0f : n;
     }
 
     //==============================================================================
@@ -1207,7 +1416,7 @@ private:
     }
 
     //==============================================================================
-    static bool isIdentifierChar (const juce_wchar c)
+    static bool isIdentifierChar (juce_wchar c)
     {
         return CharacterFunctions::isLetter (c) || c == '-';
     }
@@ -1251,9 +1460,9 @@ private:
         return CharacterFunctions::isDigit (c) || c == '-' || c == '+';
     }
 
-    static bool parseNextNumber (String::CharPointerType& text, String& value, const bool allowUnits)
+    static bool parseNextNumber (String::CharPointerType& text, String& value, bool allowUnits)
     {
-        String::CharPointerType s (text);
+        auto s = text;
 
         while (s.isWhitespace() || *s == ',')
             ++s;
@@ -1301,6 +1510,22 @@ private:
         return true;
     }
 
+    static bool parseNextFlag (String::CharPointerType& text, bool& value)
+    {
+        while (text.isWhitespace() || *text == ',')
+            ++text;
+
+        if (*text != '0' && *text != '1')
+            return false;
+
+        value = *(text++) != '0';
+
+        while (text.isWhitespace() || *text == ',')
+             ++text;
+
+        return true;
+    }
+
     //==============================================================================
     Colour parseColour (const XmlPath& xml, StringRef attributeName, const Colour defaultColour) const
     {
@@ -1308,16 +1533,18 @@ private:
 
         if (text.startsWithChar ('#'))
         {
-            uint32 hex[6] = { 0 };
+            uint32 hex[8] = { 0 };
+            hex[6] = hex[7] = 15;
+
             int numChars = 0;
             auto s = text.getCharPointer();
 
-            while (numChars < 6)
+            while (numChars < 8)
             {
                 auto hexValue = CharacterFunctions::getHexDigitValue (*++s);
 
                 if (hexValue >= 0)
-                    hex [numChars++] = (uint32) hexValue;
+                    hex[numChars++] = (uint32) hexValue;
                 else
                     break;
             }
@@ -1329,30 +1556,53 @@ private:
 
             return Colour ((uint8) ((hex[0] << 4) + hex[1]),
                            (uint8) ((hex[2] << 4) + hex[3]),
-                           (uint8) ((hex[4] << 4) + hex[5]));
+                           (uint8) ((hex[4] << 4) + hex[5]),
+                           (uint8) ((hex[6] << 4) + hex[7]));
         }
 
-        if (text.startsWith ("rgb"))
+        if (text.startsWith ("rgb") || text.startsWith ("hsl"))
         {
-            auto openBracket = text.indexOfChar ('(');
-            auto closeBracket = text.indexOfChar (openBracket, ')');
-
-            if (openBracket >= 3 && closeBracket > openBracket)
+            auto tokens = [&text]
             {
-                StringArray tokens;
-                tokens.addTokens (text.substring (openBracket + 1, closeBracket), ",", "");
-                tokens.trim();
-                tokens.removeEmptyStrings();
+                auto openBracket = text.indexOfChar ('(');
+                auto closeBracket = text.indexOfChar (openBracket, ')');
 
-                if (tokens[0].containsChar ('%'))
-                    return Colour ((uint8) roundToInt (2.55 * tokens[0].getDoubleValue()),
-                                   (uint8) roundToInt (2.55 * tokens[1].getDoubleValue()),
-                                   (uint8) roundToInt (2.55 * tokens[2].getDoubleValue()));
+                StringArray arr;
 
-                return Colour ((uint8) tokens[0].getIntValue(),
-                               (uint8) tokens[1].getIntValue(),
-                               (uint8) tokens[2].getIntValue());
-            }
+                if (openBracket >= 3 && closeBracket > openBracket)
+                {
+                    arr.addTokens (text.substring (openBracket + 1, closeBracket), ",", "");
+                    arr.trim();
+                    arr.removeEmptyStrings();
+                }
+
+                return arr;
+            }();
+
+            auto alpha = [&tokens, &text]
+            {
+                if ((text.startsWith ("rgba") || text.startsWith ("hsla")) && tokens.size() == 4)
+                    return parseSafeFloat (tokens[3]);
+
+                return 1.0f;
+            }();
+
+            if (text.startsWith ("hsl"))
+                return Colour::fromHSL (parseSafeFloat (tokens[0]) / 360.0f,
+                                        parseSafeFloat (tokens[1]) / 100.0f,
+                                        parseSafeFloat (tokens[2]) / 100.0f,
+                                        alpha);
+
+            if (tokens[0].containsChar ('%'))
+                return Colour ((uint8) roundToInt (2.55f * parseSafeFloat (tokens[0])),
+                               (uint8) roundToInt (2.55f * parseSafeFloat (tokens[1])),
+                               (uint8) roundToInt (2.55f * parseSafeFloat (tokens[2])),
+                               alpha);
+
+            return Colour ((uint8) tokens[0].getIntValue(),
+                           (uint8) tokens[1].getIntValue(),
+                           (uint8) tokens[2].getIntValue(),
+                           alpha);
         }
 
         if (text == "inherit")
@@ -1381,7 +1631,7 @@ private:
             float numbers[6];
 
             for (int i = 0; i < numElementsInArray (numbers); ++i)
-                numbers[i] = tokens[i].getFloatValue();
+                numbers[i] = parseSafeFloat (tokens[i]);
 
             AffineTransform trans;
 
@@ -1418,10 +1668,10 @@ private:
         return result;
     }
 
-    static void endpointToCentreParameters (const double x1, const double y1,
-                                            const double x2, const double y2,
-                                            const double angle,
-                                            const bool largeArc, const bool sweep,
+    static void endpointToCentreParameters (double x1, double y1,
+                                            double x2, double y2,
+                                            double angle,
+                                            bool largeArc, bool sweep,
                                             double& rx, double& ry,
                                             double& centreX, double& centreY,
                                             double& startAngle, double& deltaAngle) noexcept
@@ -1476,7 +1726,7 @@ private:
         if (uy < 0)
             startAngle = -startAngle;
 
-        startAngle += double_Pi * 0.5;
+        startAngle += MathConstants<double>::halfPi;
 
         deltaAngle = acos (jlimit (-1.0, 1.0, ((ux * vx) + (uy * vy))
                                                 / (length * juce_hypot (vx, vy))));
@@ -1487,29 +1737,37 @@ private:
         if (sweep)
         {
             if (deltaAngle < 0)
-                deltaAngle += double_Pi * 2.0;
+                deltaAngle += MathConstants<double>::twoPi;
         }
         else
         {
             if (deltaAngle > 0)
-                deltaAngle -= double_Pi * 2.0;
+                deltaAngle -= MathConstants<double>::twoPi;
         }
 
-        deltaAngle = fmod (deltaAngle, double_Pi * 2.0);
+        deltaAngle = fmod (deltaAngle, MathConstants<double>::twoPi);
     }
 
-    SVGState& operator= (const SVGState&) JUCE_DELETED_FUNCTION;
+    SVGState& operator= (const SVGState&) = delete;
 };
 
 
 //==============================================================================
-Drawable* Drawable::createFromSVG (const XmlElement& svgDocument)
+std::unique_ptr<Drawable> Drawable::createFromSVG (const XmlElement& svgDocument)
 {
     if (! svgDocument.hasTagNameIgnoringNamespace ("svg"))
-        return nullptr;
+        return {};
 
     SVGState state (&svgDocument);
-    return state.parseSVGElement (SVGState::XmlPath (&svgDocument, nullptr));
+    return std::unique_ptr<Drawable> (state.parseSVGElement (SVGState::XmlPath (&svgDocument, {})));
+}
+
+std::unique_ptr<Drawable> Drawable::createFromSVGFile (const File& svgFile)
+{
+    if (auto xml = parseXMLIfTagMatches (svgFile, "svg"))
+        return createFromSVG (*xml);
+
+    return {};
 }
 
 Path Drawable::parseSVGPath (const String& svgPath)
@@ -1519,3 +1777,5 @@ Path Drawable::parseSVGPath (const String& svgPath)
     state.parsePathString (p, svgPath);
     return p;
 }
+
+} // namespace juce

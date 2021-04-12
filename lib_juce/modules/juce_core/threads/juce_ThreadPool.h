@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,11 +20,10 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 class ThreadPool;
-class ThreadPoolThread;
-
 
 //==============================================================================
 /**
@@ -39,6 +38,8 @@ class ThreadPoolThread;
     true, the runJob() method must return immediately.
 
     @see ThreadPool, Thread
+
+    @tags{Core}
 */
 class JUCE_API  ThreadPoolJob
 {
@@ -75,7 +76,7 @@ public:
                                      again when a thread is free. */
     };
 
-    /** Peforms the actual work that this job needs to do.
+    /** Performs the actual work that this job needs to do.
 
         Your subclass must implement this method, in which is does its work.
 
@@ -112,6 +113,16 @@ public:
     */
     void signalJobShouldExit();
 
+    /** Add a listener to this thread job which will receive a callback when
+        signalJobShouldExit was called on this thread job.
+
+        @see signalJobShouldExit, removeListener
+    */
+    void addListener (Thread::Listener*);
+
+    /** Removes a listener added with addListener. */
+    void removeListener (Thread::Listener*);
+
     //==============================================================================
     /** If the calling thread is being invoked inside a runJob() method, this will
         return the ThreadPoolJob that it belongs to.
@@ -121,10 +132,10 @@ public:
     //==============================================================================
 private:
     friend class ThreadPool;
-    friend class ThreadPoolThread;
     String jobName;
-    ThreadPool* pool;
-    bool shouldStop, isActive, shouldBeDeleted;
+    ThreadPool* pool = nullptr;
+    std::atomic<bool> shouldStop { false }, isActive { false }, shouldBeDeleted { false };
+    ListenerList<Thread::Listener, Array<Thread::Listener*, CriticalSection>> listeners;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ThreadPoolJob)
 };
@@ -138,6 +149,8 @@ private:
     will be called by the next pooled thread that becomes free.
 
     @see ThreadPoolJob, Thread
+
+    @tags{Core}
 */
 class JUCE_API  ThreadPool
 {
@@ -178,7 +191,7 @@ public:
     class JUCE_API  JobSelector
     {
     public:
-        virtual ~JobSelector() {}
+        virtual ~JobSelector() = default;
 
         /** Should return true if the specified thread matches your criteria for whatever
             operation that this object is being used for.
@@ -206,6 +219,16 @@ public:
     */
     void addJob (ThreadPoolJob* job,
                  bool deleteJobWhenFinished);
+
+    /** Adds a lambda function to be called as a job.
+        This will create an internal ThreadPoolJob object to encapsulate and call the lambda.
+    */
+    void addJob (std::function<ThreadPoolJob::JobStatus()> job);
+
+    /** Adds a lambda function to be called as a job.
+        This will create an internal ThreadPoolJob object to encapsulate and call the lambda.
+    */
+    void addJob (std::function<void()> job);
 
     /** Tries to remove a job from the pool.
 
@@ -244,27 +267,26 @@ public:
                         JobSelector* selectedJobsToRemove = nullptr);
 
     /** Returns the number of jobs currently running or queued. */
-    int getNumJobs() const;
+    int getNumJobs() const noexcept;
 
     /** Returns the number of threads assigned to this thread pool. */
-    int getNumThreads() const;
+    int getNumThreads() const noexcept;
 
     /** Returns one of the jobs in the queue.
 
         Note that this can be a very volatile list as jobs might be continuously getting shifted
         around in the list, and this method may return nullptr if the index is currently out-of-range.
     */
-    ThreadPoolJob* getJob (int index) const;
+    ThreadPoolJob* getJob (int index) const noexcept;
 
     /** Returns true if the given job is currently queued or running.
 
         @see isJobRunning()
     */
-    bool contains (const ThreadPoolJob* job) const;
+    bool contains (const ThreadPoolJob* job) const noexcept;
 
-    /** Returns true if the given job is currently being run by a thread.
-    */
-    bool isJobRunning (const ThreadPoolJob* job) const;
+    /** Returns true if the given job is currently being run by a thread. */
+    bool isJobRunning (const ThreadPoolJob* job) const noexcept;
 
     /** Waits until a job has finished running and has been removed from the pool.
 
@@ -277,13 +299,17 @@ public:
     bool waitForJobToFinish (const ThreadPoolJob* job,
                              int timeOutMilliseconds) const;
 
+    /** If the given job is in the queue, this will move it to the front so that it
+        is the next one to be executed.
+    */
+    void moveJobToFront (const ThreadPoolJob* jobToMove) noexcept;
+
     /** Returns a list of the names of all the jobs currently running or queued.
         If onlyReturnActiveJobs is true, only the ones currently running are returned.
     */
     StringArray getNamesOfAllJobs (bool onlyReturnActiveJobs) const;
 
     /** Changes the priority of all the threads.
-
         This will call Thread::setPriority() for each thread in the pool.
         May return false if for some reason the priority can't be changed.
     */
@@ -292,12 +318,10 @@ public:
 
 private:
     //==============================================================================
-    Array <ThreadPoolJob*> jobs;
+    Array<ThreadPoolJob*> jobs;
 
-    class ThreadPoolThread;
+    struct ThreadPoolThread;
     friend class ThreadPoolJob;
-    friend class ThreadPoolThread;
-    friend struct ContainerDeletePolicy<ThreadPoolThread>;
     OwnedArray<ThreadPoolThread> threads;
 
     CriticalSection lock;
@@ -315,3 +339,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ThreadPool)
 };
+
+} // namespace juce

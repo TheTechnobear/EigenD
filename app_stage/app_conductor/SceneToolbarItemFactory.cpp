@@ -56,7 +56,7 @@ void SceneToolbarButton::paintButton(Graphics& g, bool isMouseOver, bool isMouse
 
 }
 
-SceneToolbarItemFactory::SceneToolbarItemFactory(ButtonListener* listener)
+SceneToolbarItemFactory::SceneToolbarItemFactory(Button::Listener* listener)
 {
     listener_=listener;
     setupButtons();

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,24 +20,26 @@
   ==============================================================================
 */
 
+
 /*******************************************************************************
  The block below describes the properties of this module, and is read by
  the Projucer to automatically generate project code that uses it.
  For details about the syntax and how to create or use a module, see the
- JUCE Module Format.txt file.
+ JUCE Module Format.md file.
 
 
  BEGIN_JUCE_MODULE_DECLARATION
 
-  ID:               juce_blocks_basics
-  vendor:           juce
-  version:          5.0.2
-  name:             Provides low-level control over ROLI BLOCKS devices
-  description:      JUCE wrapper for low-level control over ROLI BLOCKS devices.
-  website:          http://developer.roli.com
-  license:          ISC
+  ID:                 juce_blocks_basics
+  vendor:             juce
+  version:            6.0.8
+  name:               Provides low-level control over ROLI BLOCKS devices
+  description:        JUCE wrapper for low-level control over ROLI BLOCKS devices.
+  website:            http://developer.roli.com
+  license:            ISC
+  minimumCppStandard: 14
 
-  dependencies:     juce_events juce_audio_devices
+  dependencies:       juce_audio_devices
 
  END_JUCE_MODULE_DECLARATION
 
@@ -52,27 +54,32 @@
 
 namespace juce
 {
-  class TouchSurface;
-  class LEDGrid;
-  class LEDRow;
-  class StatusLight;
-  class LightRing;
-  class ControlButton;
+    class TouchSurface;
+    class LEDGrid;
+    class LEDRow;
+    class StatusLight;
+    class LightRing;
+    class ControlButton;
+}
 
-  #include "blocks/juce_Block.h"
-  #include "blocks/juce_TouchSurface.h"
-  #include "blocks/juce_LEDGrid.h"
-  #include "blocks/juce_LEDRow.h"
-  #include "blocks/juce_ControlButton.h"
-  #include "blocks/juce_TouchList.h"
-  #include "blocks/juce_StatusLight.h"
-  #include "topology/juce_Topology.h"
-  #include "topology/juce_TopologySource.h"
-  #include "topology/juce_PhysicalTopologySource.h"
-  #include "topology/juce_RuleBasedTopologySource.h"
-  #include "littlefoot/juce_LittleFootRunner.h"
-  #include "littlefoot/juce_LittleFootCompiler.h"
-  #include "littlefoot/juce_LittleFootRemoteHeap.h"
-  #include "visualisers/juce_DrumPadLEDProgram.h"
-  #include "visualisers/juce_BitmapLEDProgram.h"
+#include "blocks/juce_Block.h"
+#include "blocks/juce_TouchSurface.h"
+#include "blocks/juce_LEDGrid.h"
+#include "blocks/juce_LEDRow.h"
+#include "blocks/juce_ControlButton.h"
+#include "blocks/juce_TouchList.h"
+#include "blocks/juce_StatusLight.h"
+#include "blocks/juce_BlocksVersion.h"
+#include "topology/juce_Topology.h"
+#include "topology/juce_BlockGraph.h"
+#include "topology/juce_TopologySource.h"
+#include "topology/juce_PhysicalTopologySource.h"
+#include "topology/juce_RuleBasedTopologySource.h"
+#include "visualisers/juce_DrumPadLEDProgram.h"
+#include "visualisers/juce_BitmapLEDProgram.h"
+
+namespace juce
+{
+ #include "littlefoot/juce_LittleFootRunner.h"
+ #include "littlefoot/juce_LittleFootCompiler.h"
 }

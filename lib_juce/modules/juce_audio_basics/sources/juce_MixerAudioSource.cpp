@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,6 +19,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 MixerAudioSource::MixerAudioSource()
    : currentSampleRate (0.0), bufferSizeExpected (0)
@@ -58,7 +61,7 @@ void MixerAudioSource::removeInputSource (AudioSource* const input)
 {
     if (input != nullptr)
     {
-        ScopedPointer<AudioSource> toDelete;
+        std::unique_ptr<AudioSource> toDelete;
 
         {
             const ScopedLock sl (lock);
@@ -68,7 +71,7 @@ void MixerAudioSource::removeInputSource (AudioSource* const input)
                 return;
 
             if (inputsToDelete [index])
-                toDelete = input;
+                toDelete.reset (input);
 
             inputsToDelete.shiftBits (-1, index);
             inputs.remove (index);
@@ -151,3 +154,5 @@ void MixerAudioSource::getNextAudioBlock (const AudioSourceChannelInfo& info)
         info.clearActiveBufferRegion();
     }
 }
+
+} // namespace juce

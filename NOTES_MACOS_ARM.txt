@@ -35,7 +35,7 @@ make
 - no universal binary (not planned)
 
 
-
+- min macos 10.14 (Mojave)
 
 
 ------

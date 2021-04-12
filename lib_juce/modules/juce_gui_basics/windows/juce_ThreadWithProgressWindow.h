@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -78,6 +77,8 @@
     @endcode
 
     @see Thread, AlertWindow
+
+    @tags{GUI}
 */
 class JUCE_API  ThreadWithProgressWindow  : public Thread,
                                             private Timer
@@ -109,10 +110,10 @@ public:
                               Component* componentToCentreAround = nullptr);
 
     /** Destructor. */
-    ~ThreadWithProgressWindow();
+    ~ThreadWithProgressWindow() override;
 
     //==============================================================================
-   #if JUCE_MODAL_LOOPS_PERMITTED
+   #if JUCE_MODAL_LOOPS_PERMITTED || DOXYGEN
     /** Starts the thread and waits for it to finish.
 
         This will start the thread, make the dialog box appear, and wait until either
@@ -149,7 +150,7 @@ public:
     void setStatusMessage (const String& newStatusMessage);
 
     /** Returns the AlertWindow that is being used. */
-    AlertWindow* getAlertWindow() const noexcept        { return alertWindow; }
+    AlertWindow* getAlertWindow() const noexcept        { return alertWindow.get(); }
 
     //==============================================================================
     /** This method is called (on the message thread) when the operation has finished.
@@ -162,7 +163,7 @@ private:
     void timerCallback() override;
 
     double progress;
-    ScopedPointer<AlertWindow> alertWindow;
+    std::unique_ptr<AlertWindow> alertWindow;
     String message;
     CriticalSection messageLock;
     const int timeOutMsWhenCancelling;
@@ -170,3 +171,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ThreadWithProgressWindow)
 };
+
+} // namespace juce

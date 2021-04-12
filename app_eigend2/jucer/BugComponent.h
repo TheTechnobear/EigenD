@@ -35,7 +35,7 @@
                                                                     //[/Comments]
 */
 class BugComponent  : public Component,
-                      public ButtonListener
+                      public Button::Listener
 {
 public:
     //==============================================================================

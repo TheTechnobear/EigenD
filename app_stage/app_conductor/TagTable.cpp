@@ -90,7 +90,7 @@ void ClipEditTable::addEditColumn(int count)
 
 void ClipEditTable::setupHeader()
 {
-    setHeader(new TagEditTableHeader(backend_));
+    setHeader(std::unique_ptr<TagEditTableHeader> (new TagEditTableHeader(backend_)));
     getHeader().setPopupMenuActive(true);
     setHeaderHeight(25);
 }
@@ -263,7 +263,7 @@ TagTable::TagTable(ClipManagerBackend* backend)
 
 void TagTable::setupHeader()
 {
-    setHeader(new TagTableHeader(backend_));
+    setHeader(std::unique_ptr<TagTableHeader>(new TagTableHeader(backend_)));
     getHeader().setPopupMenuActive(true);
     setHeaderHeight(25);
 }
@@ -434,7 +434,7 @@ String TagTable::getTextForCell(unsigned rowNumber, int columnId)
         }
     }
 
-    return String::empty;
+    return String();
 }
 
 String TagTable::getCellTooltip(int rowNumber,int columnId)
@@ -449,7 +449,7 @@ String TagTable::getCategory(int columnId)
     {
         return (i->second); 
     }
-    return String::empty;
+    return String();
 }
 
 void TagTable::paintRowBackground(Graphics& g, int rowNumber, int width, int height, bool rowIsSelected)

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -44,6 +43,8 @@
 
     For a more user-friendly time format, convert OSCTimeTag to a juce::Time object
     using toTime().
+
+    @tags{OSC}
 */
 class JUCE_API  OSCTimeTag
 {
@@ -57,18 +58,18 @@ public:
     /** Constructs an OSCTimeTag object from a raw binary OSC time tag. */
     OSCTimeTag (uint64 rawTimeTag) noexcept;
 
-    /** Constructs an OSCTimeTag object from a Juce Time object. */
+    /** Constructs an OSCTimeTag object from a juce::Time object. */
     OSCTimeTag (Time time) noexcept;
 
-    /** Returns a Juce Time object representing the same time as the OSCTimeTag.
+    /** Returns a juce::Time object representing the same time as the OSCTimeTag.
 
         If the OSCTimeTag has the special value representing "immediately", the
-        resulting Juce Time object will represent an arbitrary point of time (but
-        guaranteed to be in the past), since Juce Time does not have such a special value.
+        resulting juce::Time object will represent an arbitrary point of time (but
+        guaranteed to be in the past), since juce::Time does not have such a special value.
     */
     Time toTime() const noexcept;
 
-    /** Returns true if the OSCTimeTag object has the special value representing "immedately". */
+    /** Returns true if the OSCTimeTag object has the special value representing "immediately". */
     bool isImmediately() const noexcept;
 
     /** Returns the raw binary OSC time tag representation. */
@@ -81,3 +82,5 @@ private:
     //==============================================================================
     uint64 rawTimeTag;
 };
+
+} // namespace juce

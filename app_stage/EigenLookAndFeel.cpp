@@ -23,45 +23,45 @@
 
 EigenLookAndFeel::EigenLookAndFeel() : LookAndFeel_V2(), hasRedHatching_(false)
 {
-    knobBack_ = Drawable::createFromImageData(big_knob_1_svg, big_knob_1_svgSize);
+    knobBack_ = Drawable::createFromImageData(big_knob_1_svg, big_knob_1_svgSize).release();
     if(hasRedHatching_)
-        knobBackRed_ = Drawable::createFromImageData(big_knob_2b_svg, big_knob_2b_svgSize);
+        knobBackRed_ = Drawable::createFromImageData(big_knob_2b_svg, big_knob_2b_svgSize).release();
     else
         knobBackRed_ = 0;
-    knobDial_ = Drawable::createFromImageData(big_knob_3_svg, big_knob_3_svgSize);
-    knobPointer_ = Drawable::createFromImageData(big_knob_4_svg, big_knob_4_svgSize);
+    knobDial_ = Drawable::createFromImageData(big_knob_3_svg, big_knob_3_svgSize).release();
+    knobPointer_ = Drawable::createFromImageData(big_knob_4_svg, big_knob_4_svgSize).release();
 
-    horiSliderBack_ = Drawable::createFromImageData(fader_horizontal_1_svg, fader_horizontal_1_svgSize);
-    horiSliderBar_ = Drawable::createFromImageData(fader_horizontal_2a_svg, fader_horizontal_2a_svgSize);
+    horiSliderBack_ = Drawable::createFromImageData(fader_horizontal_1_svg, fader_horizontal_1_svgSize).release();
+    horiSliderBar_ = Drawable::createFromImageData(fader_horizontal_2a_svg, fader_horizontal_2a_svgSize).release();
     if(hasRedHatching_)
-        horiSliderBarRed_ = Drawable::createFromImageData(fader_horizontal_2b_svg, fader_horizontal_2b_svgSize);
+        horiSliderBarRed_ = Drawable::createFromImageData(fader_horizontal_2b_svg, fader_horizontal_2b_svgSize).release();
     else
         horiSliderBarRed_ = 0;
-    horiSliderButton_ = Drawable::createFromImageData(fader_horizontal_3_svg, fader_horizontal_3_svgSize);
+    horiSliderButton_ = Drawable::createFromImageData(fader_horizontal_3_svg, fader_horizontal_3_svgSize).release();
     
-    vertSliderBack_ = Drawable::createFromImageData(fader_vertical_1_svg, fader_vertical_1_svgSize);
-    vertSliderBar_ = Drawable::createFromImageData(fader_vertical_2a_svg, fader_vertical_2a_svgSize);
+    vertSliderBack_ = Drawable::createFromImageData(fader_vertical_1_svg, fader_vertical_1_svgSize).release();
+    vertSliderBar_ = Drawable::createFromImageData(fader_vertical_2a_svg, fader_vertical_2a_svgSize).release();
     if(hasRedHatching_)
-        vertSliderBarRed_ = Drawable::createFromImageData(fader_vertical_2b_svg, fader_vertical_2b_svgSize);
+        vertSliderBarRed_ = Drawable::createFromImageData(fader_vertical_2b_svg, fader_vertical_2b_svgSize).release();
     else
         vertSliderBarRed_ = 0;
-    vertSliderButton_ = Drawable::createFromImageData(fader_vertical_3_svg, fader_vertical_3_svgSize);
+    vertSliderButton_ = Drawable::createFromImageData(fader_vertical_3_svg, fader_vertical_3_svgSize).release();
 
-    buttonUpOff_ = Drawable::createFromImageData(on_off_btn_1_svg, on_off_btn_1_svgSize);
-    buttonDownOff_ = Drawable::createFromImageData(on_off_btn_2_svg, on_off_btn_2_svgSize);
-    buttonLatent_ = Drawable::createFromImageData(on_off_btn_3_svg, on_off_btn_3_svgSize);
-    buttonUpGreen_ = Drawable::createFromImageData(on_off_btn_4_svg, on_off_btn_4_svgSize);
-    buttonUpOrange_ = Drawable::createFromImageData(on_off_btn_5_svg, on_off_btn_5_svgSize);
-    buttonUpRed_ = Drawable::createFromImageData(on_off_btn_6_svg, on_off_btn_6_svgSize);
+    buttonUpOff_ = Drawable::createFromImageData(on_off_btn_1_svg, on_off_btn_1_svgSize).release();
+    buttonDownOff_ = Drawable::createFromImageData(on_off_btn_2_svg, on_off_btn_2_svgSize).release();
+    buttonLatent_ = Drawable::createFromImageData(on_off_btn_3_svg, on_off_btn_3_svgSize).release();
+    buttonUpGreen_ = Drawable::createFromImageData(on_off_btn_4_svg, on_off_btn_4_svgSize).release();
+    buttonUpOrange_ = Drawable::createFromImageData(on_off_btn_5_svg, on_off_btn_5_svgSize).release();
+    buttonUpRed_ = Drawable::createFromImageData(on_off_btn_6_svg, on_off_btn_6_svgSize).release();
     
-    plusMinusBack_ = Drawable::createFromImageData(plus_minus_back_svg, plus_minus_back_svgSize);
-    minusUp_ = Drawable::createFromImageData(minus_1_svg, minus_1_svgSize);
-    minusDown_ = Drawable::createFromImageData(minus_2_svg, minus_2_svgSize);
-    //minusLatent_ = Drawable::createFromImageData(minus_3_svg, minus_3_svgSize);
+    plusMinusBack_ = Drawable::createFromImageData(plus_minus_back_svg, plus_minus_back_svgSize).release();
+    minusUp_ = Drawable::createFromImageData(minus_1_svg, minus_1_svgSize).release();
+    minusDown_ = Drawable::createFromImageData(minus_2_svg, minus_2_svgSize).release();
+    //minusLatent_ = Drawable::createFromImageData(minus_3_svg, minus_3_svgSize);.release()
     minusLatent_ = 0;
-    plusUp_ = Drawable::createFromImageData(plus_1_svg, plus_1_svgSize);
-    plusDown_ = Drawable::createFromImageData(plus_2_svg, plus_2_svgSize);
-    //plusLatent_ = Drawable::createFromImageData(plus_3_svg, plus_3_svgSize);
+    plusUp_ = Drawable::createFromImageData(plus_1_svg, plus_1_svgSize).release();
+    plusDown_ = Drawable::createFromImageData(plus_2_svg, plus_2_svgSize).release();
+    //plusLatent_ = Drawable::createFromImageData(plus_3_svg, plus_3_svgSize).release();
     plusLatent_ = 0;
 
 
@@ -113,11 +113,11 @@ void EigenLookAndFeel::setHasRedHatching(bool hasRedHatching)
     if(hasRedHatching)
     {
         if(knobBackRed_ == 0)
-            knobBackRed_ = Drawable::createFromImageData(big_knob_2b_svg, big_knob_2b_svgSize);
+            knobBackRed_ = Drawable::createFromImageData(big_knob_2b_svg, big_knob_2b_svgSize).release();
         if (horiSliderBarRed_ == 0)
-            horiSliderBarRed_ = Drawable::createFromImageData(fader_horizontal_2b_svg, fader_horizontal_2b_svgSize);
+            horiSliderBarRed_ = Drawable::createFromImageData(fader_horizontal_2b_svg, fader_horizontal_2b_svgSize).release();
         if (vertSliderBarRed_ == 0)
-            vertSliderBarRed_ = Drawable::createFromImageData(fader_vertical_2b_svg, fader_vertical_2b_svgSize);
+            vertSliderBarRed_ = Drawable::createFromImageData(fader_vertical_2b_svg, fader_vertical_2b_svgSize).release();
     }
 
 

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,23 +20,25 @@
   ==============================================================================
 */
 
-
 #include "juce_blocks_basics.h"
+
+#include <regex>
 
 namespace juce
 {
-    namespace BlocksProtocol
-    {
-        #include "protocol/juce_BitPackingUtilities.h"
-        #include "protocol/juce_BlocksProtocolDefinitions.h"
-        #include "protocol/juce_HostPacketDecoder.h"
-        #include "protocol/juce_HostPacketBuilder.h"
-        #include "protocol/juce_BlockModels.h"
-    }
-
-    #include "blocks/juce_Block.cpp"
-    #include "topology/juce_PhysicalTopologySource.cpp"
-    #include "topology/juce_RuleBasedTopologySource.cpp"
-    #include "visualisers/juce_DrumPadLEDProgram.cpp"
-    #include "visualisers/juce_BitmapLEDProgram.cpp"
+ #include "littlefoot/juce_LittleFootRemoteHeap.h"
 }
+
+#include "protocol/juce_BitPackingUtilities.h"
+#include "protocol/juce_BlocksProtocolDefinitions.h"
+#include "protocol/juce_HostPacketDecoder.h"
+#include "protocol/juce_HostPacketBuilder.h"
+#include "blocks/juce_BlockConfigManager.h"
+#include "protocol/juce_BlockModels.h"
+#include "blocks/juce_Block.cpp"
+#include "blocks/juce_BlocksVersion.cpp"
+#include "topology/juce_BlockGraph.cpp"
+#include "topology/juce_PhysicalTopologySource.cpp"
+#include "topology/juce_RuleBasedTopologySource.cpp"
+#include "visualisers/juce_DrumPadLEDProgram.cpp"
+#include "visualisers/juce_BitmapLEDProgram.cpp"

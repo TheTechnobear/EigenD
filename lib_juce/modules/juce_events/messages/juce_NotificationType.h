@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,7 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -34,3 +35,5 @@ enum NotificationType
     sendNotificationSync,       /**< Requests a synchronous notification. */
     sendNotificationAsync,      /**< Requests an asynchronous notification. */
 };
+
+} // namespace juce

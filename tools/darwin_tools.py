@@ -113,17 +113,17 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
         self.Append(LIBS=Split('dl m pthread'))
         if platform == 'macosx-x86-64' :
             self.Append(CXXFLAGS=Split('-std=c++11 -Wno-c++11-narrowing -Wno-inconsistent-missing-override'))
-            self.Append(CCFLAGS=Split('-arch x86_64  -msse3 -DDEBUG_DATA_ATOMICITY_DISABLED -DPI_PREFIX=\\"$PI_PREFIX\\" -mmacosx-version-min=10.6'))
-            self.Append(LINKFLAGS=Split('-arch x86_64 -framework Accelerate -Wl,-rpath,@executable_path/ -mmacosx-version-min=10.6'))
+            self.Append(CCFLAGS=Split('-arch x86_64  -msse3 -DDEBUG_DATA_ATOMICITY_DISABLED -DPI_PREFIX=\\"$PI_PREFIX\\" -mmacosx-version-min=10.14'))
+            self.Append(LINKFLAGS=Split('-arch x86_64 -framework Accelerate -Wl,-rpath,@executable_path/ -mmacosx-version-min=10.14'))
         elif platform == 'macos-arm64' :
             print "Using macos-arm64"
             self.Append(CXXFLAGS=Split('-std=c++11 -stdlib=libc++ -Wno-c++11-narrowing -Wno-inconsistent-missing-override'))
-            self.Append(CCFLAGS=Split('-target arm64-apple-darwin -DDEBUG_DATA_ATOMICITY_DISABLED -DPI_PREFIX=\\"$PI_PREFIX\\" -mmacosx-version-min=10.6'))
-            self.Append(LINKFLAGS=Split('-target arm64-apple-darwin -framework Accelerate -Wl,-rpath,@executable_path/ -mmacosx-version-min=10.6'))
+            self.Append(CCFLAGS=Split('-target arm64-apple-darwin -DDEBUG_DATA_ATOMICITY_DISABLED -DPI_PREFIX=\\"$PI_PREFIX\\" -mmacosx-version-min=10.14'))
+            self.Append(LINKFLAGS=Split('-target arm64-apple-darwin -framework Accelerate -Wl,-rpath,@executable_path/ -mmacosx-version-min=10.14'))
         else:
             self.Append(CXXFLAGS=Split('-std=c++11 -Wno-c++11-narrowing -Wno-inconsistent-missing-override'))
-            self.Append(CCFLAGS=Split('-arch i386  -msse3 -DDEBUG_DATA_ATOMICITY_DISABLED -DPI_PREFIX=\\"$PI_PREFIX\\" -mmacosx-version-min=10.6'))
-            self.Append(LINKFLAGS=Split('-arch i386 -framework Accelerate -Wl,-rpath,@executable_path/ -mmacosx-version-min=10.6'))
+            self.Append(CCFLAGS=Split('-arch i386  -msse3 -DDEBUG_DATA_ATOMICITY_DISABLED -DPI_PREFIX=\\"$PI_PREFIX\\" -mmacosx-version-min=10.14'))
+            self.Append(LINKFLAGS=Split('-arch i386 -framework Accelerate -Wl,-rpath,@executable_path/ -mmacosx-version-min=10.14'))
 
         self.Append(CCFLAGS=Split('-ggdb -Werror -Wall -Wno-empty-body -Wno-deprecated-declarations -Wno-format -Wno-unused-function -Wno-unused-private-field -Wno-c++11-extensions -Os -fmessage-length=0'))
 

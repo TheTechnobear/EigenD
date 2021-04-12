@@ -58,7 +58,7 @@
 */
 class IntPropertyEditor  : public Component,
                            public AtomEditor,
-                           public SliderListener
+                           public Slider::Listener
 {
 public:
     //==============================================================================

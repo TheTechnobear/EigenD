@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,14 +23,15 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     An implementation of LowLevelGraphicsContext that turns the drawing operations
     into a PostScript document.
 
+    @tags{Graphics}
 */
 class JUCE_API  LowLevelGraphicsPostScriptRenderer    : public LowLevelGraphicsContext
 {
@@ -42,7 +42,7 @@ public:
                                         int totalWidth,
                                         int totalHeight);
 
-    ~LowLevelGraphicsPostScriptRenderer();
+    ~LowLevelGraphicsPostScriptRenderer() override;
 
     //==============================================================================
     bool isVectorDevice() const override;
@@ -91,21 +91,20 @@ protected:
     bool needToClip;
     Colour lastColour;
 
+    /** Describes a saved state */
     struct SavedState
     {
         SavedState();
+        SavedState& operator= (const SavedState&) = delete;
         ~SavedState();
 
         RectangleList<int> clip;
         int xOffset, yOffset;
         FillType fillType;
         Font font;
-
-    private:
-        SavedState& operator= (const SavedState&);
     };
 
-    OwnedArray <SavedState> stateStack;
+    OwnedArray<SavedState> stateStack;
 
     void writeClip();
     void writeColour (Colour colour);
@@ -116,3 +115,5 @@ protected:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LowLevelGraphicsPostScriptRenderer)
 };
+
+} // namespace juce

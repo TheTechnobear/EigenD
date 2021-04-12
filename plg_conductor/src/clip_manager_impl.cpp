@@ -322,7 +322,7 @@ bool cdtr::clip_manager_t::impl_t::rpc_get_selected_clips(void *context, const X
 
         if(get_clip.is_valid())
         {
-            String currentUuid=String::empty;
+            String currentUuid=String();
             XmlElement* c=0;
             while(get_clip.step_row())
             {

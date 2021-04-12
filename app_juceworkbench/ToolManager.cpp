@@ -370,55 +370,55 @@ void ToolManager::setupButtons()
 #else
    String commandKey="Cmd";
 #endif
-   dr=Drawable::createFromImageData(CustomCursor::pointer_off_png, CustomCursor::pointer_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::pointer_on_png, CustomCursor::pointer_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::pointer_off_png, CustomCursor::pointer_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::pointer_on_png, CustomCursor::pointer_on_pngSize).release();
    pointerButton_=setupButton(POINTERTOOL,"Pointer. ("+commandKey +" R)",  dr,dr2);
    pointerButton_->setToggleState(true,false);
 
-   dr=Drawable::createFromImageData(CustomCursor::move_off_png, CustomCursor::move_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::move_on_png, CustomCursor::move_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::move_off_png, CustomCursor::move_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::move_on_png, CustomCursor::move_on_pngSize).release();
    moveButton_=setupButton(MOVETOOL,"Move tool: move agents, trunks and hooks",  dr,dr2);
 
-   dr=Drawable::createFromImageData(CustomCursor::select_off_png, CustomCursor::select_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::select_on_png, CustomCursor::select_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::select_off_png, CustomCursor::select_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::select_on_png, CustomCursor::select_on_pngSize).release();
    selectButton_=setupButton(SELECTTOOL,"Select tool: drag to select agents, trunks and hooks within a rectangle",  dr,dr2);
 
-   dr=Drawable::createFromImageData(CustomCursor::zoom_off_png, CustomCursor::zoom_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::zoom_on_png, CustomCursor::zoom_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::zoom_off_png, CustomCursor::zoom_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::zoom_on_png, CustomCursor::zoom_on_pngSize).release();
    zoomButton_=setupButton(ZOOMTOOL,"Zoom tool: click or drag right to zoom in. Shift-click or drag left to zoom out",  dr,dr2);
 
-   dr=Drawable::createFromImageData(CustomCursor::edit_off_png, CustomCursor::edit_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::edit_on_png, CustomCursor::edit_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::edit_off_png, CustomCursor::edit_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::edit_on_png, CustomCursor::edit_on_pngSize).release();
    editButton_=setupButton(EDITTOOL,"Edit tool: click on an agent or port to display properties to edit. (" +commandKey +" E)",  dr,dr2);
 
-   dr=Drawable::createFromImageData(CustomCursor::connect_off_png, CustomCursor::connect_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::connect_on_png, CustomCursor::connect_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::connect_off_png, CustomCursor::connect_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::connect_on_png, CustomCursor::connect_on_pngSize).release();
    wiringButton_=setupButton(WIRINGTOOL,"Wiring tool: Drag from an agent box to create a new wire. " + commandKey + "-drag to disconnect a wire. (" + commandKey + " W)",  dr,dr2);
 
-   dr=Drawable::createFromImageData(CustomCursor::hock_off_png, CustomCursor::hock_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::hock_on_png, CustomCursor::hock_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::hock_off_png, CustomCursor::hock_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::hock_on_png, CustomCursor::hock_on_pngSize).release();
    hookButton_=setupButton(HOOKTOOL,"Hook tool: click anywhere on the canvas to create a wire hook at that position",  dr,dr2);
 
-   dr=Drawable::createFromImageData(CustomCursor::conduit_off_png, CustomCursor::conduit_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::conduit_on_png, CustomCursor::conduit_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::conduit_off_png, CustomCursor::conduit_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::conduit_on_png, CustomCursor::conduit_on_pngSize).release();
    trunkButton_=setupButton(TRUNKTOOL,"Trunk tool: drag on the canvas to create a new trunk, or on a trunk to resize it",  dr,dr2);
 
-   dr=Drawable::createFromImageData(CustomCursor::create_off_png, CustomCursor::create_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::create_on_png, CustomCursor::create_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::create_off_png, CustomCursor::create_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::create_on_png, CustomCursor::create_on_pngSize).release();
    createButton_=setupButton(CREATETOOL,"Create tool: click anywhere on the canvas to create a new agent at that position. ("+ commandKey +" A)",  dr,dr2);
 
-   dr=Drawable::createFromImageData(CustomCursor::delete_off_png, CustomCursor::delete_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::delete_on_png, CustomCursor::delete_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::delete_off_png, CustomCursor::delete_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::delete_on_png, CustomCursor::delete_on_pngSize).release();
    deleteButton_=setupButton(DELETETOOL,"Delete tool: click on an agent, wire, trunk or hook to delete it. " + commandKey +"-click on a wire to remove it from hooks and trunks.  (" +commandKey+ " D)",  dr,dr2);
 
-   dr=Drawable::createFromImageData(CustomCursor::help_off_png, CustomCursor::help_off_pngSize);
-   dr2=Drawable::createFromImageData(CustomCursor::help_on_png, CustomCursor::help_on_pngSize);
+   dr=Drawable::createFromImageData(CustomCursor::help_off_png, CustomCursor::help_off_pngSize).release();
+   dr2=Drawable::createFromImageData(CustomCursor::help_on_png, CustomCursor::help_on_pngSize).release();
    helpButton_=setupButton(HELPTOOL,"Help tool: displays help for agents and ports",  dr,dr2);
 }
 
 ToolbarButton* ToolManager::setupButton(int tool, String label, Drawable* img1, Drawable* img2)
 {
-    ToolbarButton* tbb =new ToolbarButton(tool,label,img1,img2);
+    ToolbarButton* tbb =new ToolbarButton(tool,label,std::unique_ptr<Drawable>(img1),std::unique_ptr<Drawable>(img2));
     tbb->setRadioGroupId(TOOLBUTTON_GROUP);
     tbb->setClickingTogglesState(true);
     tbb->addListener(this);

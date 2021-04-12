@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,14 +20,16 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     A container for holding a set of strings which are keyed by another string.
 
     @see StringArray
+
+    @tags{Core}
 */
 class JUCE_API  StringPairArray
 {
@@ -122,6 +124,10 @@ public:
     */
     void setIgnoresCase (bool shouldIgnoreCase);
 
+    /** Indicates whether a case-insensitive search is used when looking up a key string.
+    */
+    bool getIgnoresCase() const noexcept;
+
     //==============================================================================
     /** Returns a descriptive string containing the items.
         This is handy for dumping the contents of an array.
@@ -137,6 +143,9 @@ public:
     */
     void minimiseStorageOverheads();
 
+    //==============================================================================
+    /** Adds the contents of a map to this StringPairArray. */
+    void addMap (const std::map<String, String>& mapToAdd);
 
 private:
     //==============================================================================
@@ -145,3 +154,5 @@ private:
 
     JUCE_LEAK_DETECTOR (StringPairArray)
 };
+
+} // namespace juce

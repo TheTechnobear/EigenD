@@ -35,7 +35,7 @@
                                                                     //[/Comments]
 */
 class ModalComponent  : public Component,
-                        public ButtonListener
+                        public Button::Listener
 {
 public:
     //==============================================================================

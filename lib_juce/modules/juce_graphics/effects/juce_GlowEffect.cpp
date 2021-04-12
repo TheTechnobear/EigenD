@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,21 +23,17 @@
   ==============================================================================
 */
 
-GlowEffect::GlowEffect()
-  : radius (2.0f),
-    colour (Colours::white)
+namespace juce
 {
-}
 
-GlowEffect::~GlowEffect()
-{
-}
+GlowEffect::GlowEffect() {}
+GlowEffect::~GlowEffect() {}
 
-void GlowEffect::setGlowProperties (const float newRadius,
-                                    Colour newColour)
+void GlowEffect::setGlowProperties (float newRadius, Colour newColour, Point<int> pos)
 {
     radius = newRadius;
     colour = newColour;
+    offset = pos;
 }
 
 void GlowEffect::applyEffect (Image& image, Graphics& g, float scaleFactor, float alpha)
@@ -53,8 +48,10 @@ void GlowEffect::applyEffect (Image& image, Graphics& g, float scaleFactor, floa
     blurKernel.applyToImage (temp, image, image.getBounds());
 
     g.setColour (colour.withMultipliedAlpha (alpha));
-    g.drawImageAt (temp, 0, 0, true);
+    g.drawImageAt (temp, offset.x, offset.y, true);
 
     g.setOpacity (alpha);
-    g.drawImageAt (image, 0, 0, false);
+    g.drawImageAt (image, offset.x, offset.y, false);
 }
+
+} // namespace juce

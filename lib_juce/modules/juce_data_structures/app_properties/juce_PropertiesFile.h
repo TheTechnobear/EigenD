@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /** Wrapper on a file that stores a list of key/value data pairs.
@@ -40,6 +39,8 @@
     with it, and these will be signalled when a value changes.
 
     @see PropertySet
+
+    @tags{DataStructures}
 */
 class JUCE_API  PropertiesFile  : public PropertySet,
                                   public ChangeBroadcaster,
@@ -55,6 +56,7 @@ public:
     };
 
     //==============================================================================
+    /** Structure describing properties file options */
     struct JUCE_API  Options
     {
         /** Creates an empty Options structure.
@@ -177,7 +179,7 @@ public:
     /** Destructor.
         When deleted, the file will first call saveIfNeeded() to flush any changes to disk.
     */
-    ~PropertiesFile();
+    ~PropertiesFile() override;
 
     //==============================================================================
     /** Returns true if this file was created from a valid (or non-existent) file.
@@ -234,9 +236,9 @@ private:
     //==============================================================================
     File file;
     Options options;
-    bool loadedOk, needsWriting;
+    bool loadedOk = false, needsWriting = false;
 
-    typedef const ScopedPointer<InterProcessLock::ScopedLockType> ProcessScopedLock;
+    using ProcessScopedLock = const std::unique_ptr<InterProcessLock::ScopedLockType>;
     InterProcessLock::ScopedLockType* createProcessLock() const;
 
     void timerCallback() override;
@@ -245,6 +247,9 @@ private:
     bool loadAsXml();
     bool loadAsBinary();
     bool loadAsBinary (InputStream&);
+    bool writeToStream (OutputStream&);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PropertiesFile)
 };
+
+} // namespace juce

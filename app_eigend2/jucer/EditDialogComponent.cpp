@@ -37,25 +37,25 @@ EditDialogComponent::EditDialogComponent ()
       label2 (0),
       help_button (0),
       slot (0),
-      cachedImage_backgroundBoxInner_png (0),
-      cachedImage_backgroundBoxT_png (0),
-      cachedImage_backgroundBoxL_png (0),
-      cachedImage_backgroundBoxR_png (0),
-      cachedImage_backgroundBoxTl_png (0),
-      cachedImage_backgroundBoxTr_png (0),
-      cachedImage_backgroundBoxB_png (0),
-      cachedImage_backgroundBoxBr_png (0),
-      cachedImage_backgroundBoxBl_png (0),
-      cachedImage_textBoxTl_png (0),
-      cachedImage_textBoxTr_png (0),
-      cachedImage_textBoxBr_png (0),
-      cachedImage_textBoxBl_png (0),
-      cachedImage_textBoxL_png (0),
-      cachedImage_textBoxT_png (0),
-      cachedImage_textBoxR_png (0),
-      cachedImage_textBoxB_png (0),
-      cachedImage_textBoxInner_png (0),
-      cachedImage_eigenD_png (0)
+      cachedImage_backgroundBoxInner_png (nullptr),
+      cachedImage_backgroundBoxT_png (nullptr),
+      cachedImage_backgroundBoxL_png (nullptr),
+      cachedImage_backgroundBoxR_png (nullptr),
+      cachedImage_backgroundBoxTl_png (nullptr),
+      cachedImage_backgroundBoxTr_png (nullptr),
+      cachedImage_backgroundBoxB_png (nullptr),
+      cachedImage_backgroundBoxBr_png (nullptr),
+      cachedImage_backgroundBoxBl_png (nullptr),
+      cachedImage_textBoxTl_png (nullptr),
+      cachedImage_textBoxTr_png (nullptr),
+      cachedImage_textBoxBr_png (nullptr),
+      cachedImage_textBoxBl_png (nullptr),
+      cachedImage_textBoxL_png (nullptr),
+      cachedImage_textBoxT_png (nullptr),
+      cachedImage_textBoxR_png (nullptr),
+      cachedImage_textBoxB_png (nullptr),
+      cachedImage_textBoxInner_png (nullptr),
+      cachedImage_eigenD_png (nullptr)
 {
     addAndMakeVisible (description = new TextEditor ("new text editor"));
     description->setMultiLine (true);
@@ -68,7 +68,7 @@ EditDialogComponent::EditDialogComponent ()
     description->setColour (TextEditor::backgroundColourId, Colour (0x363636));
     description->setColour (TextEditor::highlightColourId, Colour (0x8c8b8b8b));
     description->setColour (TextEditor::shadowColourId, Colour (0x0));
-    description->setText (String::empty);
+    description->setText (String());
 
     addAndMakeVisible (save_button = new TextButton ("Save"));
     save_button->addListener (this);
@@ -83,7 +83,7 @@ EditDialogComponent::EditDialogComponent ()
     summary->setPopupMenuEnabled (true);
     summary->setColour (TextEditor::highlightColourId, Colour (0x8c8a8a8a));
     summary->setColour (TextEditor::shadowColourId, Colour (0x0));
-    summary->setText (String::empty);
+    summary->setText (String());
 
     addAndMakeVisible (label = new Label ("new label",
                                           "Short Tag:"));
@@ -107,7 +107,7 @@ EditDialogComponent::EditDialogComponent ()
     help_button->setColour (TextButton::buttonColourId, Colour (0xffaeaeae));
 
     addAndMakeVisible (slot = new Label ("slot",
-                                         String::empty));
+                                         String()));
     slot->setFont (Font (19.6000f, Font::plain));
     slot->setJustificationType (Justification::centredLeft);
     slot->setEditable (false, false, false);

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -35,13 +34,15 @@
     and to change the list of selected items.
 
     @see LassoComponent, SelectedItemSet
+
+    @tags{GUI}
 */
 template <class SelectableItemType>
 class LassoSource
 {
 public:
     /** Destructor. */
-    virtual ~LassoSource() {}
+    virtual ~LassoSource() = default;
 
     /** Returns the set of items that lie within a given lassoable region.
 
@@ -52,7 +53,7 @@ public:
         component. (i.e. they are the same as the size and position of the lasso
         component itself).
     */
-    virtual void findLassoItemsInArea (Array <SelectableItemType>& itemsFound,
+    virtual void findLassoItemsInArea (Array<SelectableItemType>& itemsFound,
                                        const Rectangle<int>& area) = 0;
 
     /** Returns the SelectedItemSet that the lasso should update.
@@ -92,6 +93,8 @@ public:
     xor'ed with any previously selected items.
 
     @see LassoSource, SelectedItemSet
+
+    @tags{GUI}
 */
 template <class SelectableItemType>
 class LassoComponent  : public Component
@@ -99,9 +102,7 @@ class LassoComponent  : public Component
 public:
     //==============================================================================
     /** Creates a Lasso component. */
-    LassoComponent()  : source (nullptr)
-    {
-    }
+    LassoComponent() = default;
 
     //==============================================================================
     /** Call this in your mouseDown event, to initialise a drag.
@@ -158,7 +159,7 @@ public:
             }
             else if (e.mods.isCommandDown() || e.mods.isAltDown())
             {
-                Array<SelectableItemType> originalMinusNew (originalSelection);
+                auto originalMinusNew = originalSelection;
                 originalMinusNew.removeValuesIn (itemsInLasso);
 
                 itemsInLasso.removeValuesIn (originalSelection);
@@ -214,8 +215,10 @@ public:
 private:
     //==============================================================================
     Array<SelectableItemType> originalSelection;
-    LassoSource<SelectableItemType>* source;
+    LassoSource<SelectableItemType>* source = nullptr;
     Point<int> dragStartPos;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LassoComponent)
 };
+
+} // namespace juce

@@ -104,7 +104,7 @@ XmlElement* ConductorClipManagerWidget::getColumnCategories()
     std::cout << "get column categories tags " << result << "\n";
 
     XmlDocument doc(result);
-    return doc.getDocumentElement();
+    return doc.getDocumentElement().release();
 }
 
 XmlElement* ConductorClipManagerWidget::getAllTags()
@@ -123,7 +123,7 @@ XmlElement* ConductorClipManagerWidget::getAllTags()
     std::cout << "get all tags " << result << "\n";
 
     XmlDocument doc(result);
-    return doc.getDocumentElement();
+    return doc.getDocumentElement().release();
 }
 
 XmlElement* ConductorClipManagerWidget::getSelectedClips(XmlElement* e)
@@ -140,7 +140,7 @@ XmlElement* ConductorClipManagerWidget::getSelectedClips(XmlElement* e)
     }
 
     XmlDocument doc(result);
-    return doc.getDocumentElement();
+    return doc.getDocumentElement().release();
 }
 
 void ConductorClipManagerWidget::addToClipPool(XmlElement *e, int index)
@@ -196,7 +196,7 @@ XmlElement* ConductorClipPoolWidget::getClipPoolClips()
 {
     //XXX initially just read from file to get it working
     XmlDocument doc(File("~/conductor_model/clip_pool.xml"));
-    XmlElement* e=(doc.getDocumentElement());
+    XmlElement* e=(doc.getDocumentElement().release());
     return e;
 }
 
@@ -218,7 +218,7 @@ XmlElement* ConductorArrangementViewWidget::getArrangement(int mode)
 {
     //XXX initially just read from file to get it working
     XmlDocument doc(File("~/conductor_model/arrangement1.xml"));
-    XmlElement* e=(doc.getDocumentElement());
+    XmlElement* e=(doc.getDocumentElement().release());
     return e;
 }
 
@@ -252,7 +252,7 @@ XmlElement* ConductorSceneViewWidget::getScene(int mode)
 {
     //XXX initially just read from file to get it working
     XmlDocument doc(File("~/conductor_model/scene1.xml"));
-    XmlElement* e=(doc.getDocumentElement());
+    XmlElement* e=(doc.getDocumentElement().release());
     return e;
 }
 

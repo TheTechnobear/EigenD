@@ -1044,8 +1044,8 @@ Trunk::Trunk(PropertyStore* props, float zoomFactor, int orientation)
     int y=ceil(((float)trueY_*zoomFactor_)-0.5);
     setBounds(x,y,ceil(((float)zoomFactor*trueWidth_)-0.5), ceil(((float)zoomFactor*trueHeight_)-0.5));
     mouseMode=0;
-    selected_=String::empty;
-    foregrounded_=String::empty;
+    selected_=String();
+    foregrounded_=String();
     deleteOnDragEnd_=false;
     move_init_=false;
     extending_=false;
@@ -2337,7 +2337,7 @@ void Trunk::doSetForegrounded(bool foregrounded, String id)
     }
     else
     {
-        foregrounded_=String::empty;
+        foregrounded_=String();
         setAlwaysOnTop(false);
         toBehind(getMainPanel()->getDisplayLayer());
     }
@@ -2828,7 +2828,7 @@ void Trunk::removeId(String id)
     pic::logmsg()<<"Trunk removeId "<<std::string(id.toUTF8());
     if(id==selected_)
     {
-        selected_=String::empty;
+        selected_=String();
     }
     TrunkInput * t=getInput(id);
     String listname="input"+String(id.hashCode());

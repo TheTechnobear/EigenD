@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 namespace FontValues
 {
@@ -37,7 +39,7 @@ namespace FontValues
     String fallbackFontStyle;
 }
 
-typedef Typeface::Ptr (*GetTypefaceForFont) (const Font&);
+using GetTypefaceForFont = Typeface::Ptr (*)(const Font&);
 GetTypefaceForFont juce_getTypefaceForFont = nullptr;
 
 float Font::getDefaultMinimumHorizontalScaleFactor() noexcept                { return FontValues::minimumHorizontalScale; }
@@ -57,7 +59,7 @@ public:
         clearSingletonInstance();
     }
 
-    juce_DeclareSingleton (TypefaceCache, false)
+    JUCE_DECLARE_SINGLETON (TypefaceCache, false)
 
     void setSize (const int numToCache)
     {
@@ -77,24 +79,26 @@ public:
 
     Typeface::Ptr findTypefaceFor (const Font& font)
     {
-        const ScopedReadLock slr (lock);
-
-        auto faceName = font.getTypefaceName();
-        auto faceStyle = font.getTypefaceStyle();
+        const auto faceName = font.getTypefaceName();
+        const auto faceStyle = font.getTypefaceStyle();
 
         jassert (faceName.isNotEmpty());
 
-        for (int i = faces.size(); --i >= 0;)
         {
-            CachedFace& face = faces.getReference(i);
+            const ScopedReadLock slr (lock);
 
-            if (face.typefaceName == faceName
-                 && face.typefaceStyle == faceStyle
-                 && face.typeface != nullptr
-                 && face.typeface->isSuitableForFont (font))
+            for (int i = faces.size(); --i >= 0;)
             {
-                face.lastUsageCount = ++counter;
-                return face.typeface;
+                CachedFace& face = faces.getReference(i);
+
+                if (face.typefaceName == faceName
+                     && face.typefaceStyle == faceStyle
+                     && face.typeface != nullptr
+                     && face.typeface->isSuitableForFont (font))
+                {
+                    face.lastUsageCount = ++counter;
+                    return face.typeface;
+                }
             }
         }
 
@@ -136,14 +140,14 @@ public:
 private:
     struct CachedFace
     {
-        CachedFace() noexcept  : lastUsageCount (0) {}
+        CachedFace() noexcept {}
 
         // Although it seems a bit wacky to store the name here, it's because it may be a
         // placeholder rather than a real one, e.g. "<Sans-Serif>" vs the actual typeface name.
         // Since the typeface itself doesn't know that it may have this alias, the name under
         // which it was fetched needs to be stored separately.
         String typefaceName, typefaceStyle;
-        size_t lastUsageCount;
+        size_t lastUsageCount = 0;
         Typeface::Ptr typeface;
     };
 
@@ -154,7 +158,7 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TypefaceCache)
 };
 
-juce_ImplementSingleton (TypefaceCache)
+JUCE_IMPLEMENT_SINGLETON (TypefaceCache)
 
 void Typeface::setTypefaceCacheSize (int numFontsToCache)
 {
@@ -277,13 +281,13 @@ Font& Font::operator= (const Font& other) noexcept
 }
 
 Font::Font (Font&& other) noexcept
-    : font (static_cast<ReferenceCountedObjectPtr<SharedFontInternal>&&> (other.font))
+    : font (std::move (other.font))
 {
 }
 
 Font& Font::operator= (Font&& other) noexcept
 {
-    font = static_cast<ReferenceCountedObjectPtr<SharedFontInternal>&&> (other.font);
+    font = std::move (other.font);
     return *this;
 }
 
@@ -305,7 +309,7 @@ bool Font::operator!= (const Font& other) const noexcept
 void Font::dupeInternalIfShared()
 {
     if (font->getReferenceCount() > 1)
-        font = new SharedFontInternal (*font);
+        font = *new SharedFontInternal (*font);
 }
 
 void Font::checkTypefaceSuitability()
@@ -323,7 +327,7 @@ struct FontPlaceholderNames
            regular { "<Regular>" };
 };
 
-const FontPlaceholderNames& getFontPlaceholderNames()
+static const FontPlaceholderNames& getFontPlaceholderNames()
 {
     static FontPlaceholderNames names;
     return names;
@@ -389,7 +393,7 @@ Typeface* Font::getTypeface() const
         jassert (font->typeface != nullptr);
     }
 
-    return font->typeface;
+    return font->typeface.get();
 }
 
 //==============================================================================
@@ -625,16 +629,24 @@ int Font::getStringWidth (const String& text) const
 
 float Font::getStringWidthFloat (const String& text) const
 {
+    // This call isn't thread-safe when there's a message thread running
+    jassert (MessageManager::getInstanceWithoutCreating() == nullptr
+               || MessageManager::getInstanceWithoutCreating()->currentThreadHasLockedMessageManager());
+
     auto w = getTypeface()->getStringWidth (text);
 
     if (font->kerning != 0.0f)
-        w += font->kerning * text.length();
+        w += font->kerning * (float) text.length();
 
     return w * font->height * font->horizontalScale;
 }
 
 void Font::getGlyphPositions (const String& text, Array<int>& glyphs, Array<float>& xOffsets) const
 {
+    // This call isn't thread-safe when there's a message thread running
+    jassert (MessageManager::getInstanceWithoutCreating() == nullptr
+               || MessageManager::getInstanceWithoutCreating()->currentThreadHasLockedMessageManager());
+
     getTypeface()->getGlyphPositions (text, glyphs, xOffsets);
 
     if (auto num = xOffsets.size())
@@ -645,7 +657,7 @@ void Font::getGlyphPositions (const String& text, Array<int>& glyphs, Array<floa
         if (font->kerning != 0.0f)
         {
             for (int i = 0; i < num; ++i)
-                x[i] = (x[i] + i * font->kerning) * scale;
+                x[i] = (x[i] + (float) i * font->kerning) * scale;
         }
         else
         {
@@ -707,3 +719,5 @@ Font Font::fromString (const String& fontDescription)
 
     return Font (name, style, height);
 }
+
+} // namespace juce

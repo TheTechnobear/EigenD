@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -32,6 +32,8 @@
     formatted to meet the RFC 4122 version 4 standard.
 
     The class includes methods for saving the ID as a string or as raw binary data.
+
+    @tags{Core}
 */
 class JUCE_API  Uuid
 {
@@ -103,6 +105,9 @@ public:
     /** Returns the node section of the UUID. */
     uint64 getNode() const noexcept;
 
+    /** Returns a hash of the UUID. */
+    uint64 hash() const noexcept;
+
     //==============================================================================
     /** Returns a pointer to the internal binary representation of the ID.
 
@@ -128,3 +133,15 @@ private:
 
     JUCE_LEAK_DETECTOR (Uuid)
 };
+
+} // namespace juce
+
+#if ! DOXYGEN
+namespace std
+{
+    template <> struct hash<juce::Uuid>
+    {
+        size_t operator() (const juce::Uuid& u) const noexcept   { return (size_t) u.hash(); }
+    };
+}
+#endif

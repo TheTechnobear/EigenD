@@ -94,5 +94,5 @@ String Clip::getCategory()
         }
         c=c->getNextElementWithTagName("Tag");
     }
-    return String::empty;
+    return String();
 }

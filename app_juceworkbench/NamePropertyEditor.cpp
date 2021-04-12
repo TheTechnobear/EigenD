@@ -88,7 +88,7 @@ NamePropertyEditor::NamePropertyEditor (Atom* atom)
     textEditor->setScrollbarsShown (true);
     textEditor->setCaretVisible (true);
     textEditor->setPopupMenuEnabled (true);
-    textEditor->setText (String::empty);
+    textEditor->setText (String());
 
 
     //[UserPreSize]

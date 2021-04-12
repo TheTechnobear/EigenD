@@ -35,7 +35,7 @@
                                                                     //[/Comments]
 */
 class JucerScanCtlComponent  : public Component,
-                               public ButtonListener
+                               public Button::Listener
 {
 public:
     //==============================================================================

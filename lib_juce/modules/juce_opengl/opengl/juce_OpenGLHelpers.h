@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,12 +23,14 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     A set of miscellaneous openGL helper functions.
+
+    @tags{OpenGL}
 */
 class JUCE_API  OpenGLHelpers
 {
@@ -43,7 +44,7 @@ public:
     /** Clears the current context using the given colour. */
     static void clear (Colour colour);
 
-    static void enableScissorTest (const Rectangle<int>& clip);
+    static void enableScissorTest (Rectangle<int> clip);
 
     /** Checks whether the current context supports the specified extension. */
     static bool isExtensionSupported (const char* extensionName);
@@ -69,3 +70,5 @@ public:
     */
     static String translateFragmentShaderToV3 (const String&);
 };
+
+} // namespace juce

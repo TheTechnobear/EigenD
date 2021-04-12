@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,6 +19,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 Logger::Logger() {}
 
@@ -46,7 +49,7 @@ void Logger::writeToLog (const String& message)
 void JUCE_API JUCE_CALLTYPE logAssertion (const char* const filename, const int lineNum) noexcept
 {
     String m ("JUCE Assertion failure in ");
-    m << File::createFileWithoutCheckingPath (filename).getFileName() << ':' << lineNum;
+    m << File::createFileWithoutCheckingPath (CharPointer_UTF8 (filename)).getFileName() << ':' << lineNum;
 
    #if JUCE_LOG_ASSERTIONS
     Logger::writeToLog (m);
@@ -55,3 +58,5 @@ void JUCE_API JUCE_CALLTYPE logAssertion (const char* const filename, const int 
    #endif
 }
 #endif
+
+} // namespace juce

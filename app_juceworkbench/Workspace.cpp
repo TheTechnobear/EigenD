@@ -908,7 +908,7 @@ void Workspace::readState(String p)
     pic::logmsg()<<"readState";
     tmpProps_.clear();
     XmlDocument doc(p);
-    properties_=doc.getDocumentElement();
+    properties_=doc.getDocumentElement().release();
 
     XmlElement* e=properties_->getFirstChildElement();
     while(e!=0)

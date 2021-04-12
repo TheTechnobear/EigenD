@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,6 +19,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 /*
     Note that a lot of methods that you'd expect to find in this file actually
@@ -52,26 +55,20 @@ JUCE_API void JUCE_CALLTYPE Process::makeForegroundProcess()
 
 JUCE_API void JUCE_CALLTYPE Process::hide()
 {
-   #if JUCE_MAC
     if (! SystemStats::isRunningInAppExtensionSandbox())
+    {
+       #if JUCE_MAC
         [NSApp hide: nil];
-   #endif
+       #elif JUCE_IOS
+        [[UIApplication sharedApplication] performSelector: @selector(suspend)];
+       #endif
+    }
 }
 
-JUCE_API void JUCE_CALLTYPE Process::raisePrivilege()
-{
-    jassertfalse;
-}
+JUCE_API void JUCE_CALLTYPE Process::raisePrivilege() {}
+JUCE_API void JUCE_CALLTYPE Process::lowerPrivilege() {}
 
-JUCE_API void JUCE_CALLTYPE Process::lowerPrivilege()
-{
-    jassertfalse;
-}
-
-JUCE_API void JUCE_CALLTYPE Process::setPriority (ProcessPriority)
-{
-    // xxx
-}
+JUCE_API void JUCE_CALLTYPE Process::setPriority (ProcessPriority) {}
 
 //==============================================================================
 JUCE_API bool JUCE_CALLTYPE juce_isRunningUnderDebugger() noexcept
@@ -79,6 +76,8 @@ JUCE_API bool JUCE_CALLTYPE juce_isRunningUnderDebugger() noexcept
     struct kinfo_proc info;
     int m[] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid() };
     size_t sz = sizeof (info);
-    sysctl (m, 4, &info, &sz, 0, 0);
+    sysctl (m, 4, &info, &sz, nullptr, 0);
     return (info.kp_proc.p_flag & P_TRACED) != 0;
 }
+
+} // namespace juce

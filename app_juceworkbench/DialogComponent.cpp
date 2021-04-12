@@ -60,7 +60,7 @@ DialogComponent::DialogComponent (Component* propPanel, int mode)
 
 
     //[UserPreSize]
-    id_=String::empty;
+    id_=String();
     if (mode_==0)
     {
         okButton->setVisible(false);

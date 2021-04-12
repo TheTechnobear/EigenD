@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,11 +19,18 @@
 
   ==============================================================================
 */
+#ifndef JUCE_DUMP_LITTLEFOOT_HEAP_STATUS
+  #define JUCE_DUMP_LITTLEFOOT_HEAP_STATUS 0
+#endif
+
+#if JUCE_DUMP_LITTLEFOOT_HEAP_STATUS
+ #define JUCE_LOG_LITTLEFOOT_HEAP(text) DBG(text)
+#else
+ #define JUCE_LOG_LITTLEFOOT_HEAP(text)
+#endif
 
 namespace littlefoot
 {
-
-using namespace juce;
 
 //==============================================================================
 /**
@@ -32,6 +39,8 @@ using namespace juce;
 
     Data in the block can be changed by calling setByte, setBytes, setBits etc, and
     these changes will be flushed to the device when sendChanges is called.
+
+    @tags{Blocks}
 */
 template <typename ImplementationClass>
 struct LittleFootRemoteHeap
@@ -41,15 +50,27 @@ struct LittleFootRemoteHeap
         resetDeviceStateToUnknown();
     }
 
-    void clear() noexcept
+    void reset()
     {
+        JUCE_LOG_LITTLEFOOT_HEAP ("Resetting heap state");
+        clearTargetData();
+        resetDeviceStateToUnknown();
+        lastPacketIndexReceived = 0;
+    }
+
+    void clearTargetData() noexcept
+    {
+        JUCE_LOG_LITTLEFOOT_HEAP ("Clearing target heap data");
         zeromem (targetData, sizeof (targetData));
-        invalidateData();
+        needsSyncing = true;
+        programStateKnown = false;
     }
 
     void resetDeviceStateToUnknown()
     {
-        invalidateData();
+        JUCE_LOG_LITTLEFOOT_HEAP ("Resetting device state to unknown");
+        needsSyncing = true;
+        programStateKnown = false;
         messagesSent.clear();
         resetDataRangeToUnknown (0, ImplementationClass::maxBlockSize);
     }
@@ -64,20 +85,19 @@ struct LittleFootRemoteHeap
 
     void setByte (size_t offset, uint8 value) noexcept
     {
-        if (offset < blockSize)
-        {
-            if (targetData[offset] != value)
-            {
-                targetData[offset] = value;
-                needsSyncing = true;
-
-                if (programStateKnown && offset < programSize)
-                    programStateKnown = false;
-            }
-        }
-        else
+        if (offset >= blockSize)
         {
             jassertfalse;
+            return;
+        }
+
+        if (targetData[offset] != value)
+        {
+            targetData[offset] = value;
+            needsSyncing = true;
+
+            if (offset < programSize)
+                programStateKnown = false;
         }
     }
 
@@ -97,8 +117,14 @@ struct LittleFootRemoteHeap
 
         if (readLittleEndianBitsInBuffer (targetData, startBit, numBits) != value)
         {
+            JUCE_LOG_LITTLEFOOT_HEAP ("Set bits sync " << String (startBit) << " " << String (numBits) << String (value));
+
             writeLittleEndianBitsInBuffer (targetData, startBit, numBits, value);
-            invalidateData();
+
+            needsSyncing = true;
+
+            if (startBit < programSize)
+                programStateKnown = false;
         }
     }
 
@@ -111,15 +137,18 @@ struct LittleFootRemoteHeap
         return 0;
     }
 
-    void invalidateData() noexcept
-    {
-        needsSyncing = true;
-        programStateKnown = false;
-    }
-
     bool isFullySynced() const noexcept
     {
         return ! needsSyncing;
+    }
+
+    static bool isAllZero (const uint8* data, size_t size) noexcept
+    {
+        for (size_t i = 0; i < size; ++i)
+            if (data[i] != 0)
+                return false;
+
+        return true;
     }
 
     void sendChanges (ImplementationClass& bi, bool forceSend)
@@ -128,6 +157,9 @@ struct LittleFootRemoteHeap
         {
             for (int maxChanges = 30; --maxChanges >= 0;)
             {
+                if (isAllZero (targetData, blockSize))
+                    break;
+
                 uint16 data[ImplementationClass::maxBlockSize];
                 auto* latestState = getLatestExpectedDataState();
 
@@ -153,7 +185,8 @@ struct LittleFootRemoteHeap
 
             m->dispatchTime = Time::getCurrentTime();
             bi.sendMessageToDevice (m->packet);
-            //DBG ("Sending packet " << (int) m->packetIndex << " - " << m->packet.size() << " bytes, device " << bi.getDeviceIndex());
+
+            JUCE_LOG_LITTLEFOOT_HEAP ("Sending packet " << (int) m->packetIndex << " - " << m->packet.size() << " bytes, device " << bi.getDeviceIndex());
 
             if (getTotalSizeOfMessagesSent() > 200)
                 break;
@@ -162,42 +195,45 @@ struct LittleFootRemoteHeap
 
     void handleACKFromDevice (ImplementationClass& bi, uint32 packetIndex) noexcept
     {
-        //DBG ("ACK " << (int) packetIndex << "   device " << (int) bi.getDeviceIndex());
+        if (packetIndex == lastPacketIndexReceived)
+            return;
 
-        if (lastPacketIndexReceived != packetIndex)
+        JUCE_LOG_LITTLEFOOT_HEAP ("ACK " << (int) packetIndex << "   device " << (int) bi.getDeviceIndex()
+                                  << ", last packet received " << String (lastPacketIndexReceived));
+
+        lastPacketIndexReceived = packetIndex;
+
+        for (int i = messagesSent.size(); --i >= 0;)
         {
-            lastPacketIndexReceived = packetIndex;
+            auto& m = *messagesSent.getUnchecked(i);
 
-            for (int i = messagesSent.size(); --i >= 0;)
+            if (m.packetIndex == packetIndex)
             {
-                auto& m = *messagesSent.getUnchecked(i);
+                for (uint32 j = 0; j < blockSize; ++j)
+                    deviceState[j] = m.resultDataState[j];
 
-                if (m.packetIndex == packetIndex)
+                programStateKnown = false;
+                messagesSent.removeRange (0, i + 1);
+                dumpStatus();
+                sendChanges (bi, false);
+
+                if (messagesSent.isEmpty())
                 {
-                    for (uint32 j = 0; j < blockSize; ++j)
-                        deviceState[j] = m.resultDataState[j];
-
-                    messagesSent.removeRange (0, i + 1);
-                    dumpStatus();
-                    sendChanges (bi, false);
-
-                    if (messagesSent.isEmpty())
-                        needsSyncing = false;
-
-                    return;
+                    JUCE_LOG_LITTLEFOOT_HEAP ("Heap fully synced");
+                    needsSyncing = false;
                 }
-            }
 
-            resetDeviceStateToUnknown();
+                return;
+            }
         }
+
+        resetDeviceStateToUnknown();
     }
 
     bool isProgramLoaded() noexcept
     {
         if (! programStateKnown)
         {
-            programStateKnown = true;
-
             uint8 deviceMemory[ImplementationClass::maxBlockSize];
 
             for (size_t i = 0; i < blockSize; ++i)
@@ -206,6 +242,8 @@ struct LittleFootRemoteHeap
             littlefoot::Program prog (deviceMemory, (uint32) blockSize);
             programLoaded = prog.checksumMatches();
             programSize = prog.getProgramSize();
+
+            programStateKnown = true;
         }
 
         return programLoaded;
@@ -216,7 +254,7 @@ struct LittleFootRemoteHeap
     static constexpr uint16 unknownByte = 0x100;
 
 private:
-    uint16 deviceState[ImplementationClass::maxBlockSize];
+    uint16 deviceState[ImplementationClass::maxBlockSize] = { 0 };
     uint8 targetData[ImplementationClass::maxBlockSize] = { 0 };
     uint32 programSize = 0;
     bool needsSyncing = true, programStateKnown = true, programLoaded = false;
@@ -251,7 +289,7 @@ private:
 
     void dumpStatus()
     {
-       #if DUMP_LITTLEFOOT_HEAP_STATUS
+       #if JUCE_DUMP_LITTLEFOOT_HEAP_STATUS
         int differences = 0;
         constexpr int diffLen = 50;
         char areas[diffLen + 1] = { 0 };
@@ -270,10 +308,10 @@ private:
 
         double proportionOK = ((int) blockSize - differences) / (double) blockSize;
 
-        juce::ignoreUnused (proportionOK);
+        ignoreUnused (proportionOK);
 
-        DBG ("Heap: " << areas << "  " << String (roundToInt (100 * proportionOK)) << "%  "
-               << (isProgramLoaded() ? "Ready" : "Loading"));
+        JUCE_LOG_LITTLEFOOT_HEAP ("Heap: " << areas << "  " << String (roundToInt (100 * proportionOK))
+                                     << "%  " << (isProgramLoaded() ? "Ready" : "Loading"));
        #endif
     }
 

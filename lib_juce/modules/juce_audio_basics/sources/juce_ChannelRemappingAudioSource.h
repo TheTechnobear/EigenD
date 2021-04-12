@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -37,6 +37,8 @@
     it'll produce silence.
 
     @see AudioSource
+
+    @tags{Audio}
 */
 class ChannelRemappingAudioSource  : public AudioSource
 {
@@ -54,7 +56,7 @@ public:
                                  bool deleteSourceWhenDeleted);
 
     /** Destructor. */
-    ~ChannelRemappingAudioSource();
+    ~ChannelRemappingAudioSource() override;
 
     //==============================================================================
     /** Specifies a number of channels that this audio source must produce from its
@@ -110,7 +112,7 @@ public:
     /** Returns an XML object to encapsulate the state of the mappings.
         @see restoreFromXml
     */
-    XmlElement* createXml() const;
+    std::unique_ptr<XmlElement> createXml() const;
 
     /** Restores the mappings from an XML object created by createXML().
         @see createXml
@@ -129,9 +131,11 @@ private:
     Array<int> remappedInputs, remappedOutputs;
     int requiredNumberOfChannels;
 
-    AudioSampleBuffer buffer;
+    AudioBuffer<float> buffer;
     AudioSourceChannelInfo remappedInfo;
     CriticalSection lock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelRemappingAudioSource)
 };
+
+} // namespace juce

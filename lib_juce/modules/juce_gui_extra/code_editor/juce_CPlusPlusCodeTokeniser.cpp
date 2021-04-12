@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#include "juce_CPlusPlusCodeTokeniserFunctions.h"
-
+namespace juce
+{
 
 //==============================================================================
 CPlusPlusCodeTokeniser::CPlusPlusCodeTokeniser() {}
@@ -61,8 +60,8 @@ CodeEditorComponent::ColourScheme CPlusPlusCodeTokeniser::getDefaultColourScheme
 
     CodeEditorComponent::ColourScheme cs;
 
-    for (unsigned int i = 0; i < sizeof (types) / sizeof (types[0]); ++i)  // (NB: numElementsInArray doesn't work here in GCC4.2)
-        cs.set (types[i].name, Colour (types[i].colour));
+    for (auto& t : types)
+        cs.set (t.name, Colour (t.colour));
 
     return cs;
 }
@@ -71,3 +70,5 @@ bool CPlusPlusCodeTokeniser::isReservedKeyword (const String& token) noexcept
 {
     return CppTokeniserFunctions::isReservedKeyword (token.getCharPointer(), token.length());
 }
+
+} // namespace juce

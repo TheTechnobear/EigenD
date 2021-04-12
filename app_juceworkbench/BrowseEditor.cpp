@@ -61,7 +61,7 @@ BrowseEditor::BrowseEditor (Atom* atom, String name)
     addAndMakeVisible (comboBox = new ComboBox ("comboBox"));
     comboBox->setEditableText (false);
     comboBox->setJustificationType (Justification::centredLeft);
-    comboBox->setTextWhenNothingSelected (String::empty);
+    comboBox->setTextWhenNothingSelected (String());
     comboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     comboBox->addListener (this);
 
@@ -72,7 +72,7 @@ BrowseEditor::BrowseEditor (Atom* atom, String name)
     textEditor->setScrollbarsShown (true);
     textEditor->setCaretVisible (false);
     textEditor->setPopupMenuEnabled (true);
-    textEditor->setText (String::empty);
+    textEditor->setText (String());
 
     addAndMakeVisible (browseButton = new TextButton ("browsebutton"));
     browseButton->setButtonText (TRANS("Browse"));
@@ -85,7 +85,7 @@ BrowseEditor::BrowseEditor (Atom* atom, String name)
     browseButton->setVisible(false);
     comboBox->setColour(ComboBox::buttonColourId, Colour(0xffaeaeae));
     comboBox->setText("Fetching...",true);
-    comboBox->setTooltip(String::empty);
+    comboBox->setTooltip(String());
     mode_=FLAT;
     //[/UserPreSize]
 
@@ -162,7 +162,7 @@ void BrowseEditor::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         {
            if(currentText==i->second)
            {
-                atom_->activate(String::empty,i->first);
+                atom_->activate(String(),i->first);
                 break;
            }
         }
@@ -204,7 +204,7 @@ void BrowseEditor::setChangingValue()
     if(mode_==TREE)
     {
         textEditor->setText("Setting value...",true);
-        textEditor->setTooltip(String::empty);
+        textEditor->setTooltip(String());
     }
 }
 
@@ -242,7 +242,7 @@ void BrowseEditor::current(String cookie)
         {
             pic::logmsg()<<"current value "<<std::string(cookie.toUTF8())<<" not a key in finfo";
             comboBox->setText("Not set",true);
-            comboBox->setTooltip(String::empty);
+            comboBox->setTooltip(String());
         }
     }
 }
@@ -261,7 +261,7 @@ void BrowseEditor::enumerate_updated(String path,int nf,int nc)
         }
         else
         {
-            atom_->finfo(String::empty);
+            atom_->finfo(String());
         }
     }
     else
@@ -269,13 +269,13 @@ void BrowseEditor::enumerate_updated(String path,int nf,int nc)
         mode_=TREE;
         if(treeContent_==0)
         {
-            comboBox->setText(String::empty,true);
-            comboBox->setTooltip(String::empty);
+            comboBox->setText(String(),true);
+            comboBox->setTooltip(String());
             comboBox->setVisible(false);
             textEditor->setVisible(true);
             browseButton->setVisible(true);
-            textEditor->setText(String::empty,false);
-            textEditor->setTooltip (String::empty);
+            textEditor->setText(String(),false);
+            textEditor->setTooltip (String());
 
             pic::logmsg()<<"current value "<<std::string(atom_->get_value().toUTF8());
             // XXX

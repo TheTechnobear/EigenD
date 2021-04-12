@@ -33,7 +33,10 @@
 
 struct midi::midi_output_port_t::impl_t: piw::thing_t, pic::safe_worker_t
 {
-    impl_t(midi::midi_output_port_t *delegate_output): pic::safe_worker_t(10,PIC_THREAD_PRIORITY_HIGH), current_(-1), delegate_(delegate_output),output_(0),virtual_output_(0),running_(false), null_device_name_(NULL_DEVICE)
+    impl_t(midi::midi_output_port_t *delegate_output): 
+        pic::safe_worker_t(10,PIC_THREAD_PRIORITY_HIGH), current_(-1), delegate_(delegate_output),
+        output_(nullptr),virtual_output_(nullptr),
+        running_(false), null_device_name_(NULL_DEVICE)
     {
         piw::tsd_thing(this);
     }
@@ -48,14 +51,12 @@ struct midi::midi_output_port_t::impl_t: piw::thing_t, pic::safe_worker_t
 
             if(output_)
             {
-                delete output_;
-                output_=0;
+                output_=nullptr;
             }
 
             if(virtual_output_)
             {
-                delete virtual_output_;
-                virtual_output_=0;
+                virtual_output_=nullptr;
             }
         }
     }
@@ -103,8 +104,7 @@ struct midi::midi_output_port_t::impl_t: piw::thing_t, pic::safe_worker_t
             {
                 if(output_ && old_devices[0].hashCode()==current_)
                 {
-                    delete output_;
-                    output_=0;
+                    output_=nullptr;
                     current_=-1;
                 }
 
@@ -197,8 +197,7 @@ struct midi::midi_output_port_t::impl_t: piw::thing_t, pic::safe_worker_t
     {
         if(output_)
         {
-            delete output_;
-            output_ = 0;
+            output_ = nullptr;
         }
 
         current_ = uid;
@@ -214,8 +213,7 @@ struct midi::midi_output_port_t::impl_t: piw::thing_t, pic::safe_worker_t
 
         if(virtual_output_)
         {
-            delete virtual_output_;
-            virtual_output_=0;
+            virtual_output_=nullptr;
         }
 
         virtual_name_ = juce::String::fromUTF8(name.c_str());
@@ -226,8 +224,8 @@ struct midi::midi_output_port_t::impl_t: piw::thing_t, pic::safe_worker_t
     juce::StringArray devices_;
     juce::String virtual_name_;
     midi::midi_output_port_t *delegate_;
-    juce::MidiOutput *output_;
-    juce::MidiOutput *virtual_output_;
+    std::unique_ptr<juce::MidiOutput> output_;
+    std::unique_ptr<juce::MidiOutput> virtual_output_;
     bool running_;
     juce::String null_device_name_;
 };

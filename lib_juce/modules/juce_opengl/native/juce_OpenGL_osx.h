@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,6 +23,11 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
+JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
+
 class OpenGLContext::NativeContext
 {
 public:
@@ -32,7 +36,6 @@ public:
                    void* contextToShare,
                    bool shouldUseMultisampling,
                    OpenGLVersion version)
-        : lastSwapTime (0), minSwapTimeMs (0), underrunCounter (0)
     {
         NSOpenGLPixelFormatAttribute attribs[64] = { 0 };
         createAttribs (attribs, version, pixFormat, shouldUseMultisampling);
@@ -43,15 +46,15 @@ public:
         view = [cls.createInstance() initWithFrame: NSMakeRect (0, 0, 100.0f, 100.0f)
                                        pixelFormat: format];
 
-       #if defined (MAC_OS_X_VERSION_10_7) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_7)
         if ([view respondsToSelector: @selector (setWantsBestResolutionOpenGLSurface:)])
             [view setWantsBestResolutionOpenGLSurface: YES];
-       #endif
 
+        JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wundeclared-selector")
         [[NSNotificationCenter defaultCenter] addObserver: view
                                                  selector: @selector (_surfaceNeedsUpdate:)
                                                      name: NSViewGlobalFrameDidChangeNotification
                                                    object: view];
+        JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
         renderContext = [[[NSOpenGLContext alloc] initWithFormat: format
                                                     shareContext: (NSOpenGLContext*) contextToShare] autorelease];
@@ -68,7 +71,7 @@ public:
         [renderContext clearDrawable];
         [renderContext setView: nil];
         [view setOpenGLContext: nil];
-        renderContext = nil;
+        [view release];
     }
 
     static void createAttribs (NSOpenGLPixelFormatAttribute* attribs, OpenGLVersion version,
@@ -78,42 +81,42 @@ public:
         int numAttribs = 0;
 
        #if JUCE_OPENGL3
-        attribs [numAttribs++] = NSOpenGLPFAOpenGLProfile;
-        attribs [numAttribs++] = version >= openGL3_2 ? NSOpenGLProfileVersion3_2Core
-                                                      : NSOpenGLProfileVersionLegacy;
+        attribs[numAttribs++] = NSOpenGLPFAOpenGLProfile;
+        attribs[numAttribs++] = version >= openGL3_2 ? NSOpenGLProfileVersion3_2Core
+                                                     : NSOpenGLProfileVersionLegacy;
        #endif
 
-        attribs [numAttribs++] = NSOpenGLPFADoubleBuffer;
-        attribs [numAttribs++] = NSOpenGLPFAClosestPolicy;
-        attribs [numAttribs++] = NSOpenGLPFANoRecovery;
-        attribs [numAttribs++] = NSOpenGLPFAColorSize;
-        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) (pixFormat.redBits + pixFormat.greenBits + pixFormat.blueBits);
-        attribs [numAttribs++] = NSOpenGLPFAAlphaSize;
-        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.alphaBits;
-        attribs [numAttribs++] = NSOpenGLPFADepthSize;
-        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.depthBufferBits;
-        attribs [numAttribs++] = NSOpenGLPFAStencilSize;
-        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.stencilBufferBits;
-        attribs [numAttribs++] = NSOpenGLPFAAccumSize;
-        attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) (pixFormat.accumulationBufferRedBits + pixFormat.accumulationBufferGreenBits
+        attribs[numAttribs++] = NSOpenGLPFADoubleBuffer;
+        attribs[numAttribs++] = NSOpenGLPFAClosestPolicy;
+        attribs[numAttribs++] = NSOpenGLPFANoRecovery;
+        attribs[numAttribs++] = NSOpenGLPFAColorSize;
+        attribs[numAttribs++] = (NSOpenGLPixelFormatAttribute) (pixFormat.redBits + pixFormat.greenBits + pixFormat.blueBits);
+        attribs[numAttribs++] = NSOpenGLPFAAlphaSize;
+        attribs[numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.alphaBits;
+        attribs[numAttribs++] = NSOpenGLPFADepthSize;
+        attribs[numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.depthBufferBits;
+        attribs[numAttribs++] = NSOpenGLPFAStencilSize;
+        attribs[numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.stencilBufferBits;
+        attribs[numAttribs++] = NSOpenGLPFAAccumSize;
+        attribs[numAttribs++] = (NSOpenGLPixelFormatAttribute) (pixFormat.accumulationBufferRedBits + pixFormat.accumulationBufferGreenBits
                                                                    + pixFormat.accumulationBufferBlueBits + pixFormat.accumulationBufferAlphaBits);
 
         if (shouldUseMultisampling)
         {
-            attribs [numAttribs++] = NSOpenGLPFAMultisample;
-            attribs [numAttribs++] = NSOpenGLPFASampleBuffers;
-            attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) 1;
-            attribs [numAttribs++] = NSOpenGLPFASamples;
-            attribs [numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.multisamplingLevel;
+            attribs[numAttribs++] = NSOpenGLPFAMultisample;
+            attribs[numAttribs++] = NSOpenGLPFASampleBuffers;
+            attribs[numAttribs++] = (NSOpenGLPixelFormatAttribute) 1;
+            attribs[numAttribs++] = NSOpenGLPFASamples;
+            attribs[numAttribs++] = (NSOpenGLPixelFormatAttribute) pixFormat.multisamplingLevel;
         }
     }
 
-    void initialiseOnRenderThread (OpenGLContext&) {}
-    void shutdownOnRenderThread()               { deactivateCurrentContext(); }
+    bool initialiseOnRenderThread (OpenGLContext&)    { return true; }
+    void shutdownOnRenderThread()                     { deactivateCurrentContext(); }
 
-    bool createdOk() const noexcept             { return getRawContext() != nullptr; }
-    void* getRawContext() const noexcept        { return static_cast<void*> (renderContext); }
-    GLuint getFrameBufferID() const noexcept    { return 0; }
+    bool createdOk() const noexcept                   { return getRawContext() != nullptr; }
+    void* getRawContext() const noexcept              { return static_cast<void*> (renderContext); }
+    GLuint getFrameBufferID() const noexcept          { return 0; }
 
     bool makeActive() const noexcept
     {
@@ -159,7 +162,7 @@ public:
 
     void swapBuffers()
     {
-        double now = Time::getMillisecondCounterHiRes();
+        auto now = Time::getMillisecondCounterHiRes();
         [renderContext flushBuffer];
 
         if (minSwapTimeMs > 0)
@@ -169,8 +172,8 @@ public:
             // speed, burning CPU. This hack detects when things are going too fast
             // and sleeps if necessary.
 
-            const double swapTime = Time::getMillisecondCounterHiRes() - now;
-            const int frameTime = (int) (now - lastSwapTime);
+            auto swapTime = Time::getMillisecondCounterHiRes() - now;
+            auto frameTime = (int) (now - lastSwapTime);
 
             if (swapTime < 0.5 && frameTime < minSwapTimeMs - 3)
             {
@@ -180,7 +183,9 @@ public:
                     now = Time::getMillisecondCounterHiRes();
                 }
                 else
+                {
                     ++underrunCounter;
+                }
             }
             else
             {
@@ -196,10 +201,18 @@ public:
 
     bool setSwapInterval (int numFramesPerSwap)
     {
+        // The macOS OpenGL programming guide says that numFramesPerSwap
+        // can only be 0 or 1.
+        jassert (isPositiveAndBelow (numFramesPerSwap, 2));
+
         minSwapTimeMs = (numFramesPerSwap * 1000) / 60;
 
         [renderContext setValues: (const GLint*) &numFramesPerSwap
+                   #if defined (MAC_OS_X_VERSION_10_12) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_12
+                    forParameter: NSOpenGLContextParameterSwapInterval];
+                   #else
                     forParameter: NSOpenGLCPSwapInterval];
+                   #endif
         return true;
     }
 
@@ -207,16 +220,20 @@ public:
     {
         GLint numFrames = 0;
         [renderContext getValues: &numFrames
+                   #if defined (MAC_OS_X_VERSION_10_12) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_12
+                    forParameter: NSOpenGLContextParameterSwapInterval];
+                   #else
                     forParameter: NSOpenGLCPSwapInterval];
+                   #endif
 
         return numFrames;
     }
 
-    NSOpenGLContext* renderContext;
-    NSOpenGLView* view;
+    NSOpenGLContext* renderContext = nil;
+    NSOpenGLView* view = nil;
     ReferenceCountedObjectPtr<ReferenceCountedObject> viewAttachment;
-    double lastSwapTime;
-    int minSwapTimeMs, underrunCounter;
+    double lastSwapTime = 0;
+    int minSwapTimeMs = 0, underrunCounter = 0;
 
     //==============================================================================
     struct MouseForwardingNSOpenGLViewClass  : public ObjCClass<NSOpenGLView>
@@ -243,25 +260,9 @@ public:
 //==============================================================================
 bool OpenGLHelpers::isContextActive()
 {
-    return CGLGetCurrentContext() != 0;
+    return CGLGetCurrentContext() != CGLContextObj();
 }
 
-//==============================================================================
-void componentPeerAboutToBeRemovedFromScreen (ComponentPeer& peer)
-{
-    Array<Component*> stack;
-    stack.add (&peer.getComponent());
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
-    while (stack.size() != 0)
-    {
-        Component& comp = *stack.removeAndReturn (0);
-
-        const int n = comp.getNumChildComponents();
-        for (int i = 0; i < n; ++i)
-            if (Component* child = comp.getChildComponent (i))
-                stack.add (child);
-
-        if (OpenGLContext* context = OpenGLContext::getContextAttachedTo (comp))
-            context->detach();
-    }
-}
+} // namespace juce

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -130,8 +130,13 @@ enum class Type  : uint8
     float_  = 'f'
 };
 
+const int numBytesInType = 4;
+
 //==============================================================================
-/** Defines a native function that the program can call. */
+/** Defines a native function that the program can call.
+
+    @tags{Blocks}
+*/
 struct NativeFunction
 {
     using ImplementationFunction = int32 (*) (void*, const int32*);
@@ -140,11 +145,11 @@ struct NativeFunction
         The format of nameAndArgumentTypes is "name/[return type][arg1][arg2..]"
         So for example "int foobar (float, bool)" would be "foobar/ifb"
     */
-    NativeFunction (const char* nameAndArgumentTypes, ImplementationFunction fn) noexcept
+    NativeFunction (const char* nameAndArgumentTypes, ImplementationFunction fn)
         : nameAndArguments (nameAndArgumentTypes), function (fn),
           functionID (createID (nameAndArgumentTypes)), returnType(), numArgs()
     {
-        const int slash = indexOfSlash (nameAndArgumentTypes);
+        auto slash = indexOfSlash (nameAndArgumentTypes);
 
         if (slash > 0)
         {
@@ -162,22 +167,22 @@ struct NativeFunction
     uint8 numArgs;                      /**< The number of arguments that the function takes. */
 
     /** Converts a function signature to its hashed ID. */
-    static FunctionID createID (const char* nameAndArgTypes) noexcept
+    static FunctionID createID (const char* nameAndArgTypes)
     {
-        jassert (nameAndArgTypes != nullptr && nameAndArgTypes[0] != 0); // the name cannot be an empty string!
-        int hash = 0, i = 0;
-        const int slash = indexOfSlash (nameAndArgTypes);
+        auto slash = indexOfSlash (nameAndArgTypes);
 
         jassert (slash > 0); // The slash can't be the first character in this string!
         jassert (nameAndArgTypes[slash + 1] != 0);  // The slash must be followed by a return type character
-        jassert (juce::String (nameAndArgTypes).substring (0, slash).containsOnly ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"));
-        jassert (! juce::String ("0123456789").containsChar (nameAndArgTypes[0]));
-        jassert (juce::String (nameAndArgTypes).substring (slash + 1).containsOnly ("vifb"));
-        jassert (juce::String (nameAndArgTypes).substring (slash + 2).containsOnly ("ifb")); // arguments must only be of these types
+        jassert (String (nameAndArgTypes).substring (0, slash).containsOnly ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"));
+        jassert (! String ("0123456789").containsChar (String (nameAndArgTypes)[0]));
+        jassert (String (nameAndArgTypes).substring (slash + 1).containsOnly ("vifb"));
+        jassert (String (nameAndArgTypes).substring (slash + 2).containsOnly ("ifb")); // arguments must only be of these types
+
+        uint32 hash = 0, i = 0;
 
         for (; nameAndArgTypes[i] != 0; ++i)
-            if (i != slash + 1)
-                hash = hash * 31 + nameAndArgTypes[i];
+            if (i != (uint32) (slash + 1))
+                hash = hash * 31u + (uint32) nameAndArgTypes[i];
 
         return static_cast<FunctionID> (hash + i);
     }
@@ -185,6 +190,8 @@ struct NativeFunction
 private:
     static int indexOfSlash (const char* nameAndArgs) noexcept
     {
+        jassert (nameAndArgs != nullptr && nameAndArgs[0] != 0); // the name cannot be an empty string!
+
         for (int i = 0; nameAndArgs[i] != 0; ++i)
             if (nameAndArgs[i] == '/')
                 return i;
@@ -209,6 +216,8 @@ private:
       2 bytes - byte offset of function 2 code
                 etc..
       ...function code...
+
+    @tags{Blocks}
 */
 struct Program
 {
@@ -226,10 +235,10 @@ struct Program
     uint16 calculateChecksum() const noexcept
     {
         auto size = getProgramSize();
-        uint16 n = (uint16) size;
+        auto n = (uint16) size;
 
         for (uint32 i = 2; i < size; ++i)
-            n += (n * 2) + programStart[i];
+            n = static_cast<uint16> (n + (n * 2) + programStart[i]);
 
         return n;
     }
@@ -298,43 +307,44 @@ struct Program
    #if JUCE_DEBUG
     //==============================================================================
     /** Prints the assembly code for a given function. */
-    void dumpFunctionDisassembly (juce::OutputStream& out, uint32 functionIndex) const
+    void dumpFunctionDisassembly (OutputStream& out, uint32 functionIndex) const
     {
-        out << juce::newLine << "Function #" << (int) functionIndex
-            << "  (" << juce::String::toHexString (getFunctionID (functionIndex)) << ")" << juce::newLine;
+        out << newLine << "Function #" << (int) functionIndex
+            << "  (" << String::toHexString (getFunctionID (functionIndex)) << ")" << newLine;
 
         if (auto codeStart = getFunctionStartAddress (functionIndex))
             if (auto codeEnd = getFunctionEndAddress (functionIndex))
                 for (auto prog = codeStart; prog < codeEnd;)
-                    out << getOpDisassembly (prog) << juce::newLine;
+                    out << getOpDisassembly (prog) << newLine;
     }
 
-    juce::String getOpDisassembly (const uint8*& prog) const
+    String getOpDisassembly (const uint8*& prog) const
     {
-        juce::String s;
-        s << juce::String::toHexString ((int) (prog - programStart)).paddedLeft ('0', 4) << ":  ";
+        String s;
+        s << String::toHexString ((int) (prog - programStart)).paddedLeft ('0', 4) << ":  ";
         auto op = (OpCode) *prog++;
 
         switch (op)
         {
            #define LITTLEFOOT_OP(name)         case OpCode::name:  s << #name; break;
-           #define LITTLEFOOT_OP_INT8(name)    case OpCode::name:  s << #name << " " << juce::String::toHexString ((int) *prog++).paddedLeft ('0', 2); break;
-           #define LITTLEFOOT_OP_INT16(name)   case OpCode::name:  s << #name << " " << juce::String::toHexString ((int) readInt16 (prog)).paddedLeft ('0', 4); prog += 2; break;
-           #define LITTLEFOOT_OP_INT32(name)   case OpCode::name:  s << #name << " " << juce::String::toHexString ((int) readInt32 (prog)).paddedLeft ('0', 8); prog += 4; break;
+           #define LITTLEFOOT_OP_INT8(name)    case OpCode::name:  s << #name << " " << String::toHexString ((int) *prog++).paddedLeft ('0', 2); break;
+           #define LITTLEFOOT_OP_INT16(name)   case OpCode::name:  s << #name << " " << String::toHexString ((int) readInt16 (prog)).paddedLeft ('0', 4); prog += 2; break;
+           #define LITTLEFOOT_OP_INT32(name)   case OpCode::name:  s << #name << " " << String::toHexString ((int) readInt32 (prog)).paddedLeft ('0', 8); prog += 4; break;
             LITTLEFOOT_OPCODES (LITTLEFOOT_OP, LITTLEFOOT_OP_INT8, LITTLEFOOT_OP_INT16, LITTLEFOOT_OP_INT32)
            #undef LITTLEFOOT_OP
            #undef LITTLEFOOT_OP_INT8
            #undef LITTLEFOOT_OP_INT16
            #undef LITTLEFOOT_OP_INT32
 
-            default:  s << "???"; break;
+            case OpCode::endOfOpcodes:
+            default:  s << "???";      break;
         }
 
         return s;
     }
 
     /** Calls dumpFunctionDisassembly() for all functions. */
-    void dumpAllFunctions (juce::OutputStream& out) const
+    void dumpAllFunctions (OutputStream& out) const
     {
         if (programStart != nullptr)
         {
@@ -361,8 +371,11 @@ struct Program
            #undef LITTLEFOOT_OP_INT16
            #undef LITTLEFOOT_OP_INT32
 
-            default:  jassertfalse; return 0;
+            case OpCode::endOfOpcodes:
+            default: jassertfalse;     break;
         }
+
+        return 0;
     }
 
     //==============================================================================
@@ -377,7 +390,7 @@ struct Program
 
     //==============================================================================
     static constexpr uint32 programHeaderSize = 10;
-    const uint8* programStart = 0;
+    const uint8* programStart = nullptr;
     const uint32 maxProgramSize;
 
 private:
@@ -406,6 +419,8 @@ private:
     Program code goes at address 0, followed by any shared data the program needs
     globals are at the top end of the buffer
     stack space stretches downwards from the start of the globals
+
+    @tags{Blocks}
 */
 template <int programAndHeapSpace, int stackAndGlobalsSpace>
 struct Runner
@@ -572,7 +587,7 @@ struct Runner
 
     //==============================================================================
     /** */
-    uint8 allMemory[((programAndHeapSpace + stackAndGlobalsSpace) + 3) & ~3];
+    uint8 allMemory[(size_t) (((programAndHeapSpace + stackAndGlobalsSpace) + 3) & ~3)];
 
     /** */
     Program program;
@@ -582,9 +597,9 @@ struct Runner
     */
     struct FunctionExecutionContext
     {
-        FunctionExecutionContext() noexcept     : programCounter (nullptr) {}
-        FunctionExecutionContext (const FunctionExecutionContext&) noexcept = default;
-        FunctionExecutionContext& operator= (const FunctionExecutionContext&) noexcept = default;
+        FunctionExecutionContext() = default;
+        FunctionExecutionContext (const FunctionExecutionContext&) = default;
+        FunctionExecutionContext& operator= (const FunctionExecutionContext&) = default;
 
         /** */
         FunctionExecutionContext (Runner& r, const char* functionSignature) noexcept
@@ -665,6 +680,7 @@ struct Runner
                 switch (op)
                 {
                     LITTLEFOOT_OPCODES (LITTLEFOOT_PERFORM_OP, LITTLEFOOT_PERFORM_OP_INT8, LITTLEFOOT_PERFORM_OP_INT16, LITTLEFOOT_PERFORM_OP_INT32)
+                    case OpCode::endOfOpcodes:
                     default:  setError (ErrorCode::unknownInstruction); break;
                 }
 
@@ -675,7 +691,7 @@ struct Runner
     private:
         //==============================================================================
         Runner* runner;
-        const uint8* programCounter;
+        const uint8* programCounter = nullptr;
         const uint8* programEnd;
         const uint8* programBase;
         uint8* heapStart;
@@ -802,13 +818,13 @@ struct Runner
         void dumpDebugTrace() const
         {
            #if LITTLEFOOT_DEBUG_TRACE // Dumps the program counter and stack, for debugging
-            juce::MemoryOutputStream dump;
+            MemoryOutputStream dump;
             auto progCopy = programCounter;
-            dump << juce::String (runner->program.getOpDisassembly (progCopy)).paddedRight (' ', 26)
-                 << juce::String::toHexString (tos) << ' ';
+            dump << String (runner->program.getOpDisassembly (progCopy)).paddedRight (' ', 26)
+                 << String::toHexString (tos) << ' ';
 
             for (auto s = stack; s < stackEnd; ++s)
-                dump << juce::String::toHexString (*s) << ' ';
+                dump << String::toHexString (*s) << ' ';
 
             DBG (dump.toString());
            #endif
@@ -848,7 +864,7 @@ private:
                     globals[i] = 0; // clear globals
 
                #if LITTLEFOOT_DUMP_PROGRAM
-                juce::MemoryOutputStream m;
+                MemoryOutputStream m;
                 program.dumpAllFunctions (m);
                 DBG (m.toString());
                #endif

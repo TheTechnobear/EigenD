@@ -50,7 +50,7 @@ MappingEditor::MappingEditor (Atom* atom, String name, ToolManager* tm)
 {
     setName ("MappingEditor");
     addAndMakeVisible (groupComponent = new GroupComponent ("new group",
-                                                            String::empty));
+                                                            String()));
     groupComponent->setColour (GroupComponent::outlineColourId, Colour (0x66bcbbbb));
 
     addAndMakeVisible (mmc_ = new MusicalMappingComponent (atom_, this));

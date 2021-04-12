@@ -73,7 +73,7 @@ XYMapComponent::XYMapComponent (int x, int y)
     xIn->setScrollbarsShown (false);
     xIn->setCaretVisible (true);
     xIn->setPopupMenuEnabled (true);
-    xIn->setText (String::empty);
+    xIn->setText (String());
 
     addAndMakeVisible (yIn = new MappingTextEditor ("yIn"));
     yIn->setExplicitFocusOrder (2);
@@ -83,7 +83,7 @@ XYMapComponent::XYMapComponent (int x, int y)
     yIn->setScrollbarsShown (false);
     yIn->setCaretVisible (true);
     yIn->setPopupMenuEnabled (true);
-    yIn->setText (String::empty);
+    yIn->setText (String());
 
     addAndMakeVisible (yOut = new MappingTextEditor ("yOut"));
     yOut->setExplicitFocusOrder (4);
@@ -93,7 +93,7 @@ XYMapComponent::XYMapComponent (int x, int y)
     yOut->setScrollbarsShown (false);
     yOut->setCaretVisible (true);
     yOut->setPopupMenuEnabled (true);
-    yOut->setText (String::empty);
+    yOut->setText (String());
 
     addAndMakeVisible (xOut = new MappingTextEditor ("xOut"));
     xOut->setExplicitFocusOrder (3);
@@ -103,7 +103,7 @@ XYMapComponent::XYMapComponent (int x, int y)
     xOut->setScrollbarsShown (false);
     xOut->setCaretVisible (true);
     xOut->setPopupMenuEnabled (true);
-    xOut->setText (String::empty);
+    xOut->setText (String());
 
     addAndMakeVisible (removeElementButton = new TextButton ("removeElementButton"));
     removeElementButton->setTooltip (TRANS("Remove this key mapping"));

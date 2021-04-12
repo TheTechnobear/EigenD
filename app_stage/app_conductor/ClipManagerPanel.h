@@ -63,7 +63,7 @@ class ClipLibraryTable;
 */
 class ClipManagerPanel  : public Component,
                           public ClipSelector,
-                          public ButtonListener
+                          public Button::Listener
 {
 public:
     //==============================================================================

@@ -130,57 +130,57 @@ ToolbarItemComponent* ToolManager::createItem(const int itemId)
     switch (itemId)
     {
         case MainComponent::toolPerform:
-            upImage=Drawable::createFromImageData(ToolbarIcons::usewidget_off_png, ToolbarIcons::usewidget_off_pngSize);
-            downImage=Drawable::createFromImageData(ToolbarIcons::usewidget_on_png, ToolbarIcons::usewidget_on_pngSize);
+            upImage=Drawable::createFromImageData(ToolbarIcons::usewidget_off_png, ToolbarIcons::usewidget_off_pngSize).release();
+            downImage=Drawable::createFromImageData(ToolbarIcons::usewidget_on_png, ToolbarIcons::usewidget_on_pngSize).release();
             label="perform";
             tooltip="Perform";
             break;
         case MainComponent::toolCreate:
-            upImage=Drawable::createFromImageData(ToolbarIcons::create_off_png, ToolbarIcons::create_off_pngSize);
-            downImage=Drawable::createFromImageData(ToolbarIcons::create_on_png, ToolbarIcons::create_on_pngSize);
+            upImage=Drawable::createFromImageData(ToolbarIcons::create_off_png, ToolbarIcons::create_off_pngSize).release();
+            downImage=Drawable::createFromImageData(ToolbarIcons::create_on_png, ToolbarIcons::create_on_pngSize).release();
             label="create";
             tooltip="Create control";
             break;
         case MainComponent::toolEdit:
-            upImage=Drawable::createFromImageData(ToolbarIcons::edit_off_png, ToolbarIcons::edit_off_pngSize);
-            downImage=Drawable::createFromImageData(ToolbarIcons::edit_on_png, ToolbarIcons::edit_on_pngSize);
+            upImage=Drawable::createFromImageData(ToolbarIcons::edit_off_png, ToolbarIcons::edit_off_pngSize).release();
+            downImage=Drawable::createFromImageData(ToolbarIcons::edit_on_png, ToolbarIcons::edit_on_pngSize).release();
             label="edit";
             tooltip="Edit";
             break;
         case MainComponent::toolMove:
-            upImage=Drawable::createFromImageData(ToolbarIcons::move_off_png, ToolbarIcons::move_off_pngSize);
-            downImage=Drawable::createFromImageData(ToolbarIcons::move_on_png, ToolbarIcons::move_on_pngSize);
+            upImage=Drawable::createFromImageData(ToolbarIcons::move_off_png, ToolbarIcons::move_off_pngSize).release();
+            downImage=Drawable::createFromImageData(ToolbarIcons::move_on_png, ToolbarIcons::move_on_pngSize).release();
             label="move";
             tooltip="Move";
             break;
         case MainComponent::toolSize:
-            upImage=Drawable::createFromImageData(ToolbarIcons::resize_off_png, ToolbarIcons::resize_off_pngSize);
-            downImage=Drawable::createFromImageData(ToolbarIcons::resize_on_png, ToolbarIcons::resize_on_pngSize);
+            upImage=Drawable::createFromImageData(ToolbarIcons::resize_off_png, ToolbarIcons::resize_off_pngSize).release();
+            downImage=Drawable::createFromImageData(ToolbarIcons::resize_on_png, ToolbarIcons::resize_on_pngSize).release();
             label="resize";
             tooltip="Size and position";
             break;
         case MainComponent::toolDelete:
-            upImage=Drawable::createFromImageData(ToolbarIcons::delete_off_png, ToolbarIcons::delete_off_pngSize);
-            downImage=Drawable::createFromImageData(ToolbarIcons::delete_on_png, ToolbarIcons::delete_on_pngSize);
+            upImage=Drawable::createFromImageData(ToolbarIcons::delete_off_png, ToolbarIcons::delete_off_pngSize).release();
+            downImage=Drawable::createFromImageData(ToolbarIcons::delete_on_png, ToolbarIcons::delete_on_pngSize).release();
             label="delete";
             tooltip="Delete";
             break;
         case MainComponent::toolHelp:
-            upImage=Drawable::createFromImageData(ToolbarIcons::help_off_png, ToolbarIcons::help_off_pngSize);
-            downImage=Drawable::createFromImageData(ToolbarIcons::help_on_png, ToolbarIcons::help_on_pngSize);
+            upImage=Drawable::createFromImageData(ToolbarIcons::help_off_png, ToolbarIcons::help_off_pngSize).release();
+            downImage=Drawable::createFromImageData(ToolbarIcons::help_on_png, ToolbarIcons::help_on_pngSize).release();
             label="help";
             tooltip="Help";
             break;
         default:
-            upImage=Drawable::createFromImageData(ToolbarIcons::usewidget_off_png, ToolbarIcons::usewidget_off_pngSize);
-            downImage=Drawable::createFromImageData(ToolbarIcons::usewidget_on_png, ToolbarIcons::usewidget_on_pngSize);
+            upImage=Drawable::createFromImageData(ToolbarIcons::usewidget_off_png, ToolbarIcons::usewidget_off_pngSize).release();
+            downImage=Drawable::createFromImageData(ToolbarIcons::usewidget_on_png, ToolbarIcons::usewidget_on_pngSize).release();
             label="pointer";
             tooltip="Pointer tool";
             break;
     }
     
    
-    ToolbarButton* tbb=new ToolbarButton(itemId,label,upImage,downImage);
+    ToolbarButton* tbb=new ToolbarButton(itemId,label,std::unique_ptr<Drawable>(upImage),std::unique_ptr<Drawable>(downImage));
     tbb->addListener(this);
     tbb->setTooltip(tooltip);
     

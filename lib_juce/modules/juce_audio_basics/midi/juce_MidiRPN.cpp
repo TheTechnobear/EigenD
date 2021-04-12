@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,6 +20,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 MidiRPNDetector::MidiRPNDetector() noexcept
 {
 }
@@ -33,7 +36,7 @@ bool MidiRPNDetector::parseControllerMessage (int midiChannel,
                                               int controllerValue,
                                               MidiRPNMessage& result) noexcept
 {
-    jassert (midiChannel >= 1 && midiChannel <= 16);
+    jassert (midiChannel > 0 && midiChannel <= 16);
     jassert (controllerNumber >= 0 && controllerNumber < 128);
     jassert (controllerValue >= 0 && controllerValue < 128);
 
@@ -156,6 +159,7 @@ MidiBuffer MidiRPNGenerator::generate (int midiChannel,
     return buffer;
 }
 
+
 //==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS
@@ -163,7 +167,9 @@ MidiBuffer MidiRPNGenerator::generate (int midiChannel,
 class MidiRPNDetectorTests   : public UnitTest
 {
 public:
-    MidiRPNDetectorTests()  : UnitTest ("MidiRPNDetector class") {}
+    MidiRPNDetectorTests()
+        : UnitTest ("MidiRPNDetector class", UnitTestCategories::midi)
+    {}
 
     void runTest() override
     {
@@ -305,7 +311,9 @@ static MidiRPNDetectorTests MidiRPNDetectorUnitTests;
 class MidiRPNGeneratorTests   : public UnitTest
 {
 public:
-    MidiRPNGeneratorTests()  : UnitTest ("MidiRPNGenerator class") {}
+    MidiRPNGeneratorTests()
+        : UnitTest ("MidiRPNGenerator class", UnitTestCategories::midi)
+    {}
 
     void runTest() override
     {
@@ -343,14 +351,13 @@ private:
     //==============================================================================
     void expectContainsRPN (const MidiBuffer& midiBuffer, MidiRPNMessage expected)
     {
-        MidiBuffer::Iterator iter (midiBuffer);
-        MidiMessage midiMessage;
         MidiRPNMessage result = MidiRPNMessage();
         MidiRPNDetector detector;
-        int samplePosition; // not actually used, so no need to initialise.
 
-        while (iter.getNextEvent (midiMessage, samplePosition))
+        for (const auto metadata : midiBuffer)
         {
+            const auto midiMessage = metadata.getMessage();
+
             if (detector.parseControllerMessage (midiMessage.getChannel(),
                                                  midiMessage.getControllerNumber(),
                                                  midiMessage.getControllerValue(),
@@ -361,11 +368,13 @@ private:
         expectEquals (result.channel, expected.channel);
         expectEquals (result.parameterNumber, expected.parameterNumber);
         expectEquals (result.value, expected.value);
-        expect (result.isNRPN == expected.isNRPN),
+        expect (result.isNRPN == expected.isNRPN);
         expect (result.is14BitValue == expected.is14BitValue);
     }
 };
 
 static MidiRPNGeneratorTests MidiRPNGeneratorUnitTests;
 
-#endif // JUCE_UNIT_TESTS
+#endif
+
+} // namespace juce

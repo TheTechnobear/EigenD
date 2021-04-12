@@ -37,7 +37,7 @@
                                                                     //[/Comments]
 */
 class LoadDialogComponent  : public Component,
-                             public ButtonListener
+                             public Button::Listener
 {
 public:
     //==============================================================================

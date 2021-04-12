@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /** Contains classes for different types of physics behaviours - these classes
@@ -41,12 +40,12 @@ namespace AnimatedPositionBehaviours
         AnimatedPosition class.
 
         @see AnimatedPosition
+
+        @tags{GUI}
     */
     struct ContinuousWithMomentum
     {
-        ContinuousWithMomentum() noexcept
-        {
-        }
+        ContinuousWithMomentum() = default;
 
         /** Sets the friction that damps the movement of the value.
             A typical value is 0.08; higher values indicate more friction.
@@ -54,6 +53,13 @@ namespace AnimatedPositionBehaviours
         void setFriction (double newFriction) noexcept
         {
             damping = 1.0 - newFriction;
+        }
+
+        /** Sets the minimum velocity of the movement. Any velocity that's slower than
+            this will stop the animation. The default is 0.05. */
+        void setMinimumVelocity (double newMinimumVelocityToUse) noexcept
+        {
+            minimumVelocity = newMinimumVelocityToUse;
         }
 
         /** Called by the AnimatedPosition class. This tells us the position and
@@ -72,7 +78,7 @@ namespace AnimatedPositionBehaviours
         {
             velocity *= damping;
 
-            if (std::abs (velocity) < 0.05)
+            if (std::abs (velocity) < minimumVelocity)
                 velocity = 0;
 
             return oldPos + velocity * elapsedSeconds;
@@ -87,7 +93,7 @@ namespace AnimatedPositionBehaviours
         }
 
     private:
-        double velocity = 0, damping = 0.92;
+        double velocity = 0, damping = 0.92, minimumVelocity = 0.05;
     };
 
     //==============================================================================
@@ -100,12 +106,12 @@ namespace AnimatedPositionBehaviours
         released, snaps back to show a whole page.
 
         @see AnimatedPosition
+
+        @tags{GUI}
     */
     struct SnapToPageBoundaries
     {
-        SnapToPageBoundaries() noexcept   : targetSnapPosition()
-        {
-        }
+        SnapToPageBoundaries() = default;
 
         /** Called by the AnimatedPosition class. This tells us the position and
             velocity at which the user is about to release the object.
@@ -143,6 +149,8 @@ namespace AnimatedPositionBehaviours
         }
 
     private:
-        double targetSnapPosition;
+        double targetSnapPosition = 0.0;
     };
 }
+
+} // namespace juce

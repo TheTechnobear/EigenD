@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,19 +23,21 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     A component that displays a text string, and can optionally become a text
     editor when clicked.
+
+    @tags{GUI}
 */
 class JUCE_API  Label  : public Component,
                          public SettableTooltipClient,
-                         protected TextEditorListener,
+                         protected TextEditor::Listener,
                          private ComponentListener,
-                         private ValueListener
+                         private Value::Listener
 {
 public:
     //==============================================================================
@@ -49,7 +50,7 @@ public:
            const String& labelText = String());
 
     /** Destructor. */
-    ~Label();
+    ~Label() override;
 
     //==============================================================================
     /** Changes the label text.
@@ -182,7 +183,7 @@ public:
     {
     public:
         /** Destructor. */
-        virtual ~Listener() {}
+        virtual ~Listener() = default;
 
         /** Called when a Label's text has changed. */
         virtual void labelTextChanged (Label* labelThatHasChanged) = 0;
@@ -199,6 +200,16 @@ public:
 
     /** Deregisters a previously-registered listener. */
     void removeListener (Listener* listener);
+
+    //==============================================================================
+    /** You can assign a lambda to this callback object to have it called when the label text is changed. */
+    std::function<void()> onTextChange;
+
+    /** You can assign a lambda to this callback object to have it called when the label's editor is shown. */
+    std::function<void()> onEditorShow;
+
+    /** You can assign a lambda to this callback object to have it called when the label's editor is hidden. */
+    std::function<void()> onEditorHide;
 
     //==============================================================================
     /** Makes the label turn into a TextEditor when clicked.
@@ -264,10 +275,11 @@ public:
     */
     struct JUCE_API  LookAndFeelMethods
     {
-        virtual ~LookAndFeelMethods() {}
+        virtual ~LookAndFeelMethods() = default;
 
         virtual void drawLabel (Graphics&, Label&) = 0;
         virtual Font getLabelFont (Label&) = 0;
+        virtual BorderSize<int> getLabelBorderSize (Label&) = 0;
     };
 
 protected:
@@ -331,23 +343,23 @@ private:
     //==============================================================================
     Value textValue;
     String lastTextValue;
-    Font font;
-    Justification justification;
-    ScopedPointer<TextEditor> editor;
+    Font font { 15.0f };
+    Justification justification = Justification::centredLeft;
+    std::unique_ptr<TextEditor> editor;
     ListenerList<Listener> listeners;
     WeakReference<Component> ownerComponent;
-    BorderSize<int> border;
-    float minimumHorizontalScale;
-    TextInputTarget::VirtualKeyboardType keyboardType;
-    bool editSingleClick;
-    bool editDoubleClick;
-    bool lossOfFocusDiscardsChanges;
-    bool leftOfOwnerComp;
+    BorderSize<int> border { 1, 5, 1, 5 };
+    float minimumHorizontalScale = 0;
+    TextInputTarget::VirtualKeyboardType keyboardType = TextInputTarget::textKeyboard;
+    bool editSingleClick = false;
+    bool editDoubleClick = false;
+    bool lossOfFocusDiscardsChanges = false;
+    bool leftOfOwnerComp = false;
 
     bool updateFromTextEditorContents (TextEditor&);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Label)
 };
 
-/** This typedef is just for compatibility with old code - newer code should use the Label::Listener class directly. */
-typedef Label::Listener LabelListener;
+
+} // namespace juce

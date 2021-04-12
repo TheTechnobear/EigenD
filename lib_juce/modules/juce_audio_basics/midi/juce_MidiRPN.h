@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,12 +20,14 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /** Represents a MIDI RPN (registered parameter number) or NRPN (non-registered
     parameter number) message.
+
+    @tags{Audio}
 */
 struct MidiRPNMessage
 {
@@ -59,6 +61,8 @@ struct MidiRPNMessage
     LSB/MSB can be sent/received in either order and must both come before the
     parameter value; for the parameter value, LSB always has to be sent/received
     before the value MSB, otherwise it will be treated as 7-bit (MSB only).
+
+    @tags{Audio}
 */
 class JUCE_API  MidiRPNDetector
 {
@@ -113,6 +117,8 @@ private:
     or NRPN message.
 
     This sequence (as a MidiBuffer) can then be directly sent to a MidiOutput.
+
+    @tags{Audio}
 */
 class JUCE_API  MidiRPNGenerator
 {
@@ -136,7 +142,7 @@ public:
 
         @param use14BitValue     If true (default), the value will have 14-bit precision
                                  (two MIDI bytes). If false, instead the value will have
-                                 7-bit presision (a single MIDI byte).
+                                 7-bit precision (a single MIDI byte).
     */
     static MidiBuffer generate (int channel,
                                 int parameterNumber,
@@ -144,3 +150,5 @@ public:
                                 bool isNRPN = false,
                                 bool use14BitValue = true);
 };
+
+} // namespace juce

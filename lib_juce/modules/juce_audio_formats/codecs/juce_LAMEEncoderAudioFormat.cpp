@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,6 +23,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 #if JUCE_USE_LAME_AUDIO_FORMAT
 
 class LAMEEncoderAudioFormat::Writer   : public AudioFormatWriter
@@ -31,19 +33,18 @@ class LAMEEncoderAudioFormat::Writer   : public AudioFormatWriter
 public:
     Writer (OutputStream* destStream, const String& formatName,
             const File& appFile, int vbr, int cbr,
-            double sampleRate, unsigned int numberOfChannels,
-            int bitsPerSample, const StringPairArray& metadata)
-        : AudioFormatWriter (destStream, formatName, sampleRate,
-                             numberOfChannels, (unsigned int) bitsPerSample),
-          vbrLevel (vbr), cbrBitrate (cbr),
-          tempWav (".wav")
+            double sampleRateIn, unsigned int numberOfChannels,
+            int bitsPerSampleIn, const StringPairArray& metadata)
+        : AudioFormatWriter (destStream, formatName, sampleRateIn,
+                             numberOfChannels, (unsigned int) bitsPerSampleIn),
+          vbrLevel (vbr), cbrBitrate (cbr)
     {
         WavAudioFormat wavFormat;
 
-        if (FileOutputStream* out = tempWav.getFile().createOutputStream())
+        if (auto out = tempWav.getFile().createOutputStream())
         {
-            writer = wavFormat.createWriterFor (out, sampleRate, numChannels,
-                                                bitsPerSample, metadata, 0);
+            writer.reset (wavFormat.createWriterFor (out.release(), sampleRateIn, numChannels,
+                                                     bitsPerSampleIn, metadata, 0));
 
             args.add (appFile.getFullPathName());
 
@@ -74,7 +75,7 @@ public:
 
     void addMetadataArg (const StringPairArray& metadata, const char* key, const char* lameFlag)
     {
-        const String value (metadata.getValue (key, String()));
+        auto value = metadata.getValue (key, {});
 
         if (value.isNotEmpty())
         {
@@ -101,8 +102,8 @@ public:
 
 private:
     int vbrLevel, cbrBitrate;
-    TemporaryFile tempWav;
-    ScopedPointer<AudioFormatWriter> writer;
+    TemporaryFile tempWav { ".wav" };
+    std::unique_ptr<AudioFormatWriter> writer;
     StringArray args;
 
     bool runLameChildProcess (const TemporaryFile& tempMP3, const StringArray& processArgs) const
@@ -111,7 +112,7 @@ private:
 
         if (cp.start (processArgs))
         {
-            const String childOutput (cp.readAllProcessOutput());
+            auto childOutput = cp.readAllProcessOutput();
             DBG (childOutput); ignoreUnused (childOutput);
 
             cp.waitForProcessToFinish (10000);
@@ -166,14 +167,12 @@ bool LAMEEncoderAudioFormat::canHandleFile (const File&)
 
 Array<int> LAMEEncoderAudioFormat::getPossibleSampleRates()
 {
-    const int rates[] = { 32000, 44100, 48000, 0 };
-    return Array<int> (rates);
+    return { 32000, 44100, 48000 };
 }
 
 Array<int> LAMEEncoderAudioFormat::getPossibleBitDepths()
 {
-    const int depths[] = { 16, 0 };
-    return Array<int> (depths);
+    return { 16 };
 }
 
 bool LAMEEncoderAudioFormat::canDoStereo()      { return true; }
@@ -225,3 +224,5 @@ AudioFormatWriter* LAMEEncoderAudioFormat::createWriterFor (OutputStream* stream
 }
 
 #endif
+
+} // namespace juce

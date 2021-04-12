@@ -37,7 +37,7 @@
                                                                     //[/Comments]
 */
 class AlertComponent1  : public Component,
-                         public ButtonListener
+                         public Button::Listener
 {
 public:
     //==============================================================================

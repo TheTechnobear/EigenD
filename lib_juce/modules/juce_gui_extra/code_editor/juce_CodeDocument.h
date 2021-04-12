@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,7 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 class CodeDocumentLine;
 
@@ -39,6 +39,8 @@ class CodeDocumentLine;
     quick to insert and delete.
 
     @see CodeEditorComponent
+
+    @tags{GUI}
 */
 class JUCE_API  CodeDocument
 {
@@ -178,9 +180,11 @@ public:
         String getLineText() const;
 
     private:
-        CodeDocument* owner;
-        int characterPos, line, indexInLine;
-        bool positionMaintained;
+        CodeDocument* owner = nullptr;
+        int characterPos = 0, line = 0, indexInLine = 0;
+        bool positionMaintained = false;
+
+        friend class CodeDocument;
     };
 
     //==============================================================================
@@ -249,13 +253,13 @@ public:
 
     //==============================================================================
     /** Returns the preferred new-line characters for the document.
-        This will be either "\n", "\r\n", or (rarely) "\r".
+        This will be either "\\n", "\\r\\n", or (rarely) "\\r".
         @see setNewLineCharacters
     */
     String getNewLineCharacters() const noexcept          { return newLineChars; }
 
     /** Sets the new-line characters that the document should use.
-        The string must be either "\n", "\r\n", or (rarely) "\r".
+        The string must be either "\\n", "\\r\\n", or (rarely) "\\r".
         @see getNewLineCharacters
     */
     void setNewLineCharacters (const String& newLineCharacters) noexcept;
@@ -323,8 +327,8 @@ public:
     class JUCE_API  Listener
     {
     public:
-        Listener() {}
-        virtual ~Listener() {}
+        Listener() = default;
+        virtual ~Listener() = default;
 
         /** Called by a CodeDocument when text is added. */
         virtual void codeDocumentTextInserted (const String& newText, int insertIndex) = 0;
@@ -337,12 +341,12 @@ public:
         If the listener is already registered, this method has no effect.
         @see removeListener
     */
-    void addListener (Listener* listener) noexcept;
+    void addListener (Listener* listener);
 
     /** Deregisters a listener.
         @see addListener
     */
-    void removeListener (Listener* listener) noexcept;
+    void removeListener (Listener* listener);
 
     //==============================================================================
     /** Iterates the text in a CodeDocument.
@@ -355,18 +359,36 @@ public:
     class JUCE_API  Iterator
     {
     public:
+        /** Creates an uninitialised iterator.
+            Don't attempt to call any methods on this until you've given it an
+            owner document to refer to!
+         */
+        Iterator() noexcept;
+
         Iterator (const CodeDocument& document) noexcept;
-        Iterator (const Iterator&) noexcept;
-        Iterator& operator= (const Iterator&) noexcept;
+        Iterator (CodeDocument::Position) noexcept;
         ~Iterator() noexcept;
 
-        /** Reads the next character and returns it.
-            @see peekNextChar
+        Iterator (const Iterator&) = default;
+        Iterator& operator= (const Iterator&) = default;
+
+        /** Reads the next character and returns it. Returns 0 if you try to
+            read past the document's end.
+            @see peekNextChar, previousChar
         */
         juce_wchar nextChar() noexcept;
 
-        /** Reads the next character without advancing the current position. */
+        /** Reads the next character without moving the current position. */
         juce_wchar peekNextChar() const noexcept;
+
+        /** Reads the previous character and returns it. Returns 0 if you try to
+            read past the document's start.
+            @see isSOF, peekPreviousChar, nextChar
+         */
+        juce_wchar previousChar() noexcept;
+
+        /** Reads the next character without moving the current position. */
+        juce_wchar peekPreviousChar() const noexcept;
 
         /** Advances the position by one character. */
         void skip() noexcept;
@@ -380,32 +402,43 @@ public:
         /** Skips forward until the next character will be the first character on the next line */
         void skipToEndOfLine() noexcept;
 
+        /** Skips backward until the next character will be the first character on this line */
+        void skipToStartOfLine() noexcept;
+
         /** Returns the line number of the next character. */
         int getLine() const noexcept            { return line; }
 
         /** Returns true if the iterator has reached the end of the document. */
         bool isEOF() const noexcept;
 
+        /** Returns true if the iterator is at the start of the document. */
+        bool isSOF() const noexcept;
+
+        /** Convert this iterator to a CodeDocument::Position. */
+        CodeDocument::Position toPosition() const;
+
     private:
+        bool reinitialiseCharPtr() const;
+
         const CodeDocument* document;
-        mutable String::CharPointerType charPointer;
-        int line, position;
+        mutable String::CharPointerType charPointer { nullptr };
+        int line = 0, position = 0;
     };
 
 private:
     //==============================================================================
-    friend class CodeDocumentInsertAction;
-    friend class CodeDocumentDeleteAction;
+    struct InsertAction;
+    struct DeleteAction;
     friend class Iterator;
     friend class Position;
 
-    OwnedArray <CodeDocumentLine> lines;
-    Array <Position*> positionsToMaintain;
+    OwnedArray<CodeDocumentLine> lines;
+    Array<Position*> positionsToMaintain;
     UndoManager undoManager;
-    int currentActionIndex, indexOfSavedState;
-    int maximumLineLength;
-    ListenerList <Listener> listeners;
-    String newLineChars;
+    int currentActionIndex = 0, indexOfSavedState = -1;
+    int maximumLineLength = -1;
+    ListenerList<Listener> listeners;
+    String newLineChars { "\r\n" };
 
     void insert (const String& text, int insertPos, bool undoable);
     void remove (int startPos, int endPos, bool undoable);
@@ -413,3 +446,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CodeDocument)
 };
+
+} // namespace juce

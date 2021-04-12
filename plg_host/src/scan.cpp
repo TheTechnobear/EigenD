@@ -90,8 +90,8 @@ namespace
 
                         if(found.size()>0)
                         {
-                            std::auto_ptr<juce::XmlElement> el(found[0]->createXml());
-                            msg = "1"; msg+= el->createDocument(juce::String::empty); send(msg.toUTF8());
+                            std::auto_ptr<juce::XmlElement> el(found[0]->createXml().release());
+                            msg = "1"; msg+= el->createDocument(juce::String()); send(msg.toUTF8());
                             return;
                         }
                     }

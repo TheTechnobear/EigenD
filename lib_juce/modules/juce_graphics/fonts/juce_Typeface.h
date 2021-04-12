@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -35,19 +34,21 @@
     a platform-specific subclass that can be used.
 
     The CustomTypeface subclass allow you to build your own typeface, and to
-    load and save it in the Juce typeface format.
+    load and save it in the JUCE typeface format.
 
     Normally you should never need to deal directly with Typeface objects - the Font
     class does everything you typically need for rendering text.
 
     @see CustomTypeface, Font
+
+    @tags{Graphics}
 */
 class JUCE_API  Typeface  : public ReferenceCountedObject
 {
 public:
     //==============================================================================
     /** A handy typedef for a pointer to a typeface. */
-    typedef ReferenceCountedObjectPtr<Typeface> Ptr;
+    using Ptr = ReferenceCountedObjectPtr<Typeface>;
 
     //==============================================================================
     /** Returns the font family of the typeface.
@@ -73,7 +74,7 @@ public:
 
     //==============================================================================
     /** Destructor. */
-    virtual ~Typeface();
+    ~Typeface() override;
 
     /** Returns true if this typeface can be used to render the specified font.
         When called, the font will already have been checked to make sure that its name and
@@ -95,7 +96,7 @@ public:
     */
     virtual float getDescent() const = 0;
 
-    /** Returns the value by which you should multiply a juce font-height value to
+    /** Returns the value by which you should multiply a JUCE font-height value to
         convert it to the equivalent point-size.
     */
     virtual float getHeightToPointsFactor() const = 0;
@@ -110,14 +111,14 @@ public:
         The distances returned are based on the font having an normalised height of 1.0.
         You should never need to call this directly! Use Font::getGlyphPositions() instead!
     */
-    virtual void getGlyphPositions (const String& text, Array <int>& glyphs, Array<float>& xOffsets) = 0;
+    virtual void getGlyphPositions (const String& text, Array<int>& glyphs, Array<float>& xOffsets) = 0;
 
     /** Returns the outline for a glyph.
         The path returned will be normalised to a font height of 1.0.
     */
     virtual bool getOutlineForGlyph (int glyphNumber, Path& path) = 0;
 
-    /** Returns a new EdgeTable that contains the path for the givem glyph, with the specified transform applied. */
+    /** Returns a new EdgeTable that contains the path for the given glyph, with the specified transform applied. */
     virtual EdgeTable* getEdgeTableForGlyph (int glyphNumber, const AffineTransform& transform, float fontHeight);
 
     /** Returns true if the typeface uses hinting. */
@@ -131,7 +132,7 @@ public:
     static void clearTypefaceCache();
 
     /** On some platforms, this allows a specific path to be scanned.
-        Currently only available when using FreeType.
+        On macOS you can load .ttf and .otf files, otherwise this is only available when using FreeType.
     */
     static void scanFolderForFonts (const File& folder);
 
@@ -151,9 +152,10 @@ protected:
 
 private:
     struct HintingParams;
-    friend struct ContainerDeletePolicy<HintingParams>;
-    ScopedPointer<HintingParams> hintingParams;
+    std::unique_ptr<HintingParams> hintingParams;
     CriticalSection hintingLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Typeface)
 };
+
+} // namespace juce

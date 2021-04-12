@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,9 +20,13 @@
   ==============================================================================
 */
 
+namespace juce
+{
 
 /**
     Represents the touch surface of a BLOCKS device.
+
+    @tags{Blocks}
 */
 class TouchSurface
 {
@@ -33,6 +37,7 @@ public:
     virtual ~TouchSurface();
 
     //==============================================================================
+    /** Structure used to describe touch properties */
     struct Touch
     {
         /** A touch index, which will stay constant for each finger as it is tracked. */
@@ -62,7 +67,7 @@ public:
         */
         float yVelocity;
 
-        /** The current pressure of this touch, in the range 0.0 (no pressure) to 1.o (very hard). */
+        /** The current pressure of this touch, in the range 0.0 (no pressure) to 1.0 (very hard). */
         float z;
 
         /** The rate at which pressure is currently changing, measured in units/second. This is
@@ -110,7 +115,7 @@ public:
     /** Testing feature: this allows you to inject touches onto a touch surface. */
     void callListenersTouchChanged (const TouchSurface::Touch& t)
     {
-        listeners.call (&Listener::touchChanged, *this, t);
+        listeners.call ([this, &t] (Listener& l) { l.touchChanged (*this, t); });
     }
 
     /** Adds a listener to be called when the surface is touched. */
@@ -125,7 +130,9 @@ public:
 
 protected:
     //==============================================================================
-    juce::ListenerList<Listener> listeners;
+    ListenerList<Listener> listeners;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TouchSurface)
 };
+
+} // namespace juce

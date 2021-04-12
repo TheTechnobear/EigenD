@@ -82,7 +82,7 @@ StringMappingPropertyEditor::StringMappingPropertyEditor (Atom* atom, ToolManage
     textEditor->setScrollbarsShown (true);
     textEditor->setCaretVisible (true);
     textEditor->setPopupMenuEnabled (true);
-    textEditor->setText (String::empty);
+    textEditor->setText (String());
 
     addAndMakeVisible (editButton = new TextButton ("editButton"));
     editButton->setButtonText (TRANS("Edit"));

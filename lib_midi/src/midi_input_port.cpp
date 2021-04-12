@@ -45,7 +45,8 @@ using namespace std;
 
 struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
 {
-    impl_t(midi::midi_input_port_t *d,const piw::change_nb_t &r): current_(-1), receiver_(r), delegate_(d), input_(0), virtual_input_(0), running_(false), null_device_name_(NULL_DEVICE)
+    impl_t(midi::midi_input_port_t *d,const piw::change_nb_t &r): 
+        current_(-1), receiver_(r), delegate_(d), input_(nullptr), virtual_input_(nullptr), running_(false), null_device_name_(NULL_DEVICE)
     {
         snapshot_.save();
         piw::tsd_thing(this);
@@ -76,15 +77,13 @@ struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
             if(input_)
             {
                 input_->stop();
-                delete input_;
-                input_ = 0;
+                input_ = nullptr;
             }
 
             if(virtual_input_)
             {
                 virtual_input_->stop();
-                delete virtual_input_;
-                virtual_input_=0;
+                virtual_input_=nullptr;
             }
         }
     }
@@ -113,8 +112,7 @@ struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
         if(input_)
         {
             input_->stop();
-            delete input_;
-            input_ = 0;
+            input_ = nullptr;
         }
 
         current_ = (uid==0)?(-1):uid;
@@ -154,8 +152,7 @@ struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
                 if(input_ && old_devices[0].hashCode()==current_)
                 {
                     input_->stop();
-                    delete input_;
-                    input_=0;
+                    input_=nullptr;
                     current_=-1;
                 }
 
@@ -227,8 +224,7 @@ struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
         if(virtual_input_)
         {
             virtual_input_->stop();
-            delete virtual_input_;
-            virtual_input_=0;
+            virtual_input_=nullptr;
         }
 
         virtual_name_ = juce::String::fromUTF8(name.c_str());
@@ -240,8 +236,8 @@ struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
     juce::StringArray devices_;
     piw::change_nb_t receiver_;
     midi::midi_input_port_t *delegate_;
-    juce::MidiInput *input_;
-    juce::MidiInput *virtual_input_;
+    std::unique_ptr<juce::MidiInput> input_;
+    std::unique_ptr<juce::MidiInput> virtual_input_;
     juce::String virtual_name_;
     piw::tsd_snapshot_t snapshot_;
     bool running_;

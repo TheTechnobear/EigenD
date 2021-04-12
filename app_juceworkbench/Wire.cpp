@@ -251,7 +251,7 @@ String Wire::getDescription()
     {
         return connection_->getDescription();
     }
-    return String::empty;
+    return String();
 }
 
 String Wire::getTopLevelDstId()
@@ -1189,11 +1189,11 @@ void Wire::setSelected(bool selected)
     selected_=selected;
     if (getDstPin()!=0)
     {
-        getDstPin()->setSelected(selected, String::empty);
+        getDstPin()->setSelected(selected, String());
     }
     if (getSrcPin()!=0)
     {
-        getSrcPin()->setSelected(selected, String::empty);
+        getSrcPin()->setSelected(selected, String());
     }
 
     std::list<RoutingElement *>::iterator iter=pegs_.begin();

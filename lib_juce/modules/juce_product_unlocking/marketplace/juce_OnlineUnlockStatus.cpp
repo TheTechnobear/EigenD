@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,7 +23,10 @@
   ==============================================================================
 */
 
-/* Note: there's a bit of light obfuscation in this code, just to make things
+namespace juce
+{
+
+/* Note: There's a bit of light obfuscation in this code, just to make things
    a bit more annoying for crackers who try to reverse-engineer your binaries, but
    nothing particularly foolproof.
 */
@@ -70,7 +72,7 @@ struct KeyFileUtils
     static String encryptXML (const XmlElement& xml, RSAKey privateKey)
     {
         MemoryOutputStream text;
-        text << xml.createDocument (StringRef(), true);
+        text << xml.toString (XmlElement::TextFormat().singleLine());
 
         BigInteger val;
         val.loadFromMemoryBlock (text.getMemoryBlock());
@@ -111,16 +113,16 @@ struct KeyFileUtils
         RSAKey key (rsaPublicKey);
         jassert (key.isValid());
 
-        ScopedPointer<XmlElement> xml;
+        std::unique_ptr<XmlElement> xml;
 
         if (! val.isZero())
         {
             key.applyToValue (val);
 
-            const MemoryBlock mb (val.toMemoryBlock());
+            auto mb = val.toMemoryBlock();
 
             if (CharPointer_UTF8::isValidString (static_cast<const char*> (mb.getData()), (int) mb.getSize()))
-                xml = XmlDocument::parse (mb.toString());
+                xml = parseXML (mb.toString());
         }
 
         return xml != nullptr ? *xml : XmlElement("key");
@@ -192,7 +194,7 @@ static var machineNumberAllowed (StringArray numbersFromKeyFile,
 
     for (int i = 0; i < localMachineNumbers.size(); ++i)
     {
-        String localNumber (localMachineNumbers[i].trim());
+        auto localNumber = localMachineNumbers[i].trim();
 
         if (localNumber.isNotEmpty())
         {
@@ -204,6 +206,9 @@ static var machineNumberAllowed (StringArray numbersFromKeyFile,
                 if (result)
                     break;
             }
+
+            if (result)
+                break;
         }
     }
 
@@ -260,7 +265,7 @@ void OnlineUnlockStatus::save()
     MemoryOutputStream mo;
 
     {
-        GZIPCompressorOutputStream gzipStream (&mo, 9);
+        GZIPCompressorOutputStream gzipStream (mo, 9);
         status.writeToStream (gzipStream);
     }
 
@@ -284,7 +289,7 @@ char OnlineUnlockStatus::MachineIDUtilities::getPlatformPrefix()
 
 String OnlineUnlockStatus::MachineIDUtilities::getEncodedIDString (const String& input)
 {
-    const String platform (String::charToString (getPlatformPrefix()));
+    auto platform = String::charToString (static_cast<juce_wchar> (getPlatformPrefix()));
 
     return platform + MD5 ((input + "salt_1" + platform).toUTF8())
                         .toHexString().substring (0, 9).toUpperCase();
@@ -292,7 +297,7 @@ String OnlineUnlockStatus::MachineIDUtilities::getEncodedIDString (const String&
 
 bool OnlineUnlockStatus::MachineIDUtilities::addFileIDToList (StringArray& ids, const File& f)
 {
-    if (uint64 num = f.getFileIdentifier())
+    if (auto num = f.getFileIdentifier())
     {
         ids.add (getEncodedIDString (String::toHexString ((int64) num)));
         return true;
@@ -303,16 +308,14 @@ bool OnlineUnlockStatus::MachineIDUtilities::addFileIDToList (StringArray& ids, 
 
 void OnlineUnlockStatus::MachineIDUtilities::addMACAddressesToList (StringArray& ids)
 {
-    Array<MACAddress> addresses;
-    MACAddress::findAllAddresses (addresses);
-
-    for (int i = 0; i < addresses.size(); ++i)
-        ids.add (getEncodedIDString (addresses.getReference(i).toString()));
+    for (auto& address : MACAddress::getAllAddresses())
+        ids.add (getEncodedIDString (address.toString()));
 }
 
 StringArray OnlineUnlockStatus::MachineIDUtilities::getLocalMachineIDs()
 {
     auto identifiers = SystemStats::getDeviceIdentifiers();
+
     for (auto& identifier : identifiers)
         identifier = getEncodedIDString (identifier);
 
@@ -322,6 +325,10 @@ StringArray OnlineUnlockStatus::MachineIDUtilities::getLocalMachineIDs()
 StringArray OnlineUnlockStatus::getLocalMachineIDs()
 {
     return MachineIDUtilities::getLocalMachineIDs();
+}
+
+void OnlineUnlockStatus::userCancelled()
+{
 }
 
 void OnlineUnlockStatus::setUserEmail (const String& usernameOrEmail)
@@ -371,7 +378,7 @@ bool OnlineUnlockStatus::applyKeyFile (String keyFileContent)
 
 static bool canConnectToWebsite (const URL& url)
 {
-    ScopedPointer<InputStream> in (url.createInputStream (false, nullptr, nullptr, String(), 2000, nullptr));
+    std::unique_ptr<InputStream> in (url.createInputStream (false, nullptr, nullptr, String(), 2000, nullptr));
     return in != nullptr;
 }
 
@@ -391,7 +398,7 @@ OnlineUnlockStatus::UnlockResult OnlineUnlockStatus::handleXmlReply (XmlElement 
 {
     UnlockResult r;
 
-    if (const XmlElement* keyNode = xml.getChildByName ("KEY"))
+    if (auto keyNode = xml.getChildByName ("KEY"))
     {
         const String keyText (keyNode->getAllSubText().trim());
         r.succeeded = keyText.length() > 10 && applyKeyFile (keyText);
@@ -411,8 +418,7 @@ OnlineUnlockStatus::UnlockResult OnlineUnlockStatus::handleXmlReply (XmlElement 
         r.urlToLaunch = xml.getStringAttribute ("url").trim();
 
     if (r.errorMessage.isEmpty() && r.informativeMessage.isEmpty() && r.urlToLaunch.isEmpty() && ! r.succeeded)
-        r.errorMessage = TRANS ("Unexpected or corrupted reply from XYZ").replace ("XYZ", getWebsiteName()) + "...\n\n"
-                            + TRANS("Please try again in a few minutes, and contact us for support if this message appears again.");
+        r.errorMessage = getMessageForUnexpectedReply();
 
     return r;
 }
@@ -421,20 +427,31 @@ OnlineUnlockStatus::UnlockResult OnlineUnlockStatus::handleFailedConnection()
 {
     UnlockResult r;
     r.succeeded = false;
-
-    r.errorMessage = TRANS("Couldn't connect to XYZ").replace ("XYZ", getWebsiteName()) + "...\n\n";
-
-    if (areMajorWebsitesAvailable())
-        r.errorMessage << TRANS("Your internet connection seems to be OK, but our webserver "
-                                "didn't respond... This is most likely a temporary problem, so try "
-                                "again in a few minutes, but if it persists, please contact us for support!");
-    else
-        r.errorMessage << TRANS("No internet sites seem to be accessible from your computer.. Before trying again, "
-                                "please check that your network is working correctly, and make sure "
-                                "that any firewall/security software installed on your machine isn't "
-                                "blocking your web connection.");
-
+    r.errorMessage = getMessageForConnectionFailure (areMajorWebsitesAvailable());
     return r;
+}
+
+String OnlineUnlockStatus::getMessageForConnectionFailure (bool isInternetConnectionWorking)
+{
+    String message = TRANS("Couldn't connect to XYZ").replace ("XYZ", getWebsiteName()) + "...\n\n";
+
+    if (isInternetConnectionWorking)
+        message << TRANS("Your internet connection seems to be OK, but our webserver "
+                         "didn't respond... This is most likely a temporary problem, so try "
+                         "again in a few minutes, but if it persists, please contact us for support!");
+    else
+        message << TRANS("No internet sites seem to be accessible from your computer.. Before trying again, "
+                         "please check that your network is working correctly, and make sure "
+                         "that any firewall/security software installed on your machine isn't "
+                         "blocking your web connection.");
+
+    return message;
+}
+
+String OnlineUnlockStatus::getMessageForUnexpectedReply()
+{
+    return TRANS ("Unexpected or corrupted reply from XYZ").replace ("XYZ", getWebsiteName()) + "...\n\n"
+                    + TRANS("Please try again in a few minutes, and contact us for support if this message appears again.");
 }
 
 OnlineUnlockStatus::UnlockResult OnlineUnlockStatus::attemptWebserverUnlock (const String& email,
@@ -443,13 +460,11 @@ OnlineUnlockStatus::UnlockResult OnlineUnlockStatus::attemptWebserverUnlock (con
     // This method will block while it contacts the server, so you must run it on a background thread!
     jassert (! MessageManager::getInstance()->isThisTheMessageThread());
 
-    String reply (readReplyFromWebserver (email, password));
+    auto reply = readReplyFromWebserver (email, password);
 
     DBG ("Reply from server: " << reply);
 
-    ScopedPointer<XmlElement> xml (XmlDocument::parse (reply));
-
-    if (xml != nullptr)
+    if (auto xml = parseXML (reply))
         return handleXmlReply (*xml);
 
     return handleFailedConnection();
@@ -464,8 +479,8 @@ String KeyGeneration::generateKeyFile (const String& appName,
                                        const String& machineNumbers,
                                        const RSAKey& privateKey)
 {
-    XmlElement xml (KeyFileUtils::createKeyFileContent (appName, userEmail, userName, machineNumbers, "mach"));
-    const String comment (KeyFileUtils::createKeyFileComment (appName, userEmail, userName, machineNumbers));
+    auto xml = KeyFileUtils::createKeyFileContent (appName, userEmail, userName, machineNumbers, "mach");
+    auto comment = KeyFileUtils::createKeyFileComment (appName, userEmail, userName, machineNumbers);
 
     return KeyFileUtils::createKeyFile (comment, xml, privateKey);
 }
@@ -477,11 +492,13 @@ String KeyGeneration::generateExpiringKeyFile (const String& appName,
                                                const Time expiryTime,
                                                const RSAKey& privateKey)
 {
-    XmlElement xml (KeyFileUtils::createKeyFileContent (appName, userEmail, userName, machineNumbers, "expiring_mach"));
+    auto xml = KeyFileUtils::createKeyFileContent (appName, userEmail, userName, machineNumbers, "expiring_mach");
     xml.setAttribute ("expiryTime", String::toHexString (expiryTime.toMilliseconds()));
 
-    String comment (KeyFileUtils::createKeyFileComment (appName, userEmail, userName, machineNumbers));
+    auto comment = KeyFileUtils::createKeyFileComment (appName, userEmail, userName, machineNumbers);
     comment << newLine << "Expires: " << expiryTime.toString (true, true);
 
     return KeyFileUtils::createKeyFile (comment, xml, privateKey);
 }
+
+} // namespace juce

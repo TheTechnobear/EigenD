@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -35,10 +34,11 @@
 
     This class is also a ChangeBroadcaster, so listeners can register to be told
     when the colour changes.
+
+    @tags{GUI}
 */
 class JUCE_API  ColourSelector  : public Component,
-                                  public ChangeBroadcaster,
-                                  protected SliderListener
+                                  public ChangeBroadcaster
 {
 public:
     //==============================================================================
@@ -48,8 +48,9 @@ public:
         showAlphaChannel    = 1 << 0,   /**< if set, the colour's alpha channel can be changed as well as its RGB. */
 
         showColourAtTop     = 1 << 1,   /**< if set, a swatch of the colour is shown at the top of the component. */
-        showSliders         = 1 << 2,   /**< if set, RGB sliders are shown at the bottom of the component. */
-        showColourspace     = 1 << 3    /**< if set, a big HSV selector is shown. */
+        editableColour      = 1 << 2,   /**< if set, the colour shows at the top of the component is editable. */
+        showSliders         = 1 << 3,   /**< if set, RGB sliders are shown at the bottom of the component. */
+        showColourspace     = 1 << 4    /**< if set, a big HSV selector is shown. */
     };
 
     //==============================================================================
@@ -68,7 +69,7 @@ public:
                     int gapAroundColourSpaceComponent = 7);
 
     /** Destructor. */
-    ~ColourSelector();
+    ~ColourSelector() override;
 
     //==============================================================================
     /** Returns the colour that the user has currently selected.
@@ -80,7 +81,12 @@ public:
     */
     Colour getCurrentColour() const;
 
-    /** Changes the colour that is currently being shown. */
+    /** Changes the colour that is currently being shown.
+
+        @param newColour           the new colour to show
+        @param notificationType    whether to send a notification of the change to listeners.
+                                   A notification will only be sent if the colour has changed.
+    */
     void setCurrentColour (Colour newColour, NotificationType notificationType = sendNotification);
 
     //==============================================================================
@@ -127,35 +133,31 @@ public:
         labelTextColourId               = 0x1007001     /**< the colour used for the labels next to the sliders. */
     };
 
+    //==============================================================================
+    // These need to be public otherwise the Projucer's live-build engine will complain
+    class ColourSpaceView;
+    class HueSelectorComp;
+    class ColourPreviewComp;
 
 private:
     //==============================================================================
-    class ColourSpaceView;
-    class HueSelectorComp;
     class SwatchComponent;
-    class ColourComponentSlider;
-    class ColourSpaceMarker;
-    class HueSelectorMarker;
-    friend class ColourSpaceView;
-    friend struct ContainerDeletePolicy<ColourSpaceView>;
-    friend class HueSelectorComp;
-    friend struct ContainerDeletePolicy<HueSelectorComp>;
 
     Colour colour;
     float h, s, v;
-    ScopedPointer<Slider> sliders[4];
-    ScopedPointer<ColourSpaceView> colourSpace;
-    ScopedPointer<HueSelectorComp> hueSelector;
+    std::unique_ptr<Slider> sliders[4];
+    std::unique_ptr<ColourSpaceView> colourSpace;
+    std::unique_ptr<HueSelectorComp> hueSelector;
+    std::unique_ptr<ColourPreviewComp> previewComponent;
     OwnedArray<SwatchComponent> swatchComponents;
     const int flags;
     int edgeGap;
-    Rectangle<int> previewArea;
 
     void setHue (float newH);
     void setSV (float newS, float newV);
     void updateHSV();
     void update (NotificationType);
-    void sliderValueChanged (Slider*) override;
+    void changeColour();
     void paint (Graphics&) override;
     void resized() override;
 
@@ -167,3 +169,5 @@ private:
     ColourSelector (bool);
    #endif
 };
+
+} // namespace juce

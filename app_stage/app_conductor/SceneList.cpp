@@ -20,7 +20,7 @@
 #include "SceneList.h"
 
 SceneList::SceneList (SceneBackend* backend, int mode)
-    : ClipList("SceneList"),backend_(backend),mode_(mode),sceneName_(String::empty)
+    : ClipList("SceneList"),backend_(backend),mode_(mode),sceneName_(String())
 {
     setSize (600, 400);
     sceneChanged(mode_);

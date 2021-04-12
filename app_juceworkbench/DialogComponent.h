@@ -53,7 +53,7 @@
                                                                     //[/Comments]
 */
 class DialogComponent  : public Component,
-                         public ButtonListener
+                         public Button::Listener
 {
 public:
     //==============================================================================

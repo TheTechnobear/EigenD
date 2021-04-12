@@ -49,7 +49,7 @@ SceneViewWidget::SceneViewWidget (SceneBackend* backend, int mode)
     : backend_(backend), mode_(mode)
 {
     addAndMakeVisible (sceneLabel = new Label ("sceneLabel",
-                                               String::empty));
+                                               String()));
     sceneLabel->setFont (Font (15.00f, Font::plain));
     sceneLabel->setJustificationType (Justification::centred);
     sceneLabel->setEditable (false, false, false);

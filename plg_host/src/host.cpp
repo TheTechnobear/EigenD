@@ -694,7 +694,7 @@ struct host::plugin_instance_t::impl_t: midi::params_delegate_t, midi::mapping_o
 
     juce::AudioPluginInstance *find_plugin(juce::PluginDescription &desc, double sr, int bs, juce::String &err)
     {
-        return plugin_formats_.createPluginInstance(desc, sr, bs, err);
+        return plugin_formats_.createPluginInstance(desc, sr, bs, err).release();
     }
 
     plugin_description_t get_description()

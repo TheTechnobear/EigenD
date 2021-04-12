@@ -62,7 +62,7 @@ MainComponent::MainComponent ()
       toolbarHider (0),
       imageButton2 (0),
       fullScreenButton2 (0),
-      cachedImage_logoText_2x_png (0)
+      cachedImage_logoText_2x_png (nullptr)
 {
     addAndMakeVisible (tabbedComponent = new WidgetTabbedComponent (TabbedButtonBar2::TabsAtTop));
     tabbedComponent->setTabBarDepth (24);
@@ -113,8 +113,8 @@ MainComponent::MainComponent ()
 
     lockButton_ = new DrawableButton("lock button", DrawableButton::ImageStretched);
     addAndMakeVisible(lockButton_);
-    Drawable* lockImage = Drawable::createFromImageData(lock_closed_png, lock_closed_pngSize);
-    Drawable* unlockImage = Drawable::createFromImageData(lock_open_png, lock_open_pngSize);
+    Drawable* lockImage = Drawable::createFromImageData(lock_closed_png, lock_closed_pngSize).release();
+    Drawable* unlockImage = Drawable::createFromImageData(lock_open_png, lock_open_pngSize).release();
     lockButton_->setImages(unlockImage, 0, 0, 0,
                            lockImage, 0, 0, 0);
     lockButton_->setColour(DrawableButton::backgroundColourId, Colour(0));
@@ -322,7 +322,7 @@ void MainComponent::buttonClicked (Button* buttonThatWasClicked)
 bool MainComponent::nativeFullScreenSupport()
 {
     SystemStats::OperatingSystemType os = SystemStats::getOperatingSystemType();
-    if((os & SystemStats::Windows) != 0 || os == SystemStats::Linux || os == SystemStats::MacOSX_10_4 || os == SystemStats::MacOSX_10_5 || os == SystemStats::MacOSX_10_6)
+    if((os & SystemStats::Windows) != 0 || os == SystemStats::Linux)
     {
         return false;
     }

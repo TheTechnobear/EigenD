@@ -35,7 +35,7 @@ public:
 class SceneToolbarItemFactory: public ToolbarItemFactory
 {
 public:
-    SceneToolbarItemFactory(ButtonListener*);
+    SceneToolbarItemFactory(Button::Listener*);
     ~SceneToolbarItemFactory(){};
     virtual void getAllToolbarItemIds(Array <int>& ids);
     virtual void getDefaultItemSet(Array<int>& ids);
@@ -57,6 +57,6 @@ public:
 private:
     void setupButtons();
     SceneToolbarButton* setupButton(int, String,Drawable*,Drawable*);
-    ButtonListener* listener_;
+    Button::Listener* listener_;
 };
 #endif

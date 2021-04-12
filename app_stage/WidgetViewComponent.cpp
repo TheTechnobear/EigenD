@@ -132,11 +132,11 @@ void CanvasAreaComponent :: paint (Graphics& g)
 
 bool CanvasAreaComponent :: isInterestedInDragSource (const SourceDetails& source)
 {
-    XmlElement* check=XmlDocument::parse(source.description);
+    XmlElement* check=XmlDocument::parse(source.description).release();
     if(check!=0)
     {
         delete check;
-        XmlElement* droppedXmlElem = XmlDocument(source.description).getDocumentElement(false);
+        XmlElement* droppedXmlElem = XmlDocument(source.description).getDocumentElement(false).release();
 
         // not a node with children, and an enabled leaf node
         return (!(droppedXmlElem->getFirstChildElement()->hasTagName("atom") ||
@@ -434,7 +434,7 @@ void WidgetViewComponent :: createWidget(const String& sourceDescription, int x,
 {
 
     // parse the agent xml from the dropped component to get the widget meta data
-    XmlElement* agentXml = XmlDocument(sourceDescription).getDocumentElement(false);
+    XmlElement* agentXml = XmlDocument(sourceDescription).getDocumentElement(false).release();
 
     // make sure a widget can be created from this
     if(agentXml->getFirstChildElement()->hasTagName("atom") ||
@@ -598,7 +598,7 @@ WidgetOverlayComponent* WidgetViewComponent :: addWidgetToCanvas(XmlElement* xml
 void WidgetViewComponent :: changeWidget(const String& sourceDescription, WidgetOverlayComponent* overlay)
 {
     // parse the agent xml from the dropped component to get the widget meta data
-    XmlElement* agentXml = XmlDocument(sourceDescription).getDocumentElement(false);
+    XmlElement* agentXml = XmlDocument(sourceDescription).getDocumentElement(false).release();
     
     // make sure a widget can be changed to this
     if(agentXml->getFirstChildElement()->hasTagName("atom") ||

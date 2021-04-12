@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,14 +23,7 @@
   ==============================================================================
 */
 
-// Note: for the Bluetooth Midi selector overlay, we need the class
-// UIViewComponent from the juce_gui_extra module. If this module is not
-// included in your app, BluetoothMidiDevicePairingDialogue::open() will fail
-// and return false.
-// It is also not available in the iPhone/iPad simulator.
-#if JUCE_MODULE_AVAILABLE_juce_gui_extra && ! TARGET_IPHONE_SIMULATOR
-
-} // (juce namespace)
+#if ! TARGET_IPHONE_SIMULATOR
 
 #include <CoreAudioKit/CoreAudioKit.h>
 
@@ -42,15 +34,23 @@ namespace juce
 class BluetoothMidiSelectorOverlay  : public Component
 {
 public:
-    BluetoothMidiSelectorOverlay (ModalComponentManager::Callback* exitCallbackToUse)
+    BluetoothMidiSelectorOverlay (ModalComponentManager::Callback* exitCallbackToUse,
+                                  const Rectangle<int>& boundsToUse)
+        : bounds (boundsToUse)
     {
-        ScopedPointer<ModalComponentManager::Callback> exitCallback (exitCallbackToUse);
+        std::unique_ptr<ModalComponentManager::Callback> exitCallback (exitCallbackToUse);
 
         setAlwaysOnTop (true);
         setVisible (true);
         addToDesktop (ComponentPeer::windowHasDropShadow);
-        setBounds (0, 0, getParentWidth(), getParentHeight());
+
+        if (bounds.isEmpty())
+            setBounds (0, 0, getParentWidth(), getParentHeight());
+        else
+            setBounds (bounds);
+
         toFront (true);
+        setOpaque (true);
 
         controller = [[CABTMIDICentralViewController alloc] init];
         nativeSelectorComponent.setView ([controller view]);
@@ -60,7 +60,7 @@ public:
         enterModalState (true, exitCallback.release(), true);
     }
 
-    ~BluetoothMidiSelectorOverlay()
+    ~BluetoothMidiSelectorOverlay() override
     {
         nativeSelectorComponent.setView (nullptr);
         [controller release];
@@ -68,7 +68,7 @@ public:
 
     void paint (Graphics& g) override
     {
-        g.fillAll (Colours::black.withAlpha (0.5f));
+        g.fillAll (bounds.isEmpty() ? Colours::black.withAlpha (0.5f) : Colours::black);
     }
 
     void inputAttemptWhenModal() override           { close(); }
@@ -80,12 +80,19 @@ public:
 private:
     void update()
     {
-        const int pw = getParentWidth();
-        const int ph = getParentHeight();
+        if (bounds.isEmpty())
+        {
+            const int pw = getParentWidth();
+            const int ph = getParentHeight();
 
-        nativeSelectorComponent.setBounds (Rectangle<int> (pw, ph)
-                                             .withSizeKeepingCentre (jmin (400, pw),
-                                                                     jmin (450, ph - 40)));
+            nativeSelectorComponent.setBounds (Rectangle<int> (pw, ph)
+                                                 .withSizeKeepingCentre (jmin (400, pw),
+                                                                         jmin (450, ph - 40)));
+        }
+        else
+        {
+            nativeSelectorComponent.setBounds (bounds.withZeroOrigin());
+        }
     }
 
     void close()
@@ -96,17 +103,20 @@ private:
 
     CABTMIDICentralViewController* controller;
     UIViewComponent nativeSelectorComponent;
+    Rectangle<int> bounds;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BluetoothMidiSelectorOverlay)
 };
 
-bool BluetoothMidiDevicePairingDialogue::open (ModalComponentManager::Callback* exitCallback)
+bool BluetoothMidiDevicePairingDialogue::open (ModalComponentManager::Callback* exitCallback,
+                                               Rectangle<int>* btBounds)
 {
-    ScopedPointer<ModalComponentManager::Callback> cb (exitCallback);
+    std::unique_ptr<ModalComponentManager::Callback> cb (exitCallback);
+    auto boundsToUse = (btBounds != nullptr ? *btBounds : Rectangle<int> {});
 
     if (isAvailable())
     {
-        new BluetoothMidiSelectorOverlay (cb.release());
+        new BluetoothMidiSelectorOverlay (cb.release(), boundsToUse);
         return true;
     }
 
@@ -115,17 +125,24 @@ bool BluetoothMidiDevicePairingDialogue::open (ModalComponentManager::Callback* 
 
 bool BluetoothMidiDevicePairingDialogue::isAvailable()
 {
-    return NSClassFromString ([NSString stringWithUTF8String: "CABTMIDICentralViewController"]) != nil;
+    return NSClassFromString (@"CABTMIDICentralViewController") != nil;
 }
+
+} // namespace juce
 
 //==============================================================================
 #else
 
-bool BluetoothMidiDevicePairingDialogue::open (ModalComponentManager::Callback* exitCallback)
+namespace juce
 {
-    ScopedPointer<ModalComponentManager::Callback> cb (exitCallback);
-    return false;
+    bool BluetoothMidiDevicePairingDialogue::open (ModalComponentManager::Callback* exitCallback,
+                                                   Rectangle<int>*)
+    {
+        std::unique_ptr<ModalComponentManager::Callback> cb (exitCallback);
+        return false;
+    }
+
+    bool BluetoothMidiDevicePairingDialogue::isAvailable()  { return false; }
 }
-bool BluetoothMidiDevicePairingDialogue::isAvailable()                                         { return false; }
 
 #endif

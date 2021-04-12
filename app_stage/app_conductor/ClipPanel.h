@@ -55,8 +55,8 @@
                                                                     //[/Comments]
 */
 class ClipPanel  : public Component,
-                   public ButtonListener,
-                   public ComboBoxListener
+                   public Button::Listener,
+                   public ComboBox::Listener
 {
 public:
     //==============================================================================

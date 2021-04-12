@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 namespace
 {
@@ -66,7 +68,7 @@ namespace
             if (! output.writeString (value))
                 return false;
 
-            const size_t numPaddingZeros = ~value.length() & 3;
+            const size_t numPaddingZeros = ~value.getNumBytesAsUTF8() & 3;
 
             return output.writeRepeatedByte ('\0', numPaddingZeros);
         }
@@ -80,6 +82,11 @@ namespace
             const size_t numPaddingZeros = ~(blob.getSize() - 1) & 3;
 
             return output.writeRepeatedByte (0, numPaddingZeros);
+        }
+
+        bool writeColour (OSCColour colour)
+        {
+            return output.writeIntBigEndian ((int32) colour.toInt32());
         }
 
         bool writeTimeTag (OSCTimeTag timeTag)
@@ -120,6 +127,7 @@ namespace
                 case OSCTypes::float32:     return writeFloat32 (arg.getFloat32());
                 case OSCTypes::string:      return writeString (arg.getString());
                 case OSCTypes::blob:        return writeBlob (arg.getBlob());
+                case OSCTypes::colour:      return writeColour (arg.getColour());
 
                 default:
                     // In this very unlikely case you supplied an invalid OSCType!
@@ -212,20 +220,31 @@ struct OSCSender::Pimpl
         if (! disconnect())
             return false;
 
-        socket = new DatagramSocket (true);
+        socket.setOwned (new DatagramSocket (true));
         targetHostName = newTargetHost;
         targetPortNumber = newTargetPort;
 
         if (socket->bindToPort (0)) // 0 = use any local port assigned by the OS.
             return true;
 
-        socket = nullptr;
+        socket.reset();
         return false;
+    }
+
+    bool connectToSocket (DatagramSocket& newSocket, const String& newTargetHost, int newTargetPort)
+    {
+        if (! disconnect())
+            return false;
+
+        socket.setNonOwned (&newSocket);
+        targetHostName = newTargetHost;
+        targetPortNumber = newTargetPort;
+        return true;
     }
 
     bool disconnect()
     {
-        socket = nullptr;
+        socket.reset();
         return true;
     }
 
@@ -270,7 +289,7 @@ private:
     }
 
     //==============================================================================
-    ScopedPointer<DatagramSocket> socket;
+    OptionalScopedPointer<DatagramSocket> socket;
     String targetHostName;
     int targetPortNumber = 0;
 
@@ -286,13 +305,18 @@ OSCSender::OSCSender()   : pimpl (new Pimpl())
 OSCSender::~OSCSender()
 {
     pimpl->disconnect();
-    pimpl = nullptr;
+    pimpl.reset();
 }
 
 //==============================================================================
 bool OSCSender::connect (const String& targetHostName, int targetPortNumber)
 {
     return pimpl->connect (targetHostName, targetPortNumber);
+}
+
+bool OSCSender::connectToSocket (DatagramSocket& socket, const String& targetHostName, int targetPortNumber)
+{
+    return pimpl->connectToSocket (socket, targetHostName, targetPortNumber);
 }
 
 bool OSCSender::disconnect()
@@ -307,6 +331,7 @@ bool OSCSender::send (const OSCBundle& bundle)      { return pimpl->send (bundle
 bool OSCSender::sendToIPAddress (const String& host, int port, const OSCMessage& message) { return pimpl->send (message, host, port); }
 bool OSCSender::sendToIPAddress (const String& host, int port, const OSCBundle& bundle)   { return pimpl->send (bundle,  host, port); }
 
+
 //==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS
@@ -314,7 +339,9 @@ bool OSCSender::sendToIPAddress (const String& host, int port, const OSCBundle& 
 class OSCBinaryWriterTests  : public UnitTest
 {
 public:
-    OSCBinaryWriterTests() : UnitTest ("OSCBinaryWriter class") {}
+    OSCBinaryWriterTests()
+        : UnitTest ("OSCBinaryWriter class", UnitTestCategories::osc)
+    {}
 
     void runTest()
     {
@@ -641,7 +668,9 @@ static OSCBinaryWriterTests OSCBinaryWriterUnitTests;
 class OSCRoundTripTests  : public UnitTest
 {
 public:
-    OSCRoundTripTests() : UnitTest ("OSCRoundTripTests class") {}
+    OSCRoundTripTests()
+        : UnitTest ("OSCRoundTripTests class", UnitTestCategories::osc)
+    {}
 
     void runTest()
     {
@@ -842,5 +871,6 @@ public:
 
 static OSCRoundTripTests OSCRoundTripUnitTests;
 
-//==============================================================================
-#endif // JUCE_UNIT_TESTS
+#endif
+
+} // namespace juce

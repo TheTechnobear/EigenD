@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,9 +23,15 @@
   ==============================================================================
 */
 
-Image getIconFromIcnsFile (const File& icnsFile, const int size)
+namespace juce
+{
+
+extern Image JUCE_API getIconFromApplication (const String&, int);
+
+static Image getIconFromIcnsFile (const File& icnsFile, const int size)
 {
     FileInputStream stream (icnsFile);
+
     if (! stream.openedOk())
         return {};
 
@@ -44,6 +49,7 @@ Image getIconFromIcnsFile (const File& icnsFile, const int size)
         return {};
 
     const auto dataSize = juce::ByteOrder::bigEndianInt (headerSection);
+
     if (dataSize <= 0)
         return {};
 
@@ -66,6 +72,7 @@ Image getIconFromIcnsFile (const File& icnsFile, const int size)
             break;
 
         const auto sectionSize = ByteOrder::bigEndianInt (headerSection);
+
         if (sectionSize <= 0)
             break;
 
@@ -81,6 +88,7 @@ Image getIconFromIcnsFile (const File& icnsFile, const int size)
 
                 const auto lastImageIndex = images.size() - 1;
                 const auto lastWidth = images.getReference (lastImageIndex).getWidth();
+
                 if (lastWidth > maxWidth)
                 {
                     maxWidthIndex = lastImageIndex;
@@ -122,16 +130,22 @@ Image JUCE_API getIconFromApplication (const String& applicationPath, const int 
                                 hostIcon = getIconFromIcnsFile (icnsFile, size);
                                 CFRelease (iconPath);
                             }
+
                             CFRelease (iconURL);
                         }
                     }
                 }
+
                 CFRelease (appBundle);
             }
+
             CFRelease (url);
         }
+
         CFRelease (pathCFString);
     }
 
     return hostIcon;
 }
+
+} // namespace juce

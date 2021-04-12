@@ -39,25 +39,25 @@ LoadDialogComponent::LoadDialogComponent ()
       default_toggle (0),
       save_button (0),
       saveas_button (0),
-      cachedImage_eigenD_png (0),
-      cachedImage_backgroundBoxInner_png (0),
-      cachedImage_backgroundBoxT_png (0),
-      cachedImage_backgroundBoxB_png (0),
-      cachedImage_backgroundBoxL_png (0),
-      cachedImage_backgroundBoxR_png (0),
-      cachedImage_backgroundBoxBl_png (0),
-      cachedImage_backgroundBoxBr_png (0),
-      cachedImage_backgroundBoxTr_png (0),
-      cachedImage_backgroundBoxTl_png (0),
-      cachedImage_innerBoxTl_png (0),
-      cachedImage_innerBoxTr_png (0),
-      cachedImage_innerBoxBl_png (0),
-      cachedImage_innerBoxBr_png (0),
-      cachedImage_innerBoxT_png (0),
-      cachedImage_innerBoxB_png (0),
-      cachedImage_innerBoxL_png (0),
-      cachedImage_innerBoxR_png (0),
-      cachedImage_innerBoxInner_png (0)
+      cachedImage_eigenD_png (nullptr),
+      cachedImage_backgroundBoxInner_png (nullptr),
+      cachedImage_backgroundBoxT_png (nullptr),
+      cachedImage_backgroundBoxB_png (nullptr),
+      cachedImage_backgroundBoxL_png (nullptr),
+      cachedImage_backgroundBoxR_png (nullptr),
+      cachedImage_backgroundBoxBl_png (nullptr),
+      cachedImage_backgroundBoxBr_png (nullptr),
+      cachedImage_backgroundBoxTr_png (nullptr),
+      cachedImage_backgroundBoxTl_png (nullptr),
+      cachedImage_innerBoxTl_png (nullptr),
+      cachedImage_innerBoxTr_png (nullptr),
+      cachedImage_innerBoxBl_png (nullptr),
+      cachedImage_innerBoxBr_png (nullptr),
+      cachedImage_innerBoxT_png (nullptr),
+      cachedImage_innerBoxB_png (nullptr),
+      cachedImage_innerBoxL_png (nullptr),
+      cachedImage_innerBoxR_png (nullptr),
+      cachedImage_innerBoxInner_png (nullptr)
 {
     addAndMakeVisible (tree = new TreeView ("new treeview"));
     tree->setRootItemVisible (false);
@@ -77,7 +77,7 @@ LoadDialogComponent::LoadDialogComponent ()
     description->setPopupMenuEnabled (false);
     description->setColour (TextEditor::backgroundColourId, Colour (0xffffff));
     description->setColour (TextEditor::shadowColourId, Colour (0x0));
-    description->setText (String::empty);
+    description->setText (String());
 
     addAndMakeVisible (setup_label = new Label ("new label",
                                                 "label text"));

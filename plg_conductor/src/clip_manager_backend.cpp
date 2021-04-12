@@ -12,20 +12,19 @@ namespace
 
         ~XmlElementHolder()
         {
-            delete element;
         }
 
         operator XmlElement *()
         {
-            return element;
+            return element.get();
         }
 
         XmlElement *operator->()
         {
-            return element;
+            return element.get();
         }
 
-        XmlElement *element;
+        std::unique_ptr<XmlElement> element;
     };
 
     struct rpc_dispatch_t: public pic::nocopy_t

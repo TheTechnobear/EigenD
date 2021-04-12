@@ -54,7 +54,7 @@
                                                                     //[/Comments]
 */
 class DeleteWireConfirmation  : public Component,
-                                public ButtonListener
+                                public Button::Listener
 {
 public:
     //==============================================================================

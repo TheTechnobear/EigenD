@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /** Manages a list of ActionListeners, and can send them messages.
@@ -30,6 +30,8 @@
     listeners and broadcast to them, you can derive from this.
 
     @see ActionListener, ChangeListener
+
+    @tags{Events}
 */
 class JUCE_API  ActionBroadcaster
 {
@@ -64,14 +66,14 @@ public:
 
 private:
     //==============================================================================
-    friend class WeakReference<ActionBroadcaster>;
-    WeakReference<ActionBroadcaster>::Master masterReference;
-
     class ActionMessage;
     friend class ActionMessage;
 
     SortedSet<ActionListener*> actionListeners;
     CriticalSection actionListenerLock;
 
+    JUCE_DECLARE_WEAK_REFERENCEABLE (ActionBroadcaster)
     JUCE_DECLARE_NON_COPYABLE (ActionBroadcaster)
 };
+
+} // namespace juce

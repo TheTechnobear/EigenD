@@ -54,7 +54,7 @@
                                                                     //[/Comments]
 */
 class PropertiesComponent  : public Component,
-                             public SliderListener
+                             public Slider::Listener
 {
 public:
     //==============================================================================

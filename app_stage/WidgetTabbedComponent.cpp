@@ -935,8 +935,8 @@ void WidgetTabbedComponent::receiveTabChanges()
         String xmlString = (*i).second;
         
         XmlDocument tabXmlDocument (xmlString);
-        XmlElement* tabXmlElement = tabXmlDocument.getDocumentElement(false);
-        XmlElement* rootXmlElement = tabXmlDocument.getDocumentElement(false);
+        XmlElement* tabXmlElement = tabXmlDocument.getDocumentElement(false).release();
+        XmlElement* rootXmlElement = tabXmlDocument.getDocumentElement(false).release();
         
         tabXmlElement->deleteAllChildElementsWithTagName("widget");
         
@@ -975,8 +975,8 @@ void WidgetTabbedComponent::receiveTabChanges()
         String xmlString = (*j).second;
         
         XmlDocument tabXmlDocument (xmlString);
-        XmlElement* tabXmlElement = tabXmlDocument.getDocumentElement(false);
-        XmlElement* rootXmlElement = tabXmlDocument.getDocumentElement(false);
+        XmlElement* tabXmlElement = tabXmlDocument.getDocumentElement(false).release();
+        XmlElement* rootXmlElement = tabXmlDocument.getDocumentElement(false).release();
 
         tabXmlElement->deleteAllChildElementsWithTagName("widget");
 
@@ -1024,7 +1024,7 @@ void WidgetTabbedComponent::receiveTabAndWidgets(int tabIndex, std::map<unsigned
     
     String tabXmlStr = XMLRPCManager::stdToJuceString(std::string(result));
     XmlDocument tabXmlDoc(tabXmlStr);
-    XmlElement *tabXmlDocElem = tabXmlDoc.getDocumentElement();
+    XmlElement *tabXmlDocElem = tabXmlDoc.getDocumentElement().release();
     
     // receive widgets
     params.clear();
@@ -1042,7 +1042,7 @@ void WidgetTabbedComponent::receiveTabAndWidgets(int tabIndex, std::map<unsigned
         
         const String widgetXmlStr = XMLRPCManager::stdToJuceString(std::string(result));
         XmlDocument widgetXmlDoc(widgetXmlStr);
-        XmlElement* widgetXmlDocElem = widgetXmlDoc.getDocumentElement();
+        XmlElement* widgetXmlDocElem = widgetXmlDoc.getDocumentElement().release();
         
         tabXmlDocElem->addChildElement(widgetXmlDocElem);
         
@@ -1237,7 +1237,7 @@ void WidgetTabbedComponent::importTabs()
         String xmlString = xmlFile.loadFileAsString();
     
         XmlDocument xmlDoc(xmlString);
-        XmlElement* xmlDocElem = xmlDoc.getDocumentElement();
+        XmlElement* xmlDocElem = xmlDoc.getDocumentElement().release();
         
         if(xmlDocElem==0 || xmlDocElem->getTagName()!="tabs")
         {

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -45,8 +44,10 @@
     Important note! The Value class is not thread-safe! If you're accessing one from
     multiple threads, then you'll need to use your own synchronisation around any code
     that accesses it.
+
+    @tags{DataStructures}
 */
-class JUCE_API  Value
+class JUCE_API  Value  final
 {
 public:
     //==============================================================================
@@ -136,8 +137,8 @@ public:
     class JUCE_API  Listener
     {
     public:
-        Listener()          {}
-        virtual ~Listener() {}
+        Listener() = default;
+        virtual ~Listener() = default;
 
         /** Called when a Value object is changed.
 
@@ -178,7 +179,7 @@ public:
     {
     public:
         ValueSource();
-        virtual ~ValueSource();
+        ~ValueSource() override;
 
         /** Returns the current value of this object. */
         virtual var getValue() const = 0;
@@ -227,15 +228,15 @@ private:
 
     // This is disallowed to avoid confusion about whether it should
     // do a by-value or by-reference copy.
-    Value& operator= (const Value&) JUCE_DELETED_FUNCTION;
+    Value& operator= (const Value&) = delete;
 
     // This declaration prevents accidental construction from an integer of 0,
     // which is possible in some compilers via an implicit cast to a pointer.
-    explicit Value (void*) JUCE_DELETED_FUNCTION;
+    explicit Value (void*) = delete;
 };
 
 /** Writes a Value to an OutputStream as a UTF8 string. */
 OutputStream& JUCE_CALLTYPE operator<< (OutputStream&, const Value&);
 
-/** This typedef is just for compatibility with old code - newer code should use the Value::Listener class directly. */
-typedef Value::Listener ValueListener;
+
+} // namespace juce

@@ -93,7 +93,7 @@ public:
     virtual void changed(PropertyStore* p){};
     virtual String get_hash(String wire_id)=0;
     virtual String get_reverse_hash(String wire_id){return get_hash(wire_id);};
-    virtual String getAssemblyId(){return String::empty;};
+    virtual String getAssemblyId(){return String();};
     virtual void setMouseOver(bool over){};
     virtual bool isWireDragTarget(){return false;};
     virtual void setSticky(bool shouldBeSticky){};

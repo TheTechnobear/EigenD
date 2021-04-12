@@ -70,7 +70,7 @@ DeleteInstanceComponent::DeleteInstanceComponent (const std::set<std::string> & 
     addAndMakeVisible (comboBox = new ComboBox ("new combo box"));
     comboBox->setEditableText (false);
     comboBox->setJustificationType (Justification::centredLeft);
-    comboBox->setTextWhenNothingSelected (String::empty);
+    comboBox->setTextWhenNothingSelected (String());
     comboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     comboBox->addListener (this);
 

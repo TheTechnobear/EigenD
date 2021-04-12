@@ -55,16 +55,16 @@ jucerInstallComponent::jucerInstallComponent ()
       para1 (0),
       button1 (0),
       button2 (0),
-      cachedImage_backgroundBoxInner_png (0),
-      cachedImage_backgroundBoxT_png (0),
-      cachedImage_backgroundBoxL_png (0),
-      cachedImage_backgroundBoxR_png (0),
-      cachedImage_backgroundBoxTl_png (0),
-      cachedImage_backgroundBoxTr_png (0),
-      cachedImage_backgroundBoxB_png (0),
-      cachedImage_backgroundBoxBr_png (0),
-      cachedImage_backgroundBoxBl_png (0),
-      cachedImage_eigenD_png (0)
+      cachedImage_backgroundBoxInner_png (nullptr),
+      cachedImage_backgroundBoxT_png (nullptr),
+      cachedImage_backgroundBoxL_png (nullptr),
+      cachedImage_backgroundBoxR_png (nullptr),
+      cachedImage_backgroundBoxTl_png (nullptr),
+      cachedImage_backgroundBoxTr_png (nullptr),
+      cachedImage_backgroundBoxB_png (nullptr),
+      cachedImage_backgroundBoxBr_png (nullptr),
+      cachedImage_backgroundBoxBl_png (nullptr),
+      cachedImage_eigenD_png (nullptr)
 {
     addAndMakeVisible (title = new Label ("new label",
                                           "Installation Complete"));

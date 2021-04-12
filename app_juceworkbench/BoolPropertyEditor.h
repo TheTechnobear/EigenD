@@ -59,7 +59,7 @@
 */
 class BoolPropertyEditor  : public Component,
                             public AtomEditor,
-                            public ButtonListener
+                            public Button::Listener
 {
 public:
     //==============================================================================

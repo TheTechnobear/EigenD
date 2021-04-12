@@ -37,7 +37,7 @@
                                                                     //[/Comments]
 */
 class LoadProgressComponent  : public Component,
-                               public SliderListener
+                               public Slider::Listener
 {
 public:
     //==============================================================================

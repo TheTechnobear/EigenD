@@ -172,7 +172,7 @@ namespace
                 }
                 else
                 {
-                    PluginDescription *d = current_plugin_list_.getTypeForFile(plugins_[cur_plugin_]);
+                    PluginDescription *d = current_plugin_list_.getTypeForFile(plugins_[cur_plugin_]).release();
 
                     if(d)
                     {
@@ -353,9 +353,9 @@ namespace
             {
                 juce::File f(getPluginsDir().getChildFile(PLUGINS_CACHE));
 
-                std::auto_ptr<juce::XmlElement> el(plugin_list_.createXml());
+                std::auto_ptr<juce::XmlElement> el(plugin_list_.createXml().release());
                 std::cout << "writing " << f.getFullPathName() << std::endl;
-                if(!el->writeToFile(f,juce::String::empty)) std::cout << "oops, failed!" << std::endl;
+                if(!el->writeToFile(f,juce::String())) std::cout << "oops, failed!" << std::endl;
                 std::cout << "done." << std::endl;
 
                 juce::File b(getPluginsDir().getChildFile(BAD_PLUGINS));
@@ -482,8 +482,8 @@ namespace
             EigenScanCtlComponent(EigenScanner *app): app_(app), font_(12.f), fullscan_(false), paths_(app)
             {
                 table()->setModel(this);
-                table()->getHeader().addColumn(String::empty,1,495,495,495,TableHeaderComponent::visible);
-                table()->getHeader().addColumn(String::empty,2,17,17,17,TableHeaderComponent::visible);
+                table()->getHeader().addColumn(String(),1,495,495,495,TableHeaderComponent::visible);
+                table()->getHeader().addColumn(String(),2,17,17,17,TableHeaderComponent::visible);
                 table()->setHeaderHeight(0);
 
                 paths()->setModel(&paths_);
@@ -550,7 +550,7 @@ namespace
                 ToggleButton *b = (ToggleButton *)existing;
                 if(!b)
                 {
-                    b = new ToggleButton(String::empty);
+                    b = new ToggleButton(String());
                     b->addListener(this);
                 }
 

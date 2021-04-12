@@ -85,8 +85,8 @@ Button* WBTabBarButton::createTabBarCloseButton()
 	
 	
     DrawableComposite normalImage;
-    normalImage.addAndMakeVisible (ellipse.createCopy());
-	normalImage.addAndMakeVisible (dp.createCopy());
+    normalImage.addAndMakeVisible (ellipse.createCopy().release());
+	normalImage.addAndMakeVisible (dp.createCopy().release());
 
 
     //normalImage.insertDrawable (ellipse);
@@ -98,8 +98,8 @@ Button* WBTabBarButton::createTabBarCloseButton()
     //overImage.insertDrawable (ellipse);
     //overImage.insertDrawable (dp);
 
-	overImage.addAndMakeVisible (ellipse.createCopy());
-	overImage.addAndMakeVisible (dp.createCopy());
+	overImage.addAndMakeVisible (ellipse.createCopy().release());
+	overImage.addAndMakeVisible (dp.createCopy().release());
 
     DrawableButton* db = new DrawableButton ("closeTab", DrawableButton::ImageFitted);
     db->setImages (&normalImage, &overImage, 0);
@@ -431,7 +431,7 @@ void WBTabBarButton::fillTabButtonShape (Graphics& g, const Path& path, const Co
 
 
 class WBTabbedButtonBar::BehindFrontTabComp  : public Component,
-											 public ButtonListener // (can't use Button::Listener due to idiotic VC2005 bug)
+											 public Button::Listener // (can't use Button::Listener due to idiotic VC2005 bug)
 {
 public:
 	BehindFrontTabComp (WBTabbedButtonBar& owner_)
@@ -635,7 +635,7 @@ int WBTabbedButtonBar::getNumTabs() const
 String WBTabbedButtonBar::getCurrentTabName() const
 {
 	TabInfo* tab = tabs [currentTabIndex];
-	return tab == nullptr ? String::empty : tab->name;
+	return tab == nullptr ? String() : tab->name;
 }
 
 StringArray WBTabbedButtonBar::getTabNames() const

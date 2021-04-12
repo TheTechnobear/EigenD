@@ -63,7 +63,7 @@ public:
                                                                     //[/Comments]
 */
 class XYMapComponent  : public Component,
-                        public ButtonListener
+                        public Button::Listener
 {
 public:
     //==============================================================================

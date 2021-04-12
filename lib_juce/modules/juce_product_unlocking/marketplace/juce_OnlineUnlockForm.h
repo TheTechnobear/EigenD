@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,7 +23,10 @@
   ==============================================================================
 */
 
-/** Acts as a GUI which asks the user for their details, and calls the approriate
+namespace juce
+{
+
+/** Acts as a GUI which asks the user for their details, and calls the appropriate
     methods on your OnlineUnlockStatus object to attempt to register the app.
 
     You should create one of these components and add it to your parent window,
@@ -42,9 +44,11 @@
     if you need to get rid of it sooner.
 
     @see OnlineUnlockStatus
+
+    @tags{ProductUnlocking}
 */
 class JUCE_API  OnlineUnlockForm  : public Component,
-                                    private ButtonListener
+                                    private Button::Listener
 {
 public:
     /** Creates an unlock form that will work with the given status object.
@@ -52,10 +56,11 @@ public:
     */
     OnlineUnlockForm (OnlineUnlockStatus&,
                       const String& userInstructions,
-                      bool hasCancelButton = true);
+                      bool hasCancelButton = true,
+                      bool overlayHasCancelButton = false);
 
     /** Destructor. */
-    ~OnlineUnlockForm();
+    ~OnlineUnlockForm() override;
 
     /** This is called when the form is dismissed (either cancelled or when registration
         succeeds).
@@ -76,7 +81,9 @@ public:
 
 private:
     OnlineUnlockStatus& status;
-    ScopedPointer<BubbleMessageComponent> bubble;
+    std::unique_ptr<BubbleMessageComponent> bubble;
+
+    bool showOverlayCancelButton;
 
     struct OverlayComp;
     friend struct OverlayComp;
@@ -88,3 +95,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OnlineUnlockForm)
 };
+
+} // namespace juce

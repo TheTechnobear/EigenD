@@ -22,8 +22,8 @@ Import('master_env')
 
 import os.path
 
-release = '2.1.8'
-compatible = '2.1'
+release = '2.2.0'
+compatible = '2.2'
 
 status = {
     'windows': 'community',

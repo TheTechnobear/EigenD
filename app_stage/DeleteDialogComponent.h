@@ -56,7 +56,7 @@
 */
 class DeleteDialogComponent  : public Component,
                                public ComponentBoundsConstrainer,
-                               public ButtonListener
+                               public Button::Listener
 {
 public:
     //==============================================================================

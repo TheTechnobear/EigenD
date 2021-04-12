@@ -22,14 +22,14 @@
     BrowseTreeViewItem::BrowseTreeViewItem (Atom* atom, String parentpath,int nf, int nc): atom_(atom)
     {
 //        pic::logmsg()<<"creating BrowseTreeViewItem: "<< this<< " parent= "<<std::string(parentpath.toUTF8());
-        tip_=String::empty; 
+        tip_=String(); 
         displayText_="Fetching...";
         nf_=nf;
         nc_=nc;
         expandable_=false;
         parentpath_=parentpath;
         empty_=true;
-        cookie_=String::empty;
+        cookie_=String();
     }
 
 
@@ -105,7 +105,7 @@
     var BrowseTreeViewItem::getDragSourceDescription()
     {
     // XXX
-        return String::empty;
+        return String();
     }
 
     bool BrowseTreeViewItem::isInterestedInDragSource(const DragAndDropTarget::SourceDetails &)

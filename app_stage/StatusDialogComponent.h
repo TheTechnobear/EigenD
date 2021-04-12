@@ -88,7 +88,7 @@ class StatusTimer: public Timer
 class StatusDialogComponent  : public Component,
                                public ComponentBoundsConstrainer,
                                public MessageListener,
-                               public ButtonListener
+                               public Button::Listener
 {
 public:
     //==============================================================================

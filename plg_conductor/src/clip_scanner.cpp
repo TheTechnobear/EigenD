@@ -113,7 +113,7 @@ void cdtr::clip_scanner_t::scan(sqlite3 *db)
     while (iter_xml.next())
     {
         juce::File clip_xml(iter_xml.getFile());
-        XmlElement *xml = XmlDocument::parse(clip_xml);
+        std::unique_ptr<XmlElement> xml = XmlDocument::parse(clip_xml);
         if(xml && xml->hasTagName("clip"))
         {
             const char *uuid = xml->getStringAttribute("uuid").toUTF8();

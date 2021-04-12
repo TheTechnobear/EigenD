@@ -54,7 +54,7 @@
                                                                     //[/Comments]
 */
 class DeleteInstanceConfirmation  : public Component,
-                                    public ButtonListener
+                                    public Button::Listener
 {
 public:
     //==============================================================================

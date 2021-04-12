@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,7 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 #if JUCE_ENABLE_LIVE_CONSTANT_EDITOR && ! DOXYGEN
 
@@ -105,16 +105,12 @@ namespace LiveConstantEditor
     };
 
     //==============================================================================
-    struct JUCE_API  LivePropertyEditorBase  : public Component,
-                                               private TextEditor::Listener,
-                                               private ButtonListener
+    struct JUCE_API  LivePropertyEditorBase  : public Component
     {
         LivePropertyEditorBase (LiveValueBase&, CodeDocument&);
 
         void paint (Graphics&) override;
         void resized() override;
-        void textEditorTextChanged (TextEditor&) override;
-        void buttonClicked (Button*) override;
 
         void applyNewValue (const String&);
         void selectOriginalValue();
@@ -123,13 +119,13 @@ namespace LiveConstantEditor
         LiveValueBase& value;
         Label name;
         TextEditor valueEditor;
-        TextButton resetButton;
+        TextButton resetButton { "reset" };
         CodeDocument& document;
         CPlusPlusCodeTokeniser tokeniser;
         CodeEditorComponent sourceEditor;
         CodeDocument::Position valueStart, valueEnd;
-        ScopedPointer<Component> customComp;
-        bool wasHex;
+        std::unique_ptr<Component> customComp;
+        bool wasHex = false;
 
         JUCE_DECLARE_NON_COPYABLE (LivePropertyEditorBase)
     };
@@ -141,18 +137,18 @@ namespace LiveConstantEditor
     Component* createBoolSlider (LivePropertyEditorBase&);
 
     template <typename Type> struct CustomEditor    { static Component* create (LivePropertyEditorBase&)   { return nullptr; } };
-    template<> struct CustomEditor<char>            { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
-    template<> struct CustomEditor<unsigned char>   { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
-    template<> struct CustomEditor<int>             { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
-    template<> struct CustomEditor<unsigned int>    { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
-    template<> struct CustomEditor<short>           { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
-    template<> struct CustomEditor<unsigned short>  { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
-    template<> struct CustomEditor<int64>           { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
-    template<> struct CustomEditor<uint64>          { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
-    template<> struct CustomEditor<float>           { static Component* create (LivePropertyEditorBase& e) { return createFloatSlider (e); } };
-    template<> struct CustomEditor<double>          { static Component* create (LivePropertyEditorBase& e) { return createFloatSlider (e); } };
-    template<> struct CustomEditor<Colour>          { static Component* create (LivePropertyEditorBase& e) { return createColourEditor (e); } };
-    template<> struct CustomEditor<bool>            { static Component* create (LivePropertyEditorBase& e) { return createBoolSlider (e); } };
+    template <> struct CustomEditor<char>           { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
+    template <> struct CustomEditor<unsigned char>  { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
+    template <> struct CustomEditor<int>            { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
+    template <> struct CustomEditor<unsigned int>   { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
+    template <> struct CustomEditor<short>          { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
+    template <> struct CustomEditor<unsigned short> { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
+    template <> struct CustomEditor<int64>          { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
+    template <> struct CustomEditor<uint64>         { static Component* create (LivePropertyEditorBase& e) { return createIntegerSlider (e); } };
+    template <> struct CustomEditor<float>          { static Component* create (LivePropertyEditorBase& e) { return createFloatSlider (e); } };
+    template <> struct CustomEditor<double>         { static Component* create (LivePropertyEditorBase& e) { return createFloatSlider (e); } };
+    template <> struct CustomEditor<Colour>         { static Component* create (LivePropertyEditorBase& e) { return createColourEditor (e); } };
+    template <> struct CustomEditor<bool>           { static Component* create (LivePropertyEditorBase& e) { return createBoolSlider (e); } };
 
     template <typename Type>
     struct LivePropertyEditor  : public LivePropertyEditorBase
@@ -160,7 +156,8 @@ namespace LiveConstantEditor
         template <typename ValueType>
         LivePropertyEditor (ValueType& v, CodeDocument& d)  : LivePropertyEditorBase (v, d)
         {
-            addAndMakeVisible (customComp = CustomEditor<Type>::create (*this));
+            customComp.reset (CustomEditor<Type>::create (*this));
+            addAndMakeVisible (customComp.get());
         }
     };
 
@@ -173,6 +170,7 @@ namespace LiveConstantEditor
         {}
 
         operator Type() const noexcept   { return value; }
+        Type get() const noexcept        { return value; }
         operator const char*() const     { return castToCharPointer (value); }
 
         LivePropertyEditorBase* createPropertyComponent (CodeDocument& doc) override
@@ -197,25 +195,21 @@ namespace LiveConstantEditor
     {
     public:
         ValueList();
-        ~ValueList();
+        ~ValueList() override;
 
-        juce_DeclareSingleton (ValueList, false)
+        JUCE_DECLARE_SINGLETON (ValueList, false)
 
         template <typename Type>
         LiveValue<Type>& getValue (const char* file, int line, const Type& initialValue)
         {
             const ScopedLock sl (lock);
-            typedef LiveValue<Type> ValueType;
+            using ValueType = LiveValue<Type>;
 
-            for (int i = 0; i < values.size(); ++i)
-            {
-                LiveValueBase* v = values.getUnchecked(i);
-
+            for (auto* v : values)
                 if (v->sourceLine == line && v->sourceFile == file)
                     return *static_cast<ValueType*> (v);
-            }
 
-            ValueType* v = new ValueType (file, line, initialValue);
+            auto v = new ValueType (file, line, initialValue);
             addValue (v);
             return *v;
         }
@@ -225,8 +219,6 @@ namespace LiveConstantEditor
         OwnedArray<CodeDocument> documents;
         Array<File> documentFiles;
         class EditorWindow;
-        friend class EditorWindow;
-        friend struct ContainerDeletePolicy<EditorWindow>;
         Component::SafePointer<EditorWindow> editorWindow;
         CriticalSection lock;
 
@@ -304,8 +296,10 @@ namespace LiveConstantEditor
     @endcode
  */
  #define JUCE_LIVE_CONSTANT(initialValue) \
-    (juce::LiveConstantEditor::getValue (__FILE__, __LINE__ - 1, initialValue))
+    (juce::LiveConstantEditor::getValue (__FILE__, __LINE__ - 1, initialValue).get())
 #else
  #define JUCE_LIVE_CONSTANT(initialValue) \
     (initialValue)
 #endif
+
+} // namespace juce

@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,16 +23,16 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 ComponentMovementWatcher::ComponentMovementWatcher (Component* const comp)
     : component (comp),
-      lastPeerID (0),
-      reentrant (false),
       wasShowing (comp->isShowing())
 {
     jassert (component != nullptr); // can't use this with a null pointer..
 
     component->addComponentListener (this);
-
     registerWithParentComps();
 }
 
@@ -52,8 +51,8 @@ void ComponentMovementWatcher::componentParentHierarchyChanged (Component&)
     {
         const ScopedValueSetter<bool> setter (reentrant, true);
 
-        ComponentPeer* const peer = component->getPeer();
-        const uint32 peerID = peer != nullptr ? peer->getUniqueID() : 0;
+        auto* peer = component->getPeer();
+        auto peerID = peer != nullptr ? peer->getUniqueID() : 0;
 
         if (peerID != lastPeerID)
         {
@@ -82,7 +81,7 @@ void ComponentMovementWatcher::componentMovedOrResized (Component&, bool wasMove
         if (wasMoved)
         {
             Point<int> newPos;
-            Component* const top = component->getTopLevelComponent();
+            auto* top = component->getTopLevelComponent();
 
             if (top != component)
                 newPos = top->getLocalPoint (component, Point<int>());
@@ -125,7 +124,7 @@ void ComponentMovementWatcher::componentVisibilityChanged (Component&)
 
 void ComponentMovementWatcher::registerWithParentComps()
 {
-    for (Component* p = component->getParentComponent(); p != nullptr; p = p->getParentComponent())
+    for (auto* p = component->getParentComponent(); p != nullptr; p = p->getParentComponent())
     {
         p->addComponentListener (this);
         registeredParentComps.add (p);
@@ -134,8 +133,10 @@ void ComponentMovementWatcher::registerWithParentComps()
 
 void ComponentMovementWatcher::unregister()
 {
-    for (int i = registeredParentComps.size(); --i >= 0;)
-        registeredParentComps.getUnchecked(i)->removeComponentListener (this);
+    for (auto* c : registeredParentComps)
+        c->removeComponentListener (this);
 
     registeredParentComps.clear();
 }
+
+} // namespace juce

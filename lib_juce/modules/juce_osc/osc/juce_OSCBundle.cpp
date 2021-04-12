@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 OSCBundle::OSCBundle()
 {
@@ -55,9 +57,9 @@ OSCBundle::Element::Element (const Element& other)
         bundle = nullptr;
 
         if (other.isMessage())
-            message = new OSCMessage (other.getMessage());
+            message.reset (new OSCMessage (other.getMessage()));
         else
-            bundle = new OSCBundle (other.getBundle());
+            bundle.reset (new OSCBundle (other.getBundle()));
     }
 }
 
@@ -105,13 +107,17 @@ const OSCBundle& OSCBundle::Element::getBundle() const
     return *bundle;
 }
 
+
+//==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS
 
 class OSCBundleTests  : public UnitTest
 {
 public:
-    OSCBundleTests() : UnitTest ("OSCBundle class") {}
+    OSCBundleTests()
+        : UnitTest ("OSCBundle class", UnitTestCategories::osc)
+    {}
 
     void runTest()
     {
@@ -192,15 +198,15 @@ private:
         expect (! bundle[1].isBundle());
 
         int numElementsCounted = 0;
-        for (OSCBundle::Element* element = bundle.begin(); element != bundle.end(); ++element)
+        for (auto& element : bundle)
         {
-            expect (element->isMessage());
-            expect (! element->isBundle());
+            expect (element.isMessage());
+            expect (! element.isBundle());
             ++numElementsCounted;
         }
         expectEquals (numElementsCounted, 2);
 
-        OSCBundle::Element* e = bundle.begin();
+        auto* e = bundle.begin();
         expect (e[0].getMessage().size() == 1);
         expect (e[0].getMessage().begin()->getInt32() == testInt);
         expect (e[1].getMessage().size() == 2);
@@ -214,7 +220,9 @@ static OSCBundleTests OSCBundleUnitTests;
 class OSCBundleElementTests  : public UnitTest
 {
 public:
-    OSCBundleElementTests() : UnitTest ("OSCBundle::Element class") {}
+    OSCBundleElementTests()
+        : UnitTest ("OSCBundle::Element class", UnitTestCategories::osc)
+    {}
 
     void runTest()
     {
@@ -236,4 +244,6 @@ public:
 
 static OSCBundleElementTests OSCBundleElementUnitTests;
 
-#endif // JUCE_UNIT_TESTS
+#endif
+
+} // namespace juce

@@ -61,9 +61,9 @@
                                                                     //[/Comments]
 */
 class CoursesPropertyEditor  : public Component,
-                               public TextEditorListener,
+                               public TextEditor::Listener,
                                public AtomEditor,
-                               public ButtonListener
+                               public Button::Listener
 {
 public:
     //==============================================================================

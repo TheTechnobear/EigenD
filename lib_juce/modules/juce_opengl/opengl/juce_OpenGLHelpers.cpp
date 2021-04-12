@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 void OpenGLHelpers::resetErrorState()
 {
@@ -73,7 +75,7 @@ void OpenGLHelpers::clear (Colour colour)
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void OpenGLHelpers::enableScissorTest (const Rectangle<int>& clip)
+void OpenGLHelpers::enableScissorTest (Rectangle<int> clip)
 {
     glEnable (GL_SCISSOR_TEST);
     glScissor (clip.getX(), clip.getY(), clip.getWidth(), clip.getHeight());
@@ -97,7 +99,7 @@ String OpenGLHelpers::translateVertexShaderToV3 (const String& code)
 
             for (int p = code.indexOf (0, "attribute "); p >= 0; p = code.indexOf (p + 1, "attribute "))
             {
-                output += code.substring (last, p) + String ("layout(location=") + String (--numAttributes) + ") in ";
+                output += code.substring (last, p) + "layout(location=" + String (--numAttributes) + ") in ";
 
                 last = p + 10;
             }
@@ -128,3 +130,5 @@ String OpenGLHelpers::translateFragmentShaderToV3 (const String& code)
 
     return code;
 }
+
+} // namespace juce

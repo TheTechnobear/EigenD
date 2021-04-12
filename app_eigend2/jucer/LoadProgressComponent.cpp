@@ -32,15 +32,15 @@
 LoadProgressComponent::LoadProgressComponent ()
     : progress_slider (0),
       message_label (0),
-      cachedImage_textBoxTl_png (0),
-      cachedImage_textBoxTr_png (0),
-      cachedImage_textBoxBr_png (0),
-      cachedImage_textBoxBl_png (0),
-      cachedImage_textBoxL_png (0),
-      cachedImage_textBoxR_png (0),
-      cachedImage_textBoxB_png (0),
-      cachedImage_textBoxT_png (0),
-      cachedImage_textBoxInner_png (0)
+      cachedImage_textBoxTl_png (nullptr),
+      cachedImage_textBoxTr_png (nullptr),
+      cachedImage_textBoxBr_png (nullptr),
+      cachedImage_textBoxBl_png (nullptr),
+      cachedImage_textBoxL_png (nullptr),
+      cachedImage_textBoxR_png (nullptr),
+      cachedImage_textBoxB_png (nullptr),
+      cachedImage_textBoxT_png (nullptr),
+      cachedImage_textBoxInner_png (nullptr)
 {
     addAndMakeVisible (progress_slider = new Slider ("new slider"));
     progress_slider->setRange (0, 100, 1);

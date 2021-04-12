@@ -55,12 +55,12 @@ WidgetDialogComponent::WidgetDialogComponent ()
     nameEditor->setScrollbarsShown (true);
     nameEditor->setCaretVisible (true);
     nameEditor->setPopupMenuEnabled (true);
-    nameEditor->setText (String::empty);
+    nameEditor->setText (String());
 
     addAndMakeVisible (typeCombo = new ComboBox ("type combo"));
     typeCombo->setEditableText (false);
     typeCombo->setJustificationType (Justification::centredLeft);
-    typeCombo->setTextWhenNothingSelected (String::empty);
+    typeCombo->setTextWhenNothingSelected (String());
     typeCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     typeCombo->addListener (this);
 
@@ -117,7 +117,7 @@ WidgetDialogComponent::WidgetDialogComponent ()
     positionLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (enableToggleButton = new ToggleButton ("enable toggle button"));
-    enableToggleButton->setButtonText (String::empty);
+    enableToggleButton->setButtonText (String());
     enableToggleButton->addListener (this);
     enableToggleButton->setColour (ToggleButton::textColourId, Colour (0xff999999));
 
@@ -146,7 +146,7 @@ WidgetDialogComponent::WidgetDialogComponent ()
     minEditor->setScrollbarsShown (false);
     minEditor->setCaretVisible (true);
     minEditor->setPopupMenuEnabled (true);
-    minEditor->setText (String::empty);
+    minEditor->setText (String());
 
     addAndMakeVisible (maxLabel = new Label ("max label",
                                              TRANS("Maximum")));
@@ -164,7 +164,7 @@ WidgetDialogComponent::WidgetDialogComponent ()
     maxEditor->setScrollbarsShown (false);
     maxEditor->setCaretVisible (true);
     maxEditor->setPopupMenuEnabled (true);
-    maxEditor->setText (String::empty);
+    maxEditor->setText (String());
 
     addAndMakeVisible (stepLabel = new Label ("step label",
                                               TRANS("Step")));
@@ -182,7 +182,7 @@ WidgetDialogComponent::WidgetDialogComponent ()
     stepEditor->setScrollbarsShown (false);
     stepEditor->setCaretVisible (true);
     stepEditor->setPopupMenuEnabled (true);
-    stepEditor->setText (String::empty);
+    stepEditor->setText (String());
 
 
     //[UserPreSize]

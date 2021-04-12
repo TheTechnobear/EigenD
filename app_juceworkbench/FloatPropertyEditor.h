@@ -67,9 +67,9 @@ public:
                                                                     //[/Comments]
 */
 class FloatPropertyEditor  : public Component,
-                             public TextEditorListener,
+                             public TextEditor::Listener,
                              public AtomEditor,
-                             public SliderListener
+                             public Slider::Listener
 {
 public:
     //==============================================================================

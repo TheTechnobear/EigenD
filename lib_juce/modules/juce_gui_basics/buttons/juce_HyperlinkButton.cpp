@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 HyperlinkButton::HyperlinkButton (const String& linkText,
                                   const URL& linkURL)
@@ -69,7 +71,7 @@ void HyperlinkButton::setURL (const URL& newURL) noexcept
 Font HyperlinkButton::getFontToUse() const
 {
     if (resizeFont)
-        return font.withHeight (getHeight() * 0.7f);
+        return font.withHeight ((float) getHeight() * 0.7f);
 
     return font;
 }
@@ -77,6 +79,15 @@ Font HyperlinkButton::getFontToUse() const
 void HyperlinkButton::changeWidthToFitText()
 {
     setSize (getFontToUse().getStringWidth (getButtonText()) + 6, getHeight());
+}
+
+void HyperlinkButton::setJustificationType (Justification newJustification)
+{
+    if (justification != newJustification)
+    {
+        justification = newJustification;
+        repaint();
+    }
 }
 
 void HyperlinkButton::colourChanged()
@@ -92,13 +103,13 @@ void HyperlinkButton::clicked()
 }
 
 void HyperlinkButton::paintButton (Graphics& g,
-                                   bool isMouseOverButton,
-                                   bool isButtonDown)
+                                   bool shouldDrawButtonAsHighlighted,
+                                   bool shouldDrawButtonAsDown)
 {
     const Colour textColour (findColour (textColourId));
 
     if (isEnabled())
-        g.setColour ((isMouseOverButton) ? textColour.darker ((isButtonDown) ? 1.3f : 0.4f)
+        g.setColour ((shouldDrawButtonAsHighlighted) ? textColour.darker ((shouldDrawButtonAsDown) ? 1.3f : 0.4f)
                                          : textColour);
     else
         g.setColour (textColour.withMultipliedAlpha (0.4f));
@@ -109,3 +120,5 @@ void HyperlinkButton::paintButton (Graphics& g,
                 justification.getOnlyHorizontalFlags() | Justification::verticallyCentred,
                 true);
 }
+
+} // namespace juce

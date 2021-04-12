@@ -74,10 +74,10 @@ NameEditor::NameEditor (String name)
     textEditor->setScrollbarsShown (true);
     textEditor->setCaretVisible (true);
     textEditor->setPopupMenuEnabled (true);
-    textEditor->setText (String::empty);
+    textEditor->setText (String());
 
     addAndMakeVisible (srcLabel = new Label ("srcLabel",
-                                             String::empty));
+                                             String()));
     srcLabel->setFont (Font (15.00f, Font::plain));
     srcLabel->setJustificationType (Justification::centredLeft);
     srcLabel->setEditable (false, false, false);

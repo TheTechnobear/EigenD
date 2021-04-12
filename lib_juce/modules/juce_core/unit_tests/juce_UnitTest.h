@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,7 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 class UnitTestRunner;
 
@@ -62,19 +63,24 @@ class UnitTestRunner;
     To run a test, use the UnitTestRunner class.
 
     @see UnitTestRunner
+
+    @tags{Core}
 */
 class JUCE_API  UnitTest
 {
 public:
     //==============================================================================
-    /** Creates a test with the given name. */
-    explicit UnitTest (const String& name);
+    /** Creates a test with the given name and optionally places it in a category. */
+    explicit UnitTest (const String& name, const String& category = String());
 
     /** Destructor. */
     virtual ~UnitTest();
 
     /** Returns the name of the test. */
     const String& getName() const noexcept       { return name; }
+
+    /** Returns the category of the test. */
+    const String& getCategory() const noexcept   { return category; }
 
     /** Runs the test, using the specified UnitTestRunner.
         You shouldn't need to call this method directly - use
@@ -84,6 +90,12 @@ public:
 
     /** Returns the set of all UnitTest objects that currently exist. */
     static Array<UnitTest*>& getAllTests();
+
+    /** Returns the set of UnitTests in a specified category. */
+    static Array<UnitTest*> getTestsInCategory (const String& category);
+
+    /** Returns a StringArray containing all of the categories of UnitTests that have been registered. */
+    static StringArray getAllCategories();
 
     //==============================================================================
     /** You can optionally implement this method to set up your test.
@@ -288,8 +300,8 @@ private:
     }
 
     //==============================================================================
-    const String name;
-    UnitTestRunner* runner;
+    const String name, category;
+    UnitTestRunner* runner = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE (UnitTest)
 };
@@ -306,6 +318,8 @@ private:
     perform custom behaviour when each test completes.
 
     @see UnitTest
+
+    @tags{Core}
 */
 class JUCE_API  UnitTestRunner
 {
@@ -335,6 +349,14 @@ public:
     */
     void runAllTests (int64 randomSeed = 0);
 
+    /** Runs all the UnitTest objects within a specified category.
+        This calls runTests() for all the objects listed in UnitTest::getTestsInCategory().
+
+        If you want to run the tests with a predetermined seed, you can pass that into
+        the randomSeed argument, or pass 0 to have a randomly-generated seed chosen.
+    */
+    void runTestsInCategory (const String& category, int64 randomSeed = 0);
+
     /** Sets a flag to indicate whether an assertion should be triggered if a test fails.
         This is true by default.
     */
@@ -354,18 +376,31 @@ public:
     */
     struct TestResult
     {
+        TestResult() = default;
+
+        explicit TestResult (const String& name, const String& subCategory)
+             : unitTestName (name),
+               subcategoryName (subCategory)
+        {
+        }
+
         /** The main name of this test (i.e. the name of the UnitTest object being run). */
         String unitTestName;
         /** The name of the current subcategory (i.e. the name that was set when UnitTest::beginTest() was called). */
         String subcategoryName;
 
         /** The number of UnitTest::expect() calls that succeeded. */
-        int passes;
+        int passes = 0;
         /** The number of UnitTest::expect() calls that failed. */
-        int failures;
+        int failures = 0;
 
         /** A list of messages describing the failed tests. */
         StringArray messages;
+
+        /** The time at which this test was started. */
+        Time startTime = Time::getCurrentTime();
+        /** The time at which this test ended. */
+        Time endTime;
     };
 
     /** Returns the number of TestResult objects that have been performed.
@@ -399,10 +434,10 @@ private:
     //==============================================================================
     friend class UnitTest;
 
-    UnitTest* currentTest;
+    UnitTest* currentTest = nullptr;
     String currentSubCategory;
-    OwnedArray <TestResult, CriticalSection> results;
-    bool assertOnFailure, logPasses;
+    OwnedArray<TestResult, CriticalSection> results;
+    bool assertOnFailure = true, logPasses = false;
     Random randomForTest;
 
     void beginNewTest (UnitTest* test, const String& subCategory);
@@ -413,3 +448,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE (UnitTestRunner)
 };
+
+} // namespace juce

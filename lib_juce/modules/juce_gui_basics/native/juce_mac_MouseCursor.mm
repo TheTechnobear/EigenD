@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,33 +23,14 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 #if JUCE_MAC
 
 //==============================================================================
 namespace MouseCursorHelpers
 {
-    NSImage* createNSImage (const Image&, float scaleFactor = 1.f);
-    NSImage* createNSImage (const Image& image, float scaleFactor)
-    {
-        JUCE_AUTORELEASEPOOL
-        {
-            NSImage* im = [[NSImage alloc] init];
-            const NSSize requiredSize = NSMakeSize (image.getWidth() / scaleFactor, image.getHeight() / scaleFactor);
-
-            [im setSize: requiredSize];
-            CGColorSpaceRef colourSpace = CGColorSpaceCreateDeviceRGB();
-            CGImageRef imageRef = juce_createCoreGraphicsImage (image, colourSpace, true);
-            CGColorSpaceRelease (colourSpace);
-
-            NSBitmapImageRep* imageRep = [[NSBitmapImageRep alloc] initWithCGImage: imageRef];
-            [imageRep setSize: requiredSize];
-            [im addRepresentation: imageRep];
-            [imageRep release];
-            CGImageRelease (imageRef);
-            return im;
-        }
-    }
-
     static NSCursor* fromNSImage (NSImage* im, NSPoint hotspot)
     {
         NSCursor* c = [[NSCursor alloc] initWithImage: im
@@ -63,9 +43,9 @@ namespace MouseCursorHelpers
     {
         JUCE_AUTORELEASEPOOL
         {
-            const String cursorPath (String ("/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/"
-                                             "HIServices.framework/Versions/A/Resources/cursors/")
-                                       + filename);
+            auto cursorPath = String ("/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/"
+                                      "HIServices.framework/Versions/A/Resources/cursors/")
+                                  + filename;
 
             NSImage* originalImage = [[NSImage alloc] initByReferencingFile: juceStringToNS (cursorPath + "/cursor.pdf")];
             NSSize originalSize = [originalImage size];
@@ -97,8 +77,8 @@ namespace MouseCursorHelpers
 
             NSDictionary* info = [NSDictionary dictionaryWithContentsOfFile: juceStringToNS (cursorPath + "/info.plist")];
 
-            const float hotspotX = (float) [[info valueForKey: nsStringLiteral ("hotx")] doubleValue];
-            const float hotspotY = (float) [[info valueForKey: nsStringLiteral ("hoty")] doubleValue];
+            auto hotspotX = (float) [[info valueForKey: nsStringLiteral ("hotx")] doubleValue];
+            auto hotspotY = (float) [[info valueForKey: nsStringLiteral ("hoty")] doubleValue];
 
             return fromNSImage (resultImage, NSMakePoint (hotspotX, hotspotY));
         }
@@ -107,7 +87,7 @@ namespace MouseCursorHelpers
 
 void* CustomMouseCursorInfo::create() const
 {
-    return MouseCursorHelpers::fromNSImage (MouseCursorHelpers::createNSImage (image, scaleFactor),
+    return MouseCursorHelpers::fromNSImage (imageToNSImage (image, scaleFactor),
                                             NSMakePoint (hotspot.x, hotspot.y));
 }
 
@@ -121,7 +101,7 @@ void* MouseCursor::createStandardMouseCursor (MouseCursor::StandardCursorType ty
         {
             case NormalCursor:
             case ParentCursor:          c = [NSCursor arrowCursor]; break;
-            case NoCursor:              return CustomMouseCursorInfo (Image (Image::ARGB, 8, 8, true), 0, 0).create();
+            case NoCursor:              return CustomMouseCursorInfo (Image (Image::ARGB, 8, 8, true), {}).create();
             case DraggingHandCursor:    c = [NSCursor openHandCursor]; break;
             case WaitCursor:            c = [NSCursor arrowCursor]; break; // avoid this on the mac, let the OS provide the beachball
             case IBeamCursor:           c = [NSCursor IBeamCursor]; break;
@@ -132,12 +112,7 @@ void* MouseCursor::createStandardMouseCursor (MouseCursor::StandardCursorType ty
 
             case CopyingCursor:
             {
-               #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_6
-                if (void* m = MouseCursorHelpers::fromHIServices ("copy"))
-                    return m;
-               #endif
-
-                c = [NSCursor dragCopyCursor]; // added in 10.6
+                c = [NSCursor dragCopyCursor];
                 break;
             }
 
@@ -168,6 +143,7 @@ void* MouseCursor::createStandardMouseCursor (MouseCursor::StandardCursorType ty
             case UpDownLeftRightResizeCursor:
                 return MouseCursorHelpers::fromHIServices ("move");
 
+            case NumStandardCursorTypes:
             default:
                 jassertfalse;
                 break;
@@ -183,14 +159,9 @@ void MouseCursor::deleteMouseCursor (void* const cursorHandle, const bool /*isSt
     [((NSCursor*) cursorHandle) release];
 }
 
-void MouseCursor::showInAllWindows() const
-{
-    showInWindow (nullptr);
-}
-
 void MouseCursor::showInWindow (ComponentPeer*) const
 {
-    NSCursor* c = (NSCursor*) getHandle();
+    auto c = (NSCursor*) getHandle();
 
     if (c == nil)
         c = [NSCursor arrowCursor];
@@ -203,7 +174,8 @@ void MouseCursor::showInWindow (ComponentPeer*) const
 void* CustomMouseCursorInfo::create() const                                              { return nullptr; }
 void* MouseCursor::createStandardMouseCursor (MouseCursor::StandardCursorType)           { return nullptr; }
 void MouseCursor::deleteMouseCursor (void*, bool)                                        {}
-void MouseCursor::showInAllWindows() const                                               {}
 void MouseCursor::showInWindow (ComponentPeer*) const                                    {}
 
 #endif
+
+} // namespace juce

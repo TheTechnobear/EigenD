@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,11 +23,14 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 //==============================================================================
 /**
     This class contains some static methods for showing native alert windows.
+
+    @tags{GUI}
 */
 class NativeMessageBox
 {
@@ -45,7 +47,7 @@ public:
                             alert window should be associated with. Depending on the look
                             and feel, this might be used for positioning of the alert window.
     */
-   #if JUCE_MODAL_LOOPS_PERMITTED
+   #if JUCE_MODAL_LOOPS_PERMITTED || DOXYGEN
     static void JUCE_CALLTYPE showMessageBox (AlertWindow::AlertIconType iconType,
                                               const String& title,
                                               const String& message,
@@ -67,7 +69,10 @@ public:
                             modalStateFinished() when the box is dismissed. The callback object
                             will be owned and deleted by the system, so make sure that it works
                             safely and doesn't keep any references to objects that might be deleted
-                            before it gets called.
+                            before it gets called. You can use the ModalCallbackFunction to easily
+                            pass in a lambda for this parameter.
+
+        @see ModalCallbackFunction
     */
     static void JUCE_CALLTYPE showMessageBoxAsync (AlertWindow::AlertIconType iconType,
                                                     const String& title,
@@ -98,10 +103,13 @@ public:
                             being 1 if the ok button was pressed, or 0 for cancel, The callback object
                             will be owned and deleted by the system, so make sure that it works
                             safely and doesn't keep any references to objects that might be deleted
-                            before it gets called.
+                            before it gets called. You can use the ModalCallbackFunction to easily
+                            pass in a lambda for this parameter.
         @returns true if button 1 was clicked, false if it was button 2. If the callback parameter
                  is not null, the method always returns false, and the user's choice is delivered
                  later by the callback.
+
+        @see ModalCallbackFunction
     */
     static bool JUCE_CALLTYPE showOkCancelBox (AlertWindow::AlertIconType iconType,
                                                const String& title,
@@ -138,13 +146,16 @@ public:
                             being 1 if the "yes" button was pressed, 2 for the "no" button, or 0
                             if it was cancelled, The callback object will be owned and deleted by the
                             system, so make sure that it works safely and doesn't keep any references
-                            to objects that might be deleted before it gets called.
+                            to objects that might be deleted before it gets called. You can use the
+                            ModalCallbackFunction to easily pass in a lambda for this parameter.
 
         @returns If the callback parameter has been set, this returns 0. Otherwise, it returns one
                  of the following values:
                  - 0 if 'cancel' was pressed
                  - 1 if 'yes' was pressed
                  - 2 if 'no' was pressed
+
+        @see ModalCallbackFunction
     */
     static int JUCE_CALLTYPE showYesNoCancelBox (AlertWindow::AlertIconType iconType,
                                                  const String& title,
@@ -181,12 +192,15 @@ public:
                             being 1 if the "yes" button was pressed or 0 for the "no" button was
                             pressed. The callback object will be owned and deleted by the
                             system, so make sure that it works safely and doesn't keep any references
-                            to objects that might be deleted before it gets called.
+                            to objects that might be deleted before it gets called. You can use the
+                            ModalCallbackFunction to easily pass in a lambda for this parameter.
 
         @returns If the callback parameter has been set, this returns 0. Otherwise, it returns one
                  of the following values:
                  - 0 if 'no' was pressed
                  - 1 if 'yes' was pressed
+
+        @see ModalCallbackFunction
     */
     static int JUCE_CALLTYPE showYesNoBox (AlertWindow::AlertIconType iconType,
                                            const String& title,
@@ -200,6 +214,8 @@ public:
                                           #endif
 
 private:
-    NativeMessageBox() JUCE_DELETED_FUNCTION;
+    NativeMessageBox() = delete;
     JUCE_DECLARE_NON_COPYABLE (NativeMessageBox)
 };
+
+} // namespace juce

@@ -27,7 +27,7 @@
 
 class CreateAgentComponent  : public Component,
                              public TextEditor::Listener,
-                             public ButtonListener,
+                             public Button::Listener,
                              public ListBoxModel
 {
 public:

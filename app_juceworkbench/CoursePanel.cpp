@@ -83,7 +83,7 @@ CoursePanel::CoursePanel (int x, int y)
     courseBox->setScrollbarsShown (true);
     courseBox->setCaretVisible (true);
     courseBox->setPopupMenuEnabled (true);
-    courseBox->setText (String::empty);
+    courseBox->setText (String());
 
     addAndMakeVisible (removeButton = new TextButton ("removebutton"));
     removeButton->setButtonText (TRANS("Remove course"));
@@ -91,7 +91,7 @@ CoursePanel::CoursePanel (int x, int y)
     removeButton->setColour (TextButton::buttonColourId, Colour (0xffcdcdcd));
 
     addAndMakeVisible (breathButton = new ToggleButton ("breathButton"));
-    breathButton->setButtonText (String::empty);
+    breathButton->setButtonText (String());
     breathButton->addListener (this);
     breathButton->setColour (ToggleButton::textColourId, Colour (0xfff0efef));
 

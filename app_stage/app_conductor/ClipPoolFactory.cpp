@@ -19,7 +19,7 @@
 
 #include "ClipPoolFactory.h"
  
-ClipPoolFactory::ClipPoolFactory(ButtonListener* listener)
+ClipPoolFactory::ClipPoolFactory(Button::Listener* listener)
 {
     listener_=listener;
     setupButtons();
@@ -67,28 +67,28 @@ void ClipPoolFactory::setupButtons()
    Drawable* dr=0;
    Drawable* dr2=0;
 
-   dr=Drawable::createFromImageData(ImageResources::audio_button_off_png, ImageResources::audio_button_off_pngSize);
-   dr2=Drawable::createFromImageData(ImageResources::audio_button_on_png, ImageResources::audio_button_on_pngSize);
+   dr=Drawable::createFromImageData(ImageResources::audio_button_off_png, ImageResources::audio_button_off_pngSize).release();
+   dr2=Drawable::createFromImageData(ImageResources::audio_button_on_png, ImageResources::audio_button_on_pngSize).release();
    audioButton_=setupButton(AUDIO_CLIP,"Audio clips",  dr,dr2);
    audioButton_->setToggleState(true,false);
 
-   dr=Drawable::createFromImageData(ImageResources::instrument_button_off_png, ImageResources::instrument_button_off_pngSize);
-   dr2=Drawable::createFromImageData(ImageResources::instrument_button_on_png, ImageResources::instrument_button_on_pngSize);
+   dr=Drawable::createFromImageData(ImageResources::instrument_button_off_png, ImageResources::instrument_button_off_pngSize).release();
+   dr2=Drawable::createFromImageData(ImageResources::instrument_button_on_png, ImageResources::instrument_button_on_pngSize).release();
    instrumentButton_=setupButton(INSTRUMENT_CLIP,"Instrument clips",  dr,dr2);
 
-   dr=Drawable::createFromImageData(ImageResources::talker_button_off_png, ImageResources::talker_button_off_pngSize);
-   dr2=Drawable::createFromImageData(ImageResources::talker_button_on_png, ImageResources::talker_button_on_pngSize);
+   dr=Drawable::createFromImageData(ImageResources::talker_button_off_png, ImageResources::talker_button_off_pngSize).release();
+   dr2=Drawable::createFromImageData(ImageResources::talker_button_on_png, ImageResources::talker_button_on_pngSize).release();
    talkerButton_=setupButton(TALKER_CLIP,"Talker clips",  dr,dr2);
 
-   dr=Drawable::createFromImageData(ImageResources::scene_button_off_png, ImageResources::scene_button_off_pngSize);
-   dr2=Drawable::createFromImageData(ImageResources::scene_button_on_png, ImageResources::scene_button_on_pngSize);
+   dr=Drawable::createFromImageData(ImageResources::scene_button_off_png, ImageResources::scene_button_off_pngSize).release();
+   dr2=Drawable::createFromImageData(ImageResources::scene_button_on_png, ImageResources::scene_button_on_pngSize).release();
    sceneButton_=setupButton(SCENE_CLIP,"Scene clips",  dr,dr2);
 
 }
 
 ToolbarButton* ClipPoolFactory::setupButton(int tool, String label, Drawable* img1, Drawable* img2)
 {
-    ToolbarButton* tbb =new ToolbarButton(tool,label,img1,img2);
+    ToolbarButton* tbb =new ToolbarButton(tool,label,std::unique_ptr<Drawable>(img1),unique_ptr<Drawable>(img2));
     tbb->setRadioGroupId(CLIP_POOL_BUTTON_GROUP);
     tbb->setClickingTogglesState(true);
     tbb->addListener(listener_);

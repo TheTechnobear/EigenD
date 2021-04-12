@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,6 +20,8 @@
   ==============================================================================
 */
 
+namespace juce
+{
 
 /** This topology source holds and applies a set of rules for transforming
     one device topology into another one that may involve virtual and/or
@@ -27,6 +29,8 @@
 
     Given an input PhysicalTopologySource and a set of Rule objects, this class
      will apply the rules and present the resulting topology to clients.
+
+    @tags{Blocks}
 */
 class RuleBasedTopologySource  : public TopologySource
 {
@@ -37,16 +41,16 @@ public:
     RuleBasedTopologySource (TopologySource&);
 
     /** Destructor. */
-    ~RuleBasedTopologySource();
+    ~RuleBasedTopologySource() override;
 
-    //==========================================================================
+    //==============================================================================
     /** Returns the currently active topology. */
-    BlockTopology getCurrentTopology() const;
+    BlockTopology getCurrentTopology() const override;
 
     /** A rule that can transform parts of a topology. */
     struct Rule
     {
-        virtual ~Rule() {}
+        virtual ~Rule() = default;
 
         /** Subclasses should implement this method and use it as their opportunity to
             examine the given topology and modify it. For example they may want to substitute
@@ -69,8 +73,18 @@ public:
     */
     void addRule (Rule*);
 
+    /** Sets the TopologySource as active, occupying the midi port and trying to connect to the block devices */
+    void setActive (bool shouldBeActive) override;
+
+    /** Returns true, if the TopologySource is currently trying to connect the block devices */
+    bool isActive() const override;
+
+    bool isLockedFromOutside() const override { return false; }
+
 private:
-    //==========================================================================
+    //==============================================================================
     struct Internal;
-    juce::ScopedPointer<Internal> internal;
+    std::unique_ptr<Internal> internal;
 };
+
+} // namespace juce

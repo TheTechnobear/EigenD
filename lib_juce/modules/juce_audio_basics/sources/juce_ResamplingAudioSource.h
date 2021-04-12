@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,14 +20,16 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     A type of AudioSource that takes an input source and changes its sample rate.
 
     @see AudioSource, LagrangeInterpolator, CatmullRomInterpolator
+
+    @tags{Audio}
 */
 class JUCE_API  ResamplingAudioSource  : public AudioSource
 {
@@ -45,7 +47,7 @@ public:
                            int numChannels = 2);
 
     /** Destructor. */
-    ~ResamplingAudioSource();
+    ~ResamplingAudioSource() override;
 
     /** Changes the resampling ratio.
 
@@ -74,12 +76,13 @@ public:
 private:
     //==============================================================================
     OptionalScopedPointer<AudioSource> input;
-    double ratio, lastRatio;
-    AudioSampleBuffer buffer;
-    int bufferPos, sampsInBuffer;
-    double subSampleOffset;
+    double ratio = 1.0, lastRatio = 1.0;
+    AudioBuffer<float> buffer;
+    int bufferPos = 0, sampsInBuffer = 0;
+    double subSampleOffset = 0.0;
     double coefficients[6];
     SpinLock ratioLock;
+    CriticalSection callbackLock;
     const int numChannels;
     HeapBlock<float*> destBuffers;
     HeapBlock<const float*> srcBuffers;
@@ -99,3 +102,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ResamplingAudioSource)
 };
+
+} // namespace juce

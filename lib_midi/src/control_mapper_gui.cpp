@@ -298,14 +298,14 @@ namespace midi
                 dp.setFill (Colour (0xcc000000));
 
                 DrawableComposite normalImage;
-                normalImage.addAndMakeVisible (ellipse.createCopy());
-                normalImage.addAndMakeVisible (dp.createCopy());
+                normalImage.addAndMakeVisible (*ellipse.createCopy().get());
+                normalImage.addAndMakeVisible (*dp.createCopy().get());
 
                 dp.setFill (Colour (0x59000000));
 
                 DrawableComposite overImage;
-                overImage.addAndMakeVisible (ellipse.createCopy());
-                overImage.addAndMakeVisible (dp.createCopy());
+                overImage.addAndMakeVisible (*ellipse.createCopy().get());
+                overImage.addAndMakeVisible (*dp.createCopy().get());
 
                 DrawableButton* db = new DrawableButton ("closePopup", DrawableButton::ImageFitted);
                 db->setImages (&normalImage, &overImage, 0);
@@ -659,7 +659,7 @@ namespace midi
 
     mapper_cell_editor_t::mapper_cell_editor_t(mapper_table_t &mapper): mapper_(mapper), edit_control_scope_(true), edit_fixed_channel_(true), edit_resolution_(true), span_poly_(false), active_popup_(0), cell_popup_(0)
     {
-        addAndMakeVisible(label_=new juce::Label(juce::String::empty,"0.0"));
+        addAndMakeVisible(label_=new juce::Label(juce::String(),"0.0"));
         label_->addMouseListener(this,false);
         label_->setJustificationType(juce::Justification::centred);
         label_->setColour(juce::Label::textColourId,juce::Colours::white);
@@ -883,7 +883,7 @@ namespace midi
 
     mapper_yaxis_editor_t::mapper_yaxis_editor_t(mapper_table_t &mapper): mapper_(mapper), label_(0), row_(-1)
     {
-        addAndMakeVisible(label_=new juce::Label(juce::String::empty,""));
+        addAndMakeVisible(label_=new juce::Label(juce::String(),""));
         label_->addMouseListener(this,false);
         label_->setJustificationType(juce::Justification::centredLeft);
         label_->setColour(juce::Label::textColourId,juce::Colours::white);
@@ -938,8 +938,8 @@ namespace midi
 
     void mapper_tablelistbox_t::delegatedMouseWheelMove(const MouseEvent& e, const juce::MouseWheelDetails &d)
     {
-        if((d.deltaX != 0 && getViewport()->getHorizontalScrollBar()->isVisible()) ||
-           (d.deltaY != 0 && getViewport()->getVerticalScrollBar()->isVisible()))
+        if((d.deltaX != 0 && getViewport()-getHorizontalScrollBar().isVisible()) ||
+           (d.deltaY != 0 && getViewport()->getVerticalScrollBar().isVisible()))
         {
             juce::TableListBox::mouseWheelMove(e, d);
         }
@@ -952,7 +952,7 @@ namespace midi
 
     mapper_table_t::mapper_table_t(settings_functors_t settings, mapping_functors_t mapping): settings_functors_(settings), mapping_functors_(mapping), header_table_model_(*this), mapping_table_model_(*this), font_(12.f), last_modal_dismissal_(0), initialized_(false)
     {
-        addAndMakeVisible(table_header_ = new mapper_tablelistbox_t(juce::String::empty,&header_table_model_));
+        addAndMakeVisible(table_header_ = new mapper_tablelistbox_t(juce::String(),&header_table_model_));
         table_header_->getViewport()->setScrollBarsShown(false, false);
         table_header_->setColour(juce::ListBox::backgroundColourId,juce::Colours::black);
         table_header_->setColour(juce::ListBox::outlineColourId,juce::Colours::grey);
@@ -961,13 +961,13 @@ namespace midi
         table_header_->setHeaderHeight(0);
         table_header_->addMouseListener(this, true);
 
-        addAndMakeVisible(table_mapping_ = new mapper_tablelistbox_t(juce::String::empty,&mapping_table_model_));
+        addAndMakeVisible(table_mapping_ = new mapper_tablelistbox_t(juce::String(),&mapping_table_model_));
         table_mapping_->setColour(juce::ListBox::backgroundColourId,juce::Colours::black);
         table_mapping_->setColour(juce::ListBox::outlineColourId,juce::Colours::grey);
         table_mapping_->setColour(juce::ListBox::textColourId,juce::Colours::white);
         table_mapping_->setOutlineThickness(0);
 
-        table_header_->getHeader().addColumn(juce::String::empty,1,110,110,500,juce::TableHeaderComponent::visible);
+        table_header_->getHeader().addColumn(juce::String(),1,110,110,500,juce::TableHeaderComponent::visible);
 
         for(unsigned i=1; i<=32; ++i)
         {

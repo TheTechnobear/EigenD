@@ -64,7 +64,7 @@ public:
                                                                     //[/Comments]
 */
 class XYToZComponent  : public Component,
-                        public ButtonListener
+                        public Button::Listener
 {
 public:
     //==============================================================================

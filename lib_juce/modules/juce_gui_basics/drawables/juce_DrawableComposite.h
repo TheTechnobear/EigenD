@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -37,6 +36,8 @@
     Drawable objects.
 
     @see Drawable
+
+    @tags{GUI}
 */
 class JUCE_API  DrawableComposite  : public Drawable
 {
@@ -49,18 +50,23 @@ public:
     DrawableComposite (const DrawableComposite&);
 
     /** Destructor. */
-    ~DrawableComposite();
+    ~DrawableComposite() override;
 
     //==============================================================================
     /** Sets the parallelogram that defines the target position of the content rectangle when the drawable is rendered.
         @see setContentArea
     */
-    void setBoundingBox (const RelativeParallelogram& newBoundingBox);
+    void setBoundingBox (Parallelogram<float> newBoundingBox);
+
+    /** Sets the rectangle that defines the target position of the content rectangle when the drawable is rendered.
+        @see setContentArea
+    */
+    void setBoundingBox (Rectangle<float> newBoundingBox);
 
     /** Returns the parallelogram that defines the target position of the content rectangle when the drawable is rendered.
         @see setBoundingBox
     */
-    const RelativeParallelogram& getBoundingBox() const noexcept            { return bounds; }
+    Parallelogram<float> getBoundingBox() const noexcept            { return bounds; }
 
     /** Changes the bounding box transform to match the content area, so that any sub-items will
         be drawn at their untransformed positions.
@@ -68,43 +74,23 @@ public:
     void resetBoundingBoxToContentArea();
 
     /** Returns the main content rectangle.
-        The content area is actually defined by the markers named "left", "right", "top" and
-        "bottom", but this method is a shortcut that returns them all at once.
         @see contentLeftMarkerName, contentRightMarkerName, contentTopMarkerName, contentBottomMarkerName
     */
-    RelativeRectangle getContentArea() const;
+    Rectangle<float> getContentArea() const noexcept                { return contentArea; }
 
     /** Changes the main content area.
-        The content area is actually defined by the markers named "left", "right", "top" and
-        "bottom", but this method is a shortcut that sets them all at once.
         @see setBoundingBox, contentLeftMarkerName, contentRightMarkerName, contentTopMarkerName, contentBottomMarkerName
     */
-    void setContentArea (const RelativeRectangle& newArea);
+    void setContentArea (Rectangle<float> newArea);
 
     /** Resets the content area and the bounding transform to fit around the area occupied
-        by the child components (ignoring any markers).
+        by the child components.
     */
     void resetContentAreaAndBoundingBoxToFitChildren();
 
     //==============================================================================
-    /** The name of the marker that defines the left edge of the content area. */
-    static const char* const contentLeftMarkerName;
-    /** The name of the marker that defines the right edge of the content area. */
-    static const char* const contentRightMarkerName;
-    /** The name of the marker that defines the top edge of the content area. */
-    static const char* const contentTopMarkerName;
-    /** The name of the marker that defines the bottom edge of the content area. */
-    static const char* const contentBottomMarkerName;
-
-    //==============================================================================
     /** @internal */
-    Drawable* createCopy() const override;
-    /** @internal */
-    void refreshFromValueTree (const ValueTree&, ComponentBuilder&);
-    /** @internal */
-    ValueTree createValueTree (ComponentBuilder::ImageProvider* imageProvider) const override;
-    /** @internal */
-    static const Identifier valueTreeType;
+    std::unique_ptr<Drawable> createCopy() const override;
     /** @internal */
     Rectangle<float> getDrawableBounds() const override;
     /** @internal */
@@ -114,46 +100,18 @@ public:
     /** @internal */
     void parentHierarchyChanged() override;
     /** @internal */
-    MarkerList* getMarkers (bool xAxis) override;
-
-    //==============================================================================
-    /** Internally-used class for wrapping a DrawableComposite's state into a ValueTree. */
-    class ValueTreeWrapper   : public Drawable::ValueTreeWrapperBase
-    {
-    public:
-        ValueTreeWrapper (const ValueTree& state);
-
-        ValueTree getChildList() const;
-        ValueTree getChildListCreating (UndoManager* undoManager);
-
-        RelativeParallelogram getBoundingBox() const;
-        void setBoundingBox (const RelativeParallelogram& newBounds, UndoManager* undoManager);
-        void resetBoundingBoxToContentArea (UndoManager* undoManager);
-
-        RelativeRectangle getContentArea() const;
-        void setContentArea (const RelativeRectangle& newArea, UndoManager* undoManager);
-
-        MarkerList::ValueTreeWrapper getMarkerList (bool xAxis) const;
-        MarkerList::ValueTreeWrapper getMarkerListCreating (bool xAxis, UndoManager* undoManager);
-
-        static const Identifier topLeft, topRight, bottomLeft;
-
-    private:
-        static const Identifier childGroupTag, markerGroupTagX, markerGroupTagY;
-    };
+    Path getOutlineAsPath() const override;
 
 private:
     //==============================================================================
-    RelativeParallelogram bounds;
-    MarkerList markersX, markersY;
-    bool updateBoundsReentrant;
-
-    friend class Drawable::Positioner<DrawableComposite>;
-    bool registerCoordinates (RelativeCoordinatePositionerBase&);
-    void recalculateCoordinates (Expression::Scope*);
+    Parallelogram<float> bounds;
+    Rectangle<float> contentArea;
+    bool updateBoundsReentrant = false;
 
     void updateBoundsToFitChildren();
 
     DrawableComposite& operator= (const DrawableComposite&);
     JUCE_LEAK_DETECTOR (DrawableComposite)
 };
+
+} // namespace juce

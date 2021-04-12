@@ -58,7 +58,7 @@ class ConnectionManager;
                                                                     //[/Comments]
 */
 class NetworkPreferencesComponent  : public Component,
-                                     public ButtonListener
+                                     public Button::Listener
 {
 public:
     //==============================================================================

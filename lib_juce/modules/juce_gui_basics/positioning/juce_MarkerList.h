@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -33,6 +32,8 @@
 
     This class is used to store sets of X and Y marker points in components.
     @see Component::getMarkers().
+
+    @tags{GUI}
 */
 class JUCE_API  MarkerList
 {
@@ -128,7 +129,7 @@ public:
     {
     public:
         /** Destructor. */
-        virtual ~Listener() {}
+        virtual ~Listener() = default;
 
         /** Called when something in the given marker list changes. */
         virtual void markersChanged (MarkerList* markerList) = 0;
@@ -145,6 +146,16 @@ public:
 
     /** Synchronously calls markersChanged() on all the registered listeners. */
     void markersHaveChanged();
+
+    //==============================================================================
+    /** A base class for objects that want to provide a MarkerList. */
+    struct MarkerListHolder
+    {
+        virtual ~MarkerListHolder() = default;
+
+        /** Objects can implement this method to provide a MarkerList. */
+        virtual MarkerList* getMarkers (bool xAxis) = 0;
+    };
 
     //==============================================================================
     /** Forms a wrapper around a ValueTree that can be used for storing a MarkerList. */
@@ -180,3 +191,5 @@ private:
 
     JUCE_LEAK_DETECTOR (MarkerList)
 };
+
+} // namespace juce

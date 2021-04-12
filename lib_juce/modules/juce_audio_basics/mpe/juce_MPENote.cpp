@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,6 +19,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 namespace
 {
@@ -45,26 +48,15 @@ MPENote::MPENote (int midiChannel_,
       noteOnVelocity (noteOnVelocity_),
       pitchbend (pitchbend_),
       pressure (pressure_),
+      initialTimbre (timbre_),
       timbre (timbre_),
-      noteOffVelocity (MPEValue::minValue()),
       keyState (keyState_)
 {
     jassert (keyState != MPENote::off);
     jassert (isValid());
 }
 
-MPENote::MPENote() noexcept
-    : noteID (0),
-      midiChannel (0),
-      initialNote (0),
-      noteOnVelocity (MPEValue::minValue()),
-      pitchbend (MPEValue::centreValue()),
-      pressure (MPEValue::centreValue()),
-      timbre (MPEValue::centreValue()),
-      noteOffVelocity (MPEValue::minValue()),
-      keyState (MPENote::off)
-{
-}
+MPENote::MPENote() noexcept {}
 
 //==============================================================================
 bool MPENote::isValid() const noexcept
@@ -75,7 +67,7 @@ bool MPENote::isValid() const noexcept
 //==============================================================================
 double MPENote::getFrequencyInHertz (double frequencyOfA) const noexcept
 {
-    double pitchInSemitones = double (initialNote) + totalPitchbendInSemitones;
+    auto pitchInSemitones = double (initialNote) + totalPitchbendInSemitones;
     return frequencyOfA * std::pow (2.0, (pitchInSemitones - 69.0) / 12.0);
 }
 
@@ -92,6 +84,7 @@ bool MPENote::operator!= (const MPENote& other) const noexcept
     return noteID != other.noteID;
 }
 
+
 //==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS
@@ -99,7 +92,9 @@ bool MPENote::operator!= (const MPENote& other) const noexcept
 class MPENoteTests : public UnitTest
 {
 public:
-    MPENoteTests() : UnitTest ("MPENote class") {}
+    MPENoteTests()
+        : UnitTest ("MPENote class", UnitTestCategories::midi)
+    {}
 
     //==============================================================================
     void runTest() override
@@ -127,4 +122,6 @@ private:
 
 static MPENoteTests MPENoteUnitTests;
 
-#endif // JUCE_UNIT_TESTS
+#endif
+
+} // namespace juce

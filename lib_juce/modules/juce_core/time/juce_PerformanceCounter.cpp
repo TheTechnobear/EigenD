@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -19,6 +19,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 static void appendToFile (const File& f, const String& s)
 {
@@ -40,7 +43,8 @@ PerformanceCounter::PerformanceCounter (const String& name, int runsPerPrintout,
 
 PerformanceCounter::~PerformanceCounter()
 {
-    printStatistics();
+    if (stats.numRuns > 0)
+        printStatistics();
 }
 
 PerformanceCounter::Statistics::Statistics() noexcept
@@ -110,7 +114,7 @@ void PerformanceCounter::printStatistics()
 {
     const String desc (getStatisticsAndReset().toString());
 
-    Logger::outputDebugString (desc);
+    Logger::writeToLog (desc);
     appendToFile (outputFile, desc);
 }
 
@@ -120,7 +124,9 @@ PerformanceCounter::Statistics PerformanceCounter::getStatisticsAndReset()
     stats.clear();
 
     if (s.numRuns > 0)
-        s.averageSeconds = s.totalSeconds / s.numRuns;
+        s.averageSeconds = s.totalSeconds / (float) s.numRuns;
 
     return s;
 }
+
+} // namespace juce

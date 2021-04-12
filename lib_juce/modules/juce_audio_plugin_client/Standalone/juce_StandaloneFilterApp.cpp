@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,7 +23,7 @@
   ==============================================================================
 */
 
-#include "../../juce_core/system/juce_TargetPlatform.h"
+#include <juce_core/system/juce_TargetPlatform.h>
 #include "../utility/juce_CheckSettingMacros.h"
 
 #include "../utility/juce_IncludeSystemHeaders.h"
@@ -41,16 +40,10 @@
 // set it then by default we'll just create a simple one as below.
 #if ! JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP
 
-extern AudioProcessor* JUCE_CALLTYPE createPluginFilter();
+#include "juce_StandaloneFilterWindow.h"
 
 namespace juce
 {
-   #if JucePlugin_Enable_IAA && JUCE_IOS
-    #include "../../juce_audio_devices/native/juce_ios_Audio.h"
-   #endif
-
-    #include "juce_StandaloneFilterWindow.h"
-}
 
 //==============================================================================
 class StandaloneFilterApp  : public JUCEApplication
@@ -91,6 +84,11 @@ public:
                                            false, {}, nullptr
                                           #ifdef JucePlugin_PreferredChannelConfigurations
                                            , juce::Array<StandalonePluginHolder::PluginInOuts> (channels, juce::numElementsInArray (channels))
+                                          #else
+                                           , {}
+                                          #endif
+                                          #if JUCE_DONT_AUTO_OPEN_MIDI_DEVICES_ON_MOBILE
+                                           , false
                                           #endif
                                            );
     }
@@ -98,10 +96,10 @@ public:
     //==============================================================================
     void initialise (const String&) override
     {
-        mainWindow = createWindow();
+        mainWindow.reset (createWindow());
 
-       #if JUCE_IOS || JUCE_ANDROID
-        Desktop::getInstance().setKioskModeComponent (mainWindow, false);
+       #if JUCE_STANDALONE_FILTER_WINDOW_USE_KIOSK_MODE
+        Desktop::getInstance().setKioskModeComponent (mainWindow.get(), false);
        #endif
 
         mainWindow->setVisible (true);
@@ -116,15 +114,33 @@ public:
     //==============================================================================
     void systemRequestedQuit() override
     {
-        quit();
+        if (mainWindow.get() != nullptr)
+            mainWindow->pluginHolder->savePluginState();
+
+        if (ModalComponentManager::getInstance()->cancelAllModalComponents())
+        {
+            Timer::callAfterDelay (100, []()
+            {
+                if (auto app = JUCEApplicationBase::getInstance())
+                    app->systemRequestedQuit();
+            });
+        }
+        else
+        {
+            quit();
+        }
     }
 
 protected:
     ApplicationProperties appProperties;
-    ScopedPointer<StandaloneFilterWindow> mainWindow;
+    std::unique_ptr<StandaloneFilterWindow> mainWindow;
 };
 
-#if JucePlugin_Build_STANDALONE && JUCE_IOS
+} // namespace juce
+
+#if JucePlugin_Build_Standalone && JUCE_IOS
+
+using namespace juce;
 
 bool JUCE_CALLTYPE juce_isInterAppAudioConnected()
 {
@@ -140,7 +156,6 @@ void JUCE_CALLTYPE juce_switchToHostApplication()
         holder->switchToHostApplication();
 }
 
-#if JUCE_MODULE_AVAILABLE_juce_gui_basics
 Image JUCE_CALLTYPE juce_getIAAHostIcon (int size)
 {
     if (auto holder = StandalonePluginHolder::getInstance())
@@ -148,7 +163,6 @@ Image JUCE_CALLTYPE juce_getIAAHostIcon (int size)
 
     return Image();
 }
-#endif
 #endif
 
 #endif

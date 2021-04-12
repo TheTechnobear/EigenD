@@ -52,7 +52,7 @@ WireEditor::WireEditor (Wire* w)
       controlController_(false)
 {
     addAndMakeVisible (routeLabel = new Label ("routeLabel",
-                                               String::empty));
+                                               String()));
     routeLabel->setFont (Font (15.00f, Font::plain));
     routeLabel->setJustificationType (Justification::centredLeft);
     routeLabel->setEditable (false, false, false);
@@ -76,7 +76,7 @@ WireEditor::WireEditor (Wire* w)
     txtUsing->setScrollbarsShown (true);
     txtUsing->setCaretVisible (true);
     txtUsing->setPopupMenuEnabled (true);
-    txtUsing->setText (String::empty);
+    txtUsing->setText (String());
 
     addAndMakeVisible (filterLabel = new Label ("filterLabel",
                                                 TRANS("input filter")));
@@ -94,7 +94,7 @@ WireEditor::WireEditor (Wire* w)
     textEditor->setScrollbarsShown (true);
     textEditor->setCaretVisible (true);
     textEditor->setPopupMenuEnabled (true);
-    textEditor->setText (String::empty);
+    textEditor->setText (String());
 
     addAndMakeVisible (incButton = new TextButton ("incButton"));
     incButton->setButtonText (TRANS("+"));
@@ -301,7 +301,7 @@ String WireEditor::getUsing()
     {
         return String(u_);
     }
-    return String::empty;
+    return String();
 }
 
 String WireEditor::getFilter()
@@ -311,7 +311,7 @@ String WireEditor::getFilter()
 
 String WireEditor::getControl()
 {
-    String c=String::empty;
+    String c=String();
     if(c_)
     {
         c="ctl";
@@ -323,7 +323,7 @@ void WireEditor::setUsingText(int u)
 {
     if(u<1)
     {
-        txtUsing->setText (String::empty,false);
+        txtUsing->setText (String(),false);
     }
     else
     {

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,6 +20,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 void MACAddress::findAllAddresses (Array<MACAddress>& result)
 {
     ifaddrs* addrs = nullptr;
@@ -28,11 +31,13 @@ void MACAddress::findAllAddresses (Array<MACAddress>& result)
     {
         for (const ifaddrs* cursor = addrs; cursor != nullptr; cursor = cursor->ifa_next)
         {
-            auto sto = (sockaddr_storage*) cursor->ifa_addr;
+            // Required to avoid misaligned pointer access
+            sockaddr sto;
+            std::memcpy (&sto, cursor->ifa_addr, sizeof (sockaddr));
 
-            if (sto->ss_family == AF_LINK)
+            if (sto.sa_family == AF_LINK)
             {
-                auto sadd = (const sockaddr_dl*) cursor->ifa_addr;
+                auto sadd = reinterpret_cast<const sockaddr_dl*> (cursor->ifa_addr);
 
                #ifndef IFT_ETHER
                 enum { IFT_ETHER = 6 };
@@ -105,7 +110,7 @@ bool JUCE_CALLTYPE Process::openEmailWithAttachments (const String& targetEmailA
 
 //==============================================================================
 // Unfortunately, we need to have this ugly ifdef here as long as some older OS X versions do not support NSURLSession
-#if JUCE_IOS || (defined (__MAC_OS_X_VERSION_MIN_REQUIRED) && defined (__MAC_10_10) && __MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_10)
+#if JUCE_IOS || (defined (MAC_OS_X_VERSION_10_10) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10)
 
 //==============================================================================
 class URLConnectionState   : private Thread
@@ -122,7 +127,7 @@ public:
         DelegateClass::setState (delegate, this);
     }
 
-    ~URLConnectionState()
+    ~URLConnectionState() override
     {
         signalThreadShouldExit();
 
@@ -137,6 +142,8 @@ public:
         [task release];
         [request release];
         [headers release];
+
+        [session finishTasksAndInvalidate];
         [session release];
 
         const ScopedLock sl (dataLock);
@@ -146,12 +153,25 @@ public:
 
     void cancel()
     {
+        {
+            const ScopedLock lock (createTaskLock);
+
+            hasBeenCancelled = true;
+        }
+
         signalThreadShouldExit();
         stopThread (10000);
     }
 
     bool start (WebInputStream& inputStream, WebInputStream::Listener* listener)
     {
+        {
+            const ScopedLock lock (createTaskLock);
+
+            if (hasBeenCancelled)
+                return false;
+        }
+
         startThread();
 
         while (isThreadRunning() && ! initialised)
@@ -172,11 +192,11 @@ public:
 
         while (numBytes > 0)
         {
-            const int available = jmin (numBytes, (int) [data length]);
+            const ScopedLock sl (dataLock);
+            auto available = jmin (numBytes, (int) [data length]);
 
             if (available > 0)
             {
-                const ScopedLock sl (dataLock);
                 [data getBytes: dest length: (NSUInteger) available];
                 [data replaceBytesInRange: NSMakeRange (0, (NSUInteger) available) withBytes: nil length: 0];
 
@@ -189,6 +209,7 @@ public:
                 if (hasFailed || hasFinished)
                     break;
 
+                const ScopedUnlock ul (dataLock);
                 Thread::sleep (1);
             }
         }
@@ -282,7 +303,12 @@ public:
                                                  delegate: delegate
                                             delegateQueue: [NSOperationQueue currentQueue]] retain];
 
-        task = [session dataTaskWithRequest: request];
+        {
+            const ScopedLock lock (createTaskLock);
+
+            if (! hasBeenCancelled)
+                task = [session dataTaskWithRequest: request];
+        }
 
         if (task == nil)
             return;
@@ -306,10 +332,13 @@ public:
     NSMutableData* data = nil;
     NSDictionary* headers = nil;
     int statusCode = 0;
-    bool initialised = false, hasFailed = false, hasFinished = false, isBeingDeleted = false;
+    std::atomic<bool> initialised { false }, hasFailed { false }, hasFinished { false };
+    bool isBeingDeleted = false;
     const int numRedirectsToFollow;
     int numRedirects = 0;
     int64 latestTotalBytes = 0;
+    CriticalSection createTaskLock;
+    bool hasBeenCancelled = false;
 
 private:
     //==============================================================================
@@ -384,10 +413,12 @@ struct BackgroundDownloadTask  : public URL::DownloadTask
     BackgroundDownloadTask (const URL& urlToUse,
                             const File& targetLocationToUse,
                             String extraHeadersToUse,
-                            URL::DownloadTask::Listener* listenerToUse)
-         : targetLocation (targetLocationToUse), listener (listenerToUse),
+                            URL::DownloadTask::Listener* listenerToUse,
+                            bool shouldUsePostRequest)
+         : listener (listenerToUse),
            uniqueIdentifier (String (urlToUse.toString (true).hashCode64()) + String (Random().nextInt64()))
     {
+        targetLocation = targetLocationToUse;
         downloaded = -1;
 
         static DelegateClass cls;
@@ -395,7 +426,11 @@ struct BackgroundDownloadTask  : public URL::DownloadTask
         DelegateClass::setState (delegate, this);
 
         activeSessions.set (uniqueIdentifier, this);
-        NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:juceStringToNS (urlToUse.toString (true))]];
+        auto nsUrl = [NSURL URLWithString: juceStringToNS (urlToUse.toString (true))];
+        NSMutableURLRequest* request = [[NSMutableURLRequest alloc] initWithURL: nsUrl];
+
+        if (shouldUsePostRequest)
+            [request setHTTPMethod: @"POST"];
 
         StringArray headerLines;
         headerLines.addLines (extraHeadersToUse);
@@ -417,6 +452,9 @@ struct BackgroundDownloadTask  : public URL::DownloadTask
 
         if (session != nullptr)
             downloadTask = [session downloadTaskWithRequest:request];
+
+        // Workaround for an Apple bug. See https://github.com/AFNetworking/AFNetworking/issues/2334
+        [request HTTPBody];
 
         [request release];
     }
@@ -454,7 +492,6 @@ struct BackgroundDownloadTask  : public URL::DownloadTask
     }
 
     //==============================================================================
-    File targetLocation;
     URL::DownloadTask::Listener* listener;
     NSObject<NSURLSessionDelegate>* delegate = nil;
     NSURLSession* session = nil;
@@ -483,7 +520,7 @@ struct BackgroundDownloadTask  : public URL::DownloadTask
     {
         NSFileManager* fileManager = [[NSFileManager alloc] init];
         error = ([fileManager moveItemAtURL: location
-                                      toURL: [NSURL fileURLWithPath:juceStringToNS (targetLocation.getFullPathName())]
+                                      toURL: createNSURLFromFile (targetLocation)
                                       error: nil] == NO);
         httpCode = 200;
         finished = true;
@@ -564,9 +601,9 @@ struct BackgroundDownloadTask  : public URL::DownloadTask
     }
 
     //==============================================================================
-    struct DelegateClass  : public ObjCClass<NSObject<NSURLSessionDelegate> >
+    struct DelegateClass  : public ObjCClass<NSObject<NSURLSessionDelegate>>
     {
-        DelegateClass()  : ObjCClass<NSObject<NSURLSessionDelegate> > ("JUCE_URLDelegate_")
+        DelegateClass()  : ObjCClass<NSObject<NSURLSessionDelegate>> ("JUCE_URLDelegate_")
         {
             addIvar<BackgroundDownloadTask*> ("state");
 
@@ -611,12 +648,12 @@ struct BackgroundDownloadTask  : public URL::DownloadTask
 
 HashMap<String, BackgroundDownloadTask*, DefaultHashFunctions, CriticalSection> BackgroundDownloadTask::activeSessions;
 
-URL::DownloadTask* URL::downloadToFile (const File& targetLocation, String extraHeaders, DownloadTask::Listener* listener)
+std::unique_ptr<URL::DownloadTask> URL::downloadToFile (const File& targetLocation, String extraHeaders, DownloadTask::Listener* listener, bool usePostRequest)
 {
-    ScopedPointer<BackgroundDownloadTask> downloadTask = new BackgroundDownloadTask (*this, targetLocation, extraHeaders, listener);
+    std::unique_ptr<BackgroundDownloadTask> downloadTask (new BackgroundDownloadTask (*this, targetLocation, extraHeaders, listener, usePostRequest));
 
     if (downloadTask->initOK() && downloadTask->connect())
-        return downloadTask.release();
+        return downloadTask;
 
     return nullptr;
 }
@@ -626,9 +663,9 @@ void URL::DownloadTask::juce_iosURLSessionNotify (const String& identifier)
     BackgroundDownloadTask::invokeNotify (identifier);
 }
 #else
-URL::DownloadTask* URL::downloadToFile (const File& targetLocation, String extraHeaders, DownloadTask::Listener* listener)
+std::unique_ptr<URL::DownloadTask> URL::downloadToFile (const File& targetLocation, String extraHeaders, DownloadTask::Listener* listener, bool usePost)
 {
-    return URL::DownloadTask::createFallbackDownloader (*this, targetLocation, extraHeaders, listener);
+    return URL::DownloadTask::createFallbackDownloader (*this, targetLocation, extraHeaders, listener, usePost);
 }
 #endif
 
@@ -639,8 +676,7 @@ URL::DownloadTask* URL::downloadToFile (const File& targetLocation, String extra
 // so we'll turn off deprecation warnings. This code will be removed at some point
 // in the future.
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated"
+JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated")
 
 //==============================================================================
 class URLConnectionState   : public Thread
@@ -657,9 +693,10 @@ public:
         DelegateClass::setState (delegate, this);
     }
 
-    ~URLConnectionState()
+    ~URLConnectionState() override
     {
         stop();
+
         [connection release];
         [request release];
         [headers release];
@@ -686,8 +723,13 @@ public:
     void stop()
     {
         {
-            const ScopedLock sl (dataLock);
-            [connection cancel];
+            const ScopedLock dLock (dataLock);
+            const ScopedLock connectionLock (createConnectionLock);
+
+            hasBeenCancelled = true;
+
+            if (connection != nil)
+                [connection cancel];
         }
 
         stopThread (10000);
@@ -705,11 +747,11 @@ public:
 
         while (numBytes > 0)
         {
-            const int available = jmin (numBytes, (int) [data length]);
+            const ScopedLock sl (dataLock);
+            auto available = jmin (numBytes, (int) [data length]);
 
             if (available > 0)
             {
-                const ScopedLock sl (dataLock);
                 [data getBytes: dest length: (NSUInteger) available];
                 [data replaceBytesInRange: NSMakeRange (0, (NSUInteger) available) withBytes: nil length: 0];
 
@@ -722,6 +764,7 @@ public:
                 if (hasFailed || hasFinished)
                     break;
 
+                const ScopedUnlock sul (dataLock);
                 Thread::sleep (1);
             }
         }
@@ -794,8 +837,16 @@ public:
 
     void run() override
     {
-        connection = [[NSURLConnection alloc] initWithRequest: request
-                                                     delegate: delegate];
+        {
+            const ScopedLock lock (createConnectionLock);
+
+            if (hasBeenCancelled)
+                return;
+
+            connection = [[NSURLConnection alloc] initWithRequest: request
+                                                         delegate: delegate];
+        }
+
         while (! threadShouldExit())
         {
             JUCE_AUTORELEASEPOOL
@@ -814,16 +865,18 @@ public:
     NSDictionary* headers = nil;
     NSInteger nsUrlErrorCode = 0;
     int statusCode = 0;
-    bool initialised = false, hasFailed = false, hasFinished = false;
+    std::atomic<bool> initialised { false }, hasFailed { false }, hasFinished { false };
     const int numRedirectsToFollow;
     int numRedirects = 0;
     int latestTotalBytes = 0;
+    CriticalSection createConnectionLock;
+    bool hasBeenCancelled = false;
 
 private:
     //==============================================================================
     struct DelegateClass  : public ObjCClass<NSObject>
     {
-        DelegateClass()  : ObjCClass<NSObject> ("JUCEAppDelegate_")
+        DelegateClass()  : ObjCClass<NSObject> ("JUCENetworkDelegate_")
         {
             addIvar<URLConnectionState*> ("state");
 
@@ -876,12 +929,12 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (URLConnectionState)
 };
 
-URL::DownloadTask* URL::downloadToFile (const File& targetLocation, String extraHeaders, DownloadTask::Listener* listener)
+std::unique_ptr<URL::DownloadTask> URL::downloadToFile (const File& targetLocation, String extraHeaders, DownloadTask::Listener* listener, bool shouldUsePost)
 {
-    return URL::DownloadTask::createFallbackDownloader (*this, targetLocation, extraHeaders, listener);
+    return URL::DownloadTask::createFallbackDownloader (*this, targetLocation, extraHeaders, listener, shouldUsePost);
 }
 
-#pragma clang diagnostic pop
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 
 #endif
 
@@ -890,39 +943,52 @@ URL::DownloadTask* URL::downloadToFile (const File& targetLocation, String extra
 class WebInputStream::Pimpl
 {
 public:
-    Pimpl (WebInputStream& pimplOwner, const URL& urlToUse, bool shouldBePost)
-      : statusCode (0), owner (pimplOwner), url (urlToUse), position (0),
-        finished (false), isPost (shouldBePost), timeOutMs (0),
-        numRedirectsToFollow (5), httpRequestCmd (shouldBePost ? "POST" : "GET")
+    Pimpl (WebInputStream& pimplOwner, const URL& urlToUse, bool addParametersToBody)
+      : owner (pimplOwner),
+        url (urlToUse),
+        addParametersToRequestBody (addParametersToBody),
+        hasBodyDataToSend (addParametersToRequestBody || url.hasBodyDataToSend()),
+        httpRequestCmd (hasBodyDataToSend ? "POST" : "GET")
     {
     }
 
     ~Pimpl()
     {
-        connection = nullptr;
+        connection.reset();
     }
 
     bool connect (WebInputStream::Listener* webInputListener, int numRetries = 0)
     {
         ignoreUnused (numRetries);
-        createConnection();
+
+        {
+            const ScopedLock lock (createConnectionLock);
+
+            if (hasBeenCancelled)
+                return false;
+
+            createConnection();
+        }
+
+        if (connection == nullptr)
+            return false;
 
         if (! connection->start (owner, webInputListener))
         {
             // Workaround for deployment targets below 10.10 where HTTPS POST requests with keep-alive fail with the NSURLErrorNetworkConnectionLost error code.
-           #if ! (JUCE_IOS || (defined (__MAC_OS_X_VERSION_MIN_REQUIRED) && defined (__MAC_10_10) && __MAC_OS_X_VERSION_MIN_REQUIRED >= __MAC_10_10))
+           #if ! (JUCE_IOS || (defined (MAC_OS_X_VERSION_10_10) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_10))
             if (numRetries == 0 && connection->nsUrlErrorCode == NSURLErrorNetworkConnectionLost)
             {
-                connection = nullptr;
+                connection.reset();
                 return connect (webInputListener, ++numRetries);
             }
            #endif
 
-            connection = nullptr;
+            connection.reset();
             return false;
         }
 
-        if (connection != nullptr && connection->headers != nil)
+        if (connection->headers != nil)
         {
             statusCode = connection->statusCode;
 
@@ -936,6 +1002,18 @@ public:
         }
 
         return false;
+    }
+
+    void cancel()
+    {
+        {
+            const ScopedLock lock (createConnectionLock);
+
+            if (connection != nullptr)
+                connection->cancel();
+
+            hasBeenCancelled = true;
+        }
     }
 
     //==============================================================================
@@ -993,9 +1071,9 @@ public:
             if (wantedPos < position)
                 return false;
 
-            int64 numBytesToSkip = wantedPos - position;
-            const int skipBufferSize = (int) jmin (numBytesToSkip, (int64) 16384);
-            HeapBlock<char> temp ((size_t) skipBufferSize);
+            auto numBytesToSkip = wantedPos - position;
+            auto skipBufferSize = (int) jmin (numBytesToSkip, (int64) 16384);
+            HeapBlock<char> temp (skipBufferSize);
 
             while (numBytesToSkip > 0 && ! isExhausted())
                 numBytesToSkip -= read (temp, (int) jmin (numBytesToSkip, (int64) skipBufferSize));
@@ -1004,63 +1082,73 @@ public:
         return true;
     }
 
-    void cancel()
-    {
-        if (connection != nullptr)
-            connection->cancel();
-    }
-
-    int statusCode;
+    int statusCode = 0;
 
 private:
     WebInputStream& owner;
     URL url;
-    ScopedPointer<URLConnectionState> connection;
+    std::unique_ptr<URLConnectionState> connection;
     String headers;
     MemoryBlock postData;
-    int64 position;
-    bool finished;
-    const bool isPost;
-    int timeOutMs;
-    int numRedirectsToFollow;
+    int64 position = 0;
+    bool finished = false;
+    const bool addParametersToRequestBody, hasBodyDataToSend;
+    int timeOutMs = 0;
+    int numRedirectsToFollow = 5;
     String httpRequestCmd;
     StringPairArray responseHeaders;
+    CriticalSection createConnectionLock;
+    bool hasBeenCancelled = false;
 
     void createConnection()
     {
         jassert (connection == nullptr);
 
-        if (NSMutableURLRequest* req = [NSMutableURLRequest requestWithURL: [NSURL URLWithString: juceStringToNS (url.toString (! isPost))]
-                                                               cachePolicy: NSURLRequestReloadIgnoringLocalCacheData
-                                                           timeoutInterval: timeOutMs <= 0 ? 60.0 : (timeOutMs / 1000.0)])
+        if (NSURL* nsURL = [NSURL URLWithString: juceStringToNS (url.toString (! addParametersToRequestBody))])
         {
-            [req setHTTPMethod: [NSString stringWithUTF8String: httpRequestCmd.toRawUTF8()]];
-
-            if (isPost)
+            if (NSMutableURLRequest* req = [NSMutableURLRequest requestWithURL: nsURL
+                                                                   cachePolicy: NSURLRequestReloadIgnoringLocalCacheData
+                                                               timeoutInterval: timeOutMs <= 0 ? 60.0 : (timeOutMs / 1000.0)])
             {
-                WebInputStream::createHeadersAndPostData (url, headers, postData);
+                if (NSString* httpMethod = [NSString stringWithUTF8String: httpRequestCmd.toRawUTF8()])
+                {
+                    [req setHTTPMethod: httpMethod];
 
-                if (postData.getSize() > 0)
-                    [req setHTTPBody: [NSData dataWithBytes: postData.getData()
-                                                     length: postData.getSize()]];
+                    if (hasBodyDataToSend)
+                    {
+                        WebInputStream::createHeadersAndPostData (url,
+                                                                  headers,
+                                                                  postData,
+                                                                  addParametersToRequestBody);
+
+                        if (postData.getSize() > 0)
+                            [req setHTTPBody: [NSData dataWithBytes: postData.getData()
+                                                             length: postData.getSize()]];
+                    }
+
+                    StringArray headerLines;
+                    headerLines.addLines (headers);
+                    headerLines.removeEmptyStrings (true);
+
+                    for (int i = 0; i < headerLines.size(); ++i)
+                    {
+                        auto key   = headerLines[i].upToFirstOccurrenceOf (":", false, false).trim();
+                        auto value = headerLines[i].fromFirstOccurrenceOf (":", false, false).trim();
+
+                        if (key.isNotEmpty() && value.isNotEmpty())
+                            [req addValue: juceStringToNS (value) forHTTPHeaderField: juceStringToNS (key)];
+                    }
+
+                    // Workaround for an Apple bug. See https://github.com/AFNetworking/AFNetworking/issues/2334
+                    [req HTTPBody];
+
+                    connection.reset (new URLConnectionState (req, numRedirectsToFollow));
+                }
             }
-
-            StringArray headerLines;
-            headerLines.addLines (headers);
-            headerLines.removeEmptyStrings (true);
-
-            for (int i = 0; i < headerLines.size(); ++i)
-            {
-                String key   = headerLines[i].upToFirstOccurrenceOf (":", false, false).trim();
-                String value = headerLines[i].fromFirstOccurrenceOf (":", false, false).trim();
-
-                if (key.isNotEmpty() && value.isNotEmpty())
-                    [req addValue: juceStringToNS (value) forHTTPHeaderField: juceStringToNS (key)];
-            }
-
-            connection = new URLConnectionState (req, numRedirectsToFollow);
         }
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Pimpl)
 };
+
+} // namespace juce

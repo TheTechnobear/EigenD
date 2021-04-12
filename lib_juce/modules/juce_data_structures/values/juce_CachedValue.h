@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -52,6 +51,8 @@
     out-of-the-box, but if you want to use more complex custom types, you may need to implement
     some template specialisations of VariantConverter which this class uses to convert between
     the type and the ValueTree's internal var.
+
+    @tags{DataStructures}
 */
 template <typename Type>
 class CachedValue   : private ValueTree::Listener
@@ -179,11 +180,14 @@ public:
     /** Returns the property ID of the referenced property. */
     const Identifier& getPropertyID() const noexcept        { return targetProperty; }
 
+    /** Returns the UndoManager that is being used. */
+    UndoManager* getUndoManager() noexcept                  { return undoManager; }
+
 private:
     //==============================================================================
     ValueTree targetTree;
     Identifier targetProperty;
-    UndoManager* undoManager;
+    UndoManager* undoManager = nullptr;
     Type defaultValue;
     Type cachedValue;
 
@@ -192,18 +196,16 @@ private:
     Type getTypedValue() const;
 
     void valueTreePropertyChanged (ValueTree& changedTree, const Identifier& changedProperty) override;
-    void valueTreeChildAdded (ValueTree&, ValueTree&) override {}
-    void valueTreeChildRemoved (ValueTree&, ValueTree&, int) override {}
-    void valueTreeChildOrderChanged (ValueTree&, int, int) override {}
-    void valueTreeParentChanged (ValueTree&) override {}
 
+    //==============================================================================
+    JUCE_DECLARE_WEAK_REFERENCEABLE (CachedValue)
     JUCE_DECLARE_NON_COPYABLE (CachedValue)
 };
 
 
 //==============================================================================
 template <typename Type>
-inline CachedValue<Type>::CachedValue()  : undoManager (nullptr) {}
+inline CachedValue<Type>::CachedValue() = default;
 
 template <typename Type>
 inline CachedValue<Type>::CachedValue (ValueTree& v, const Identifier& i, UndoManager* um)
@@ -308,3 +310,5 @@ inline void CachedValue<Type>::valueTreePropertyChanged (ValueTree& changedTree,
     if (changedProperty == targetProperty && targetTree == changedTree)
         forceUpdateOfCachedValue();
 }
+
+} // namespace juce

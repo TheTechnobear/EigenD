@@ -59,7 +59,7 @@ HelpComponent::HelpComponent (String helpText)
     textEditor->setScrollbarsShown (true);
     textEditor->setCaretVisible (false);
     textEditor->setPopupMenuEnabled (true);
-    textEditor->setText (String::empty);
+    textEditor->setText (String());
 
 
     //[UserPreSize]

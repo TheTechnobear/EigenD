@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -31,6 +31,8 @@
     allows all directories through.
 
     @see FileFilter, DirectoryContentsList, FileListComponent, FileBrowserComponent
+
+    @tags{Core}
 */
 class JUCE_API  WildcardFileFilter  : public FileFilter
 {
@@ -52,10 +54,10 @@ public:
     */
     WildcardFileFilter (const String& fileWildcardPatterns,
                         const String& directoryWildcardPatterns,
-                        const String& description);
+                        const String& filterDescription);
 
     /** Destructor. */
-    ~WildcardFileFilter();
+    ~WildcardFileFilter() override;
 
     //==============================================================================
     /** Returns true if the filename matches one of the patterns specified. */
@@ -70,3 +72,5 @@ private:
 
     JUCE_LEAK_DETECTOR (WildcardFileFilter)
 };
+
+} // namespace juce

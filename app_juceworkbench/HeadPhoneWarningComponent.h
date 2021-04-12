@@ -54,7 +54,7 @@
                                                                     //[/Comments]
 */
 class HeadPhoneWarningComponent  : public Component,
-                                   public ButtonListener
+                                   public Button::Listener
 {
 public:
     //==============================================================================

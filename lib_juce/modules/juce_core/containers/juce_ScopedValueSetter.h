@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -48,6 +48,7 @@
     // x is now 4
     @endcode
 
+    @tags{Core}
 */
 template <typename ValueType>
 class ScopedValueSetter
@@ -88,3 +89,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE (ScopedValueSetter)
 };
+
+} // namespace juce

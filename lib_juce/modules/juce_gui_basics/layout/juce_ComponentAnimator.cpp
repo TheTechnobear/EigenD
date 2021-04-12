@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,6 +23,9 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
 class ComponentAnimator::AnimationTask
 {
 public:
@@ -31,7 +33,7 @@ public:
 
     ~AnimationTask()
     {
-        masterReference.clear();
+        proxy.deleteAndZero();
     }
 
     void reset (const Rectangle<int>& finalBounds,
@@ -60,18 +62,18 @@ public:
         midSpeed = invTotalDistance;
         endSpeed = jmax (0.0, endSpd * invTotalDistance);
 
+        proxy.deleteAndZero();
+
         if (useProxyComponent)
             proxy = new ProxyComponent (*component);
-        else
-            proxy = nullptr;
 
         component->setVisible (! useProxyComponent);
     }
 
     bool useTimeslice (const int elapsed)
     {
-        if (auto* c = proxy != nullptr ? static_cast<Component*> (proxy)
-                                       : static_cast<Component*> (component))
+        if (auto* c = proxy != nullptr ? proxy.getComponent()
+                                       : component.get())
         {
             msElapsed += elapsed;
             double newProgress = msElapsed / (double) msTotal;
@@ -161,8 +163,8 @@ public:
             else
                 jassertfalse; // seem to be trying to animate a component that's not visible..
 
-            auto scale = (float) Desktop::getInstance().getDisplays()
-                                  .getDisplayContaining (getScreenBounds().getCentre()).scale;
+            auto scale = (float) Desktop::getInstance().getDisplays().getDisplayForRect (getScreenBounds())->scale
+                           * Component::getApproximateScaleFactorForComponent (&c);
 
             image = c.createComponentSnapshot (c.getLocalBounds(), false, scale);
 
@@ -173,8 +175,8 @@ public:
         void paint (Graphics& g) override
         {
             g.setOpacity (1.0f);
-            g.drawImageTransformed (image, AffineTransform::scale (getWidth()  / (float) image.getWidth(),
-                                                                   getHeight() / (float) image.getHeight()), false);
+            g.drawImageTransformed (image, AffineTransform::scale ((float) getWidth()  / (float) jmax (1, image.getWidth()),
+                                                                   (float) getHeight() / (float) jmax (1, image.getHeight())), false);
         }
 
     private:
@@ -183,11 +185,8 @@ public:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ProxyComponent)
     };
 
-    WeakReference<AnimationTask>::Master masterReference;
-    friend class WeakReference<AnimationTask>;
-
     WeakReference<Component> component;
-    ScopedPointer<Component> proxy;
+    Component::SafePointer<Component> proxy;
 
     Rectangle<int> destination;
     double destAlpha;
@@ -205,6 +204,7 @@ private:
                                 + (time - 0.5) * (midSpeed + (time - 0.5) * (endSpeed - midSpeed));
     }
 
+    JUCE_DECLARE_WEAK_REFERENCEABLE (AnimationTask)
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AnimationTask)
 };
 
@@ -345,3 +345,5 @@ void ComponentAnimator::timerCallback()
     if (tasks.size() == 0)
         stopTimer();
 }
+
+} // namespace juce

@@ -900,7 +900,7 @@ bool pi_audio::audioctl_t::impl_t::open_device(const juce::String &requested_uid
         pic::logmsg() << "invalid device type: " << dt << " using default";
 
         dt = default_uid();
-        odn = juce::String::empty;
+        odn = juce::String();
 
         t = find_type(dt);
 

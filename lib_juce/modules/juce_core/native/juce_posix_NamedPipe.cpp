@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,17 +20,18 @@
   ==============================================================================
 */
 
+namespace juce
+{
+
+#if ! JUCE_WASM
+
 class NamedPipe::Pimpl
 {
 public:
     Pimpl (const String& pipePath, bool createPipe)
        : pipeInName  (pipePath + "_in"),
          pipeOutName (pipePath + "_out"),
-         pipeIn (-1), pipeOut (-1),
-         createdFifoIn (false),
-         createdFifoOut (false),
-         createdPipe (createPipe),
-         stopReadOperation (false)
+         createdPipe (createPipe)
     {
         signal (SIGPIPE, signalHandler);
         juce_siginterrupt (SIGPIPE, 1);
@@ -48,28 +49,24 @@ public:
         }
     }
 
+    bool connect (int timeOutMilliseconds)
+    {
+        return openPipe (true, getTimeoutEnd (timeOutMilliseconds));
+    }
+
     int read (char* destBuffer, int maxBytesToRead, int timeOutMilliseconds)
     {
-        const uint32 timeoutEnd = getTimeoutEnd (timeOutMilliseconds);
-
-        if (pipeIn == -1)
-        {
-            pipeIn = openPipe (createdPipe ? pipeInName : pipeOutName, O_RDWR | O_NONBLOCK, timeoutEnd);
-
-            if (pipeIn == -1)
-                return -1;
-        }
-
+        auto timeoutEnd = getTimeoutEnd (timeOutMilliseconds);
         int bytesRead = 0;
 
         while (bytesRead < maxBytesToRead)
         {
-            const int bytesThisTime = maxBytesToRead - bytesRead;
-            const int numRead = (int) ::read (pipeIn, destBuffer, (size_t) bytesThisTime);
+            auto bytesThisTime = maxBytesToRead - bytesRead;
+            auto numRead = (int) ::read (pipeIn, destBuffer, (size_t) bytesThisTime);
 
             if (numRead <= 0)
             {
-                if (errno != EWOULDBLOCK || stopReadOperation || hasExpired (timeoutEnd))
+                if (errno != EWOULDBLOCK || stopReadOperation.load() || hasExpired (timeoutEnd))
                     return -1;
 
                 const int maxWaitingTime = 30;
@@ -88,22 +85,17 @@ public:
 
     int write (const char* sourceBuffer, int numBytesToWrite, int timeOutMilliseconds)
     {
-        const uint32 timeoutEnd = getTimeoutEnd (timeOutMilliseconds);
+        auto timeoutEnd = getTimeoutEnd (timeOutMilliseconds);
 
-        if (pipeOut == -1)
-        {
-            pipeOut = openPipe (createdPipe ? pipeOutName : pipeInName, O_WRONLY, timeoutEnd);
-
-            if (pipeOut == -1)
-                return -1;
-        }
+        if (! openPipe (false, timeoutEnd))
+            return -1;
 
         int bytesWritten = 0;
 
         while (bytesWritten < numBytesToWrite && ! hasExpired (timeoutEnd))
         {
-            const int bytesThisTime = numBytesToWrite - bytesWritten;
-            const int numWritten = (int) ::write (pipeOut, sourceBuffer, (size_t) bytesThisTime);
+            auto bytesThisTime = numBytesToWrite - bytesWritten;
+            auto numWritten = (int) ::write (pipeOut, sourceBuffer, (size_t) bytesThisTime);
 
             if (numWritten <= 0)
                 return -1;
@@ -129,49 +121,61 @@ public:
     }
 
     const String pipeInName, pipeOutName;
-    int pipeIn, pipeOut;
-    bool createdFifoIn, createdFifoOut;
+    int pipeIn = -1, pipeOut = -1;
+    bool createdFifoIn = false, createdFifoOut = false;
 
     const bool createdPipe;
-    bool stopReadOperation;
+    std::atomic<bool> stopReadOperation { false };
 
 private:
     static void signalHandler (int) {}
 
-    static uint32 getTimeoutEnd (const int timeOutMilliseconds)
+    static uint32 getTimeoutEnd (int timeOutMilliseconds)
     {
         return timeOutMilliseconds >= 0 ? Time::getMillisecondCounter() + (uint32) timeOutMilliseconds : 0;
     }
 
-    static bool hasExpired (const uint32 timeoutEnd)
+    static bool hasExpired (uint32 timeoutEnd)
     {
         return timeoutEnd != 0 && Time::getMillisecondCounter() >= timeoutEnd;
     }
 
-    int openPipe (const String& name, int flags, const uint32 timeoutEnd)
+    int openPipe (const String& name, int flags, uint32 timeoutEnd)
     {
         for (;;)
         {
-            const int p = ::open (name.toUTF8(), flags);
+            auto p = ::open (name.toUTF8(), flags);
 
-            if (p != -1 || hasExpired (timeoutEnd) || stopReadOperation)
+            if (p != -1 || hasExpired (timeoutEnd) || stopReadOperation.load())
                 return p;
 
             Thread::sleep (2);
         }
     }
 
-    static void waitForInput (const int handle, const int timeoutMsecs) noexcept
+    bool openPipe (bool isInput, uint32 timeoutEnd)
     {
-        struct timeval timeout;
-        timeout.tv_sec = timeoutMsecs / 1000;
-        timeout.tv_usec = (timeoutMsecs % 1000) * 1000;
+        auto& pipe = isInput ? pipeIn : pipeOut;
+        int flags = (isInput ? O_RDWR : O_WRONLY) | O_NONBLOCK;
 
-        fd_set rset;
-        FD_ZERO (&rset);
-        FD_SET (handle, &rset);
+        const String& pipeName = isInput ? (createdPipe ? pipeInName : pipeOutName)
+                                         : (createdPipe ? pipeOutName : pipeInName);
 
-        select (handle + 1, &rset, nullptr, 0, &timeout);
+        if (pipe == -1)
+        {
+            pipe = openPipe (pipeName, flags, timeoutEnd);
+
+            if (pipe == -1)
+                return false;
+        }
+
+        return true;
+    }
+
+    static void waitForInput (int handle, int timeoutMsecs) noexcept
+    {
+        pollfd pfd { handle, POLLIN, 0 };
+        poll (&pfd, 1, timeoutMsecs);
     }
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Pimpl)
@@ -179,36 +183,48 @@ private:
 
 void NamedPipe::close()
 {
-    if (pimpl != nullptr)
     {
-        pimpl->stopReadOperation = true;
+        ScopedReadLock sl (lock);
 
-        char buffer[1] = { 0 };
-        ssize_t done = ::write (pimpl->pipeIn, buffer, 1);
-        ignoreUnused (done);
+        if (pimpl != nullptr)
+        {
+            pimpl->stopReadOperation = true;
 
+            char buffer[1] = { 0 };
+            ssize_t done = ::write (pimpl->pipeIn, buffer, 1);
+            ignoreUnused (done);
+        }
+    }
+
+    {
         ScopedWriteLock sl (lock);
-        pimpl = nullptr;
+        pimpl.reset();
     }
 }
 
-bool NamedPipe::openInternal (const String& pipeName, const bool createPipe, bool mustNotExist)
+bool NamedPipe::openInternal (const String& pipeName, bool createPipe, bool mustNotExist)
 {
    #if JUCE_IOS
-    pimpl = new Pimpl (File::getSpecialLocation (File::tempDirectory)
-                         .getChildFile (File::createLegalFileName (pipeName)).getFullPathName(), createPipe);
+    pimpl.reset (new Pimpl (File::getSpecialLocation (File::tempDirectory)
+                             .getChildFile (File::createLegalFileName (pipeName)).getFullPathName(), createPipe));
    #else
-    String file (pipeName);
+    auto file = pipeName;
 
     if (! File::isAbsolutePath (file))
         file = "/tmp/" + File::createLegalFileName (file);
 
-    pimpl = new Pimpl (file, createPipe);
+    pimpl.reset (new Pimpl (file, createPipe));
    #endif
 
     if (createPipe && ! pimpl->createFifos (mustNotExist))
     {
-        pimpl = nullptr;
+        pimpl.reset();
+        return false;
+    }
+
+    if (! pimpl->connect (200))
+    {
+        pimpl.reset();
         return false;
     }
 
@@ -226,3 +242,7 @@ int NamedPipe::write (const void* sourceBuffer, int numBytesToWrite, int timeOut
     ScopedReadLock sl (lock);
     return pimpl != nullptr ? pimpl->write (static_cast<const char*> (sourceBuffer), numBytesToWrite, timeOutMilliseconds) : -1;
 }
+
+#endif
+
+} // namespace juce

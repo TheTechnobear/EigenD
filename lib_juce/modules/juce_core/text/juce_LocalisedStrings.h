@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -61,10 +61,12 @@
     printSomething (TRANS("hello"));
     @endcode
 
-    This macro is used in the Juce classes themselves, so your application has a chance to
-    intercept and translate any internal Juce text strings that might be shown. (You can easily
-    get a list of all the messages by searching for the TRANS() macro in the Juce source
+    This macro is used in the JUCE classes themselves, so your application has a chance to
+    intercept and translate any internal JUCE text strings that might be shown. (You can easily
+    get a list of all the messages by searching for the TRANS() macro in the JUCE source
     code).
+
+    @tags{Core}
 */
 class JUCE_API  LocalisedStrings
 {
@@ -159,7 +161,7 @@ public:
         countries: fr be mc ch lu
         @endcode
 
-        The country codes are supposed to be 2-character ISO complient codes.
+        The country codes are supposed to be 2-character ISO compliant codes.
     */
     const StringArray& getCountryCodes() const            { return countryCodes; }
 
@@ -188,8 +190,7 @@ private:
     String languageName;
     StringArray countryCodes;
     StringPairArray translations;
-    ScopedPointer<LocalisedStrings> fallback;
-    friend struct ContainerDeletePolicy<LocalisedStrings>;
+    std::unique_ptr<LocalisedStrings> fallback;
 
     void loadFromText (const String&, bool ignoreCase);
 
@@ -235,3 +236,5 @@ JUCE_API String translate (CharPointer_UTF8 stringLiteral);
     @see LocalisedStrings
 */
 JUCE_API String translate (const String& stringLiteral, const String& resultIfNotFound);
+
+} // namespace juce

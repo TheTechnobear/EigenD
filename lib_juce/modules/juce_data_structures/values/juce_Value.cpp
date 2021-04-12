@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 Value::ValueSource::ValueSource()
 {
@@ -120,7 +122,7 @@ Value::Value (Value&& other) noexcept
     jassert (other.listeners.size() == 0);
 
     other.removeFromListenerList();
-    value = static_cast<ReferenceCountedObjectPtr<ValueSource>&&> (other.value);
+    value = std::move (other.value);
 }
 
 Value& Value::operator= (Value&& other) noexcept
@@ -130,7 +132,7 @@ Value& Value::operator= (Value&& other) noexcept
     jassert (other.listeners.size() == 0);
 
     other.removeFromListenerList();
-    value = static_cast<ReferenceCountedObjectPtr<ValueSource>&&> (other.value);
+    value = std::move (other.value);
     return *this;
 }
 
@@ -203,7 +205,7 @@ bool Value::operator!= (const Value& other) const
 }
 
 //==============================================================================
-void Value::addListener (ValueListener* const listener)
+void Value::addListener (Value::Listener* listener)
 {
     if (listener != nullptr)
     {
@@ -214,7 +216,7 @@ void Value::addListener (ValueListener* const listener)
     }
 }
 
-void Value::removeListener (ValueListener* const listener)
+void Value::removeListener (Value::Listener* listener)
 {
     listeners.remove (listener);
 
@@ -227,7 +229,7 @@ void Value::callListeners()
     if (listeners.size() > 0)
     {
         Value v (*this); // (create a copy in case this gets deleted by a callback)
-        listeners.call (&ValueListener::valueChanged, v);
+        listeners.call ([&] (Value::Listener& l) { l.valueChanged (v); });
     }
 }
 
@@ -235,3 +237,5 @@ OutputStream& JUCE_CALLTYPE operator<< (OutputStream& stream, const Value& value
 {
     return stream << value.toString();
 }
+
+} // namespace juce

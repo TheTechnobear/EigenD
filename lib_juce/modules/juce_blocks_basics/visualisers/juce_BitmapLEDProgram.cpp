@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,6 +20,8 @@
   ==============================================================================
 */
 
+namespace juce
+{
 
 BitmapLEDProgram::BitmapLEDProgram (Block& b)  : Program (b) {}
 
@@ -39,9 +41,9 @@ void BitmapLEDProgram::setLED (uint32 x, uint32 y, LEDColour colour)
         {
             auto bit = (x + y * w) * 16;
 
-            block.setDataBits (bit,      5, colour.getRed()   >> 3);
-            block.setDataBits (bit + 5,  6, colour.getGreen() >> 2);
-            block.setDataBits (bit + 11, 5, colour.getBlue()  >> 3);
+            block.setDataBits (bit,      5, (uint32) (colour.getRed()   >> 3));
+            block.setDataBits (bit + 5,  6, (uint32) (colour.getGreen() >> 2));
+            block.setDataBits (bit + 11, 5, (uint32) (colour.getBlue()  >> 3));
         }
     }
     else
@@ -50,7 +52,7 @@ void BitmapLEDProgram::setLED (uint32 x, uint32 y, LEDColour colour)
     }
 }
 
-juce::String BitmapLEDProgram::getLittleFootProgram()
+String BitmapLEDProgram::getLittleFootProgram()
 {
     String program (R"littlefoot(
 
@@ -64,10 +66,10 @@ juce::String BitmapLEDProgram::getLittleFootProgram()
             {
                 int bit = (x + y * NUM_COLUMNS) * 16;
 
-                setLED (x, y, makeARGB (255,
-                                        getHeapBits (bit,      5) << 3,
-                                        getHeapBits (bit + 5,  6) << 2,
-                                        getHeapBits (bit + 11, 5) << 3));
+                fillPixel (makeARGB (255,
+                                     getHeapBits (bit,      5) << 3,
+                                     getHeapBits (bit + 5,  6) << 2,
+                                     getHeapBits (bit + 11, 5) << 3), x, y);
             }
         }
     }
@@ -75,9 +77,11 @@ juce::String BitmapLEDProgram::getLittleFootProgram()
     )littlefoot");
 
     if (auto ledGrid = block.getLEDGrid())
-        return program.replace ("NUM_COLUMNS", juce::String (ledGrid->getNumColumns()))
-                      .replace ("NUM_ROWS",    juce::String (ledGrid->getNumRows()));
+        return program.replace ("NUM_COLUMNS", String (ledGrid->getNumColumns()))
+                      .replace ("NUM_ROWS",    String (ledGrid->getNumRows()));
 
     jassertfalse;
     return {};
 }
+
+} // namespace juce

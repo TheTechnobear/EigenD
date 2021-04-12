@@ -58,7 +58,7 @@ HelpViewComponent::HelpViewComponent ()
     titleLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (descriptionLabel = new Label ("description label",
-                                                     String::empty));
+                                                     String()));
     descriptionLabel->setFont (Font (15.00f, Font::plain));
     descriptionLabel->setJustificationType (Justification::topLeft);
     descriptionLabel->setEditable (false, false, false);

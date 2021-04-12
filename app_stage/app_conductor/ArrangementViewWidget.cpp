@@ -59,7 +59,7 @@ ArrangementViewWidget::ArrangementViewWidget (ArrangementBackend* backend, int m
     removeButton->setColour (TextButton::buttonColourId, Colour (0xffababab));
 
     addAndMakeVisible (arrangementLabel = new Label ("arrangementLabel",
-                                                     String::empty));
+                                                     String()));
     arrangementLabel->setFont (Font (15.00f, Font::plain));
     arrangementLabel->setJustificationType (Justification::centredLeft);
     arrangementLabel->setEditable (false, false, false);

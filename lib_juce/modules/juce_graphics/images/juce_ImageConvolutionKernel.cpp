@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,9 +23,12 @@
   ==============================================================================
 */
 
-ImageConvolutionKernel::ImageConvolutionKernel (const int size_)
-    : values ((size_t) (size_ * size_)),
-      size (size_)
+namespace juce
+{
+
+ImageConvolutionKernel::ImageConvolutionKernel (int sizeToUse)
+    : values ((size_t) (sizeToUse * sizeToUse)),
+      size (sizeToUse)
 {
     clear();
 }
@@ -89,10 +91,10 @@ void ImageConvolutionKernel::createGaussianBlur (const float radius)
     {
         for (int x = size; --x >= 0;)
         {
-            const int cx = x - centre;
-            const int cy = y - centre;
+            auto cx = x - centre;
+            auto cy = y - centre;
 
-            values [x + y * size] = (float) exp (radiusFactor * (cx * cx + cy * cy));
+            values [x + y * size] = (float) std::exp (radiusFactor * (cx * cx + cy * cy));
         }
     }
 
@@ -119,13 +121,13 @@ void ImageConvolutionKernel::applyToImage (Image& destImage,
         }
     }
 
-    const Rectangle<int> area (destinationArea.getIntersection (destImage.getBounds()));
+    auto area = destinationArea.getIntersection (destImage.getBounds());
 
     if (area.isEmpty())
         return;
 
-    const int right = area.getRight();
-    const int bottom = area.getBottom();
+    auto right = area.getRight();
+    auto bottom = area.getBottom();
 
     const Image::BitmapData destData (destImage, area.getX(), area.getY(), area.getWidth(), area.getHeight(),
                                       Image::BitmapData::writeOnly);
@@ -290,3 +292,5 @@ void ImageConvolutionKernel::applyToImage (Image& destImage,
         }
     }
 }
+
+} // namespace juce

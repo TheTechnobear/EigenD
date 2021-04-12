@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /** A relative measure of time.
@@ -30,6 +30,8 @@
     point accuracy, and may be positive or negative.
 
     If you need an absolute time, (i.e. a date + time), see the Time class.
+
+    @tags{Core}
 */
 class JUCE_API  RelativeTime
 {
@@ -135,6 +137,13 @@ public:
     */
     String getDescription (const String& returnValueForZeroTime = "0") const;
 
+    //==============================================================================
+    /** This returns a string that roughly describes how long ago this time was, which
+        can be handy for showing ages of files, etc.
+        This will only attempt to be accurate to within the nearest order of magnitude
+        so returns strings such as "5 years", "2 weeks", "< 1 minute", "< 1 sec" etc.
+    */
+    String getApproximateDescription() const;
 
     //==============================================================================
     /** Adds another RelativeTime to this one. */
@@ -171,3 +180,5 @@ JUCE_API bool JUCE_CALLTYPE operator<= (RelativeTime t1, RelativeTime t2) noexce
 JUCE_API RelativeTime  JUCE_CALLTYPE operator+  (RelativeTime t1, RelativeTime t2) noexcept;
 /** Subtracts two RelativeTimes. */
 JUCE_API RelativeTime  JUCE_CALLTYPE operator-  (RelativeTime t1, RelativeTime t2) noexcept;
+
+} // namespace juce

@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,7 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -57,6 +58,8 @@
                  audioDeviceManager.initialise (2, 2, nullptr, true, String(), nullptr);
             }
         );
+
+    @tags{Core}
 */
 class JUCE_API  RuntimePermissions
 {
@@ -75,11 +78,20 @@ public:
             otherwise no devices will be found.
         */
         bluetoothMidi = 2,
+
+        /** Permission to read from external storage such as SD cards */
+        readExternalStorage = 3,
+
+        /** Permission to write to external storage such as SD cards */
+        writeExternalStorage = 4,
+
+        /** Permission to use camera */
+        camera = 5
     };
 
     //==============================================================================
     /** Function type of runtime permission request callbacks. */
-    typedef std::function<void (bool)> Callback;
+    using Callback = std::function<void (bool)>;
 
     //==============================================================================
     /** Call this method to request a runtime permission.
@@ -115,3 +127,5 @@ public:
     */
     static bool isGranted (PermissionID permission);
 };
+
+} // namespace juce

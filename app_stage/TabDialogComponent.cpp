@@ -55,12 +55,12 @@ TabDialogComponent::TabDialogComponent ()
     nameEditor->setScrollbarsShown (true);
     nameEditor->setCaretVisible (true);
     nameEditor->setPopupMenuEnabled (true);
-    nameEditor->setText (String::empty);
+    nameEditor->setText (String());
 
     addAndMakeVisible (aspectCombo = new ComboBox ("aspect combo"));
     aspectCombo->setEditableText (false);
     aspectCombo->setJustificationType (Justification::centredLeft);
-    aspectCombo->setTextWhenNothingSelected (String::empty);
+    aspectCombo->setTextWhenNothingSelected (String() );
     aspectCombo->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     aspectCombo->addListener (this);
 
@@ -112,7 +112,7 @@ TabDialogComponent::TabDialogComponent ()
     widthEditor->setScrollbarsShown (true);
     widthEditor->setCaretVisible (true);
     widthEditor->setPopupMenuEnabled (true);
-    widthEditor->setText (String::empty);
+    widthEditor->setText (String());
 
     addAndMakeVisible (heightEditor = new TextEditor ("height editor"));
     heightEditor->setMultiLine (false);
@@ -121,7 +121,7 @@ TabDialogComponent::TabDialogComponent ()
     heightEditor->setScrollbarsShown (true);
     heightEditor->setCaretVisible (true);
     heightEditor->setPopupMenuEnabled (true);
-    heightEditor->setText (String::empty);
+    heightEditor->setText (String());
 
     addAndMakeVisible (ratioLabel = new Label ("ratio label",
                                                TRANS(":")));

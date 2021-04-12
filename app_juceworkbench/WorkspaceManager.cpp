@@ -93,7 +93,7 @@ void WorkspaceManager::removeTab(String tabName)
 {
     if(tabName!="Main workspace")
     {
-        String abs_id=String::empty;
+        String abs_id=String();
 
         for(std::map<String,String>::iterator i=ids_.begin();i!=ids_.end();i++)
         {
@@ -139,7 +139,7 @@ void WorkspaceManager::removeCurrentTab()
 
 void WorkspaceManager::remove(String abs_id)
 {
-    String tabName=String::empty;
+    String tabName=String();
     std::map<String,String>::iterator i=ids_.find(abs_id);
     if(i!=ids_.end())
     {
@@ -172,7 +172,7 @@ void WorkspaceManager::nameChanged(String newName, String abs_id)
 { 
     pic::logmsg()<<"WorkspaceManager::nameChanged to "<<newName<<" abs_id="<<abs_id;
     //find the tab name associated with the abs_id
-    String oldName=String::empty;
+    String oldName=String();
     std::map<String,String>::iterator i=ids_.find(abs_id);
     if(i!=ids_.end())
     {
@@ -183,7 +183,7 @@ void WorkspaceManager::nameChanged(String newName, String abs_id)
     if(oldName.isNotEmpty())
     {
         int indexToChange=getIndexToShow(oldName);
-        String scope=String::empty;;
+        String scope=String();;
         std::map<String,String >::iterator iter=scopes_.find(oldName);
         if(iter!=scopes_.end())
         {
@@ -248,8 +248,8 @@ void  WorkspaceManager::addWorkspaceComponent(String name, String scope, String 
     mc->setViewport(viewport);
     viewport->setViewedComponent(mc);
     viewport->setViewPosition(0.5*viewport->getWidth(),0.5*viewport->getHeight());
-    viewport->getHorizontalScrollBar()->setAutoHide(false);
-    viewport->getVerticalScrollBar()->setAutoHide(false);
+    viewport->getHorizontalScrollBar().setAutoHide(false);
+    viewport->getVerticalScrollBar().setAutoHide(false);
 
     ProgressLayer* progressLayer = new ProgressLayer(name);
     progressLayer->addAndMakeVisible(viewport);

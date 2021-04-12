@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -32,6 +32,8 @@
     object to JSON-formatted text.
 
     @see var
+
+    @tags{Core}
 */
 class JUCE_API  JSON
 {
@@ -90,10 +92,13 @@ public:
     /** Returns a string which contains a JSON-formatted representation of the var object.
         If allOnOneLine is true, the result will be compacted into a single line of text
         with no carriage-returns. If false, it will be laid-out in a more human-readable format.
+        The maximumDecimalPlaces parameter determines the precision of floating point numbers
+        in scientific notation.
         @see writeToStream
     */
     static String toString (const var& objectToFormat,
-                            bool allOnOneLine = false);
+                            bool allOnOneLine = false,
+                            int maximumDecimalPlaces = 15);
 
     /** Parses a string that was created with the toString() method.
         This is slightly different to the parse() methods because they will reject primitive
@@ -105,11 +110,14 @@ public:
     /** Writes a JSON-formatted representation of the var object to the given stream.
         If allOnOneLine is true, the result will be compacted into a single line of text
         with no carriage-returns. If false, it will be laid-out in a more human-readable format.
+        The maximumDecimalPlaces parameter determines the precision of floating point numbers
+        in scientific notation.
         @see toString
     */
     static void writeToStream (OutputStream& output,
                                const var& objectToFormat,
-                               bool allOnOneLine = false);
+                               bool allOnOneLine = false,
+                               int maximumDecimalPlaces = 15);
 
     /** Returns a version of a string with any extended characters escaped. */
     static String escapeString (StringRef);
@@ -122,5 +130,7 @@ public:
 
 private:
     //==============================================================================
-    JSON() JUCE_DELETED_FUNCTION; // This class can't be instantiated - just use its static methods.
+    JSON() = delete; // This class can't be instantiated - just use its static methods.
 };
+
+} // namespace juce

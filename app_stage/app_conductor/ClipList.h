@@ -25,8 +25,8 @@
 #include  "Clip.h"
 #include "ClipSelector.h"
 
-class ClipList:public ListBox,
-                public ListBoxModel
+class ClipList : public ListBox,
+                 public ListBoxModel
 {
 
 public:

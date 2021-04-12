@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -37,12 +36,14 @@
     Be sure to deregister listeners before you delete them!
 
     @see Component::addComponentListener, Component::removeComponentListener
+
+    @tags{GUI}
 */
 class JUCE_API  ComponentListener
 {
 public:
     /** Destructor. */
-    virtual ~ComponentListener()  {}
+    virtual ~ComponentListener() = default;
 
     /** Called when the component's position or size changes.
 
@@ -91,6 +92,7 @@ public:
 
     /** Called when the component's name is changed.
 
+        @param component    the component that had its name changed
         @see Component::setName, Component::getName
     */
     virtual void componentNameChanged (Component& component);
@@ -104,6 +106,17 @@ public:
         this - so if the object that's being deleted is a subclass of Component, then the
         subclass layers of the object will already have been destructed when it gets to this
         point!
+
+        @param component    the component that was deleted
     */
     virtual void componentBeingDeleted (Component& component);
+
+    /* Called when the component's enablement is changed.
+
+       @param component    the component that had its enablement changed
+       @see Component::setEnabled, Component::isEnabled, Component::enablementChanged
+    */
+    virtual void componentEnablementChanged (Component& component);
 };
+
+} // namespace juce

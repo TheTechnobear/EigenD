@@ -49,7 +49,7 @@ AlertDialogComponent::AlertDialogComponent ()
 {
     setName ("AlertDialog");
     addAndMakeVisible (messageLabel = new Label ("message label",
-                                                 String::empty));
+                                                 String()));
     messageLabel->setFont (Font (15.00f, Font::plain));
     messageLabel->setJustificationType (Justification::centred);
     messageLabel->setEditable (false, false, false);

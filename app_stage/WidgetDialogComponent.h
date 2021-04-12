@@ -56,9 +56,9 @@
                                                                     //[/Comments]
 */
 class WidgetDialogComponent  : public Component,
-                               public TextEditorListener,
-                               public ComboBoxListener,
-                               public ButtonListener
+                               public TextEditor::Listener,
+                               public ComboBox::Listener,
+                               public Button::Listener
 {
 public:
     //==============================================================================

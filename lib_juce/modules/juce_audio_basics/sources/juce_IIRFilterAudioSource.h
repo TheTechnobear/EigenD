@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,12 +20,14 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
     An AudioSource that performs an IIR filter on another source.
+
+    @tags{Audio}
 */
 class JUCE_API  IIRFilterAudioSource  : public AudioSource
 {
@@ -41,7 +43,7 @@ public:
                           bool deleteInputWhenDeleted);
 
     /** Destructor. */
-    ~IIRFilterAudioSource();
+    ~IIRFilterAudioSource() override;
 
     //==============================================================================
     /** Changes the filter to use the same parameters as the one being passed in. */
@@ -62,3 +64,5 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (IIRFilterAudioSource)
 };
+
+} // namespace juce

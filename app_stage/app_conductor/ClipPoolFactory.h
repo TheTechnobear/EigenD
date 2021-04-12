@@ -7,7 +7,7 @@
 class ClipPoolFactory: public ToolbarItemFactory
 {
 public:
-    ClipPoolFactory(ButtonListener*);
+    ClipPoolFactory(Button::Listener*);
     ~ClipPoolFactory(){};
     virtual void getAllToolbarItemIds(Array <int>& ids);
     virtual void getDefaultItemSet(Array<int>& ids);
@@ -35,7 +35,7 @@ public:
 private:
     void setupButtons();
     ToolbarButton* setupButton(int, String,Drawable*,Drawable*);
-    ButtonListener* listener_;
+    Button::Listener* listener_;
 };
 
 #endif

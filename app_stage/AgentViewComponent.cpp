@@ -309,7 +309,7 @@ void AgentViewComponent::receiveAgentChanges()
         if(agentChangeSetXml=="")
             return;
         XmlDocument agentChangeSetDoc(agentChangeSetXml);
-        agentChangeSetElem = agentChangeSetDoc.getDocumentElement();
+        agentChangeSetElem = agentChangeSetDoc.getDocumentElement().release();
         String timeStr = agentChangeSetElem->getStringAttribute("time");
         int64 time = timeStr.getLargeIntValue();
         if (time!=0)
@@ -385,7 +385,7 @@ void AgentViewComponent::receiveAgentChanges()
             //std::cout << "received agent:\n" << agentXmlString << "\n";
 
             XmlDocument agentXmlDocument (agentXmlString);
-            XmlElement* agentXmlElement = agentXmlDocument.getDocumentElement();
+            XmlElement* agentXmlElement = agentXmlDocument.getDocumentElement().release();
 
             // find agent in the tree by id
             bool createAgent = true;

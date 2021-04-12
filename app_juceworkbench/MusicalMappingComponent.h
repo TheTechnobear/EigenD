@@ -57,7 +57,7 @@
                                                                     //[/Comments]
 */
 class MusicalMappingComponent  : public Component,
-                                 public ButtonListener
+                                 public Button::Listener
 {
 public:
     //==============================================================================

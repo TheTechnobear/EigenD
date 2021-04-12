@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -33,11 +32,12 @@
     re-ordered.
 
     @see FileSearchPath
+
+    @tags{GUI}
 */
 class JUCE_API  FileSearchPathListComponent  : public Component,
                                                public SettableTooltipClient,
                                                public FileDragAndDropTarget,
-                                               private ButtonListener,  // (can't use Button::Listener due to idiotic VC2005 bug)
                                                private ListBoxModel
 {
 public:
@@ -46,7 +46,7 @@ public:
     FileSearchPathListComponent();
 
     /** Destructor. */
-    ~FileSearchPathListComponent();
+    ~FileSearchPathListComponent() override;
 
     //==============================================================================
     /** Returns the path as it is currently shown. */
@@ -95,8 +95,6 @@ public:
     bool isInterestedInFileDrag (const StringArray&) override;
     /** @internal */
     void filesDropped (const StringArray& files, int, int) override;
-    /** @internal */
-    void buttonClicked (Button*) override;
 
 private:
     //==============================================================================
@@ -110,5 +108,12 @@ private:
     void changed();
     void updateButtons();
 
+    void addPath();
+    void deleteSelected();
+    void editSelected();
+    void moveSelection (int);
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FileSearchPathListComponent)
 };
+
+} // namespace juce

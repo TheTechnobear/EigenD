@@ -64,7 +64,7 @@ ClipPanel::ClipPanel ()
     playOnceButton->addListener (this);
 
     addAndMakeVisible (clipLabel = new Label ("clipLabel",
-                                              String::empty));
+                                              String()));
     clipLabel->setFont (Font (15.00f, Font::plain));
     clipLabel->setJustificationType (Justification::centredLeft);
     clipLabel->setEditable (false, false, false);
@@ -276,7 +276,7 @@ void ClipPanel::setClip(Clip* clip)
     }
     else
     {
-        clipLabel->setText(String::empty,dontSendNotification);
+        clipLabel->setText(String(),dontSendNotification);
         // XXX and the others
         activeButton->setEnabled(false);
         playOnceButton->setEnabled(false);

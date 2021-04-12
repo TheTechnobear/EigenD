@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 XmlTokeniser::XmlTokeniser() {}
 XmlTokeniser::~XmlTokeniser() {}
@@ -50,8 +52,8 @@ CodeEditorComponent::ColourScheme XmlTokeniser::getDefaultColourScheme()
 
     CodeEditorComponent::ColourScheme cs;
 
-    for (unsigned int i = 0; i < sizeof (types) / sizeof (types[0]); ++i)  // (NB: numElementsInArray doesn't work here in GCC4.2)
-        cs.set (types[i].name, Colour (types[i].colour));
+    for (auto& t : types)
+        cs.set (t.name, Colour (t.colour));
 
     return cs;
 }
@@ -63,7 +65,7 @@ static void skipToEndOfXmlDTD (Iterator& source) noexcept
 
     for (;;)
     {
-        const juce_wchar c = source.nextChar();
+        auto c = source.nextChar();
 
         if (c == 0 || (c == '>' && lastWasQuestionMark))
             break;
@@ -75,11 +77,11 @@ static void skipToEndOfXmlDTD (Iterator& source) noexcept
 template <typename Iterator>
 static void skipToEndOfXmlComment (Iterator& source) noexcept
 {
-    juce_wchar last[2] = { 0 };
+    juce_wchar last[2] = {};
 
     for (;;)
     {
-        const juce_wchar c = source.nextChar();
+        auto c = source.nextChar();
 
         if (c == 0 || (c == '>' && last[0] == '-' && last[1] == '-'))
             break;
@@ -92,7 +94,7 @@ static void skipToEndOfXmlComment (Iterator& source) noexcept
 int XmlTokeniser::readNextToken (CodeDocument::Iterator& source)
 {
     source.skipWhitespace();
-    const juce_wchar firstChar = source.peekNextChar();
+    auto firstChar = source.peekNextChar();
 
     switch (firstChar)
     {
@@ -107,7 +109,7 @@ int XmlTokeniser::readNextToken (CodeDocument::Iterator& source)
         {
             source.skip();
             source.skipWhitespace();
-            const juce_wchar nextChar = source.peekNextChar();
+            auto nextChar = source.peekNextChar();
 
             if (nextChar == '?')
             {
@@ -166,3 +168,5 @@ int XmlTokeniser::readNextToken (CodeDocument::Iterator& source)
 
     return tokenType_identifier;
 }
+
+} // namespace juce

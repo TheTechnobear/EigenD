@@ -58,7 +58,7 @@
 */
 class FindComponent  : public Component,
                        public ListBoxModel,
-                       public ButtonListener
+                       public Button::Listener
 {
 public:
     //==============================================================================

@@ -20,7 +20,7 @@
 #include "ArrangementList.h"
 
 ArrangementList::ArrangementList (ArrangementBackend* backend, int mode)
-    : ClipList("ArrangementList"),backend_(backend), mode_(mode),arrangementName_(String::empty)
+    : ClipList("ArrangementList"),backend_(backend), mode_(mode),arrangementName_(String())
 {
     setSize (600, 400);
     arrangementChanged(mode_);

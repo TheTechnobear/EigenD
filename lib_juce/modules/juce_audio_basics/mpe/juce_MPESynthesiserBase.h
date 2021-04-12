@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,8 +20,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -40,6 +40,8 @@
     a voice stealing algorithm, and much more.
 
     @see MPESynthesiser, MPEInstrument
+
+    @tags{Audio}
 */
 struct JUCE_API  MPESynthesiserBase   : public MPEInstrument::Listener
 {
@@ -86,9 +88,14 @@ public:
 
         Call this to make sound. This will chop up the AudioBuffer into subBlock
         pieces separated by events in the MIDI buffer, and then call
-        processNextSubBlock on each one of them. In between you will get calls
+        renderNextSubBlock on each one of them. In between you will get calls
         to noteAdded/Changed/Finished, where you can update parameters that
         depend on those notes to use for your audio rendering.
+
+        @param outputAudio      Buffer into which audio will be rendered
+        @param inputMidi        MIDI events to process
+        @param startSample      The first sample to process in both buffers
+        @param numSamples       The number of samples to process
     */
     template <typename floatType>
     void renderNextBlock (AudioBuffer<floatType>& outputAudio,
@@ -163,7 +170,7 @@ public:
     void setLegacyModePitchbendRange (int pitchbendRange);
 
     //==============================================================================
-    typedef MPEInstrument::TrackingMode TrackingMode;
+    using TrackingMode = MPEInstrument::TrackingMode;
 
     /** Set the MPE tracking mode for the pressure dimension. */
     void setPressureTrackingMode (TrackingMode modeToUse);
@@ -193,14 +200,16 @@ protected:
 protected:
     //==============================================================================
     /** @internal */
-    ScopedPointer<MPEInstrument> instrument;
+    std::unique_ptr<MPEInstrument> instrument;
 
 private:
     //==============================================================================
     CriticalSection noteStateLock;
-    double sampleRate;
-    int minimumSubBlockSize;
-    bool subBlockSubdivisionIsStrict;
+    double sampleRate = 0.0;
+    int minimumSubBlockSize = 32;
+    bool subBlockSubdivisionIsStrict = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MPESynthesiserBase)
 };
+
+} // namespace juce

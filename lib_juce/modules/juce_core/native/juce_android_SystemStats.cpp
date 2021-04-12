@@ -2,7 +2,7 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
@@ -20,223 +20,48 @@
   ==============================================================================
 */
 
-JNIClassBase::JNIClassBase (const char* cp)   : classPath (cp), classRef (0)
+namespace juce
 {
-    getClasses().add (this);
-}
-
-JNIClassBase::~JNIClassBase()
-{
-    getClasses().removeFirstMatchingValue (this);
-}
-
-Array<JNIClassBase*>& JNIClassBase::getClasses()
-{
-    static Array<JNIClassBase*> classes;
-    return classes;
-}
-
-void JNIClassBase::initialise (JNIEnv* env)
-{
-    classRef = (jclass) env->NewGlobalRef (env->FindClass (classPath));
-    jassert (classRef != 0);
-
-    initialiseFields (env);
-}
-
-void JNIClassBase::release (JNIEnv* env)
-{
-    env->DeleteGlobalRef (classRef);
-}
-
-void JNIClassBase::initialiseAllClasses (JNIEnv* env)
-{
-    const Array<JNIClassBase*>& classes = getClasses();
-    for (int i = classes.size(); --i >= 0;)
-        classes.getUnchecked(i)->initialise (env);
-}
-
-void JNIClassBase::releaseAllClasses (JNIEnv* env)
-{
-    const Array<JNIClassBase*>& classes = getClasses();
-    for (int i = classes.size(); --i >= 0;)
-        classes.getUnchecked(i)->release (env);
-}
-
-jmethodID JNIClassBase::resolveMethod (JNIEnv* env, const char* methodName, const char* params)
-{
-    jmethodID m = env->GetMethodID (classRef, methodName, params);
-    jassert (m != 0);
-    return m;
-}
-
-jmethodID JNIClassBase::resolveStaticMethod (JNIEnv* env, const char* methodName, const char* params)
-{
-    jmethodID m = env->GetStaticMethodID (classRef, methodName, params);
-    jassert (m != 0);
-    return m;
-}
-
-jfieldID JNIClassBase::resolveField (JNIEnv* env, const char* fieldName, const char* signature)
-{
-    jfieldID f = env->GetFieldID (classRef, fieldName, signature);
-    jassert (f != 0);
-    return f;
-}
-
-jfieldID JNIClassBase::resolveStaticField (JNIEnv* env, const char* fieldName, const char* signature)
-{
-    jfieldID f = env->GetStaticFieldID (classRef, fieldName, signature);
-    jassert (f != 0);
-    return f;
-}
-
-//==============================================================================
-JavaVM* androidJNIJavaVM = nullptr;
-
-class JniEnvThreadHolder
-{
-public:
-    static JniEnvThreadHolder& getInstance() noexcept
-    {
-        // You cann only use JNI functions AFTER JNI_OnLoad was called
-        jassert (androidJNIJavaVM != nullptr);
-
-        try
-        {
-            if (instance == nullptr)
-                instance = new JniEnvThreadHolder;
-        }
-        catch (...)
-        {
-            jassertfalse;
-            std::terminate();
-        }
-
-        return *instance;
-    }
-
-    static JNIEnv* getEnv()
-    {
-        JNIEnv* env = reinterpret_cast<JNIEnv*> (pthread_getspecific (getInstance().threadKey));
-
-        // You are trying to use a JUCE function on a thread that was not created by JUCE.
-        // You need to first call setEnv on this thread before using JUCE
-        jassert (env != nullptr);
-
-        return env;
-    }
-
-    static void setEnv (JNIEnv* env)
-    {
-        // env must not be a nullptr
-        jassert (env != nullptr);
-
-       #if JUCE_DEBUG
-        JNIEnv* oldenv = reinterpret_cast<JNIEnv*> (pthread_getspecific (getInstance().threadKey));
-
-        // This thread is already attached to the JavaVM and you trying to attach
-        // it to a different instance of the VM.
-        jassert (oldenv == nullptr || oldenv == env);
-       #endif
-
-        pthread_setspecific (getInstance().threadKey, env);
-    }
-
-private:
-    pthread_key_t threadKey;
-
-    static void threadDetach (void* p)
-    {
-        if (JNIEnv* env = reinterpret_cast<JNIEnv*> (p))
-        {
-            ignoreUnused (env);
-
-            androidJNIJavaVM->DetachCurrentThread();
-        }
-    }
-
-    JniEnvThreadHolder()
-    {
-        pthread_key_create (&threadKey, threadDetach);
-    }
-
-    static JniEnvThreadHolder* instance;
-};
-
-JniEnvThreadHolder* JniEnvThreadHolder::instance = nullptr;
-
-//==============================================================================
-JNIEnv* getEnv() noexcept            { return JniEnvThreadHolder::getEnv(); }
-void setEnv (JNIEnv* env) noexcept   { JniEnvThreadHolder::setEnv (env); }
-
-extern "C" jint JNI_OnLoad (JavaVM* vm, void*)
-{
-    // Huh? JNI_OnLoad was called two times!
-    jassert (androidJNIJavaVM == nullptr);
-
-    androidJNIJavaVM = vm;
-    return JNI_VERSION_1_2;
-}
-
-//==============================================================================
-AndroidSystem::AndroidSystem() : screenWidth (0), screenHeight (0), dpi (160)
-{
-}
-
-void AndroidSystem::initialise (JNIEnv* env, jobject act, jstring file, jstring dataDir)
-{
-    setEnv (env);
-
-    screenWidth = screenHeight = 0;
-    dpi = 160;
-    JNIClassBase::initialiseAllClasses (env);
-
-    activity = GlobalRef (act);
-    appFile = juceString (env, file);
-    appDataDir = juceString (env, dataDir);
-}
-
-void AndroidSystem::shutdown (JNIEnv* env)
-{
-    activity.clear();
-
-    JNIClassBase::releaseAllClasses (env);
-}
-
-AndroidSystem android;
 
 //==============================================================================
 namespace AndroidStatsHelpers
 {
-    #define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD) \
+    #define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD, CALLBACK) \
      STATICMETHOD (getProperty, "getProperty", "(Ljava/lang/String;)Ljava/lang/String;")
 
-    DECLARE_JNI_CLASS (SystemClass, "java/lang/System");
+    DECLARE_JNI_CLASS (SystemClass, "java/lang/System")
     #undef JNI_CLASS_MEMBERS
 
-    static inline String getSystemProperty (const String& name)
+    #define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD, CALLBACK) \
+     STATICMETHOD (getDefault, "getDefault", "()Ljava/util/Locale;") \
+     METHOD (getCountry, "getCountry", "()Ljava/lang/String;") \
+     METHOD (getLanguage, "getLanguage", "()Ljava/lang/String;")
+
+    DECLARE_JNI_CLASS (JavaLocale, "java/util/Locale")
+    #undef JNI_CLASS_MEMBERS
+
+    static String getSystemProperty (const String& name)
     {
         return juceString (LocalRef<jstring> ((jstring) getEnv()->CallStaticObjectMethod (SystemClass,
                                                                                           SystemClass.getProperty,
                                                                                           javaString (name).get())));
     }
 
-    static inline String getLocaleValue (bool isRegion)
+    static String getLocaleValue (bool isRegion)
     {
-        return juceString (LocalRef<jstring> ((jstring) getEnv()->CallStaticObjectMethod (JuceAppActivity,
-                                                                                          JuceAppActivity.getLocaleValue,
-                                                                                          isRegion)));
+        auto* env = getEnv();
+        LocalRef<jobject> locale (env->CallStaticObjectMethod (JavaLocale, JavaLocale.getDefault));
+
+        auto stringResult = isRegion ? env->CallObjectMethod (locale.get(), JavaLocale.getCountry)
+                                     : env->CallObjectMethod (locale.get(), JavaLocale.getLanguage);
+
+        return juceString (LocalRef<jstring> ((jstring) stringResult));
     }
 
-    #define JNI_CLASS_MEMBERS(METHOD, STATICMETHOD, FIELD, STATICFIELD)
-    DECLARE_JNI_CLASS (BuildClass, "android/os/Build");
-    #undef JNI_CLASS_MEMBERS
-
-    static inline String getAndroidOsBuildValue (const char* fieldName)
+    static String getAndroidOsBuildValue (const char* fieldName)
     {
         return juceString (LocalRef<jstring> ((jstring) getEnv()->GetStaticObjectField (
-                            BuildClass, getEnv()->GetStaticFieldID (BuildClass, fieldName, "Ljava/lang/String;"))));
+                            AndroidBuild, getEnv()->GetStaticFieldID (AndroidBuild, fieldName, "Ljava/lang/String;"))));
     }
 }
 
@@ -255,6 +80,11 @@ String SystemStats::getDeviceDescription()
 {
     return AndroidStatsHelpers::getAndroidOsBuildValue ("MODEL")
             + "-" + AndroidStatsHelpers::getAndroidOsBuildValue ("SERIAL");
+}
+
+String SystemStats::getDeviceManufacturer()
+{
+    return AndroidStatsHelpers::getAndroidOsBuildValue ("MANUFACTURER");
 }
 
 bool SystemStats::isOperatingSystem64Bit()
@@ -276,7 +106,7 @@ String SystemStats::getCpuModel()
     return readPosixConfigFileValue ("/proc/cpuinfo", "Hardware");
 }
 
-int SystemStats::getCpuSpeedInMegaherz()
+int SystemStats::getCpuSpeedInMegahertz()
 {
     int maxFreqKHz = 0;
 
@@ -298,7 +128,7 @@ int SystemStats::getMemorySizeInMegabytes()
     struct sysinfo sysi;
 
     if (sysinfo (&sysi) == 0)
-        return (static_cast<int> (sysi.totalram * sysi.mem_unit) / (1024 * 1024));
+        return static_cast<int> ((sysi.totalram * sysi.mem_unit) / (1024 * 1024));
    #endif
 
     return 0;
@@ -399,7 +229,7 @@ int64 Time::getHighResolutionTicksPerSecond() noexcept
 
 double Time::getMillisecondCounterHiRes() noexcept
 {
-    return getHighResolutionTicks() * 0.001;
+    return (double) getHighResolutionTicks() * 0.001;
 }
 
 bool Time::setSystemTimeToThisTime() const
@@ -407,3 +237,5 @@ bool Time::setSystemTimeToThisTime() const
     jassertfalse;
     return false;
 }
+
+} // namespace juce

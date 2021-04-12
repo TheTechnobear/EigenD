@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -23,6 +22,9 @@
 
   ==============================================================================
 */
+
+namespace juce
+{
 
 namespace ComponentBuilderHelpers
 {
@@ -52,9 +54,9 @@ namespace ComponentBuilderHelpers
         if (c.getComponentID() == compId)
             return &c;
 
-        for (int i = c.getNumChildComponents(); --i >= 0;)
-            if (Component* const child = findComponentWithID (*c.getChildComponent (i), compId))
-                return child;
+        for (auto* child : c.getChildren())
+            if (auto* found = findComponentWithID (*child, compId))
+                return found;
 
         return nullptr;
     }
@@ -111,7 +113,7 @@ ComponentBuilder::~ComponentBuilder()
    #if JUCE_DEBUG
     // Don't delete the managed component!! The builder owns that component, and will delete
     // it automatically when it gets deleted.
-    jassert (componentRef.get() == static_cast<Component*> (component));
+    jassert (componentRef.get() == component.get());
    #endif
 }
 
@@ -119,14 +121,14 @@ Component* ComponentBuilder::getManagedComponent()
 {
     if (component == nullptr)
     {
-        component = createComponent();
+        component.reset (createComponent());
 
        #if JUCE_DEBUG
-        componentRef = component;
+        componentRef = component.get();
        #endif
     }
 
-    return component;
+    return component.get();
 }
 
 Component* ComponentBuilder::createComponent()
@@ -179,7 +181,6 @@ ComponentBuilder::TypeHandler* ComponentBuilder::getHandler (const int index) co
 
 void ComponentBuilder::registerStandardComponentTypes()
 {
-    Drawable::registerDrawableTypeHandlers (*this);
 }
 
 void ComponentBuilder::setImageProvider (ImageProvider* newImageProvider) noexcept
@@ -238,7 +239,7 @@ void ComponentBuilder::updateChildComponents (Component& parent, const ValueTree
 {
     using namespace ComponentBuilderHelpers;
 
-    const int numExistingChildComps = parent.getNumChildComponents();
+    auto numExistingChildComps = parent.getNumChildComponents();
 
     Array<Component*> componentsInOrder;
     componentsInOrder.ensureStorageAllocated (numExistingChildComps);
@@ -250,15 +251,16 @@ void ComponentBuilder::updateChildComponents (Component& parent, const ValueTree
         for (int i = 0; i < numExistingChildComps; ++i)
             existingComponents.add (parent.getChildComponent (i));
 
-        const int newNumChildren = children.getNumChildren();
+        auto newNumChildren = children.getNumChildren();
+
         for (int i = 0; i < newNumChildren; ++i)
         {
-            const ValueTree childState (children.getChild (i));
-            Component* c = removeComponentWithID (existingComponents, getStateId (childState));
+            auto childState = children.getChild (i);
+            auto* c = removeComponentWithID (existingComponents, getStateId (childState));
 
             if (c == nullptr)
             {
-                if (TypeHandler* const type = getHandlerForState (childState))
+                if (auto* type = getHandlerForState (childState))
                     c = ComponentBuilderHelpers::createNewComponent (*type, childState, &parent);
                 else
                     jassertfalse;
@@ -280,3 +282,5 @@ void ComponentBuilder::updateChildComponents (Component& parent, const ValueTree
             componentsInOrder.getUnchecked(i)->toBehind (componentsInOrder.getUnchecked (i + 1));
     }
 }
+
+} // namespace juce

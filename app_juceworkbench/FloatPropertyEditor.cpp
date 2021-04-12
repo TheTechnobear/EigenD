@@ -93,7 +93,7 @@ FloatPropertyEditor::FloatPropertyEditor ()
     valueBox->setScrollbarsShown (true);
     valueBox->setCaretVisible (true);
     valueBox->setPopupMenuEnabled (true);
-    valueBox->setText (String::empty);
+    valueBox->setText (String());
 
 
     //[UserPreSize]

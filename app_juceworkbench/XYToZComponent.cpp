@@ -73,7 +73,7 @@ XYToZComponent::XYToZComponent (int x, int y)
     xIn->setScrollbarsShown (false);
     xIn->setCaretVisible (true);
     xIn->setPopupMenuEnabled (true);
-    xIn->setText (String::empty);
+    xIn->setText (String());
 
     addAndMakeVisible (yIn = new XYToZTextEditor ("yIn"));
     yIn->setExplicitFocusOrder (2);
@@ -83,7 +83,7 @@ XYToZComponent::XYToZComponent (int x, int y)
     yIn->setScrollbarsShown (false);
     yIn->setCaretVisible (true);
     yIn->setPopupMenuEnabled (true);
-    yIn->setText (String::empty);
+    yIn->setText (String());
 
     addAndMakeVisible (zOut = new XYToZTextEditor ("zOut"));
     zOut->setExplicitFocusOrder (3);
@@ -93,7 +93,7 @@ XYToZComponent::XYToZComponent (int x, int y)
     zOut->setScrollbarsShown (false);
     zOut->setCaretVisible (true);
     zOut->setPopupMenuEnabled (true);
-    zOut->setText (String::empty);
+    zOut->setText (String());
 
     addAndMakeVisible (removeElementButton = new TextButton ("removeElementButton"));
     removeElementButton->setTooltip (TRANS("Remove this key mapping"));

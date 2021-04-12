@@ -54,7 +54,7 @@
                                                                     //[/Comments]
 */
 class DeletePegConfirmation  : public Component,
-                               public ButtonListener
+                               public Button::Listener
 {
 public:
     //==============================================================================

@@ -479,7 +479,7 @@ void Peg::mouseUp (const MouseEvent& e)
 
         getMainPanel()->clearSelectedItemsIfOne();
         getMainPanel()->doToolChangeIfRequired();
-        setSelected(selected_,String::empty);
+        setSelected(selected_,String());
     }
 }
 

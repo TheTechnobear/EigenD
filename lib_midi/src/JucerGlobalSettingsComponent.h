@@ -38,9 +38,9 @@
 */
 class GlobalSettingsComponent  : public Component,
                                  public MessageListener,
-                                 public ButtonListener,
-                                 public SliderListener,
-                                 public ComboBoxListener
+                                 public Button::Listener,
+                                 public Slider::Listener,
+                                 public ComboBox::Listener
 {
 public:
     //==============================================================================

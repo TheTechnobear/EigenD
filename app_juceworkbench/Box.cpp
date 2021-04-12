@@ -164,7 +164,7 @@ void Box::doSetup(String name,String id,float zoomFactor=1,int level=0)
     autoPositioned_=false;
     obscuredBoxTrueX_=0;
     obscuredBoxTrueY_=0;
-    createInstanceName_=String::empty;
+    createInstanceName_=String();
 
     id_=id;
 
@@ -276,7 +276,7 @@ void Box::refreshPinVisibility()
 
 void Box::setupButtons()
 {
-    addAndMakeVisible(expandButton=new ExpandButton(String::empty));
+    addAndMakeVisible(expandButton=new ExpandButton(String()));
     if (isExpandable())
     {
         doExpandableSetup();
@@ -1772,7 +1772,7 @@ void Box::returnToManualPosition(String id)
     // is the id in obscuredBoxPositions_ ?
     if(wasObscuredBy(id))
     {
-        String storedId=String::empty;
+        String storedId=String();
         int storedX=0;
         int storedY=0;
         do
@@ -3212,7 +3212,7 @@ void Box::showConnectionInfo()
             pic::logmsg()<<"src_filter="<<std::string(w->get_srcFilter().toUTF8());
             String srcName=getMainPanel()->get_fulldesc(w->getSrcId());
             SingleInputEditor* editorPanel=new SingleInputEditor(w,srcName);
-            String title=String::empty;
+            String title=String();
 
             Box* parentBox=findParentComponentOfClass<Box> ();
             if(parentBox!=0)

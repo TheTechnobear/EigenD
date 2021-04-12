@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,8 +23,8 @@
   ==============================================================================
 */
 
-#pragma once
-
+namespace juce
+{
 
 //==============================================================================
 /**
@@ -42,6 +41,8 @@
 
     @see PropertyPanel, TextPropertyComponent, SliderPropertyComponent,
          ChoicePropertyComponent, ButtonPropertyComponent, BooleanPropertyComponent
+
+    @tags{GUI}
 */
 class JUCE_API  PropertyComponent  : public Component,
                                      public SettableTooltipClient
@@ -62,7 +63,7 @@ public:
                        int preferredHeight = 25);
 
     /** Destructor. */
-    ~PropertyComponent();
+    ~PropertyComponent() override;
 
     //==============================================================================
     /** Returns this item's preferred height.
@@ -121,12 +122,13 @@ public:
     /** This abstract base class is implemented by LookAndFeel classes. */
     struct JUCE_API  LookAndFeelMethods
     {
-        virtual ~LookAndFeelMethods() {}
+        virtual ~LookAndFeelMethods() = default;
 
         virtual void drawPropertyPanelSectionHeader (Graphics&, const String& name, bool isOpen, int width, int height) = 0;
         virtual void drawPropertyComponentBackground (Graphics&, int width, int height, PropertyComponent&) = 0;
         virtual void drawPropertyComponentLabel (Graphics&, int width, int height, PropertyComponent&) = 0;
         virtual Rectangle<int> getPropertyComponentContentPosition (PropertyComponent&) = 0;
+        virtual int getPropertyPanelSectionHeaderHeight (const String& sectionTitle) = 0;
     };
 
 protected:
@@ -139,3 +141,5 @@ protected:
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PropertyComponent)
 };
+
+} // namespace juce

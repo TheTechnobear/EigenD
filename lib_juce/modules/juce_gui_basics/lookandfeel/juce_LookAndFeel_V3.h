@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2020 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 6 End-User License
+   Agreement and JUCE Privacy Policy (both effective as of the 16th June 2020).
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-6-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -24,22 +23,25 @@
   ==============================================================================
 */
 
-#pragma once
+namespace juce
+{
 
 //==============================================================================
 /**
     The latest JUCE look-and-feel style, as introduced in 2013.
     @see LookAndFeel, LookAndFeel_V1, LookAndFeel_V2
+
+    @tags{GUI}
 */
 class JUCE_API  LookAndFeel_V3   : public LookAndFeel_V2
 {
 public:
     LookAndFeel_V3();
-    ~LookAndFeel_V3();
+    ~LookAndFeel_V3() override;
 
     //==============================================================================
     void drawButtonBackground (Graphics&, Button&, const Colour& backgroundColour,
-                               bool isMouseOverButton, bool isButtonDown) override;
+                               bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
 
     void drawTableHeaderBackground (Graphics&, TableHeaderComponent&) override;
 
@@ -92,3 +94,5 @@ private:
     Image backgroundTexture;
     Colour backgroundTextureBaseColour;
 };
+
+} // namespace juce

@@ -119,7 +119,7 @@ private:
                                                                     //[/Comments]
 */
 class TabViewPreferencesComponent  : public Component,
-                                     public ButtonListener
+                                     public Button::Listener
 {
 public:
     //==============================================================================

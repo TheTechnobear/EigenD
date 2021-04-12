@@ -217,10 +217,10 @@ WBViewport::WBViewport(const String &name):Viewport(name)
 {
     hbarListener_=new WBScrollListener(this);
     vbarListener_=new WBScrollListener(this);
-    ScrollBar* hbar=getHorizontalScrollBar();
-    hbar->addListener(hbarListener_);
-    getHorizontalScrollBar()->addListener(hbarListener_);
-    getVerticalScrollBar()->addListener(vbarListener_);
+    ScrollBar& hbar=getHorizontalScrollBar();
+    hbar.addListener(hbarListener_);
+    getHorizontalScrollBar().addListener(hbarListener_);
+    getVerticalScrollBar().addListener(vbarListener_);
 }
 void WBViewport::parentSizeChanged()
 {
@@ -282,7 +282,7 @@ MainComponent::MainComponent(ToolManager* tm, Workspace* model, MenuManager* mm,
     paintForegroundMode_=FULL;
     overElement_=0;
     instanceParent_=0;
-    instanceName_=String::empty;
+    instanceName_=String();
     dc_=0;
     animated_=false;
     wireIndex_=0;
@@ -390,7 +390,7 @@ void MainComponent::moveObscuredBoxes(Box* b)
             {
                 pic::logmsg()<<"Box "<<std::string(b2->getId().toUTF8())<<" obscured by box "<< std::string(b->getId().toUTF8());
                 // record id and current position
-                juce::Rectangle <int> r2=b2->getBoundsInParent();
+                // juce::Rectangle <int> r2=b2->getBoundsInParent();
                 b->addObscuredBox(b2->getId());
                 b2->cachePosition(b->getId());
                 b2->initBoxMove();
@@ -1494,13 +1494,13 @@ Path MainComponent::getLinearWirePath(int x1,int y1,int x2, int y2)
 
 void MainComponent::checkPendingWires()
 {
-    checkPendingWires(String::empty);
+    checkPendingWires(String());
 }
 
 
 void MainComponent::checkPendingWires(String aid)
 {
-    String checkId=String::empty;
+    String checkId;
     if(aid.isNotEmpty())
     {
         checkId=aid.upToFirstOccurrenceOf("#",false,true);
@@ -3791,7 +3791,7 @@ void MainComponent::mouseMove (const MouseEvent& e)
                     repaint((u.getSmallestIntegerContainer()).expanded(50*zoomFactor_,50*zoomFactor_));
                 }
 
-                tooltip_=String::empty;
+                tooltip_=String();
             }
         }
 

@@ -73,7 +73,7 @@ XYComponent::XYComponent (int x, int y)
     xIn->setScrollbarsShown (false);
     xIn->setCaretVisible (true);
     xIn->setPopupMenuEnabled (true);
-    xIn->setText (String::empty);
+    xIn->setText (String());
 
     addAndMakeVisible (yIn = new XYTextEditor ("yIn"));
     yIn->setExplicitFocusOrder (2);
@@ -83,7 +83,7 @@ XYComponent::XYComponent (int x, int y)
     yIn->setScrollbarsShown (false);
     yIn->setCaretVisible (true);
     yIn->setPopupMenuEnabled (true);
-    yIn->setText (String::empty);
+    yIn->setText (String());
 
     addAndMakeVisible (removeElementButton = new TextButton ("removeElementButton"));
     removeElementButton->setTooltip (TRANS("Remove this key mapping"));
