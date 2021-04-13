@@ -129,6 +129,13 @@ epython::PythonBackend *MainWindow::getBackend()
 
 MainWindow::~MainWindow()
 {
+
+#ifdef JUCE_MAC
+    // juce 6.0.8 bug? crashes if we dont set MainMenu to null before closing
+    MenuBarModel::setMacMainMenu(nullptr);
+    delete menuManager_;
+    menuManager_=nullptr;
+#endif
 }
 
 pic::f_string_t MainWindow::make_logger(const char *prefix)
