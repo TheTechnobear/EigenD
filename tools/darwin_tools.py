@@ -108,15 +108,16 @@ def mycopytree(src, dst, symlinks=False, ignore=None):
 class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
 
     def __init__(self,platform):
-        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','Library/Eigenlabs',python='/usr/local/pi/bin/python')
+        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','Library/Eigenlabs',python='/System/Library/Frameworks/Python.framework/Versions/2.7/bin/python')
         os_major=uname()[2].split('.')[0]
+
         self.Append(LIBS=Split('dl m pthread'))
+        print "Using ",platform
         if platform == 'macosx-x86-64' :
             self.Append(CXXFLAGS=Split('-std=c++11 -Wno-c++11-narrowing -Wno-inconsistent-missing-override'))
             self.Append(CCFLAGS=Split('-arch x86_64  -msse3 -DDEBUG_DATA_ATOMICITY_DISABLED -DPI_PREFIX=\\"$PI_PREFIX\\" -mmacosx-version-min=10.13'))
             self.Append(LINKFLAGS=Split('-arch x86_64 -framework Accelerate -Wl,-rpath,@executable_path/ -mmacosx-version-min=10.13'))
         elif platform == 'macos-arm64' :
-            print "Using macos-arm64"
             self.Append(CXXFLAGS=Split('-std=c++11 -stdlib=libc++ -Wno-c++11-narrowing -Wno-inconsistent-missing-override'))
             self.Append(CCFLAGS=Split('-target arm64-apple-darwin -DDEBUG_DATA_ATOMICITY_DISABLED -DPI_PREFIX=\\"$PI_PREFIX\\" -mmacosx-version-min=10.13'))
             self.Append(LINKFLAGS=Split('-target arm64-apple-darwin -framework Accelerate -Wl,-rpath,@executable_path/ -mmacosx-version-min=10.13'))

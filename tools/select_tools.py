@@ -65,6 +65,12 @@ def posix_Darwin_x86_64():
         env = darwin_tools.PiDarwinEnvironment('macosx-x86-64')
         env.Replace(IS_MACOSX_86=True)
         env.Replace(IS_MACOSX_8664=True)
+    elif BUILD_TARGET == 'arm':
+        env = darwin_tools.PiDarwinEnvironment('macos-arm64')
+        env.Replace(IS_ARM=True)
+        env.Replace(IS_MACOS_ARM64=True)
+        env.Replace(IS_MACOSX_86=False)
+        env.Replace(IS_MACOSX_i386=False)
     else:
         env = darwin_tools.PiDarwinEnvironment('macosx-i386')
         env.Replace(IS_MACOSX_86=True)
@@ -73,11 +79,17 @@ def posix_Darwin_x86_64():
 
 def posix_Darwin_arm64():
     import darwin_tools
-    env = darwin_tools.PiDarwinEnvironment('macos-arm64')
-    env.Replace(IS_ARM=True)
-    env.Replace(IS_MACOS_ARM64=True)
-    env.Replace(IS_MACOSX_86=False)
-    env.Replace(IS_MACOSX_i386=False)
+    if BUILD_TARGET == 'x86_64':
+        env = darwin_tools.PiDarwinEnvironment('macosx-x86-64')
+        env.Replace(IS_MACOS_ARM64=False)
+        env.Replace(IS_MACOSX_86=True)
+        env.Replace(IS_MACOSX_8664=True)
+    else:
+        env = darwin_tools.PiDarwinEnvironment('macos-arm64')
+        env.Replace(IS_ARM=True)
+        env.Replace(IS_MACOS_ARM64=True)
+        env.Replace(IS_MACOSX_86=False)
+        env.Replace(IS_MACOSX_i386=False)
     return env
 
 

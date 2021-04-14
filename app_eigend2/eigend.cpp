@@ -996,8 +996,10 @@ void EigenMainWindow::getAllCommands (Array <CommandID>& commands)
         commandStartSaveAs,
         commandStartLoad,
         commandStartBug,
+#ifndef JUCE_MAC
         commandStartBrowser,
         commandStartCommander,
+#endif
         commandStartScanner,
         commandStartStage,
         commandStartWorkbench,
