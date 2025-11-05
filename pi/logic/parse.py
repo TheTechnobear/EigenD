@@ -19,11 +19,11 @@
 #
 
 from pi import resource
-import terms
-import tpg
+from pi.logic import terms
+from pi.logic import tpg
 import urllib
 import threading
-import parse_new
+from pi.logic import parse_new
 
 class PrologParser(tpg.Parser):
     r"""

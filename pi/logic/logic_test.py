@@ -21,12 +21,8 @@
 
 import unittest
 
-import engine
-import terms
-import parse
-import builtin
-import fixture
-from shortcuts import *
+from pi.logic import engine, terms, parse, builtin, fixture
+from pi.logic.shortcuts import *
 
 PR = parse.parse_rule
 PT = parse.parse_term

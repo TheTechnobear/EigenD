@@ -23,7 +23,7 @@ from pi.logic.parse import parse_rule, parse_term, parse_rulelist, parse_command
 from pi.logic.engine import Engine
 from pi.logic.terms import make_rule,make_term,make_variable,make_split,is_term,make_expansion
 from pi.logic.terms import is_bound,is_term,is_list,is_unbound,is_variable,is_const,unify,expand,match,is_pred,is_pred_arity,is_atom
-from builtin import LogicError
-from fixture import Fixture
+from pi.logic.builtin import LogicError
+from pi.logic.fixture import Fixture
 
 from pi.logic import shortcuts

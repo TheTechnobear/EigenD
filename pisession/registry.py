@@ -21,7 +21,6 @@
 import glob,zipfile,os
 import sys
 import picross
-import imp
 from pi import resource
 
 def iscompatible(mod_version, state_version):

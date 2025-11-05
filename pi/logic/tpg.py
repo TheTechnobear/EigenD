@@ -53,7 +53,6 @@ __author__ = 'Christophe Delord'
 __email__ = 'christophe.delord@free.fr'
 __url__ = 'http://christophe.delord.free.fr/en/tpg/'
 
-import parser
 import re
 import sre_parse
 import sys
@@ -61,7 +60,8 @@ import sys
 try:
     enumerate
 except NameError:
-    enumerate = lambda seq: zip(xrange(sys.maxint), seq)
+    # Python 2 compatibility (never runs in Python 3)
+    enumerate = lambda seq: zip(range(sys.maxsize), seq)
 
 _id = lambda x: x
 tab = " "*4
@@ -1654,7 +1654,7 @@ class TPGParser(tpg.Parser):
 
     def code_check(self, code, tok):
         try:
-            parser.suite(code.code)
+            compile(code.code, "-", 'exec')
         except Exception as e:
             erroneous_code = "\n".join([ "%2d: %s"%(i+1, l) for (i, l) in enumerate(code.code.splitlines()) ])
             raise LexicalError((tok.line, tok.row), "Invalid Python code (%s): \n%s"%(e, erroneous_code))

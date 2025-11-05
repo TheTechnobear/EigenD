@@ -20,8 +20,12 @@
 
 import string
 
-# Python 3: str.translate() with dict for deletions
-__tx_delete = str.maketrans('', '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz0123456789#_.')
+# Python 3 compatibility: cmp() function removed
+def cmp(a, b):
+    return (a > b) - (a < b)
+
+# Python 3 compatibility: long type unified with int
+long = int
 
 
 def make_subst(word):
@@ -43,7 +47,6 @@ def render_term(t):
     if isinstance(t,str): return quotesimplename(t)
     if isinstance(t,int): return str(t)
     if isinstance(t,bool): return str(t)
-    if isinstance(t,long): return str(t)
     if isinstance(t,float): return str(t)
     if isinstance(t,Expansion): return t.pred
     return '<%s>' % repr(t)
@@ -213,9 +216,9 @@ def unify(src, src_env, dest, dest_env):
         return True
 
 def quotevarname(name):
-    # Python 3: translate with deletion dict
-    h=name[0].translate(str.maketrans('', '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'))
-    t=name[1:].translate(str.maketrans('', '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz0123456789'))
+    # Python 3: use bytes for translate with deletion
+    h = name[0].encode().translate(None, b'ABCDEFGHIJKLMNOPQRSTUVWXYZ_').decode()
+    t = name[1:].encode().translate(None, b'ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz0123456789').decode()
     if not h and not t: return name
     return "%%'%s'" % name.replace('%','%25').replace("'","%27")
 
@@ -224,13 +227,12 @@ def quotesimplename(name):
     if name is True: return 'True'
     if name is False: return 'False'
     if isinstance(name,int): return str(name)
-    # Python 3: int and long unified
     if isinstance(name,float): return str(name)
     if not isinstance(name,str): return '<%s>' % str(name)
     if not name: return "''"
-    # Python 3: translate with deletion dict
-    h=name[0].translate(str.maketrans('', '', 'abcdefghijklmnopqrstuvwxyz$@!#'))
-    t=name[1:].translate(str.maketrans('', '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#_.'))
+    # Python 3: use bytes for translate with deletion
+    h = name[0].encode().translate(None, b'abcdefghijklmnopqrstuvwxyz$@!#').decode()
+    t = name[1:].encode().translate(None, b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#_.').decode()
     if not h and not t: return name
     return "'%s'" % name.replace('%','%25').replace("'","%27")
 

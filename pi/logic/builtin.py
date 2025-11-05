@@ -18,10 +18,9 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import terms
-import exceptions
+from pi.logic import terms
 
-class LogicError(exceptions.Exception):
+class LogicError(Exception):
     def __init__(self,term):
         self.term = term
     def __str__(self):

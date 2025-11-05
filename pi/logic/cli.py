@@ -19,10 +19,7 @@
 #
 
 
-import parse
-import engine
-import terms
-import builtin
+from pi.logic import parse, engine, terms, builtin
 import sys
 
 def process(ruleset,line):

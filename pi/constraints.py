@@ -19,7 +19,7 @@
 #
 
 from pi import piasync,logic,paths,rpc,action
-from logic.shortcuts import *
+from pi.logic.shortcuts import *
 
 rules_constraints = """
 

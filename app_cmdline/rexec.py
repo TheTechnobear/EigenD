@@ -26,6 +26,7 @@ import optparse
 import sys
 import piw
 import picross
+import getpass
 
 class Connector(proxy.AtomProxy,piasync.Deferred):
 
@@ -63,7 +64,7 @@ class Finder(piw.index,piasync.Deferred):
 
 def main():
     picross.pic_set_interrupt()
-    user_default = session.get_username()
+    user_default = getpass.getuser()
     parser = optparse.OptionParser(usage=sys.argv[0]+' [options] command')
     parser.add_option('--user',action='store',dest='user',default=user_default,help='user (%s)' % user_default)
     parser.add_option('--quiet',action='store_true',dest='quiet',default=False,help='quiet')

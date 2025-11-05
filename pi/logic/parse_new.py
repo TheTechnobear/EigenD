@@ -20,8 +20,7 @@
 
 import piw
 import urllib
-import terms
-import tpg
+from pi.logic import terms, tpg
 
 class Delegate(piw.python_delegate):
     def __init__(self, subst={}, nosubst=False):
