@@ -129,7 +129,7 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
 
         self.Replace(PI_DLLENVNAME='DYLD_LIBRARY_PATH')
         self.Replace(IS_MACOSX=os_major)
-        self.Replace(PI_MODLINKFLAGS=['$LINKFLAGS','-bundle','-Wl,-rpath,@loader_path/'])
+        self.Replace(PI_MODLINKFLAGS=['$LINKFLAGS','-bundle','-Wl,-rpath,@loader_path/','-Wl,-rpath,@loader_path/../bin'])
         self.Append(SHLINKFLAGS=['-Wl,-install_name,@rpath/${SHLIBPREFIX}${SHLIBNAME}${SHLIBSUFFIX}','-Wl,-rpath,@loader_path/'])
         self.Replace(PI_PLATFORMTYPE='macosx')
 

@@ -20,7 +20,7 @@
 
 import piw
 from pi import const,utils,logic
-from pibelcanto import lexicon
+import pibelcanto.lexicon as lexicon
 
 def convert_data(value, src_dom, sink_dom):
     if src_dom == sink_dom:

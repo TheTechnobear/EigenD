@@ -33,8 +33,85 @@ import time
 import os
 import pisession_native
 import re
+
+# Python 2/3 compatibility
+try:
+    from functools import cmp_to_key
+except ImportError:
+    # Python 2 doesn't have cmp_to_key, create a simple version
+    def cmp_to_key(mycmp):
+        class K:
+            def __init__(self, obj, *args):
+                self.obj = obj
+            def __lt__(self, other):
+                return mycmp(self.obj, other.obj) < 0
+            def __gt__(self, other):
+                return mycmp(self.obj, other.obj) > 0
+            def __eq__(self, other):
+                return mycmp(self.obj, other.obj) == 0
+            def __le__(self, other):
+                return mycmp(self.obj, other.obj) <= 0
+            def __ge__(self, other):
+                return mycmp(self.obj, other.obj) >= 0
+            def __ne__(self, other):
+                return mycmp(self.obj, other.obj) != 0
+        return K
+
+# Handle cmp function not existing in Python 3
+try:
+    cmp
+except NameError:
+    def cmp(a, b):
+        return (a > b) - (a < b)
+
+# Helper function to ensure strings are properly encoded for piw.makestring
+def encode_for_piw(s):
+    """Ensure string is properly formatted for piw.makestring in both Python 2 and 3"""
+    if s is None:
+        return s
+    
+    # In Python 3, piw.makestring expects Unicode strings, not bytes
+    if sys.version_info[0] >= 3:
+        # Python 3: just ensure it's a string (don't encode to bytes)
+        if isinstance(s, bytes):
+            return s.decode('utf-8')  # Decode bytes to string if needed
+        return str(s)  # Ensure it's a string
+    else:
+        # Python 2: encode unicode to bytes for piw.makestring
+        if hasattr(s, 'encode'):  # Python 2 unicode
+            return s.encode('utf-8')
+        return s  # Python 2 str (already bytes)
+
+def data_to_term(data_obj):
+    """Convert piw data objects to terms - workaround for Python 3 binding issue"""
+    if sys.version_info[0] >= 3:
+        # Python 3: piw.term(data) constructor is broken, use data.as_X() + term(value, type)
+        
+        if data_obj.is_string():
+            # For strings, term(string, type) creates type 3 terms regardless of type param
+            return piw.term(data_obj.as_string(), 0)
+        elif data_obj.is_bool():
+            # For booleans, use the string representation approach
+            bool_val = data_obj.as_bool()
+            return piw.term('y' if bool_val else 'n', 7)
+        else:
+            # Fallback: try the broken constructor, maybe some types work
+            try:
+                return piw.term(data_obj)
+            except:
+                # Last resort: create empty term of the right type
+                return piw.term(data_obj.data_type())
+    else:
+        # Python 2: use original constructor
+        return piw.term(data_obj)
 import glob
 import urllib
+try:
+    # Python 3
+    from urllib.parse import quote as urllib_quote, unquote as urllib_unquote
+except ImportError:
+    # Python 2
+    from urllib import quote as urllib_quote, unquote as urllib_unquote
 import binascii
 import traceback
 import gc
@@ -59,7 +136,7 @@ def try_int(s):
     except: return s
 
 def natsort_key(s):
-    return map(try_int, re.findall(r'(\d+|\D+)', s))
+    return list(map(try_int, re.findall(r'(\d+|\D+)', s)))
 
 def natcmp(a, b):
     return cmp(natsort_key(a[0]), natsort_key(b[0]))
@@ -172,7 +249,7 @@ def find_setup(srcname):
 def user_setup_file(slot,tag):
     if tag:
         # url encode any illegal chars except ' ' to stop them ending up in the filename
-        tag = urllib.quote(tag, ' ')
+        tag = urllib_quote(tag, ' ')
         # must encode . also as urllib doesn't do this
         tag = str.replace(tag, '.', '%'+binascii.b2a_hex('.')) 
         base = '%s ~ %s' % (slot,tag)
@@ -200,7 +277,7 @@ def get_setup_slot(slot):
             s3 = upgrade.split_setup(s)
             if s3[1]==slot:
                 # unencode url encoded illegal chars to display them properly
-                return urllib.unquote(s3[0]) or 'none'
+                return urllib_unquote(s3[0]) or 'none'
 
     return ''
 
@@ -208,21 +285,30 @@ def find_user_setups_flat():
     rd = resource.user_resource_dir(resource.setup_dir)
 
     t = piw.term("tree",0)
-    t.add_arg(-1,piw.term(piw.makestring('user setups',0)))
+    t.add_arg(-1,piw.term(encode_for_piw('user setups'),0))
 
     for (sp,sd,sn) in resource.safe_walk(rd):
         for s in filter(filter_valid_setup,sn):
+            print(f"🐍 Processing setup file: {s!r} (type: {type(s)})")
             t3 = piw.term('leaf',0)
             s3 = upgrade.split_setup(s)
+            print(f"🐍 split_setup result: {s3!r}")
             # unencode url encoded illegal chars to display them properly
-            name = piw.term(piw.makestring(urllib.unquote(s3[0]),0)) if s3[0] else piw.term()
-            slot = piw.term(piw.makestring(s3[1],0))
+            name = piw.term(encode_for_piw(urllib_unquote(s3[0])),0) if s3[0] else piw.term()
+            slot = piw.term(encode_for_piw(s3[1]),0)
+            path_str = os.path.join(rd,s)
+            print(f"🐍 About to create terms with:")
+            print(f"🐍   name: {s3[0]!r} -> {encode_for_piw(urllib_unquote(s3[0])) if s3[0] else None!r}")
+            print(f"🐍   slot: {s3[1]!r} -> {encode_for_piw(s3[1])!r}")
+            print(f"🐍   path: {path_str!r} -> {encode_for_piw(path_str)!r}")
             t3.add_arg(-1,name)
             t3.add_arg(-1,slot)
-            t3.add_arg(-1,piw.term(piw.makestring(os.path.join(rd,s),0)))
-            t3.add_arg(-1,piw.term(piw.makebool(False,0)))
-            t3.add_arg(-1,piw.term(piw.makebool(True,0)))
+            t3.add_arg(-1,piw.term(encode_for_piw(path_str),0))
+            t3.add_arg(-1,data_to_term(piw.makebool(False,0)))
+            t3.add_arg(-1,data_to_term(piw.makebool(True,0)))
+            print(f"🐍 Term created successfully")
             t.add_arg(-1,t3)
+            print(f"🐍 Term added to parent successfully")
 
     return t
 
@@ -256,8 +342,13 @@ class Menu:
         return self.children2[n0].get_submenu(n)
 
     def term(self):
-        names = self.setups.keys()
-        names.sort(slotcmp)
+        names = list(self.setups.keys())  # Convert to list for Python 3 compatibility
+        try:
+            # Python 2
+            names.sort(slotcmp)
+        except TypeError:
+            # Python 3 - sort() doesn't accept comparison function
+            names = sorted(names, key=cmp_to_key(slotcmp))
 
         for n in names:
             m = self.get_submenu(n.split())
@@ -268,8 +359,13 @@ class Menu:
         for c in self.children:
             children.add_arg(-1,c.term())
 
-        k = self.children2.keys()
-        k.sort(slotcmp)
+        k = list(self.children2.keys())  # Convert to list for Python 3 compatibility
+        try:
+            # Python 2
+            k.sort(slotcmp)
+        except TypeError:
+            # Python 3 - sort() doesn't accept comparison function
+            k = sorted(k, key=cmp_to_key(slotcmp))
 
         for c in k:
             children.add_arg(-1,self.children2[c].term())
@@ -278,16 +374,16 @@ class Menu:
 
         if l:
             t = piw.term('n',7)
-            t.set_arg(0,piw.term(piw.makestring(self.label,0)))
+            t.set_arg(0,piw.term(encode_for_piw(self.label),0))
             t.set_arg(1,children)
-            t.set_arg(2,piw.term(piw.makestring(l[0],0)))
-            t.set_arg(3,piw.term(piw.makestring(l[1],0)))
-            t.set_arg(4,piw.term(piw.makestring(l[2],0)))
-            t.set_arg(5,piw.term(piw.makebool(l[3],0)))
-            t.set_arg(6,piw.term(piw.makebool(l[4],0)))
+            t.set_arg(2,piw.term(encode_for_piw(l[0]),0))
+            t.set_arg(3,piw.term(encode_for_piw(l[1]),0))
+            t.set_arg(4,piw.term(encode_for_piw(l[2]),0))
+            t.set_arg(5,data_to_term(piw.makebool(l[3],0)))
+            t.set_arg(6,data_to_term(piw.makebool(l[4],0)))
         else:
             t = piw.term('n',2)
-            t.set_arg(0,piw.term(piw.makestring(self.label,0)))
+            t.set_arg(0,piw.term(encode_for_piw(self.label),0))
             t.set_arg(1,children)
 
         return t
@@ -299,7 +395,7 @@ def find_user_setups():
     for (sp,sd,sn) in resource.safe_walk(rd):
         for s in filter(filter_valid_setup,sn):
             s3 = upgrade.split_setup(s)
-            m.add_setup(urllib.unquote(s3[0]),s3[1],os.path.join(rd,s),False,True)
+            m.add_setup(urllib_unquote(s3[0]),s3[1],os.path.join(rd,s),False,True)
 
     return m
 
@@ -311,7 +407,7 @@ def find_example_setups():
     for (sp,sd,sn) in resource.safe_walk(rd):
         for s in filter(filter_valid_setup,sn):
             s3 = upgrade.split_setup(s)
-            m.add_setup(urllib.unquote(s3[0]),s3[1],os.path.join(rd,s),False,False)
+            m.add_setup(urllib_unquote(s3[0]),s3[1],os.path.join(rd,s),False,False)
 
     return m
 
@@ -323,7 +419,7 @@ def find_experimental_setups():
     for (sp,sd,sn) in resource.safe_walk(rd):
         for s in filter(filter_valid_setup,sn):
             s3 = upgrade.split_setup(s)
-            m.add_setup(urllib.unquote(s3[0]),s3[1],os.path.join(rd,s),False,False)
+            m.add_setup(urllib_unquote(s3[0]),s3[1],os.path.join(rd,s),False,False)
 
     return m
 
@@ -335,7 +431,7 @@ def find_factory_setups():
     for (sp,sd,sn) in resource.safe_walk(rd):
         for s in filter(filter_valid_setup,sn):
             s3 = upgrade.split_setup(s)
-            m.add_setup(urllib.unquote(s3[0]),s3[1],os.path.join(rd,s),False,False)
+            m.add_setup(urllib_unquote(s3[0]),s3[1],os.path.join(rd,s),False,False)
 
     return m
 
@@ -352,7 +448,7 @@ def find_old_setups():
                 m2 = Menu(v)
                 for s in sv:
                     s3 = upgrade.split_setup(s)
-                    m2.add_setup(urllib.unquote(s3[0]),s3[1],os.path.join(rd,s),True,False)
+                    m2.add_setup(urllib_unquote(s3[0]),s3[1],os.path.join(rd,s),True,False)
                 m.add_child(m2)
 
     return m
@@ -360,14 +456,35 @@ def find_old_setups():
 
 def find_all_setups():
     try:
+        print("🐍 Starting find_all_setups()")
         m = Menu('Setups')
+        
+        print("🐍 Calling find_user_setups()")
         m.add_child(find_user_setups())
+        print("🐍 find_user_setups() completed")
+        
+        print("🐍 Calling find_factory_setups()")
         m.add_child(find_factory_setups())
+        print("🐍 find_factory_setups() completed")
+        
+        print("🐍 Calling find_example_setups()")
         m.add_child(find_example_setups())
+        print("🐍 find_example_setups() completed")
+        
+        print("🐍 Calling find_experimental_setups()")
         m.add_child(find_experimental_setups())
+        print("🐍 find_experimental_setups() completed")
+        
+        print("🐍 Calling find_old_setups()")
         m.add_child(find_old_setups())
-        return m.term()
+        print("🐍 find_old_setups() completed")
+        
+        print("🐍 Calling m.term()")
+        result = m.term()
+        print("🐍 m.term() completed successfully")
+        return result
     except:
+        print("🐍 Exception in find_all_setups()")
         utils.log_exception()
         return Menu('Setups')
 

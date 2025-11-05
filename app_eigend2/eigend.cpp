@@ -24,6 +24,7 @@
 #include <picross/pic_time.h>
 #include <picross/pic_tool.h>
 #include <picross/pic_resources.h>
+#include <cstdlib>
 
 #include "eigend.h"
 #include "nettest.h"
@@ -899,6 +900,7 @@ EigenMainWindow::EigenMainWindow(ApplicationCommandManager *mgr, pia::scaffold_g
     workbench_(pic::public_tools_dir(),TOOL_WORKBENCH), stage_(pic::public_tools_dir(),TOOL_STAGE),
     progress_(0), help_(0), ignores_(getGlobalDir().getChildFile("ignores.xml"), PropertiesFile::Options()), save_menu_active_(false)
 {
+    printf("EigenMainWindow constructor starting...\n");
     backend->upgrade_setups();
 
     component_ = new EigenLoadComponent(this);
@@ -917,9 +919,14 @@ EigenMainWindow::EigenMainWindow(ApplicationCommandManager *mgr, pia::scaffold_g
     timer_slow(500);
 
     pic::logmsg() << "latest version: " << new_version_;
+    pic::logmsg() << "Bug reporter : DISABLED";
+    pic::logmsg() << "Version checker : DISABLED";
 
+    printf("Calling init_menu()...\n");
     init_menu();
+    printf("init_menu() completed successfully\n");
 
+    printf("Setting up command manager...\n");
     manager_->registerAllCommandsForTarget(this);
     manager_->getKeyMappings()->resetToDefaultMappings();
     addKeyListener(manager_->getKeyMappings());
@@ -1485,7 +1492,8 @@ void EigenBugComponent::buttonClicked (Button* buttonThatWasClicked)
             std::string(description_editor()->getText().trim().getCharPointer())
             );
 
-    pic::bgprocess_t(pic::private_exe_dir(),"eigenbugreporter",true).start();
+    // DISABLED: Bug reporter to avoid network complications during debugging
+    // pic::bgprocess_t(pic::private_exe_dir(),"eigenbugreporter",true).start();
 
     delete getTopLevelComponent();
 }
@@ -1969,7 +1977,8 @@ void EigenD::initialise (const String& commandLine)
 
     printf("release root: %s\n",pic::release_root_dir().c_str());
 
-    pic::bgprocess_t(pic::private_exe_dir(),"eigenbugreporter",true).start();
+    // DISABLED: Bug reporter to avoid network complications during debugging  
+    // pic::bgprocess_t(pic::private_exe_dir(),"eigenbugreporter",true).start();
 
     pic::f_string_t primary_logger = pic::f_string_t::method(this,&EigenD::log);
     pic::f_string_t eigend_logger = EigenLogger::create("eigend",primary_logger);
@@ -1982,31 +1991,60 @@ void EigenD::initialise (const String& commandLine)
     context_ = scaffold()->context("main",pic::status_t(),eigend_logger,"eigend");
 
     piw::tsd_setcontext(context_.entity());
+    printf("Starting Python initialization...\n");
     python_->py_startup();
+    printf("Python startup complete, attempting to import app_eigend2.backend...\n");
 
     if(python_->init_python("app_eigend2.backend","main"))
     {
+        printf("✅ Python module imported successfully, getting backend mediator...\n");
         eigend::c2p_t *backend = (eigend::c2p_t *)python_->mediator();
         if(backend)
         {
-            backend->set_args(commandLine.toUTF8());
-            std::string logfile = backend->get_logfile();
+            printf("✅ Backend mediator obtained successfully\n");
+            try {
+                printf("Calling backend->set_args()...\n");
+                backend->set_args(commandLine.toUTF8());
+                printf("✅ set_args() completed successfully\n");
+                
+                printf("Calling backend->get_logfile()...\n");
+                std::string logfile = backend->get_logfile();
+                printf("✅ get_logfile() completed successfully: %s\n", logfile.c_str());
 
-            if(logfile.length()>0)
-            {
-                logfile_ = pic::fopen(logfile,"w");
+                if(logfile.length()>0)
+                {
+                    logfile_ = pic::fopen(logfile,"w");
+                }
+
+                printf("Creating EigenMainWindow...\n");
+                try {
+                    main_window_ = new EigenMainWindow(manager,scaffold(),backend,primary_logger);
+                    printf("✅ EigenMainWindow created successfully\n");
+                } catch (const std::exception& e) {
+                    printf("❌ Exception in EigenMainWindow constructor: %s\n", e.what());
+                    throw; // Rethrow to maintain original behavior
+                }
+            } catch (const std::exception& e) {
+                printf("❌ C++ exception in backend operations: %s\n", e.what());
+                throw; // Rethrow to maintain original behavior
+            } catch (...) {
+                printf("❌ Unknown exception in backend operations\n");
+                juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, "Unknown Error", 
+                    "An unknown error occurred during backend operations");
+                return; // Exit gracefully instead of rethrowing
             }
-
-            main_window_ = new EigenMainWindow(manager,scaffold(),backend,primary_logger);
         }
         else
         {
+            printf("❌ Backend mediator is null\n");
             juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, "An unexpected error occurred ...", python_->last_error().c_str());
         }
     }
     else
     {
-        juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, "An unexpected error occurred ...", python_->last_error().c_str());
+        printf("Failed to import app_eigend2.backend. Error: %s\n", python_->last_error().c_str());
+        juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, "Python Import Error", 
+            ("Failed to import app_eigend2.backend module:\n\n" + python_->last_error()).c_str());
     }
 
 }

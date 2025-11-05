@@ -1,6 +1,8 @@
 {
     "files.associations": {
+        "*.svg": "xml",
         "*.mm": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "template": "cpp"
     }
 }

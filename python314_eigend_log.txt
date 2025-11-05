@@ -1,0 +1,10 @@
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpic.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpia.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpiw.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpie.dylib
+open lock file /Users/kodiak/Library/Eigenlabs/Lock/EigenD.lck 3
+locked lock file
+release root: /Users/kodiak/projects/EigenD/tmp
+log:using portbase 55555
+init lock file eigenbugreporter1
+libc++abi: terminating due to uncaught exception of type (anonymous namespace)::pip_err_t: call problem

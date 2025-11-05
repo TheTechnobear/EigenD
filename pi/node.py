@@ -137,8 +137,8 @@ class server(piw.server):
         """
         Find an unused index
         """
-        for i in xrange(1,255):
-            if not self.isinternal(i) and (self.__children is None or not self.i in __children):
+        for i in range(1,255):
+            if not self.isinternal(i) and (self.__children is None or not i in self.__children):
                 return i
 
         ex = self.__extension
@@ -232,7 +232,7 @@ class server(piw.server):
         if key<1 or key>255:
             raise OverflowError('key %d not in range'%key)
 
-        if self.__children is not None and self.key in __children:
+        if self.__children is not None and key in self.__children:
             oldval=self.__children[key]
             del self.__children[key]
             oldval.close_server()
@@ -261,7 +261,7 @@ class server(piw.server):
         self.set_internal(key,val)
 
     def del_internal(self,key):
-        if self.__children is not None and self.key in __children:
+        if self.__children is not None and key in self.__children:
             oldval=self.__children[key]
             del self.__children[key]
             if len(self.__children) == 0:
@@ -341,7 +341,7 @@ class server(piw.server):
             yield (k-1+ex,v)
 
     def has_key(self,k):
-        if self.__children is not None and self.k in __children:
+        if self.__children is not None and k in self.__children:
             return True
 
         ex = self.__extension
@@ -585,7 +585,7 @@ class client(piw.client):
         if ex:
             en = self.get_internal(ex)
             if en:
-                return en.__contains__(k-ex+1)
+                return en.__contains__(key-ex+1)
 
         return False
 
@@ -669,7 +669,7 @@ class client(piw.client):
         return self.set_internal(key,val)
 
     def del_internal(self,key):
-        if self.__children is not None and self.key in __children:
+        if self.__children is not None and key in self.__children:
             oldval=self.__children[key]
             self.safe_close(oldval)
             del self.__children[key]
@@ -677,7 +677,7 @@ class client(piw.client):
                 self.__children = None
             return
 
-        if self.__dynamic is not None and self.key in __dynamic:
+        if self.__dynamic is not None and key in self.__dynamic:
             oldval=self.__dynamic[key]
             self.__wreck(key,oldval)
             del self.__dynamic[key]
@@ -696,7 +696,7 @@ class client(piw.client):
             if key>=ex:
                 en = self.get_internal(ex)
                 if not en:
-                    return en.__delitem__(key-ex+1,val)
+                    return en.__delitem__(key-ex+1)
 
         return self.del_internal(key)
 

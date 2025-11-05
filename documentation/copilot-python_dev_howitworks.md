@@ -100,6 +100,18 @@ Strings are Unicode text by default
 - Use `PyBytes_*` for binary data (MIDI, firmware, etc)
 - `PyUnicode_AsUTF8` returns `const char*` (temporary!)
 
+### PyString_AsString Migration ✅
+**Status**: RESOLVED - No migration issues found
+
+**Analysis**: The PIP binding template (`tools/pip_cmd/template`) already correctly uses:
+- `PyUnicode_AsUTF8AndSize()` for Python 3 string conversion
+- Proper Unicode → UTF-8 encoding for C++ interop
+- Binary protocol compatibility preserved for cross-version communication
+
+**Key Finding**: The `term(data)` constructor is broken due to `fpcvt_data` dispatcher issue, but `term(string, type)` constructor works correctly. The `data_to_term()` workaround in `pisession/agentd.py` bypasses this issue.
+
+**Binary Protocol**: Cross-version client-server communication (Python 2.7 ↔ Python 3.14) remains stable.
+
 ## Object Types (PyTypeObject)
 
 ### Structure Changes in Python 3

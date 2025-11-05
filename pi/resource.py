@@ -28,7 +28,7 @@ import shutil
 import sys
 import traceback
 
-from pi import version,utils
+from pi import utils
 
 if os.name != 'nt':
     import fcntl
@@ -60,7 +60,7 @@ def is_windows():
 
 # convert to multi-byte string if needed
 def MB(string):
-    if is_windows() and string is not None and isinstance(string,unicode):
+    if is_windows() and string is not None and isinstance(string,str):
         return string.encode('utf_8')
     return string
 
@@ -169,7 +169,7 @@ def get_home_dir(version=None):
     userdir_g = picross.global_library_dir()
     __mkdir(userdir_g)
 
-    if release is '':
+    if release == '':
         return userdir_g
 
     userdir_r = os.path.join(userdir_g,release)
@@ -200,7 +200,7 @@ def find_installed_versions(filter=None):
         if os_path_isdir(p):
             ver[(v,t)]=r
 
-    ver_keys = ver.keys()
+    ver_keys = list(ver.keys())
     ver_keys.sort(reverse=True)
     vers = [ver[k] for k in ver_keys ]
 

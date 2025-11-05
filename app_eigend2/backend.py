@@ -97,7 +97,8 @@ class GarbageCollector(threading.Thread):
 class Backend(eigend_native.c2p):
     def __init__(self):
         eigend_native.c2p.__init__(self)
-        self.latest_release = latest_release.LatestReleasePoller(self)
+        # DISABLED: Latest release polling to avoid network complications during debugging
+        # self.latest_release = latest_release.LatestReleasePoller(self)
         self.collector = None
         self.__progress = None
         self.__progress_lock = threading.Lock()
@@ -327,7 +328,9 @@ class Backend(eigend_native.c2p):
             self.collector.start()
 			
             if os.getenv('PI_NOCHECK') is None:
-                self.latest_release.start(cookie,info)
+                # DISABLED: Latest release polling to avoid network complications during debugging
+                # self.latest_release.start(cookie,info)
+                pass
 
             self.run_background(bginit)
         except:

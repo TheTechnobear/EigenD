@@ -1365,6 +1365,8 @@ static int <<name>>_init_(<<name>>_object_ *self, PyObject *args, PyObject *kwds
             <<parent.root>>_dispatcher_->insert(std::make_pair(self->object,(PyObject *)self));
             return 0;
         }
+        // Clear any exception set by failed PyArg_ParseTuple for Python 3.x compatibility
+        PyErr_Clear();
     }
 
     }loop_ctors>>
