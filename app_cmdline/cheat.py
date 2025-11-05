@@ -18,13 +18,14 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+from functools import reduce
 from pibelcanto import lexicon
 
 def makecheat(lex,width=5):
     wordlength = max([len(k) for k in lex])
     wordformat = '%%-%ds %%-4s' % wordlength
 
-    keys = [ chr(x) for x in [ord('!')]+range(ord('a'),ord('z')+1) ]
+    keys = [ chr(x) for x in [ord('!')]+list(range(ord('a'),ord('z')+1)) ]
     lists = dict([(x,[]) for x in keys])
 
     for (k,v) in lex.items():

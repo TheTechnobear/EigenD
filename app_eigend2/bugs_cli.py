@@ -20,12 +20,16 @@
 
 from pi import resource,utils
 from app_eigend2 import version
+import picross
 
 import zipfile
 import glob
 import os.path
 import base64
-import httplib
+try:
+    import http.client as httplib  # Python 3
+except ImportError:
+    import httplib  # Python 2
 import mimetypes
 import os
 import datetime
@@ -169,6 +173,12 @@ class BugsLogger(object):
             self.logfile.flush()
         else:
             print(msg, self.name, file=sys.__stdout__)
+
+    def flush(self):
+        if self.logfile:
+            self.logfile.flush()
+        else:
+            sys.__stdout__.flush()
 
 def cli():
     parser = optparse.OptionParser()

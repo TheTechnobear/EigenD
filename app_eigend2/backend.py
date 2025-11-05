@@ -25,8 +25,8 @@ from pibelcanto import translate
 from app_eigend2 import version
 from pisession import agentd,session,upgrade
 
-import bugs_cli
-import latest_release
+from app_eigend2 import bugs_cli
+from app_eigend2 import latest_release
 
 import piw
 import picross
@@ -75,8 +75,8 @@ class GarbageCollector(threading.Thread):
 
     def passes(self):
         while True:
-            for i in xrange(0,10): yield 0
-            for i in xrange(0,10): yield 1
+            for i in range(0,10): yield 0
+            for i in range(0,10): yield 1
             yield 2
 
 

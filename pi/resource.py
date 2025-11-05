@@ -111,7 +111,7 @@ def os_path_getmtime(path):
 
 def glob_glob(pattern):
     result = glob.glob(WC(pattern))
-    return map(MB,result)
+    return list(map(MB,result))
 
 def os_remove(name):
     return os.remove(WC(name))
@@ -324,7 +324,7 @@ class LockFile:
 
 
 def rotate_logfile(dir,target,logfile_max,suffix='log'):
-    suffixes = range(0,logfile_max)
+    suffixes = list(range(0,logfile_max))
     suffixes.reverse()
 
     lf = os.path.join(dir,'%s.%d.%s' % (target,logfile_max,suffix))
