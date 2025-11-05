@@ -18,6 +18,12 @@ steinberg
 lib_juce/EigenD/JuceLibraryCode
 lib_juce/EigenD/Builds
 
+# Python testing cache directories
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*$py.class
+
 eigend.sublime-project
 eigend.sublime-workspace
 
