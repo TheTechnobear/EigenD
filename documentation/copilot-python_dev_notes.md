@@ -1,11 +1,36 @@
 # Python 3.14 Migration Notes - Copilot Branch
 
+## Current Status (Updated: 2025-11-05)
+
+**✅ BUILD COMPLETE** - Full system builds successfully with Python 3.14  
+**✅ BASIC RUNTIME WORKING** - Most command-line tools functional  
+**🔄 IN PROGRESS** - Testing daemon startup and plugins
+
+### What's Working
+- ✅ Full build completes (make, make mpkg)
+- ✅ PIP binding system (C++/Python integration)
+- ✅ Command-line tools: bcat, bls, bpaths, brexec, brpc, bscript, bdownload, capture, signature, upgrade34, annotate
+- ✅ Belcanto logic system (pi/logic/) imports and initializes
+- ✅ Core pi/ modules load correctly
+- ✅ Session and agent management modules import
+
+### What's Not Yet Tested
+- ⚠️ EigenD daemon startup (eigend)
+- ⚠️ Plugin loading and initialization
+- ⚠️ Audio/MIDI real-time processing
+- ⚠️ Hardware communication (Eigenharp devices)
+- ⚠️ GUI applications (Workbench, Stage)
+
+### Known Minor Issues
+- cheatsheet: range() concatenation needs list() wrapper
+- brecdump: Expected failure (needs plg_recorder plugin built)
+
 ## Overview
 Migration of EigenD from Python 2.7 to Python 3.14 on copilot branch.
-Building on earlier work by TheTechnobear but with fresh approach and testing.
+Building on earlier work by TheTechnobear (python3 branch) but with more complete fixes and testing.
 
 ## Target Environment
-- Python 3.14 from Homebrew (/opt/homebrew/opt/python@3.14)
+- Python 3.14 from Homebrew (/opt/homebrew/opt/python@3.14/bin/python3.14)
 - macOS Apple Silicon (arm64)
 - No backwards compatibility - Python 3 only
 
@@ -174,21 +199,61 @@ Speeds up build significantly on multi-core systems
 Old migration scripts archived in `migration_scripts/` directory
 Old SCons versions in `tools/packages/archive/` for potential future removal
 
-## Known Issues Encountered
+## Known Issues Encountered and Fixed
 
 ### Initial import error
 "ImportError: dynamic module does not define module export function (PyInit_piw_native)"
 **CAUSE:** expand.py type bug prevented module name expansion
 **FIXED:** Changed type comparison to isinstance check
+**COMMIT:** 98f03aa8
 
 ### Docstring C syntax errors
 Generated code had `""""""` causing compilation errors
 **CAUSE:** Template had extra quotes around `<<moddoc>>`
 **FIXED:** Removed quotes - parse.py already adds them
+**COMMIT:** 98f03aa8
 
 ### PyCObject deprecation
 Old API still in template and .pip files
 **FIXED:** Replaced all with PyCapsule API
+**COMMIT:** 98f03aa8
+
+### Python 3 GIL API changes
+Template used deprecated PyGILState_Ensure/Release in lock_c2p
+**FIXED:** Removed GIL calls - not needed for simple callback context
+**COMMIT:** 98f03aa8
+
+### Missing bytearray support
+Template lacked bytearray class for Python 3 bytes handling
+**FIXED:** Added bytearray class with converters (tpcvt_bytearray, fpcvt_bytearray)
+**COMMIT:** 98f03aa8
+
+### Import errors in pi/ modules
+Bare imports like `import const, utils` failed in Python 3 package context
+**FIXED:** Changed to `from pi import const, utils` throughout pi/ modules
+**COMMIT:** 98f03aa8
+
+### Import errors in pi/logic/ subpackage
+Relative imports failed with bytecode-only distribution
+**FIXED:** Changed all to absolute imports `from pi.logic import ...`
+**COMMIT:** d431988d
+
+### Python 2 standard library removals
+- `parser` module (removed Python 3.9): Fixed with compile() in tpg.py
+- `exceptions` module (removed Python 3): Changed to builtin Exception
+- `imp` module (removed Python 3.12): Removed unused import from registry.py
+**COMMIT:** d431988d
+
+### Python 2→3 compatibility in pi/logic/terms.py
+- `cmp()` function removed: Added polyfill
+- `long` type removed: Added `long = int` alias  
+- `string.maketrans()` removed: Used bytes.translate() pattern
+**COMMIT:** d431988d
+
+### session.get_username() not found
+rexec.py called non-existent module function
+**FIXED:** Use getpass.getuser() instead
+**COMMIT:** d431988d
 
 ### Thread locking (potential deadlock issue)
 Using old Python 2 GIL locking could cause hangs on startup

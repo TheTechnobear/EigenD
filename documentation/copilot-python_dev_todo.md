@@ -1,17 +1,40 @@
 # Python 3.14 Migration TODO
 
-## Immediate - Ready to Test
-- Test bcat command to verify basic Python 3.14 module loading
-- Test bls command (browse/list agents)
-- Test rpc command (RPC calls)
-- Test rexec command (execute Belcanto commands)
+## Status: Updated 2025-11-05
+
+### ✅ COMPLETED
+- ✅ Build system fully working (make, make mpkg)
+- ✅ PIP binding system (Python/C++ integration)
+- ✅ Template fixes (lock_c2p, bytearray, moddoc, PyCapsule)
+- ✅ Import fixes in pi/ modules (bare imports → from pi import)
+- ✅ Import fixes in pi/logic/ (relative → absolute imports)
+- ✅ Python 2→3 compatibility (cmp, long, string.maketrans, parser, exceptions, imp)
+- ✅ Basic command-line tools: bcat, bls, bpaths, brexec, brpc, bscript, bdownload, capture, signature, upgrade34, annotate
+- ✅ Belcanto logic system (pi/logic/) imports and initializes
+
+### 🔄 IN PROGRESS - Next Session
+**Start here on new computer:**
+
+1. **Fix cheatsheet command** (minor)
+   - Issue: `TypeError: can only concatenate list (not "range") to list`
+   - Location: app_cmdline/cheat.py line 27
+   - Fix: Wrap range() with list() - `[x] + range(y)` → `[x] + list(range(y))`
+
+2. **Test EigenD daemon startup**
+   - Command: `./tmp/bin/eigend --cmdline`
+   - Expected: May have additional import/compatibility issues
+   - Watch for: GIL issues, threading problems, plugin loading errors
+
+3. **Test base_loader (minimal setup)**
+   - Command: `./tmp/bin/base_loader`
+   - Expected: Should load without Eigenharp hardware
+   - Tests: Agent initialization, plugin loading basics
 
 ## High Priority - Runtime Testing
-- Test simple command-line tools (cheatsheet, signature, etc)
 - Test pezload (Pico firmware loading - uses bytearray)
-- Start EigenD daemon and verify initialization
 - Test minimal plugin setup (no Eigenharp connected)
 - Check for GIL/threading issues (deadlocks, hangs)
+- Monitor for audio thread priority issues
 
 ## Medium Priority - Full System
 - Test with Eigenharp connected (Alpha/Tau/Pico)
@@ -60,12 +83,23 @@
 - Consider Python 3.14 specific optimizations
 
 ## Git/Release
-- Commit template fixes with clear message
-- Tag working version after basic testing passes
-- Merge to main branch after full testing
-- Create beta release for community testing
+- ✅ Committed build system fixes (commit 55a8e099)
+- ✅ Committed template fixes (commit 98f03aa8)  
+- ✅ Committed pi/logic and runtime fixes (commit d431988d)
+- ⏭️ Tag working version after daemon testing passes
+- ⏭️ Merge to main branch after full testing
+- ⏭️ Create beta release for community testing
 
 ## Future Considerations
 - Evaluate CMake vs SCons (SCons 4.x working, no immediate need)
 - CMake migration would require rewriting ~100+ build files (3-6 months effort)
 - Only consider if SCons proves problematic during full runtime testing
+
+## Comparison with TheTechnobear's python3 Branch
+Our copilot branch is MORE COMPLETE than the python3 branch:
+- ✅ We fixed lock_c2p GIL API properly
+- ✅ We added bytearray support  
+- ✅ We fixed cmp(), long, string.maketrans (python3 branch has typos)
+- ✅ We fixed parser module (python3 branch incomplete)
+- ✅ We tested command-line tools (python3 branch untested)
+- ⚠️ python3 branch has bugs: encoder() vs encode() typo, unfixed long/cmp references
