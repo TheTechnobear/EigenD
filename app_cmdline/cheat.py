@@ -67,4 +67,4 @@ def makecheat(lex,width=5):
     return '\n'.join([fmt % x for x in zip(*cols)])
 
 def main():
-    print makecheat(lexicon.lexicon)
+    print(makecheat(lexicon.lexicon))

@@ -32,7 +32,7 @@ def pathextend(path,i):
     return "%s.%u" % (path,i)
 
 def dump_tree(node,agent,path=''):
-    print "%s#%s: %s" % (agent,path,str(node.get_data()))
+    print("%s#%s: %s" % (agent,path,str(node.get_data())))
     i=node.enum_children(0)
     while i!=0:
         dump_tree(node.get_child(i), agent, pathextend(path,i))
@@ -44,7 +44,7 @@ def dump_agent(agent):
 
 def dump_snapshot(snap):
     agents = snap.agent_count()
-    print 'version:',snap.version(),'(',snap.previous(),'),',agents,'agents'
+    print('version:',snap.version(),'(',snap.previous(),'),',agents,'agents')
     for i in range(0,agents):
         agent = snap.get_agent_index(i)
         dump_agent(agent)

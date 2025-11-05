@@ -68,11 +68,11 @@ class EventList(collection.Collection):
 
     @async.coroutine('internal error')
     def instance_wreck(self,k,e,name):
-        print 'killing event',k
+        print('killing event',k)
         del self[k]
         r = e.clear_phrase()
         yield r
-        print 'killed event',k
+        print('killed event',k)
         yield async.Coroutine.success()
 
     def create_event(self,text):
@@ -109,7 +109,7 @@ class Agent(agent.Agent):
 
     def __choose_verb(self,subject,scale):
         type,thing = action.crack_ideal(action.arg_objects(scale)[0])
-        print 'choose',scale,thing
+        print('choose',scale,thing)
         self[2].reset_to(thing)
 
     @async.coroutine('internal error')
@@ -120,7 +120,7 @@ class Agent(agent.Agent):
         yield async.Coroutine.success()
 
     def __query(self,k,u):
-        return [ v.id() for v in self[3].itervalues() ]
+        return [ v.id() for v in self[3].values() ]
 
     @async.coroutine('internal error')
     def __do_verb(self,subject,t,k,c):
@@ -269,10 +269,10 @@ class VirtualScale(atom.Atom):
             intervals = [float(s) for s in x]
             self.values.append((name,intervals))
             self.__usercounter += 1
-            print 'added user scale',name,intervals
+            print('added user scale',name,intervals)
             if desc: self.descriptions[name]=desc
         except:
-            print 'bad scale definition',line
+            print('bad scale definition',line)
 
     def __init__(self, activate):
         atom.Atom.__init__(self,names='scale',protocols='virtual browse')
@@ -307,12 +307,12 @@ class VirtualScale(atom.Atom):
 
     def read_user(self):
         if not resource.os_path_exists(self.__user):
-            print 'no scale file',self.__user
+            print('no scale file',self.__user)
             fr = resource.find_release_resource('scale_manager','User Scales.txt');
             if not fr:
-                print 'no factory scale file',fr
+                print('no factory scale file',fr)
                 return
-            print 'copy',fr,self.__user
+            print('copy',fr,self.__user)
             resource.shutil_copyfile(fr,self.__user)
 
         cp = ConfigParser.ConfigParser()
@@ -338,10 +338,10 @@ class VirtualScale(atom.Atom):
                 self.__activated_name = k
                 self.__activated_scale = v
                 self.update_timestamp()
-                print 'updated choice to',k,v
+                print('updated choice to',k,v)
                 return
 
-        print 'no match',scale
+        print('no match',scale)
         self.__selected = None
         self.__selected_name = None
         self.__activated_scale = None
@@ -360,10 +360,10 @@ class VirtualScale(atom.Atom):
                 self.__usercounter = 1
                 self.values = list(self.init_values)
                 self.read_user()
-                print 'updated scales',self.__mtime,mtime
+                print('updated scales',self.__mtime,mtime)
                 self.__mtime = mtime
             else:
-                print 'not updating scale',self.__mtime,mtime
+                print('not updating scale',self.__mtime,mtime)
         except:
             pass
 
@@ -382,7 +382,7 @@ class VirtualScale(atom.Atom):
     
     def rpc_activated(self,arg):
         (path,name)=logic.parse_clause(arg) 
-        print 'Scale:activated',arg,name
+        print('Scale:activated',arg,name)
         old_idx = self.__activated_idx
         # convert name to scale 
         for i,(n,s) in enumerate(self.values): 
@@ -428,7 +428,7 @@ class VirtualScale(atom.Atom):
 
     def rpc_resolve(self,a):
         (a,o) = logic.parse_clause(a)
-        print a,o,self.__activated_scale
+        print(a,o,self.__activated_scale)
 
         if a or not o:
             if a==('selection',) and self.__selected: return '[%s]' % self.__ideal(self.__selected)
@@ -466,11 +466,11 @@ class VirtualScale(atom.Atom):
         return 'ideal([None,scale],%s)' % scale
 
     def rpc_dinfo(self,a):
-        print 'scale __dinfo:'
+        print('scale __dinfo:')
         activated=self.__activated_name
         l=[]
         if activated is not None:
-            print 'scale dinfo',activated
+            print('scale dinfo',activated)
             l.append(('dinfo_id',activated))
             l.append(('Selected scale',self.__describe(activated)))
             l.append(('Definition',' '.join([str(f) for f in self.__activated_scale])))

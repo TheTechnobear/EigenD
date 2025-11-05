@@ -28,15 +28,15 @@ def filedump(filename):
     rec = recorder_native.read(filename)
     base = os.path.basename(filename)
 
-    print '%s s=%u w=%u l=%u' % (base,rec.signals(),rec.wires(),rec.events())
+    print('%s s=%u w=%u l=%u' % (base,rec.signals(),rec.wires(),rec.events()))
 
     rec.reset()
     while rec.isvalid():
         evt = rec.cur_event()
         evt.reset()
-        print 'event t=%u b=%s %s' % (evt.evt_time(),evt.evt_beat(),evt.evt_id())
+        print('event t=%u b=%s %s' % (evt.evt_time(),evt.evt_beat(),evt.evt_id()))
         while evt.isvalid():
-            print ' t=%u b=%s s=%u %s' % (evt.cur_time(),evt.cur_beat(),evt.cur_signal(),evt.cur_value())
+            print(' t=%u b=%s s=%u %s' % (evt.cur_time(),evt.cur_beat(),evt.cur_signal(),evt.cur_value()))
             evt.next()
         rec.next()
 

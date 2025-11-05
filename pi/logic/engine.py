@@ -143,7 +143,7 @@ class Engine:
                     yield r
             return
 
-        for (sig,rules) in self.ruledict.iteritems():
+        for (sig,rules) in self.ruledict.items():
             if filter in sig:
                 for r in rules.iter():
                     yield r

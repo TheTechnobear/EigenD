@@ -74,7 +74,7 @@ class BrowseList:
 
     def setTapped(self,tapped):
         self.__tapped=tapped
-        print 'BrowseList self.__tapped', self.__tapped
+        print('BrowseList self.__tapped', self.__tapped)
 
     def getLineSpacing(self,dc):
         return 1.5*dc.GetTextExtent('0')[1]

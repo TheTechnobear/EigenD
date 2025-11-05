@@ -42,46 +42,46 @@ def cli():
     (opts,args) = parser.parse_args(sys.argv)
 
     if not opts.version:
-        print 'No version specified.'
+        print('No version specified.')
         sys.exit(1)
 
     libdir = os.path.join(os.environ.get('HOME'),'Library')
     olddir = os.path.join(libdir,'Belcanto')
     oldvdir = os.path.join(olddir,opts.version)
     if not os.path.exists(oldvdir):
-        print 'Cannot find version directory %s.'%oldvdir
+        print('Cannot find version directory %s.' % oldvdir)
         sys.exit(1)
 
     newdir = os.path.join(libdir,'EigenD')
     if os.path.exists(newdir):
-        print '%s already exists.'%newdir
+        print('%s already exists.' % newdir)
         sys.exit(1)
     newvdir = os.path.join(newdir,'0.34.1')
     __mkdir(newdir)
     __mkdir(newvdir)
 
-    print 'Copying loops...'
+    print('Copying loops...')
     __copytree(os.path.join(olddir,'loop'), os.path.join(newdir,'loop'))
-    print 'Copying soundfonts...'
+    print('Copying soundfonts...')
     __copytree(os.path.join(olddir,'soundfont'), os.path.join(newdir,'soundfont'))
-    print 'Copying impulse responses...'
+    print('Copying impulse responses...')
     __copytree(os.path.join(olddir,'impulseresponse'), os.path.join(newdir,'impulseresponse'))
-    print 'Copying audiounit templates...'
+    print('Copying audiounit templates...')
     __copytree(os.path.join(olddir,'audiounit'), os.path.join(newdir,'audiounit'))
-    print 'Copying keyboard data...'
+    print('Copying keyboard data...')
     __copytree(os.path.join(olddir,'keyboard'), os.path.join(newdir,'keyboard'))
 
 
-    print 'Copying setups from %s...' % opts.version
+    print('Copying setups from %s...' % opts.version)
     __copytree(os.path.join(oldvdir,'state'), os.path.join(newvdir,'setups'))
-    print 'Copying audiounit presets from %s...' % opts.version
+    print('Copying audiounit presets from %s...' % opts.version)
     __copytree(os.path.join(oldvdir,'audiounit'), os.path.join(newvdir,'audiounit'))
-    print 'Copying recordings from %s...' % opts.version
+    print('Copying recordings from %s...' % opts.version)
     __copytree(os.path.join(oldvdir,'recorder'), os.path.join(newvdir,'recorder'))
-    print 'Copying instruments from %s...' % opts.version
+    print('Copying instruments from %s...' % opts.version)
     __copytree(os.path.join(oldvdir,'rig'), os.path.join(newvdir,'instruments'))
-    print 'Copying global data from %s...' % opts.version
+    print('Copying global data from %s...' % opts.version)
     __copytree(os.path.join(oldvdir,'global'), os.path.join(newvdir,'global'))
     os.rename(os.path.join(newvdir,'global','current_state'),os.path.join(newvdir,'global','current_setup'))
     os.rename(os.path.join(newvdir,'global','default_state'),os.path.join(newvdir,'global','default_setup'))
-    print 'Done.'
+    print('Done.')

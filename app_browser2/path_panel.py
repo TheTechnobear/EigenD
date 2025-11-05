@@ -60,7 +60,7 @@ class PathPanel(wx.Window):
         self.scrollPos=1
 
     def update(self):
-        print 'PathPanel update'
+        print('PathPanel update')
         self.setPath(self.model.getPath())
 
     def onLeftDown(self,evt):
@@ -103,9 +103,9 @@ class PathPanel(wx.Window):
 	return dc
 
     def setPath(self,path):
-        print 'PathPanel',path
+        print('PathPanel',path)
         if path and path[0]=='No Path':
-            print 'No target' 
+            print('No target')
             self.path=[]
         else:
             mainPath=['Top level']
@@ -184,7 +184,7 @@ class PathPanel(wx.Window):
         m=(self.scrollLength-1)*0.5
         c=(self.scrollLength*0.5)+1
         sp=int((h*m)+c)
-        print 'pathPanel,scroll_both',sp,'h=',h,'scrollLength',self.scrollLength
+        print('pathPanel,scroll_both',sp,'h=',h,'scrollLength',self.scrollLength)
         if sp!=self.scrollPos:
             self.scrollPos=sp
             self.__scrolldraw()

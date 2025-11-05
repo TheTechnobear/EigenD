@@ -153,7 +153,7 @@ class BottomPanel(wx.Window):
             dc.DrawBitmap(self.red,x-25,size[1]-27)
 
     def updateStatus(self,text):
-        print 'BottomPanel',text
+        print('BottomPanel',text)
         self.connectionStatus=text
 	dc=self.__getClientDC()
         self.doPaint(dc)
@@ -171,7 +171,7 @@ class TopPanel(wx.Window):
         self.Bind(wx.EVT_PAINT, self.onPaint)
 
     def setLabel(self,label):
-        print 'setlabel',label
+        print('setlabel',label)
         self.title=label
         self.doPaint(wx.ClientDC(self))
         self.Refresh()
@@ -181,7 +181,7 @@ class TopPanel(wx.Window):
         pass
 
     def update(self):
-        print 'TopPanel update'
+        print('TopPanel update')
         title=self.title
 #        s=self.getTitle()
 #        if s:

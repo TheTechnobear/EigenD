@@ -19,7 +19,8 @@
 #
 
 from pi.logic.shortcuts import *
-from pi import action,logic,async,domain,utils,resource,rpc,timeout
+from pi import action,logic,domain,utils,resource,rpc,timeout
+from pi import piasync
 from . import interpreter,noun,imperative,referent
 import traceback
 
@@ -55,36 +56,36 @@ class Builtins:
         t = interp.pop(referent.Referent)
 
         if t is None:
-            return async.failure('not object')
+            return piasync.failure('not object')
 
         obj = t.concrete_ids()
 
         if not obj:
-            return async.failure('no objects')
+            return piasync.failure('no objects')
 
-        print obj
+        print(obj)
 
         for o in obj:
             d= self.database.find_full_desc(o)
-            print o,d
+            print(o,d)
 
-        return async.success()
+        return piasync.success()
 
     def primitive_context(self,interp,word):
         if interp.get_context().stack_empty():
-            print '== context empty =='
-            return async.success()
+            print('== context empty ==')
+            return piasync.success()
 
-        print "== context =="
+        print("== context ==")
         for t in enumerate(interp.get_context().iter_stack()):
-            print "%i: %s" % t
-        return async.success()
+            print("%i: %s" % t)
+        return piasync.success()
 
     def verb2_1_synchronise(self,subject):
         """
         synchronise([],None)
         """
-        print "== syncing (verb) =="
+        print("== syncing (verb) ==")
         return self.database.sync()
 
     def verb2_3_name(self,subject,thing,value):
@@ -102,11 +103,11 @@ class Builtins:
         except:
             pass
 
-        print 'set type name of ',thing,' to ',words,ordinal
+        print('set type name of ',thing,' to ',words,ordinal)
 
         proxy = self.database.find_item(thing)
         if not proxy:
-            return async.failure('internal error: no proxy')
+            return piasync.failure('internal error: no proxy')
 
         def co():
             yield interpreter.RpcAdapter(proxy.invoke_rpc('set_names',' '.join(words)))
@@ -115,7 +116,7 @@ class Builtins:
             else:
                 yield interpreter.RpcAdapter(proxy.invoke_rpc('clear_ordinal',''))
 
-        return async.Coroutine(co(),interpreter.rpcerrorhandler)
+        return piasync.Coroutine(co(),interpreter.rpcerrorhandler)
 
     def verb2_5_number(self,subject,thing,value):
         """
@@ -128,18 +129,18 @@ class Builtins:
         try:
             value=int(value)
         except:
-            return async.failure('internal error: non numeric ordinal')
+            return piasync.failure('internal error: non numeric ordinal')
 
-        print 'set ordinal of ',thing,' to ',value
+        print('set ordinal of ',thing,' to ',value)
 
         proxy = self.database.find_item(thing)
         if not proxy:
-            return async.failure('internal error: no proxy')
+            return piasync.failure('internal error: no proxy')
 
         def co():
             yield interpreter.RpcAdapter(proxy.invoke_rpc('set_ordinal',str(value)))
 
-        return async.Coroutine(co(),interpreter.rpcerrorhandler)
+        return piasync.Coroutine(co(),interpreter.rpcerrorhandler)
 
     def verb2_6_renumber(self,subj,things,names):
         """
@@ -163,11 +164,11 @@ class Builtins:
         def co(x):
             for  thing in things:
                 x+=1
-                print 'renumbering',thing,'with',names,'ordinal',x
+                print('renumbering',thing,'with',names,'ordinal',x)
                 yield interpreter.RpcAdapter(rpc.invoke_rpc(thing,'set_names',' '.join(names)))
                 yield interpreter.RpcAdapter(rpc.invoke_rpc(thing,'set_ordinal',str(x)))
 
-        return async.Coroutine(co(x),interpreter.rpcerrorhandler)
+        return piasync.Coroutine(co(x),interpreter.rpcerrorhandler)
 
     def verb2_10_associate(self,subject,part,whole):
         """
@@ -179,12 +180,12 @@ class Builtins:
 
         proxy = self.database.find_item(whole)
         if not proxy:
-            return async.failure('internal error: no proxy')
+            return piasync.failure('internal error: no proxy')
 
         def co():
             yield interpreter.RpcAdapter(proxy.invoke_rpc('add_relation',rel))
 
-        return async.Coroutine(co(),interpreter.rpcerrorhandler)
+        return piasync.Coroutine(co(),interpreter.rpcerrorhandler)
 
     def verb2_11_unassociate(self,subject,part,whole):
         """
@@ -196,19 +197,19 @@ class Builtins:
 
         proxy = self.database.find_item(whole)
         if not proxy:
-            return async.failure('internal error: no proxy')
+            return piasync.failure('internal error: no proxy')
 
         def co():
             yield interpreter.RpcAdapter(proxy.invoke_rpc('remove_relation',rel))
 
-        return async.Coroutine(co(),interpreter.rpcerrorhandler)
+        return piasync.Coroutine(co(),interpreter.rpcerrorhandler)
 
     def verb2_14_find(self,subject,objects):
         """
         find([],None,role(None,[]))
         """
 
-        print 'find:',objects
+        print('find:',objects)
 
     def verb2_21_statemgr(self,subject,sm):
         """
@@ -216,7 +217,7 @@ class Builtins:
         """
         sm = self.database.to_database_id(action.concrete_object(sm))
         self.agent.set_statemgr(sm)
-        print 'using',sm,'for checkpointing'
+        print('using',sm,'for checkpointing')
 
 
     def verb2_22_undo(self,subject):
@@ -240,12 +241,12 @@ class Builtins:
         """
 
         words = action.abstract_wordlist(arg)
-        print 'injecting',words
+        print('injecting',words)
 
         for w in words:
             self.agent.inject(w)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def verb2_31_do(self,subject,arg):
         """
         do([],None,role(None,[abstract]))
@@ -255,19 +256,19 @@ class Builtins:
         interp = interpreter.Interpreter(self.agent,self.database, SubDelegate(self.agent))
 
         if not len(words):
-            print 'nothing to do',arg
+            print('nothing to do',arg)
             return
 
-        print 'doing',words
+        print('doing',words)
         self.agent.register_interpreter(interp)
 
         try:
             r = interp.process_block(words)
             yield r
             if r.status():
-                print 'SUCCEEDED',words
+                print('SUCCEEDED',words)
             else:
-                print 'FAILED',words
+                print('FAILED',words)
         finally:
             self.agent.unregister_interpreter(interp)
 
@@ -279,13 +280,13 @@ class Builtins:
             return interp.wait()
 
         if len(t.words())!=1:
-            return async.failure('not number')
+            return piasync.failure('not number')
 
         n = None
         try:
             n = int(t.words()[0])
         except:
-            return async.failure('not number')
+            return piasync.failure('not number')
 
-        print 'waiting',n
-        return timeout.Timeout(async.Deferred(),int(n*1000),True)
+        print('waiting',n)
+        return timeout.Timeout(piasync.Deferred(),int(n*1000),True)

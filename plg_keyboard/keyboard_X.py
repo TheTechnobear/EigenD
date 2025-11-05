@@ -58,7 +58,7 @@ class VirtualKey(atom.Atom):
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
-        print 'resolving virtual',arg,(a,o)
+        print('resolving virtual',arg,(a,o))
         if not a and o is None: return self.__key(*R(1,self.kbd_keys))
         if o is None: return self.__key()
         o=int(o)
@@ -217,11 +217,11 @@ class Keyboard(agent.Agent):
         self.keyboard.restart();
 
     def dead(self):
-        print 'notify dead'
+        print('notify dead')
         self.close_server()
-        print 'done close_server'
+        print('done close_server')
         self.remover()
-        print 'done remove'
+        print('done remove')
 
 
 class MicrophoneOutput(audio.AudioOutput):
@@ -278,7 +278,7 @@ class MicrophoneOutput(audio.AudioOutput):
             self.__agent.keyboard.mic_type(self.mic_types[t])
             self.__agent.update()
             return True
-        print 'no such mic type',t
+        print('no such mic type',t)
         return False
 
     def __gain(self,g):
@@ -408,7 +408,7 @@ class Keyboard_Alpha2( Keyboard ):
         return test.arm_recording(self.keyboard,arg)
 
     def __record(self,subj,dummy):
-        print 'record key',k
+        print('record key',k)
         return action.nosync_return()
 
 
@@ -466,8 +466,8 @@ class BaseStation:
         basecfg = self.bs_config_read()
         instcfg = self.inst_config_read()
         if self.__counter.next():
-            print 'basecfg: %s' % ''.join(map(lambda x:hex(ord(x))[2:].zfill(2),basecfg))
-            print 'instcfg: %s' % ''.join(map(lambda x:hex(ord(x))[2:].zfill(2),instcfg))
+            print('basecfg: %s' % ''.join(map(lambda x:hex(ord(x))[2:].zfill(2),basecfg)))
+            print('instcfg: %s' % ''.join(map(lambda x:hex(ord(x))[2:].zfill(2),instcfg)))
         inst = ord(instcfg[0])
         if inst==self.__instrument:
             return
@@ -531,25 +531,25 @@ class KeyboardFactory( agent.Agent ):
     def download_base_station(self,usbname):
         firmware = ezload.bs_firmware()
         if firmware:
-            print 'loading firmware to base station',usbname
+            print('loading firmware to base station',usbname)
             ezload.download(usbname,firmware)
         else:
-            print 'master mode base station firmware not found'
+            print('master mode base station firmware not found')
 
     def download_psu(self,usbname):
         firmware = ezload.psu_firmware()
         if firmware:
-            print 'loading firmware to PSU',usbname
+            print('loading firmware to PSU',usbname)
             ezload.download(usbname,firmware)
         else:
-            print 'master mode PSU firmware not found'
+            print('master mode PSU firmware not found')
 
     def add_base_station(self,usbname):
         msg = 'base:%s' % usbname
         self.__thing.enqueue_slow(piw.makestring(msg,0))
 
     def del_base_station(self,usbname):
-        print 'del',usbname
+        print('del',usbname)
         msg = 'delbase:%s' % usbname
         self.__thing.enqueue_slow(piw.makestring(msg,0))
 
@@ -559,12 +559,12 @@ class KeyboardFactory( agent.Agent ):
             e.start()
 
     def cleanup(self):
-        print 'closing instruments'
+        print('closing instruments')
         for e in self.__enum:
             try: e.stop()
             except: pass
         self.__enum = []
-        print 'closing base stations'
+        print('closing base stations')
         for e in self.__base.values():
             try: e.close()
             except: pass
@@ -587,12 +587,12 @@ class KeyboardFactory( agent.Agent ):
         usbname=usbname.as_string()
         version,name = usbname.split(':') 
         
-        print "evt :", version
-        print "usb name :", name 
+        print("evt :", version)
+        print("usb name :", name )
 
         if version=='delbase':
             bs = self.__base.get(name)
-            print 'removing base station',name
+            print('removing base station',name)
             if bs:
                 bs.close()
                 del self.__base[name]
@@ -600,7 +600,7 @@ class KeyboardFactory( agent.Agent ):
 
         for (ssk,ssv) in self.iter_subsys_items():
             if ssv.usbname==name:
-                print 'ignore existing kbd during add',name
+                print('ignore existing kbd during add',name)
                 ssv.restart()
                 return
 
@@ -616,12 +616,12 @@ class KeyboardFactory( agent.Agent ):
             k = Keyboard_Tau(i,self.domain,lambda:self.del_keyboard(i),usbname=name)
 
         self.add_subsystem(str(i),k)
-        print 'added keyboard',i,k.name()
+        print('added keyboard',i,k.name())
 
     def create(self,type,name,device):
         for (ssk,ssv) in self.iter_subsys_items():
             if ssv.usbname==name:
-                print 'ignore existing kbd during create',name
+                print('ignore existing kbd during create',name)
                 ssv.restart()
                 return
             
@@ -634,10 +634,10 @@ class KeyboardFactory( agent.Agent ):
             return None
 
         self.add_subsystem(str(i),k)
-        print 'added keyboard',i,k.name()
+        print('added keyboard',i,k.name())
         return k
 
     def del_keyboard(self,i):
-        print 'removed keyboard',i
+        print('removed keyboard',i)
         self.remove_subsystem(str(i))
 

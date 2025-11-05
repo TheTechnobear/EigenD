@@ -72,7 +72,7 @@ class HistoryModel(language.LanguageDisplayModel):
         def history_ok(result):
             i=result[0]
             h=result[1]
-            print 'history ok ',i,h
+            print('history ok ',i,h)
             status=''
             feedback=''
             if h:
@@ -93,7 +93,7 @@ class HistoryModel(language.LanguageDisplayModel):
                         self.__input_phrase(i,words,status,feedback,speaker)
             
         def history_failed():
-            print 'history failed'
+            print('history failed')
         r.setCallback(history_ok).setErrback(history_failed)
     
     def __repeat(self,i,words,status):
@@ -131,12 +131,12 @@ class HistoryModel(language.LanguageDisplayModel):
                 if xItem.id ==i:
                     if xItem.status!=status:
                         item =xItem
-                        print 'item found in history items',item.id
+                        print('item found in history items',item.id)
                         break
                     else:
                         return
 
-        print '__input_phrase',i,item,words,status,feedback,speaker
+        print('__input_phrase',i,item,words,status,feedback,speaker)
         if not item:
             if words[0]=='*':
                 item=HistoryItem(i,'')
@@ -155,7 +155,7 @@ class HistoryModel(language.LanguageDisplayModel):
         
         for listener in self.__listeners:
             listener.historyUpdate()
-            print 'History model call to reset scroller', self.scroller
+            print('History model call to reset scroller', self.scroller)
             if self.scroller:
                 self.scroller.reset_v(-1)
             listener.scroll_both(0,-1)
@@ -196,7 +196,7 @@ class HistoryPanel(wx.Window):
         self.SetScrollbar(wx.VERTICAL,0,10,9)
 
     def OnSize(self,evt):
-        print 'history onSize'
+        print('history onSize')
         self.redrawRequired=True
         evt.Skip()
 
@@ -222,7 +222,7 @@ class HistoryPanel(wx.Window):
 	return dc
 
     def historyUpdate(self):
-        print 'history update'
+        print('history update')
         dc=self.__getClientDC()
         self.initDC(dc)
         self.draw(dc)
@@ -242,13 +242,13 @@ class HistoryPanel(wx.Window):
         return getName()
 
     def onScroll(self,evt):
-        print 'history onScroll: evtPos=',evt.GetPosition()
+        print('history onScroll: evtPos=',evt.GetPosition())
         v=1-2*float(evt.GetPosition())/float(self.scrollRange-self.GetClientSize()[1])
         self.yScroll=v
         self.__scroll_draw()
 
     def draw(self,dc):
-        print 'history draw'
+        print('history draw')
 	self.__backgroundDrawing(dc)
         self.__drawItems(dc)
         self.afterDraw(dc)
@@ -258,7 +258,7 @@ class HistoryPanel(wx.Window):
         scrollbarpos=self.scrollRange-self.__getYScrollPos()
         scrollbarthumb=self.GetClientSize()[1]
         scrollRange=self.scrollRange
-        print 'history updateScrollBar:',scrollbarpos,scrollbarthumb,scrollRange
+        print('history updateScrollBar:',scrollbarpos,scrollbarthumb,scrollRange)
         self.SetScrollbar(wx.VERTICAL,scrollbarpos,scrollbarthumb,scrollRange)
     
     def afterDraw(self,dc):
@@ -289,7 +289,7 @@ class HistoryPanel(wx.Window):
         scrollbarpos=yOffset
         scrollbarthumb=self.GetClientSize()[1]
         scrollRange=self.scrollRange
-        print 'history updateScrollBar:',scrollbarpos,scrollbarthumb,scrollRange
+        print('history updateScrollBar:',scrollbarpos,scrollbarthumb,scrollRange)
         self.SetScrollbar(wx.VERTICAL,scrollbarpos,scrollbarthumb,scrollRange)
         self.__borderDrawing(dc)
  
@@ -299,7 +299,7 @@ class HistoryPanel(wx.Window):
 	self.__backgroundDrawing(dc)
         yOffset=self.__getYScrollPos()
         self.__scrollDrawItems(dc,yOffset=yOffset)
-        print 'scrolldraw',yOffset
+        print('scrolldraw',yOffset)
         self.__borderDrawing(dc)
         self.SetScrollbar(wx.VERTICAL,(self.scrollRange-self.GetClientSize()[1]+yOffset),self.GetClientSize()[1],self.scrollRange)
 
@@ -328,7 +328,7 @@ class HistoryPanel(wx.Window):
     def scroll_both(self,h,v):
         if v != self.yScroll:
             self.yScroll=v
-            print 'history:scroll_both',v
+            print('history:scroll_both',v)
             self.__scroll_draw()
 
     def __getYScrollPos(self):
@@ -466,7 +466,7 @@ class MusicItem(HistoryItem):
         self.status=status
     
     def get_text(self):
-        print 'Music item:get_text',self.music
+        print('Music item:get_text',self.music)
         return 'Music Item******'
 
     def set_speaker(self,speaker,vocab):

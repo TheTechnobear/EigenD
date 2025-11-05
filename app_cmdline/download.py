@@ -19,8 +19,8 @@
 #
 
 from pisession import session
-from pi import files,async
-
+from pi import files
+from pi import piasync
 import optparse
 import sys
 import piw
@@ -41,12 +41,12 @@ def main():
 
     def failed(msg):
         if opts.verbose:
-            print >>sys.stderr,'rpc failed:',msg
+            print('rpc failed:',msg, file=sys.stderr)
         picross.exit(-1)
 
     def succeeded(msg):
         if opts.verbose:
-            print >>sys.stderr,'rpc succeeded: ',msg
+            print('rpc succeeded: ',msg, file=sys.stderr)
         picross.exit(0)
 
     def startup(dummy):

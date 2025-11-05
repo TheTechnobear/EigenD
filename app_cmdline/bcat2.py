@@ -21,7 +21,8 @@
 import sys
 
 from pisession import session
-from pi import async,paths,const
+from pi import paths,const
+from pi import piasync
 
 import optparse
 import sys
@@ -85,23 +86,23 @@ def main():
     def coroutine():
         (a,p) = paths.breakid_list(id)
         p = ''.join(chr(c) for c in p)
-        r = async.Deferred()
+        r = piasync.Deferred()
         c = Opener(a,p,flags,r if not opt.monitor else None,fast)
         yield r
 
     def handler(ei):
         traceback.print_exception(file=sys.stderr,*ei)
-        return async.Coroutine.failure('internal error')
+        return piasync.Coroutine.failure('internal error')
 
     def failed(msg):
-        print msg
+        print(msg)
         picross.exit(-1)
 
     def succeeded():
         picross.exit(0)
 
     def startup(dummy):
-        result = async.Coroutine(coroutine(),handler)
+        result = piasync.Coroutine(coroutine(),handler)
         result.setErrback(failed).setCallback(succeeded)
         return result
 

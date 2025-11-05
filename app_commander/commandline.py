@@ -467,7 +467,7 @@ class StaffPanel(wx.Window):
         dc.DrawRectangle(0,0,size[0],size[1])
 
     def draw(self,dc):
-        print 'StaffPanel draw'
+        print('StaffPanel draw')
         self.__backgroundDrawing(dc)
         pts,weight=fonts.setStaffFont(dc)
  
@@ -491,7 +491,7 @@ class StaffPanel(wx.Window):
         self.__borderDrawing(dc)
 
     def commandUpdate(self):
-        print "StaffPanel: update"
+        print("StaffPanel: update")
         dc=self.__getClientDC();
         dc.SetFont(self.font)
         dc.Clear()
@@ -503,7 +503,7 @@ class StaffPanel(wx.Window):
         self.origin=(0,ypos)
 
     def statusUpdate(self,text):
-        print 'StaffPanel: updateStatus',text
+        print('StaffPanel: updateStatus',text)
         self.agent.updateStatus(text)
 
     def __borderDrawing(self,dc):
@@ -624,7 +624,7 @@ class CommandPanel(wx.Window):
         if r:
             lineNo=r[0]
             index=r[1]
-            print 'returned index=',index,'in line',lineNo
+            print('returned index=',index,'in line',lineNo)
             # XXX restrict to active line initially
 #            if lineNo==0:
 #                self.lines[0].selecting=True
@@ -654,7 +654,7 @@ class CommandPanel(wx.Window):
         count=0
         for line in self.lines:
             if line.selecting:
-                print count
+                print(count)
                 return True
             count=count+1
         return False

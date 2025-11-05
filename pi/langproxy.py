@@ -50,7 +50,7 @@ class ContextConnector(node.Client):
 
     def client_opened(self):
         node.Client.client_opened(self)
-        print 'cmdline opened',self.__decode(self.get_data())
+        print('cmdline opened',self.__decode(self.get_data()))
         v = self.get_data()
         if v.is_string():
             v = self.__decode(v)
@@ -65,7 +65,7 @@ class ContextConnector(node.Client):
 
     def close_client(self):
         node.Client.close_client(self)
-        print 'cmdline closed'
+        print('cmdline closed')
 
     def get_context(self):
         if self.open():
@@ -95,7 +95,7 @@ class CmdlineConnector(node.Client):
         self.__unplumber = self.__unplumb_fast
 
     def __unplumb_fast(self):
-        print 'plumbing fast cmdline',self.get_data()
+        print('plumbing fast cmdline',self.get_data())
         self.__unplumber = None
         self.__fastdata.disable()
         self.__fastdata.close_fastdata()
@@ -103,7 +103,7 @@ class CmdlineConnector(node.Client):
         self.set_sink(self.__fastdata)
 
     def __plumb_slow(self):
-        print 'plumbing slow cmdline',self.get_data()
+        print('plumbing slow cmdline',self.get_data())
         self.set_change_handler(self.__handler)
         self.__unplumber = self.__unplumb_slow
         self.__handler(self.get_data())
@@ -114,7 +114,7 @@ class CmdlineConnector(node.Client):
 
     def client_opened(self):
         node.Client.client_opened(self)
-        print 'language connector opened',self.id()
+        print('language connector opened',self.id())
         if (self.get_host_flags() & const.server_fast)!=0:
             self.__plumb_fast()
         else:
@@ -122,7 +122,7 @@ class CmdlineConnector(node.Client):
 
     def close_client(self):
         node.Client.close_client(self)
-        print 'language connector closed'
+        print('language connector closed')
         if self.__unplumber:
             self.__unplumber()
 
@@ -234,7 +234,7 @@ class LanguageProxy(proxy.AtomProxy):
         self[11].flush()
 
     def node_ready(self):
-        print 'proxy ready',self.id()
+        print('proxy ready',self.id())
         if 'langagent' in self.protocols():
             self.vocab_load()
             self.__delegate.language_ready()
@@ -248,7 +248,7 @@ class LanguageProxy(proxy.AtomProxy):
 
     @async.coroutine('internal error')
     def __load_vocab(self):
-        print 'loading vocabulary'
+        print('loading vocabulary')
         self.__lexicon = pibelcanto.lexicon.lexicon.copy()
         self.__reverse = pibelcanto.lexicon.reverse_lexicon.copy()
 
@@ -287,9 +287,9 @@ class LanguageProxy(proxy.AtomProxy):
             if lexsize >= l:
                 break
 
-        print 'loaded vocabulary'
-        for (e,(m,c)) in newlex.iteritems():
-            print '%s -> %s %s' % (e,m,c)
+        print('loaded vocabulary')
+        for (e,(m,c)) in newlex.items():
+            print('%s -> %s %s' % (e,m,c))
 
         self.__lexicon.update(newlex)
         self.__reverse.update(newrev)
@@ -302,11 +302,11 @@ class LanguageProxy(proxy.AtomProxy):
         return self.__lexicon
 
     def vocab_load(self):
-        print 'vocab changed, reloading'
+        print('vocab changed, reloading')
         self.__loader = self.__load_vocab()
 
         def done(*args,**kwds):
-            print 'vocab load complete',args,kwds
+            print('vocab load complete',args,kwds)
             self.__loader = None
             self.__delegate.lexicon_changed()
 
@@ -337,4 +337,4 @@ class LanguageProxy(proxy.AtomProxy):
         pass
 
     def context_changed(self,name,listeners,lurkers):
-        print 'context changed to',name,listeners,lurkers
+        print('context changed to',name,listeners,lurkers)

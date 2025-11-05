@@ -64,13 +64,13 @@ class GarbageCollector(threading.Thread):
 
     def run_pass(self,p):
         if self.scaffold.global_lock():
-            print 'starting gc pass',p
+            print('starting gc pass',p)
             try:
                 o = gc.collect(p)
                 if o: print 'gc collected',o
             except:
                 pass
-            print 'finished gc pass',p
+            print('finished gc pass',p)
             self.scaffold.global_unlock()
 
     def passes(self):
@@ -120,12 +120,12 @@ class Backend(eigend_native.c2p):
 
     def stop_gc(self):
         if self.collector is not None:
-            print 'stopping gc'
+            print('stopping gc')
             self.collector.stop_gc()
 
     def start_gc(self):
         if self.collector is not None:
-            print 'restarting gc'
+            print('restarting gc')
             self.collector.start_gc()
 
     def set_args(self,argv):
@@ -331,7 +331,7 @@ class Backend(eigend_native.c2p):
 
             self.run_background(bginit)
         except:
-            print >>sys.__stdout__,'Initialisation failure'
+            print(>>sys.__stdout__,'Initialisation failure')
             traceback.print_exc(limit=None,file=sys.__stdout__)
             raise
 
@@ -446,7 +446,7 @@ class Backend(eigend_native.c2p):
         return False
 
     def save_setup(self,slot,tag,desc,make_default):
-        print 'save setup',slot,tag,desc,make_default
+        print('save setup',slot,tag,desc,make_default)
         self.savcond.acquire()
         try:
             if self.quitting:
@@ -459,7 +459,7 @@ class Backend(eigend_native.c2p):
         filename = agentd.user_setup_file(slot,tag)
 
         def not_done(*args,**kwds):
-            print 'save failed:',args
+            print('save failed:',args)
             self.info_dialog('Setup Not Saved','Setup Not Saved',"The user setup '"+slot+"' could not be saved\n"+args[1])
 
         def done(*args,**kwds):
@@ -478,7 +478,7 @@ class Backend(eigend_native.c2p):
             finally:
                 self.savcond.release()
 
-            print 'save complete',filename
+            print('save complete',filename)
             self.info_dialog('Setup Saved','Setup Saved',"The user setup '"+slot+"' was successfully saved")
 
         r = self.run_background(self.agent.save_file,self.save_tmp(filename,'~'),desc)
@@ -523,7 +523,7 @@ class Backend(eigend_native.c2p):
         finally:
             self.savcond.release()
 
-        print 'editing complete',path
+        print('editing complete',path)
         self.info_dialog('Setup Edited','Setup Edited',"The user setup '"+slot+"' was successfully edited")
 
         return path

@@ -36,7 +36,7 @@ class VirtualKey(atom.Atom):
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
-        print 'resolving virtual',(a,o)
+        print('resolving virtual',(a,o))
         if not a and o is None: return self.__key(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,21,22)
         if a==('standard',) and o is None: return self.__key(13,14,15,16,9,10,11,12,5,6,7,8,1,2,3,4)
         if a==('chosen',) and o is None: return self.__key(*self.choices)
@@ -132,31 +132,31 @@ class KeyboardAgent(agent.Agent):
         self.add_enumerator.start()
 
     def cleanup(self):
-        print 'pico cleanup - start'
+        print('pico cleanup - start')
         self.load_enumerator.stop()
         self.load_enumerator2.stop()
         self.add_enumerator.stop()
-        print 'pico cleanup - done'
+        print('pico cleanup - done')
 
     def close_server(self):
-        print 'pico close server'
+        print('pico close server')
         self.cleanup()
         agent.Agent.close_server(self)  
 
     def on_quit(self):
-        print 'pico on_quit - start'
+        print('pico on_quit - start')
         for k in self.subsystem_keys():
             self.del_keyboard(k)
         self.cleanup()
-        print 'pico on_quit - done'
+        print('pico on_quit - done')
 
     def download_keyboard(self,usbname):
         firmware = ezload.firmware(ezload.vendor,ezload.product)
         if firmware:
-            print 'loading firmware',firmware
+            print('loading firmware',firmware)
             ezload.download(usbname,firmware)
         else:
-            print "couldn't find firmware"
+            print("couldn't find firmware")
 
     def next_keyboard(self):
         i=0
@@ -165,14 +165,14 @@ class KeyboardAgent(agent.Agent):
         return i+1
 
     def add_keyboard(self,usbname):
-        print 'add keyboard',usbname
+        print('add keyboard',usbname)
         i=self.next_keyboard()
         k=Keyboard(usbname,i,self.domain,lambda: self.del_keyboard(i))
         self.add_subsystem(str(i),k)
-        print 'added keyboard',i,k.name()
+        print('added keyboard',i,k.name())
 
     def del_keyboard(self,i):
-        print 'removed keyboard',i
+        print('removed keyboard',i)
         self.remove_subsystem(str(i))
 
 agent.main(KeyboardAgent)

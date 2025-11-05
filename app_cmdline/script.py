@@ -19,7 +19,8 @@
 #
 
 from pisession import session
-from pi import index,async,timeout,proxy,resource
+from pi import index,timeout,proxy,resource
+from pi import piasync
 
 import optparse
 import sys
@@ -27,12 +28,12 @@ import piw
 import picross
 import traceback
 
-class Connector(proxy.AtomProxy,async.Deferred):
+class Connector(proxy.AtomProxy,piasync.Deferred):
 
     monitor = set()
 
     def __init__(self,address):
-        async.Deferred.__init__(self)
+        piasync.Deferred.__init__(self)
         proxy.AtomProxy.__init__(self)
         self.__anchor = piw.canchor()
         self.__anchor.set_client(self)
@@ -49,10 +50,10 @@ class Connector(proxy.AtomProxy,async.Deferred):
     def node_ready(self):
         self.succeeded()
 
-class RpcAdapter(async.DeferredDecoder):
+class RpcAdapter(piasync.DeferredDecoder):
     def decode(self):
         if self.deferred.status() is False:
-            return async.Coroutine.failure(self.deferred.args()[0])
+            return piasync.Coroutine.failure(self.deferred.args()[0])
         return self.deferred.args()[0]
 
 def coroutine(lang,script,ctimeout=3000,rtimeout=3000,verbose=True):
@@ -62,22 +63,22 @@ def coroutine(lang,script,ctimeout=3000,rtimeout=3000,verbose=True):
 
     yield timer
     if not timer.status():
-        yield async.Coroutine.failure(*timer.args())
+        yield piasync.Coroutine.failure(*timer.args())
         return
 
     if verbose:
-        print 'connected to',lang,connector.status()
+        print('connected to',lang,connector.status())
 
     for line in script_reader(script):
         rpc = connector.invoke_rpc('exec',line,time=rtimeout)
         yield rpc
 
         if not rpc.status():
-            print line,'failed:',rpc.args()[0]
+            print(line,'failed:',rpc.args()[0])
             return
 
         if verbose:
-            print line,'ok'
+            print(line,'ok')
 
 def script_reader(fp):
     for line in fp:
@@ -116,20 +117,20 @@ def main():
 
     def handler(ei):
         traceback.print_exception(*ei)
-        return async.Coroutine.failure('internal error')
+        return piasync.Coroutine.failure('internal error')
 
     def failed(msg):
         if opts.verbose:
-            print 'script failed:',msg
+            print('script failed:',msg)
         picross.exit(-1)
 
     def succeeded():
         if opts.verbose:
-            print 'script finished'
+            print('script finished')
         picross.exit(0)
 
     def startup(dummy):
-        result = async.Coroutine(coroutine(lang,fp,opts.ctimeout,opts.rtimeout,opts.verbose),handler)
+        result = piasync.Coroutine(coroutine(lang,fp,opts.ctimeout,opts.rtimeout,opts.verbose),handler)
         result.setErrback(failed).setCallback(succeeded)
         return result
 

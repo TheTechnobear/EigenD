@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,domain,utils,paths,bundles,action,logic,node,upgrade,resource,files,policy,errors,const,collection,async
+from pi import agent,atom,domain,utils,paths,bundles,action,logic,node,upgrade,resource,files,policy,errors,const,collection
+from pi import piasync
 from . import audio_version as version, audio_native
 
 import piw
@@ -65,11 +66,11 @@ class Port(atom.Atom):
 
     def set_mapping(self,m):
         self.__mapping = m
-        print 'mapping:',m
+        print('mapping:',m)
         self.__update()
 
     def set_current(self,uid):
-        print 'current set to',uid
+        print('current set to',uid)
         self.set_value(uid)
         self.__update()
 
@@ -84,12 +85,12 @@ class Port(atom.Atom):
         return 'ideal([~server,port],%s)' % logic.render_term(uid)
 
     def resolve_name(self,name):
-        print 'port resolve_name',name
+        print('port resolve_name',name)
         if name == 'current':
             return self.__ideal(self.get_value())
         if name =='selection':
             name=self.__selected
-            print 'name=selected',self.__selected
+            print('name=selected',self.__selected)
             return self.__ideal(self.__selected)
 
         try:
@@ -109,9 +110,9 @@ class Port(atom.Atom):
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
-        print 'port:__resolve resolving virtual',arg,(a,o)
+        print('port:__resolve resolving virtual',arg,(a,o))
         if a == ('current',) and o is None and self.get_value:
-            print 'current is',self.get_value()
+            print('current is',self.get_value())
             return self.__ideal(self.get_value())
 
         if a or not o:
@@ -125,17 +126,17 @@ class Port(atom.Atom):
         return '[]'
 
     def rpc_enumerate(self,a):
-        print 'enumerating',a
+        print('enumerating',a)
         return logic.render_term((len(self.__mapping),0))
 
     def rpc_cinfo(self,a):
-        print 'cinfo',a
+        print('cinfo',a)
         return '[]'
 
     def rpc_finfo(self,a):
         (dlist,cnum) = logic.parse_clause(a)
         map = tuple([(escape(uid),dsc,None) for (uid,dsc) in self.__mapping[cnum:]])
-        print 'finfo',a,map
+        print('finfo',a,map)
         return logic.render_term(map)
 
 class AudioDelegate(audio_native.audioctl):
@@ -198,16 +199,16 @@ class AudioChannelList(collection.Collection):
         self.channels_changed()
         self.agent.update()
     
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self,ordinal=None):
         e = self.create_channel(ordinal)
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self,key,inst,ordinal):
         inst.disconnect()
         self.channels_changed()
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 class AudioInput(atom.Atom):
     def __init__(self,agent,index):
@@ -246,7 +247,7 @@ class AudioOutputList(AudioChannelList):
     def new_channel(self,index):
         return AudioOutput(self.agent,index)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def load_state(self,state,delegate,phase):
         yield AudioChannelList.load_state(self,state,delegate,phase)
         self.channels_changed()
@@ -315,7 +316,7 @@ class Agent(agent.Agent):
 
         if channel is None:       
             thing='input %s' %str(id)
-            return async.success(errors.invalid_thing(thing,'un create'))
+            return piasync.success(errors.invalid_thing(thing,'un create'))
 
         self[1].del_channel(id)
 
@@ -331,7 +332,7 @@ class Agent(agent.Agent):
 
         if channel is None:       
             thing='output %s' %str(id)
-            return async.success(errors.invalid_thing(thing,'un create'))
+            return piasync.success(errors.invalid_thing(thing,'un create'))
 
         self[2].del_channel(id)
 
@@ -342,7 +343,7 @@ class Agent(agent.Agent):
         if 2 in self: self[2].update()
         if 7 in self: self[7].update()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def load_state(self,state,delegate,phase):
         self.__loading = True
         yield agent.Agent.load_state(self,state,delegate,phase)
@@ -367,15 +368,15 @@ class Agent(agent.Agent):
         return files.get_ideal(self.id(),'audio',files.FileSystemFile(self.__filename,'audio'),0)
     
     def rpc_get_test_data(self,arg):
-        print 'getting test data',self.__filename
+        print('getting test data',self.__filename)
         f = files.get_ideal(self.id(),'audio',files.FileSystemFile(self.__filename,'audio'),0) if resource.os_path_exists(self.__filename) else '[]'
-        print 'got recording',f
+        print('got recording',f)
         d = self.audio.get_dropout_count()
-        print 'got dropouts',d
+        print('got dropouts',d)
         return logic.render_term((f,d))
 
     def rpc_reset_test_data(self,arg):
-        print 'reset test data'
+        print('reset test data')
         try:
             resource.os_unlink(self.__filename)
         except:
@@ -383,7 +384,7 @@ class Agent(agent.Agent):
         self.audio.reset_dropout_count()
 
     def resolve_file_cookie(self,cookie):
-        print 'resolve_file_cookie',cookie
+        print('resolve_file_cookie',cookie)
         if cookie=='audio':
             return files.FileSystemFile(self.__filename,'audio')
         return agent.Agent.resolve_file_cookie(self,cookie)
@@ -413,7 +414,7 @@ class Agent(agent.Agent):
             actual_uid = self[7].get_current() or ""
             actual_sr = self[3].get_value() or 0
             actual_bs = self[8].get_value() or 0
-            print 'opening audio port',actual_uid,actual_sr,actual_bs
+            print('opening audio port',actual_uid,actual_sr,actual_bs)
             self.audio.open_device(actual_uid,actual_sr,actual_bs,True)
  
     def enum(self):
@@ -435,55 +436,55 @@ class Agent(agent.Agent):
 
     @utils.nothrow
     def device_list_changed(self):
-        print 'device list changed'
+        print('device list changed')
         self.enum()
 
     @utils.nothrow
     def device_changed(self,uid,sr,bs):
-        print 'device change notification from audio',uid,sr,bs
+        print('device change notification from audio',uid,sr,bs)
         self[3].set_value(sr or None)
         self[8].set_value(bs or None)
         self[7].set_current(uid or '')
 
     @utils.nothrow
     def available_channels_changed(self,inputcount,outputcount):
-        print 'available channels change notification from audio',inputcount,outputcount
+        print('available channels change notification from audio',inputcount,outputcount)
         self[4].set_value(inputcount)
         self[5].set_value(outputcount)
 
     def __change_buffer_size(self,bs):
-        print 'change buffer size',bs
+        print('change buffer size',bs)
         self[8].set_value(int(bs) if bs else None)
         self.open_device()
         return False
     
     def __unset_buffer_size(self,*args):
-        print 'un setting buffer size rate',args
+        print('un setting buffer size rate',args)
         self[8].set_value(None)
         self.open_device()
         return action.nosync_return()
 
     def __set_buffer_size(self,subj,_,bs):
-        print 'set_buffer_size',subj,bs
+        print('set_buffer_size',subj,bs)
         bs = action.abstract_string(bs)
         self[8].set_value(int(bs) if bs else None)
         self.open_device()
         return action.nosync_return()
 
     def __change_sample_rate(self,sr):
-        print 'change sample rate',sr
+        print('change sample rate',sr)
         self[3].set_value(int(sr) if sr else None)
         self.open_device()
         return False
     
     def __unset_sample_rate(self,*args):
-        print 'un setting sample rate',args
+        print('un setting sample rate',args)
         self[3].set_value(None)
         self.open_device()
         return action.nosync_return()
 
     def __set_sample_rate(self,subj,_,sr):
-        print 'set_sample_rate',subj,sr
+        print('set_sample_rate',subj,sr)
         sr = action.abstract_string(sr)
         self[3].set_value(int(sr))
         self.open_device()

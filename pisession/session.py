@@ -26,7 +26,8 @@ import time
 import os
 import gc
 
-from pi import utils,async,resource
+from pi import utils,resource
+from pi import piasync
 
 class Logger:
     def __init__(self):

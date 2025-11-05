@@ -40,7 +40,7 @@ class Indexer:
 
     def __timercallback(self):
         for i in range(0,self.__index.member_count()):
-            print self.__index.member_name(i)
+            print(self.__index.member_name(i))
 
         self.__timer.close_thing()
         self.__index.close_index()

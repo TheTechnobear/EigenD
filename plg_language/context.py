@@ -18,16 +18,17 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import async,node,action,logic
+from pi import node,action,logic
+from pi import piasync
 from . import referent
 import piw
 
 class ResolutionError(Exception):
     pass
 
-class ResolvHandler(async.Arg1):
+class ResolvHandler(piasync.Arg1):
     def __init__(self,deferred):
-        async.Arg1.__init__(self,deferred,ResolutionError)
+        piasync.Arg1.__init__(self,deferred,ResolutionError)
 
 class Context:
     def __init__(self, manager, auto = False, lurkers = None, listeners = None, stack=None, inner = None):
@@ -149,13 +150,13 @@ class ContextManager(node.Server):
         return self.__mainctx
 
     def __changed(self,k,v):
-        print 'conv change',k,v
+        print('conv change',k,v)
         n = v.as_string().split(':',1)
-        print 'conversation',n[0],'changed'
+        print('conversation',n[0],'changed')
 
         if n[0] == self.__mainctx.name:
             (auto,li,lu) = logic.parse_clause(n[1])
-            print 'update current conversation',li,lu
+            print('update current conversation',li,lu)
             self.__mainctx.setup(auto,set(li),set(lu))
 
         self.__storage[k].set_data(v)
@@ -163,7 +164,7 @@ class ContextManager(node.Server):
     def __find_value(self,name):
         name = name
 
-        for (k,n) in self.__storage.iteritems():
+        for (k,n) in self.__storage.items():
             v = n.get_data()
             if not v.is_string(): continue
             v = v.as_string()
@@ -179,7 +180,7 @@ class ContextManager(node.Server):
     def __find(self,name):
         name = name
 
-        for (k,n) in self.__storage.iteritems():
+        for (k,n) in self.__storage.items():
             v = n.get_data()
             if not v.is_string(): continue
             v = v.as_string()
@@ -198,7 +199,7 @@ class ContextManager(node.Server):
         self[1].set_data(piw.makestring(v,0))
 
     def __save(self,ctx,name):
-        print 'remember',name
+        print('remember',name)
 
         t = self.__find(name)
 
@@ -218,12 +219,12 @@ class ContextManager(node.Server):
         w = n.words() if n else ()
 
         if not w or w[0] != 'conversation':
-            return async.failure("no such conversation")
+            return piasync.failure("no such conversation")
 
         w = ' '.join(w[1:])
 
         if w=='all' or w=='empty':
-            return async.failure("can't remember special conversations")
+            return piasync.failure("can't remember special conversations")
 
         ctx = interp.get_context()
 
@@ -233,7 +234,7 @@ class ContextManager(node.Server):
         self.__save(ctx,w)
         ctx.name = w
 
-        return async.success()
+        return piasync.success()
         
     def primitive_join(self,interp,word):
         n = interp.pop(referent.Referent)
@@ -248,19 +249,19 @@ class ContextManager(node.Server):
         if w == 'empty' or w == 'all':
             ctx.name = w
             ctx.setup_empty()
-            print 'joining all'
-            return async.success()
+            print('joining all')
+            return piasync.success()
 
         t = self.__find_value(w)
 
         if not t:
-            return async.failure("no such conversation")
+            return piasync.failure("no such conversation")
 
         (auto,li,lu) = logic.parse_clause(t)
         ctx.name = w
         ctx.setup(auto,set(li),set(lu))
 
-        return async.success()
+        return piasync.success()
 
 
     def primitive_lurk(self,interp,word):
@@ -273,7 +274,7 @@ class ContextManager(node.Server):
 
         n = interp.pop(referent.Referent)
         if not n:
-            return async.failure("invalid lurk command")
+            return piasync.failure("invalid lurk command")
 
         w = n.words() if n else ()
         ctx = interp.get_context()
@@ -283,7 +284,7 @@ class ContextManager(node.Server):
             t = self.__find_value(name)
 
             if not t:
-                return async.failure("no such conversation")
+                return piasync.failure("no such conversation")
 
             (auto,li,lu) = logic.parse_clause(t)
             ctx.clear_stack()
@@ -307,10 +308,10 @@ class ContextManager(node.Server):
 
             ctx.set_inner_scope(set())
 
-        print 'scope:',ctx.get_listener_scope(),ctx.get_lurker_scope()
-        return async.success()
+        print('scope:',ctx.get_listener_scope(),ctx.get_lurker_scope())
+        return piasync.success()
         
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def primitive_listen(self,interp,word):
         un = False
 
@@ -321,7 +322,7 @@ class ContextManager(node.Server):
 
         n = interp.pop(referent.Referent)
         if not n:
-            yield async.Coroutine.failure("invalid listen command")
+            yield piasync.Coroutine.failure("invalid listen command")
 
         w = n.words() if n else ()
         ctx = interp.get_context()
@@ -331,7 +332,7 @@ class ContextManager(node.Server):
             t = self.__find_value(name)
 
             if not t:
-                yield async.Coroutine.failure("no such conversation")
+                yield piasync.Coroutine.failure("no such conversation")
 
             (auto,li,lu) = logic.parse_clause(t)
             ctx.clear_stack()
@@ -351,12 +352,12 @@ class ContextManager(node.Server):
             else:
                 n = (yield ResolvHandler(n.reinterpret(interp,[])))
                 if n is None:
-                    yield async.Coroutine.failure('bad noun')
+                    yield piasync.Coroutine.failure('bad noun')
 
                 agents = set(n.concrete_ids())
 
                 if len(agents)==0:
-                    yield async.Coroutine.failure('no agents')
+                    yield piasync.Coroutine.failure('no agents')
 
                 li = ctx.get_listener_scope().union(agents)
                 lu = ctx.get_lurker_scope().difference(agents)
@@ -365,11 +366,11 @@ class ContextManager(node.Server):
 
             ctx.set_inner_scope(set())
 
-        print 'scope:',ctx.get_listener_scope(),ctx.get_lurker_scope()
-        yield async.Coroutine.success()
+        print('scope:',ctx.get_listener_scope(),ctx.get_lurker_scope())
+        yield piasync.Coroutine.success()
         
         
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def primitive_hey(self,interp,word):
         scope = set()
 
@@ -377,20 +378,20 @@ class ContextManager(node.Server):
             n = interp.pop(referent.Referent)
 
             if n is None:
-                yield async.Coroutine.failure('bad noun')
+                yield piasync.Coroutine.failure('bad noun')
 
             n = (yield ResolvHandler(n.reinterpret(interp,[])))
 
             o = n.concrete_ids()
             if not o:
-                yield async.Coroutine.failure('empty noun')
+                yield piasync.Coroutine.failure('empty noun')
 
             scope.update(set(o))
 
         interp.get_context().set_inner_scope(scope)
-        print 'inner scope:',interp.get_context().get_inner_scope()
+        print('inner scope:',interp.get_context().get_inner_scope())
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def primitive_ahem(self,interp,word):
         scope = set()
 
@@ -398,34 +399,34 @@ class ContextManager(node.Server):
             n = interp.pop(referent.Referent)
 
             if n is None:
-                yield async.Coroutine.failure('bad noun')
+                yield piasync.Coroutine.failure('bad noun')
 
             o = n.concrete_ids()
             if not o:
-                yield async.Coroutine.failure('empty noun')
+                yield piasync.Coroutine.failure('empty noun')
 
             scope.update(set(o))
 
         interp.get_context().set_inner_scope(scope)
-        print 'inner scope:',interp.get_context().get_inner_scope()
+        print('inner scope:',interp.get_context().get_inner_scope())
 
     def primitive_scope(self,interp,word):
         ctx = interp.get_context()
 
-        print "== noun scope =="
+        print("== noun scope ==")
         for t in enumerate(ctx.get_noun_scope()):
-            print "%i: %s" % t
+            print("%i: %s" % t)
 
-        print "== verb scope =="
+        print("== verb scope ==")
         for t in enumerate(ctx.get_verb_scope()):
-            print "%i: %s" % t
+            print("%i: %s" % t)
 
-        print "== inner scope =="
+        print("== inner scope ==")
         for t in enumerate(ctx.get_inner_scope()):
-            print "%i: %s" % t
+            print("%i: %s" % t)
 
-        print "== argument stack =="
+        print("== argument stack ==")
         for t in enumerate(interp.iterstack()):
-            print "%i: %s" % t
+            print("%i: %s" % t)
 
-        return async.success()
+        return piasync.success()

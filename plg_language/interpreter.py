@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import async,logic,rpc
+from pi import logic,rpc
+from pi import piasync
 from pi.logic.shortcuts import *
 from . import context,referent
 
@@ -30,18 +31,18 @@ class Delegate:
     def buffer_done(self,status,msg,repeat):
         pass
     def error_message(self,err):
-        print 'error_message',err
+        print('error_message',err)
     def user_message(self,err):
-        print 'user_message',err
+        print('user_message',err)
 
 def rpcerrorhandler(ei):
     traceback.print_exception(*ei)
-    return async.Coroutine.failure('internal error')
+    return piasync.Coroutine.failure('internal error')
 
-class RpcAdapter(async.DeferredDecoder):
+class RpcAdapter(piasync.DeferredDecoder):
     def decode(self):
         if self.deferred.status() is False:
-            return async.Coroutine.failure(self.deferred.args()[0])
+            return piasync.Coroutine.failure(self.deferred.args()[0])
         return self.deferred.args()[0]
 
 class Queue:
@@ -91,7 +92,7 @@ class Interpreter:
         return self.__action
 
     def set_statemgr(self,sm):
-        print 'using',sm,'for undo'
+        print('using',sm,'for undo')
         self.__statemgr = sm
         self.__laststate = None
         self.__undostate = None
@@ -103,22 +104,22 @@ class Interpreter:
                 r = self.interpret(w)
                 yield r
                 if r.status() is False:
-                    yield async.Coroutine.failure(r.args()[0])
+                    yield piasync.Coroutine.failure(r.args()[0])
 
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
-        return async.Coroutine(coroutine(),rpcerrorhandler)
+        return piasync.Coroutine(coroutine(),rpcerrorhandler)
 
     def wait(self):
         if not self.__jobs:
             s = self.__status
             self.__status = True
             if s:
-                return async.success()
+                return piasync.success()
             else:
-                return async.failure('background job failed')
+                return piasync.failure('background job failed')
 
-        result = async.Deferred()
+        result = piasync.Deferred()
         self.__waiters.append(result)
         return result
 
@@ -131,7 +132,7 @@ class Interpreter:
         self.__jobs.add(result)
 
         def completed(status,*args,**kwds):
-            print 'background job',status
+            print('background job',status)
             self.__jobs.discard(result)
 
             if not status:
@@ -180,7 +181,7 @@ class Interpreter:
 
     def interpret(self,word):
         klass,word = self.__database.classify(word)
-        print 'interpreting',word,klass
+        print('interpreting',word,klass)
         return self.__interpret0(klass,word)
 
     def undo(self):
@@ -194,7 +195,7 @@ class Interpreter:
 
         return w
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def close(self):
         if self.__digits:
             num = ''.join(self.__digits)
@@ -207,14 +208,14 @@ class Interpreter:
             m = top.close(self)
             yield m
             if m is not None and not m.status():
-                yield async.Coroutine.failure(*m.args(),**m.kwds())
+                yield piasync.Coroutine.failure(*m.args(),**m.kwds())
 
     def line_clear(self):
         self.__stack = []
         self.__history = []
         self.__digits = []
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __interpret0(self,klass,word):
         s = copy.deepcopy(self.__stack)
         d = self.__digits[:]
@@ -222,7 +223,7 @@ class Interpreter:
         if klass == 'digit':
             self.__history.append((word,klass,s,d))
             self.__digits.extend(word)
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         if self.__digits:
             num = ''.join(self.__digits)
@@ -230,7 +231,7 @@ class Interpreter:
             r = self.__interpret0('noun',num)
             yield r
             if not r.status():
-                yield async.Coroutine.failure(*r.args(),**r.kwds())
+                yield piasync.Coroutine.failure(*r.args(),**r.kwds())
             self.__history.pop()
 
         self.__history.append((word,klass,s,d))
@@ -240,14 +241,14 @@ class Interpreter:
             r = top.interpret(self,klass,word)
             yield r
             if not r.status():
-                yield async.Coroutine.failure(*r.args(),**r.kwds())
+                yield piasync.Coroutine.failure(*r.args(),**r.kwds())
             if r.args()[0]==True:
-                yield async.Coroutine.success()
+                yield piasync.Coroutine.success()
 
         action = self.__database.lookup_primitive(klass)
 
         if not action:
-            yield async.Coroutine.failure('word ignored')
+            yield piasync.Coroutine.failure('word ignored')
 
         s = (self.__context.get_snapshot(),copy.deepcopy(self.__stack))
         ar = action(self,word)
@@ -271,7 +272,7 @@ class Interpreter:
                
                 if klass != 'ahem' and klass != 'hey':
                     self.__context.clear_inner_scope()
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
         else:
             if not self.__stack:
                 self.__history = []
@@ -286,25 +287,25 @@ class Interpreter:
                         self.__delegate.user_message(err)
 
                 self.__context.clear_inner_scope()
-            yield async.Coroutine.failure(*ar.args(),**ar.kwds())
+            yield piasync.Coroutine.failure(*ar.args(),**ar.kwds())
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __checkpoint(self):
         r = rpc.invoke_rpc(self.__statemgr,'get_checkpoint','')
         yield r
 
         if not r.status():
-            print 'checkpoint failure',r.args()
+            print('checkpoint failure',r.args())
             self.__laststate = None
             self.__undostate = None
         else:
             self.__undostate = self.__laststate
             self.__laststate = r.args()[0]
-            print 'checkpointed at',self.__laststate
+            print('checkpointed at',self.__laststate)
 
     def checkpoint_undo(self):
         if not self.__statemgr:
-            return async.failure('no state manager')
+            return piasync.failure('no state manager')
 
         l = self.__undostate
         self.__undostate = None
@@ -312,43 +313,43 @@ class Interpreter:
         self.__lastcmd = None
 
         if l is None:
-            return async.failure('no checkpoint')
+            return piasync.failure('no checkpoint')
 
-        @async.coroutine('internal error')
+        @piasync.coroutine('internal error')
         def __undo():
             r = rpc.invoke_rpc(self.__statemgr,'load_checkpoint',l)
             yield r
 
             if not r.status():
-                print 'checkpoint load failure',r.args()
+                print('checkpoint load failure',r.args())
             else:
-                print 'reverted to',l
+                print('reverted to',l)
 
         return __undo()
         
 
     def again(self):
         if not self.empty():
-            print 'garbled again'
-            return async.failure('garbled again command')
+            print('garbled again')
+            return piasync.failure('garbled again command')
 
         if self.__lastcmd is None:
-            return async.failure('no last command')
+            return piasync.failure('no last command')
 
         (a,(c,s)) = self.__lastcmd
 
         self.__stack = []
         self.__context.set_snapshot(c)
 
-        print 'again:',a
-        print 'stack:',' '.join([str(ss) for ss in s])
+        print('again:',a)
+        print('stack:',' '.join([str(ss) for ss in s]))
 
         for ss in s:
             if isinstance(s,referent.Referent):
                 ss = ss.reinterpret(self,self.__context.get_noun_scope())
             self.__stack.append(ss)
 
-        print 'stack:',' '.join([str(ss) for ss in self.__stack])
+        print('stack:',' '.join([str(ss) for ss in self.__stack]))
         return a()
 
     def topany(self):
@@ -405,5 +406,5 @@ class VerbAction(referent.StackObj):
     def words(self):
         return ()
     def execute(self,interp,verb,mods,roles,args,bg,text):
-        return async.failure('not implemented')
+        return piasync.failure('not implemented')
 

@@ -24,7 +24,8 @@
 # Agent to convert Belcanto note data into a MIDI stream
 # ------------------------------------------------------------------------------------------------------------------
 
-from pi import agent,atom,logic,node,utils,bundles,audio,domain,const,resource,guid,upgrade,policy,errors,action,inputparameter,paths,async
+from pi import agent,atom,logic,node,utils,bundles,audio,domain,const,resource,guid,upgrade,policy,errors,action,inputparameter,paths
+from pi import piasync
 from pibelcanto import lexicon
 import piw,urllib,sys,os,operator,glob,shutil,string
 from . import midi_converter_version as version
@@ -42,7 +43,7 @@ class AgentState(node.server):
         self.__load_callback = callback
         self[1] = AgentStateNode()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def load_state(self,state,delegate,phase):
         yield node.server.load_state(self,state,delegate,phase)
         mapping = self[1].get_data().as_string() if self[1].get_data().is_string() else '[]'
@@ -262,26 +263,26 @@ class Upgrader(upgrade.Upgrader):
         pass
 
     def phase2_1_0_4(self,tools,address):
-        print 'upgrading midi converter',address
+        print('upgrading midi converter',address)
         root = tools.get_root(address)
         key_input = root.get_node(2,3)
-        print 'disconnecting key input',key_input.id()
+        print('disconnecting key input',key_input.id())
         conn = key_input.get_master()
         if not conn: return
         for c in conn:
-            print 'connection',c
+            print('connection',c)
             upstream_addr,upstream_path = paths.breakid_list(c)
             upstream_root = tools.get_root(upstream_addr)
             if not upstream_root: continue
             upstream = upstream_root.get_node(*upstream_path)
             upstream_slaves = logic.parse_clauselist(upstream.get_meta_string('slave'))
-            print 'old upstream slaves',upstream_slaves
+            print('old upstream slaves',upstream_slaves)
             upstream_slaves.remove(key_input.id())
-            print 'new upstream slaves',upstream_slaves
+            print('new upstream slaves',upstream_slaves)
             upstream.set_meta_string('slave', logic.render_termlist(upstream_slaves))
 
     def upgrade_1_0_4_to_1_0_5(self,tools,address):
-        print 'upgrading midi converter',address
+        print('upgrading midi converter',address)
         root = tools.get_root(address)
         state = root.get_node(255,1)
         if state.get_data().is_string():

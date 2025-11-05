@@ -32,7 +32,8 @@ import xml.dom.minidom
 from xml.sax.saxutils import quoteattr
 import threading
 import piw
-from pi import agent,atom,domain,errors,action,bundles,async,utils,resource,logic,node,upgrade,const,paths,rpc
+from pi import agent,atom,domain,errors,action,bundles,utils,resource,logic,node,upgrade,const,paths,rpc
+from pi import piasync
 from . import language_native
 import traceback
 import widget
@@ -196,7 +197,7 @@ class StageXMLRPCFuncs:
                         domainType,isInteger,isFloat,isNumeric,isBool,isTrigger = self.__domainTypes(atomDomain)
                         isCustom = False
 
-                        print 'atom protocols',atomProtocols
+                        print('atom protocols',atomProtocols)
                         for p in atomProtocols:
                             if p.startswith('widget-'):
                                 domainType = 'custom-'+p[7:]
@@ -303,7 +304,7 @@ class StageXMLRPCFuncs:
         xml += ' full=%s' % quoteattr(atomDomain.canonical());
         xml += '/>'
 
-        print "dmain xml=",xml
+        print("dmain xml=",xml)
 
         return xml
 
@@ -413,7 +414,7 @@ class StageXMLRPCFuncs:
                 args[0] = returnstatus
                 args[1] = returnargs
                 args[2] = returnkwds
-                print 'args',args
+                print('args',args)
                 e.set()
 
             r.setCallback(finished,True).setErrback(finished,False)
@@ -463,20 +464,20 @@ class StageXMLRPCFuncs:
 
     def ping(self):
         # a client can test if the server is connected by calling this
-        print 'ping...'
+        print('ping...')
         return True
 
     def getSessionID(self):
-        print "get session ID"
+        print("get session ID")
         #print 'get session id = ',self.__sessionID
         return self.__sessionID
 
     def getSetupName(self):
-        print "get setup name"
+        print("get setup name")
         return self.setupName
 
     def getOSCPort(self):
-        print 'get OSC port'
+        print('get OSC port')
         try:
             return self.__languageAgent.widgets.get_server_port()
         except:
@@ -561,7 +562,7 @@ class StageXMLRPCFuncs:
             return ''
 
     def getAgent(self, agentID):
-        print "get agent",agentID
+        print("get agent",agentID)
         #print 'get agent ',agentID
         # return xml for an agent with a given ID
         self.__buildAgentXml(agentID)
@@ -582,7 +583,7 @@ class StageXMLRPCFuncs:
 
     def getNumTabs(self):
         try:
-            print 'get num tabs'
+            print('get num tabs')
             piw.tsd_lock()
             try:
                 numTabs = len(self.__tabs)
@@ -591,12 +592,12 @@ class StageXMLRPCFuncs:
         except:
             traceback.print_exc(limit=None)
             return 0
-        print 'get num tabs',numTabs
+        print('get num tabs',numTabs)
         return numTabs
         
     def addTab(self, tabXML):
         try:
-            print 'add tab'
+            print('add tab')
             # receive new tab xml from stage for an empty tab - no widgets to add to manager
             piw.tsd_lock()
             # tab added with index numTabs
@@ -611,7 +612,7 @@ class StageXMLRPCFuncs:
 
     def setTab(self, index, tabXML):
         try:
-            print 'set tab',index
+            print('set tab',index)
             piw.tsd_lock()
             try:
                 self.__tabs.get_tab(index).setXML(tabXML)
@@ -625,7 +626,7 @@ class StageXMLRPCFuncs:
     def getTab(self, index):
         # return tab xml to stage
         try:
-            print 'get tab',index
+            print('get tab',index)
             piw.tsd_lock()
             try:
                 tabXML = self.__tabs.get_tab(index).getXML()
@@ -640,7 +641,7 @@ class StageXMLRPCFuncs:
     def moveTab(self, currentTabIndex, newTabIndex):
         # moves a tab (swaps two tabs)
         try:
-            print 'move tab', currentTabIndex, 'to', newTabIndex
+            print('move tab', currentTabIndex, 'to', newTabIndex)
             piw.tsd_lock()
             try:
                 # current and new must be valid tab indices
@@ -655,7 +656,7 @@ class StageXMLRPCFuncs:
     def removeTab(self, tabIndex):
         # removes a tab
         try:
-            print 'remove tab', tabIndex
+            print('remove tab', tabIndex)
 
             # remove all the widgets from this tab
             # ensures that they are removed from the widget manager also
@@ -704,7 +705,7 @@ class StageXMLRPCFuncs:
     #---------------------------------------------------------------------------
     
     def getNumWidgets(self, tabIndex):
-        print 'get num widgets',tabIndex
+        print('get num widgets',tabIndex)
         # get number of widgets in a tab
         try:
             piw.tsd_lock()
@@ -712,14 +713,14 @@ class StageXMLRPCFuncs:
                 numWidgets = len(self.__tabs.get_tab(tabIndex)[1])
             finally:
                 piw.tsd_unlock()
-            print 'get num widgets =',numWidgets
+            print('get num widgets =',numWidgets)
         except:
             traceback.print_exc(limit=None)
             return 0
         return numWidgets
     
     def addWidget(self, tabIndex, widgetXML):
-        print 'add widget to tab',tabIndex
+        print('add widget to tab',tabIndex)
         # add widget to tab
         try:
             piw.tsd_lock()
@@ -742,7 +743,7 @@ class StageXMLRPCFuncs:
 
             if OSCPath!='':
                 self.__widgetManager.create_widget(OSCPath)
-                print "created widget",name,OSCPath
+                print("created widget",name,OSCPath)
             else:
                 return False
         except:
@@ -751,7 +752,7 @@ class StageXMLRPCFuncs:
         return True
 
     def setWidget(self, tabIndex, widgetIndex, widgetXML):
-        print 'set widget',widgetIndex,'from tab',tabIndex
+        print('set widget',widgetIndex,'from tab',tabIndex)
         # set widget xml
         try:
             piw.tsd_lock()
@@ -767,7 +768,7 @@ class StageXMLRPCFuncs:
                 
                                 
     def widgetRpc(self, tabIndex, widgetIndex, rpcMethod, rpcArg):
-        print 'rpc widget',widgetIndex,'from tab',tabIndex,'method',rpcMethod,'arg',rpcArg
+        print('rpc widget',widgetIndex,'from tab',tabIndex,'method',rpcMethod,'arg',rpcArg)
 
         piw.tsd_lock()
 
@@ -777,7 +778,7 @@ class StageXMLRPCFuncs:
             widgetDoc = xml.dom.minidom.parseString(widgetXML)
             widgetNode = widgetDoc.documentElement
             widgetAddress = widgetNode.getAttribute('address')
-            print 'rpc',rpcMethod,'to',widgetAddress,'with',rpcArg
+            print('rpc',rpcMethod,'to',widgetAddress,'with',rpcArg)
             r = rpc.invoke_rpc(widgetAddress,rpcMethod,rpcArg);
         except:
             piw.tsd_unlock()
@@ -805,7 +806,7 @@ class StageXMLRPCFuncs:
         
 
     def getWidget(self, tabIndex, widgetIndex):
-        print 'get widget',widgetIndex,'from tab',tabIndex
+        print('get widget',widgetIndex,'from tab',tabIndex)
         # get widget xml
         try:
             piw.tsd_lock()
@@ -867,7 +868,7 @@ class StageXMLRPCFuncs:
         
     def removeWidget(self, tabIndex, widgetIndex):
         # remove widget with index
-        print 'remove widget',widgetIndex,'from tab',tabIndex
+        print('remove widget',widgetIndex,'from tab',tabIndex)
         try:
             piw.tsd_lock()
             try:
@@ -938,7 +939,7 @@ class StageXMLRPCFuncs:
                     if widgetAddress in changedNodes:
                         # update the widget xml with the new osc path
                         newOSCPath = changedNodes[widgetAddress]
-                        print '    updated widget path',newOSCPath,'from',widgetPath
+                        print('    updated widget path',newOSCPath,'from',widgetPath)
                         widgetNode.setAttribute('path', newOSCPath)
                         widgetDoc.documentElement = widgetNode
                         widgetXML = widgetDoc.documentElement.toxml()
@@ -965,7 +966,7 @@ class RequestHandler(SimpleXMLRPCRequestHandler):
 
 class StageXMLRPCServer:
     def __init__(self, languageAgent, snapshot, xmlrpc_server_port):
-        print "stage __init__"
+        print("stage __init__")
 
         self.__server = InterruptableXMLRPCServer(snapshot, "0.0.0.0", xmlrpc_server_port, RequestHandler, False)
         self.__server.register_introspection_functions()
@@ -982,11 +983,11 @@ class StageXMLRPCServer:
         languageAgent.widgets.set_stage_server(self.__server_instance)
 
     def start(self):
-        print "running stage xmlrpc server"
+        print("running stage xmlrpc server")
         self.__server.start()
 
     def stop(self):    
-        print "shutting down stage xmlrpc server"
+        print("shutting down stage xmlrpc server")
         if self.__server:
             self.__server.stop()
             self.__server = None
@@ -1030,10 +1031,10 @@ class InterruptableXMLRPCServer(SimpleXMLRPCServer):
         threading.Thread(target=self.serve).start()
 
     def stop(self):
-        print "requesting xmlrpc server to stop"
+        print("requesting xmlrpc server to stop")
         self.__timeToQuit.set()
 
-        print "xmlrpc server stopped"
+        print("xmlrpc server stopped")
 
     def serve(self):
         self.__snapshot.install()
@@ -1042,12 +1043,12 @@ class InterruptableXMLRPCServer(SimpleXMLRPCServer):
             try:
                 self.handle_request()
             except:
-                print 'Stage server error: unexpected error'
+                print('Stage server error: unexpected error')
 
-        print "closing xmlrpc server"
+        print("closing xmlrpc server")
         self.server_close()
 
-        print "xmlrpc server closed"
+        print("xmlrpc server closed")
 
 #-------------------------------------------------------------------------------        
 # Widget atom for storing widget xml
@@ -1101,14 +1102,14 @@ class WidgetList(atom.Atom):
         self[atomIndex] = newWidget
 
     def get_widget(self, widgetIndex):
-        for (atomIndex,atom) in self.iteritems():
+        for (atomIndex,atom) in self.items():
             if atom.get_property_long('widgetIndex')==widgetIndex:
                 return atom
                 break
         return None
         
     def remove_widget(self,widgetIndex):
-        for (atomIndex,atom) in self.iteritems():
+        for (atomIndex,atom) in self.items():
             index = atom.get_property_long('widgetIndex')
             if index==widgetIndex:
                 delAtomIndex = atomIndex
@@ -1152,8 +1153,8 @@ class Tab(atom.Atom):
             else:
                 self.__sessionChanges[index] = 0
         else:
-            print 'TabError: inc_session_changes has no index'
-            print self
+            print('TabError: inc_session_changes has no index')
+            print(self)
         
     def get_session_changes(self):
         index = self.get_property_long('tabIndex')
@@ -1197,13 +1198,13 @@ class TabList(atom.Atom):
         self[atomIndex] = newTab
 
     def get_tab(self, tabIndex):
-        for (atomIndex,atom) in self.iteritems():
+        for (atomIndex,atom) in self.items():
             if atom.get_property_long('tabIndex')==tabIndex:
                 return atom
         return None
         
     def remove_tab(self,tabIndex):
-        for (atomIndex,atom) in self.iteritems():
+        for (atomIndex,atom) in self.items():
             index = atom.get_property_long('tabIndex')
             if index==tabIndex:
                 delAtomIndex = atomIndex
@@ -1218,7 +1219,7 @@ class TabList(atom.Atom):
     def move_tab(self,currentTabIndex,newTabIndex):
         currentAtom = None
         newAtom = None
-        for (atomIndex,atom) in self.iteritems():
+        for (atomIndex,atom) in self.items():
             index = atom.get_property_long('tabIndex')
             if index==currentTabIndex:
                 currentAtom = atom
@@ -1231,4 +1232,4 @@ class TabList(atom.Atom):
             self.__sessionChanges[currentTabIndex] = newSessionChanges
             self.__sessionChanges[newTabIndex] = newSessionChanges
         else:
-            print 'TabList error: could not move tabs'
+            print('TabList error: could not move tabs')

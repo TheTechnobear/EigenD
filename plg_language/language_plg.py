@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,domain,errors,action,logic,async,index,utils,bundles,resource,paths,node,container,upgrade,timeout,help_manager,resource
+from pi import agent,atom,domain,errors,action,logic,index,utils,bundles,resource,paths,node,container,upgrade,timeout,help_manager,resource
+from pi import piasync
 from pi.logic.shortcuts import *
 from . import interpreter,database,feedback,noun,builtin_misc,context,variable,script,stage_server,widget,deferred,plumber
 from . import interpreter_version as version
@@ -31,7 +32,7 @@ def read_script(filename):
     filename = os.path.abspath(filename)
     dirname = os.path.dirname(filename)
 
-    print 'started',filename
+    print('started',filename)
     script = resource.file_open(filename,'r')
 
     for line in script:
@@ -54,7 +55,7 @@ def read_script(filename):
         for line in read_script(include):
             yield line
 
-    print 'finished',filename
+    print('finished',filename)
 
 
 class Agent(agent.Agent):
@@ -158,9 +159,9 @@ class Agent(agent.Agent):
         t = l.get_timestamp()
         self.set_property_string('timestamp',t)
 
-        print 'lexicon changed',t
+        print('lexicon changed',t)
         for (e,(m,c)) in l.lexicon_iter(False):
-            print "%s -> %s (%s)" % (e,m,c)
+            print("%s -> %s (%s)" % (e,m,c))
 
     def __loadhelp(self,subject,dummy):
         self.help_manager.update()
@@ -176,18 +177,18 @@ class Agent(agent.Agent):
 
         return key in ['timestamp']
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __runscript(self,subject,arg):
         name = action.abstract_string(arg)
-        print 'script',name
+        print('script',name)
         r = self[12].run_script(name)
 
         if not r:
-            yield async.Coroutine.success(errors.doesnt_exist(name,'execute'))
+            yield piasync.Coroutine.success(errors.doesnt_exist(name,'execute'))
 
         yield r
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_canonical(self,arg):
         arg = arg.strip()
         spl = arg.split('->')
@@ -203,7 +204,7 @@ class Agent(agent.Agent):
 
         yield r
         if not r.status():
-            yield async.Coroutine.failure('not found')
+            yield piasync.Coroutine.failure('not found')
 
         (objs,) = r.args()
         ids = objs.concrete_ids()
@@ -234,15 +235,15 @@ class Agent(agent.Agent):
             f.close()
             text = out
 
-        yield async.Coroutine.success(text)
+        yield piasync.Coroutine.success(text)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def basic_get_value(self,arg):
         words = arg.strip().split()
         r = self.interpret(self.interpreter,None,words)
         yield r
         if not r.status():
-            yield async.Coroutine.failure('not found')
+            yield piasync.Coroutine.failure('not found')
 
         (objs,) = r.args()
         ids = objs.concrete_ids()
@@ -251,7 +252,7 @@ class Agent(agent.Agent):
             p = self.database.find_item(id)
             rv.append(p.get_value())
 
-        yield async.Coroutine.success(rv)
+        yield piasync.Coroutine.success(rv)
 
     def rpc_lexicon(self,arg):
         l = self.database.get_lexicon()
@@ -261,7 +262,7 @@ class Agent(agent.Agent):
         i = int(arg)
 
         if i<0 or i>=nd:
-            return async.success('%s:%d:' % (t,nd))
+            return piasync.success('%s:%d:' % (t,nd))
 
         d = d[i:i+100]
         ds = logic.render_termlist([logic.make_term(e,m,c) for (e,(m,c)) in d])
@@ -270,38 +271,38 @@ class Agent(agent.Agent):
     def __identify(self,subject,target):
         ids = action.concrete_objects(target)
         ids = [self.database.to_database_id(i) for i in ids]
-        print 'identifying',ids
+        print('identifying',ids)
         rv = []
         for i in ids:
             d = self.database.find_full_rig_display_desc(i)
             rv.append(action.message_return(d))
         return rv
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_identify(self,arg):
         words = arg.strip().split()
         r = self.interpret(self.interpreter,None,words)
         yield r
         if not r.status():
-            yield async.Coroutine.failure('not found')
+            yield piasync.Coroutine.failure('not found')
 
         (objs,) = r.args()
         ids = objs.concrete_ids()
-        print 'identifying',ids
+        print('identifying',ids)
         rv = []
         for id in ids:
             d = "'%s' %s" % (id,self.database.find_full_desc(id))
             rv.append(d)
 
-        yield async.Coroutine.success('\n'.join(rv))
+        yield piasync.Coroutine.success('\n'.join(rv))
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_dump(self,arg):
         words = arg.strip().split()
         r = self.interpret(self.interpreter,None,words)
         yield r
         if not r.status():
-            yield async.Coroutine.failure('not found')
+            yield piasync.Coroutine.failure('not found')
 
         (objs,) = r.args()
         ids = objs.concrete_ids()
@@ -312,7 +313,7 @@ class Agent(agent.Agent):
             d = self.database.get_connections(id)
             rv.extend(d)
 
-        yield async.Coroutine.success('\n'.join(rv))
+        yield piasync.Coroutine.success('\n'.join(rv))
 
 
     def find_help(self,id):
@@ -320,13 +321,13 @@ class Agent(agent.Agent):
         local_help = self.database.find_help(id)
         return (self.help_manager.find_help(canonical_name),local_help)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_help(self,arg):
         words = arg.strip().split()
         r = self.interpret(self.interpreter,None,words)
         yield r
         if not r.status():
-            yield async.Coroutine.failure('not found')
+            yield piasync.Coroutine.failure('not found')
 
         (objs,) = r.args()
         ids = objs.concrete_ids()
@@ -341,7 +342,7 @@ class Agent(agent.Agent):
                 rv.append(" tool tip: %s" % help_node.get_tooltip())
                 rv.append(" help text; %s" % help_node.get_helptext())
 
-        yield async.Coroutine.success('\n'.join(rv))
+        yield piasync.Coroutine.success('\n'.join(rv))
 
 
     def __runner(self,name,script):
@@ -357,10 +358,10 @@ class Agent(agent.Agent):
         words = script.split()
         interp = interpreter.Interpreter(self,self.database,SubDelegate())
 
-        print 'doing',words
+        print('doing',words)
         self.register_interpreter(interp)
         r = interp.process_block(words)
-        r2 = async.Deferred()
+        r2 = piasync.Deferred()
 
         def ok(*a,**k):
             self.unregister_interpreter(interp)
@@ -381,33 +382,33 @@ class Agent(agent.Agent):
 
     def register_interpreter(self,interp):
         interpid = str(id(interp))
-        print 'register interpreter',interpid
+        print('register interpreter',interpid)
         self.__interpreters[interpid] = interp
 
     def unregister_interpreter(self,interp):
         interpid = str(id(interp))
-        print 'unregister interpreter',interpid
+        print('unregister interpreter',interpid)
         try: del self.__interpreters[interpid]
         except: pass
 
     def __messages(self,v):
-        print 'messages:',self.__messages_on,'->',v
+        print('messages:',self.__messages_on,'->',v)
         self.__messages_on=v
 
     def __message(self,subject,arg):
         if self.__messages_on:
             words = action.abstract_wordlist(arg)
-            print 'message',words
+            print('message',words)
             self.message(words)
 
     def create_echo(self,trigger,text):
-        print 'create echo for',text,'trigger',trigger
+        print('create echo for',text,'trigger',trigger)
         self.verb_defer(30,trigger,trigger,None,(logic.make_term('abstract',tuple(text.split(' '))),))
 
     def cancel_echo(self,triggers):
         for (id,ctx,cookie) in self.verb_events(lambda l,i: i==30):
             if ctx in triggers:
-                print 'cancelling echo',id
+                print('cancelling echo',id)
                 self.verb_cancel(id)
 
     def __setstatemgr(self,arg):
@@ -422,7 +423,7 @@ class Agent(agent.Agent):
         return self.interpreter.checkpoint_undo()
 
     def clear_history(self):
-        print 'clear_history'
+        print('clear_history')
         self.__history.clear_history()
 
     def __timestamp(self):
@@ -448,7 +449,7 @@ class Agent(agent.Agent):
         self.__find_builtins(provider,'verb2',verb)
 
     def message(self,words,desc='message',speaker=''):
-        print 'language_plg:message words=',words,'desc=',desc,'speaker=',speaker
+        print('language_plg:message words=',words,'desc=',desc,'speaker=',speaker)
         if speaker:
             speaker=self.database.find_desc(speaker)
         m=[]
@@ -465,19 +466,19 @@ class Agent(agent.Agent):
         self.__history.message(m,desc,speaker)
 
     def user_message(self,err):
-        print 'language_plg:user_message',err
+        print('language_plg:user_message',err)
         self.message(['*',err])
 
     def error_message(self,err):
         speaker='' 
-        print 'language_plg:error_message',err
+        print('language_plg:error_message',err)
         msg=errors.render_message(self.database,err[0])
         if len(err)>1:
             speaker=err[1]
         self.message(msg,'err_msg',speaker)    
 
     def rpc_inject(self,msg):
-        print 'rpc_inject',msg
+        print('rpc_inject',msg)
         for word in msg.split():
             m = self.database.expand_to_music(word)
 
@@ -496,7 +497,7 @@ class Agent(agent.Agent):
     def word_in(self,word):
         english = self.database.translate_to_english(word) or ''
         music = self.database.translate_to_music(word) or ''
-        print 'word input:',word,english,music
+        print('word input:',word,english,music)
         self.__log(english,music)
         self.queue.interpret(word)
 
@@ -510,14 +511,14 @@ class Agent(agent.Agent):
         return self.interpreter.line_clear()
 
     def __log(self,*words):
-        print >> self.__transcript,' '.join(words)
+        print(' '.join(words), file=self.__transcript)
         self.__transcript.flush()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_execfile(self,filename):
         if not resource.os_path_exists(filename):
-            print 'script:',filename,'doesnt exist'
-            yield async.Coroutine.success()
+            print('script:',filename,'doesnt exist')
+            yield piasync.Coroutine.success()
 
         interp = interpreter.Interpreter(self,self.database,interpreter.Delegate())
 
@@ -528,7 +529,7 @@ class Agent(agent.Agent):
         try:
             for line in read_script(filename):
                 words = line.split()
-                print 'running',line
+                print('running',line)
                 r = interp.process_block(words)
                 yield r
 
@@ -540,18 +541,18 @@ class Agent(agent.Agent):
         finally:
             self.unregister_interpreter(interp)
 
-        print 'finished',filename,'good lines',count_good,'bad lines',count_bad
-        yield async.Coroutine.success()
+        print('finished',filename,'good lines',count_good,'bad lines',count_bad)
+        yield piasync.Coroutine.success()
 
     def rpc_upgrade(self,arg):
         filename = resource.find_release_resource('upgrades',arg)
 
         if not filename:
-            return async.failure('upgrade script %s doesnt exist' % arg)
+            return piasync.failure('upgrade script %s doesnt exist' % arg)
 
         return self.rpc_execfile(filename)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_script(self,arg):
         words = arg.strip().split()
         interp = interpreter.Interpreter(self,self.database, interpreter.Delegate(), ctx=self.__ctxmgr.default_context())
@@ -559,10 +560,10 @@ class Agent(agent.Agent):
         self.register_interpreter(interp)
 
         try:
-            print 'running',words
+            print('running',words)
             r = interp.process_block(words)
             yield r
-            yield async.Coroutine.completion(r.status(),*r.args(),**r.kwds())
+            yield piasync.Coroutine.completion(r.status(),*r.args(),**r.kwds())
 
         finally:
             self.unregister_interpreter(interp)
@@ -575,13 +576,13 @@ class Agent(agent.Agent):
     def start_database(self):
         if not self.__db_started:
             self.__db_started = True
-            print 'starting database'
+            print('starting database')
             self.database.start(piw.tsd_scope())
 
     def stop_database(self):
         if self.__db_started:
             self.__db_started = False
-            print 'stopping database'
+            print('stopping database')
             self.database.stop(piw.tsd_scope())
 
     def agent_preload(self,filename):
@@ -595,7 +596,7 @@ class Agent(agent.Agent):
         self.advertise('<language>')
 
         # startup stage server
-        print "starting up stage server"
+        print("starting up stage server")
 
         self.snapshot = piw.tsd_snapshot()
 
@@ -608,43 +609,43 @@ class Agent(agent.Agent):
         agent.Agent.close_server(self)
 
         # shutdown stage server
-        print "shutting down stage server"
+        print("shutting down stage server")
         self.stageServer.stop()
 
     def buffer_done(self,status,msg,repeat):
         self.__history.buffer_done(status,msg,repeat)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_create_action(self,arg):
         action_term = logic.parse_term(arg)
         result = deferred.create_action(self,action_term)
         yield result
         if not result.status():
-            yield async.Coroutine.failure(*result.args(),**result.kwds())
+            yield piasync.Coroutine.failure(*result.args(),**result.kwds())
         action = logic.render_termlist(result.args()[0])
-        yield async.Coroutine.success(action)
+        yield piasync.Coroutine.success(action)
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_cancel_action(self,arg):
         action = logic.parse_clauselist(arg)
         result = deferred.cancel_action(self,action)
         yield result
         if not result.status():
-            yield async.Coroutine.failure(*result.args(),**result.kwds())
-        yield async.Coroutine.success()
+            yield piasync.Coroutine.failure(*result.args(),**result.kwds())
+        yield piasync.Coroutine.success()
 
         
     def rpc_ruleset(self,arg):
         """
         ruleset([],None)
         """
-        print "== ruleset =="
+        print("== ruleset ==")
         r=resource.open_logfile('ruleset')
         for t in enumerate(self.database.iterrules()):
-            print >>r,"%i: %s" % t
+            print("%i: %s" % t, file=r)
         r.flush()
-        return async.success()
+        return piasync.success()
 
 
 agent.main(Agent)

@@ -72,7 +72,7 @@ class InfoPanel(wx.Window):
         pass
 
     def targetChanged(self):
-        print 'InfoPanel:TargetChanged'
+        print('InfoPanel:TargetChanged')
         self.offset=0
         self.yScroll=1
         self.oldv=1
@@ -96,7 +96,7 @@ class InfoPanel(wx.Window):
         self.__agent.reset2(1,v)
  
     def mouseScroll(self,v):
-        print 'mousescroll',v
+        print('mousescroll',v)
         self.resetVScroller(v)
         self.scroll_both(1,v,mouse=True)
 
@@ -107,7 +107,7 @@ class InfoPanel(wx.Window):
         evt.Skip()
 
     def update(self):
-        print 'InfoPanel:update'
+        print('InfoPanel:update')
         #dc=wx.ClientDC(self)
 	dc=self.__getClientDC()
         self.doPaint(dc)

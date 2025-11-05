@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import atom,bundles,node,action,logic,utils,errors,async
+from pi import atom,bundles,node,action,logic,utils,errors
+from pi import piasync
 import piw
 from . import interpreter
 
@@ -149,7 +150,7 @@ class VariableManager(atom.Atom):
         return v.find_alternative(value)
 
     def set_var(self,name,value):
-        print '*** SET VARIABLE',name,value
+        print('*** SET VARIABLE',name,value)
         v = self.variables.get(name)
         if v is None:
             i = self.find_hole()
@@ -175,12 +176,12 @@ class VariableManager(atom.Atom):
         v = self.variables.get(name)
         if v:
             if v.has_alternatives():
-                return async.success(errors.invalid_value(name,'un define'))
+                return piasync.success(errors.invalid_value(name,'un define'))
             del self[v.get_index()]
             self.update_cache()
-            return async.success()
+            return piasync.success()
         else:
-            return async.success(errors.doesnt_exist(name,'un define'))
+            return piasync.success(errors.doesnt_exist(name,'un define'))
 
     def __status(self,subject,value,name):
         n = action.abstract_string(name)

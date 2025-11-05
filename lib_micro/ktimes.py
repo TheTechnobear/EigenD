@@ -22,9 +22,9 @@
 # offsets in ADC read lengths from start (500/(16*6) us each)
 roffsets = [ 6*(k%4) + (k/4) for k in range(0,16) ]
 roffsets.append(4) # key 17 is weird
-print ','.join(map(str,roffsets))
+print(','.join(map(str,roffsets)))
 
 dt = 500.0/(16.0*6.0)
 toffsets = [int(0.5+(roffsets[k]+36.0)*dt) for k in range(0,16)]
 toffsets.append(int(0.5+(4.0+9.0)*dt)) # key 17 is weird
-print ','.join(map(str,toffsets))
+print(','.join(map(str,toffsets)))

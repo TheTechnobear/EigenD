@@ -28,7 +28,8 @@ import os
 import picross
 import piw
 import midilib_native
-from pi import atom,bundles,domain,agent,logic,utils,node,action,async,upgrade
+from pi import atom,bundles,domain,agent,logic,utils,node,action,upgrade
+from pi import piasync
 from . import midi_output_version as version,midi_native
 
 
@@ -51,12 +52,12 @@ class OutputMidiDelegate(midilib_native.midi_output_port):
         xid = '%x'%id
         for i,(u,n) in enumerate(self.sinks):
             if u==xid:
-                print 'midi sink changed',xid,name
+                print('midi sink changed',xid,name)
                 self.sinks[i] = (xid,name)
                 self.__notify()
                 return
 
-        print 'midi sink added',xid,name
+        print('midi sink added',xid,name)
         self.sinks.append((xid,name))
         self.__notify()
 
@@ -64,7 +65,7 @@ class OutputMidiDelegate(midilib_native.midi_output_port):
         xid = '%x'%id
         for i,(u,n) in enumerate(self.sinks):
             if u==xid:
-                print 'midi sink removed',xid,n
+                print('midi sink removed',xid,n)
                 del self.sinks[i]
                 self.__notify()
                 return
@@ -127,7 +128,7 @@ class OutputMidiPort(atom.Atom):
                 self.__midi_port.set_port(int(port,16))
             else:
                 self.__midi_port.set_port(0)
-            print 'OutputMidiPort: set port to',port
+            print('OutputMidiPort: set port to',port)
 
     def __sinks_changed(self):
         self.set_port(self.get_value())
@@ -144,12 +145,12 @@ class OutputMidiPort(atom.Atom):
 
     def rpc_setselected(self,arg):
         (path,selected)=logic.parse_clause(arg)
-        print 'OutputMidiPort:setselected',selected    
+        print('OutputMidiPort:setselected',selected    )
         self.__selected=selected
     
     def rpc_activated(self,arg):
         (path,selected)=logic.parse_clause(arg)
-        print 'OutputMidiPort:activated',selected    
+        print('OutputMidiPort:activated',selected    )
         self.set_port(selected)
         return logic.render_term(('',''))
     
@@ -182,7 +183,7 @@ class OutputMidiPort(atom.Atom):
         for id,n in self.__midi_port.sinks:
             if id==cookie:
                 return 'ideal([~server,midiport],%s)' % logic.render_term(cookie)
-        return async.failure('invalid cookie')
+        return piasync.failure('invalid cookie')
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
@@ -240,7 +241,7 @@ class Agent(agent.Agent):
     # resolve: resolve an MIDI port name into a MIDI port cookie
     def rpc_resolve_ideal(self,arg):
         (type,arg) = action.unmarshal(arg)
-        print 'resolving',arg
+        print('resolving',arg)
 
         if type=='midiport':
             return self[1].resolve_name(' '.join(arg))
@@ -249,10 +250,10 @@ class Agent(agent.Agent):
 
     # choose: implement choosing a port with the choose verb
     def __chooseport(self,subj,arg):
-        print 'choose port',arg
-        print action.arg_objects(arg)[0]
+        print('choose port',arg)
+        print(action.arg_objects(arg)[0])
         (type,thing) = action.crack_ideal(action.arg_objects(arg)[0])
-        print type,thing
+        print(type,thing)
         self[1].set_port(thing)
 
 agent.main(Agent,gui=True)

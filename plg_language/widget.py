@@ -42,36 +42,36 @@ class Monitor(proxy.AtomProxy):
 
     def set_target(self,target_id):
         if monitor_debug:
-            print '-   Monitor: set_target',target_id,' - unplumbing first...'
+            print('-   Monitor: set_target',target_id,' - unplumbing first...')
         self.unplumb()
         self.__anchor.set_address_str(target_id or '')
         self.target_id = target_id
 
     def node_ready(self):
         if monitor_debug:
-            print '-   Monitor: node_ready'
+            print('-   Monitor: node_ready')
         self.plumb()
 
     def node_removed(self):
         if monitor_debug:
-            print '-   Monitor: node_removed'
+            print('-   Monitor: node_removed')
         self.unplumb()
 
     def plumb(self):
         if monitor_debug:
-            print '-       Monitor: plumb - unplumbing first...'
+            print('-       Monitor: plumb - unplumbing first...')
         self.unplumb()
         if monitor_debug:
-            print '-       Monitor: plumbing...'
+            print('-       Monitor: plumbing...')
 
         if self.is_fast():
             if monitor_debug:
-                print '-       Monitor: plumbed fast'
+                print('-       Monitor: plumbed fast')
             self.set_sink(self.__recv)
             self.__fast = True
         else:
             if monitor_debug:
-                print '-       Monitor: not plumbed fast'
+                print('-       Monitor: not plumbed fast')
             self.__aux = piw.fastdata(const.fastdata_sender)
             piw.tsd_fastdata(self.__aux)
             self.__recv.set_upstream(self.__aux)
@@ -81,28 +81,28 @@ class Monitor(proxy.AtomProxy):
             data = self.get_data()
             if not data.is_null():
                 if monitor_debug:
-                    print 'target=',self.target_id,'data="',self.get_data(),'" ready=',self.is_ready(),'type=',type(data)
+                    print('target=',self.target_id,'data="',self.get_data(),'" ready=',self.is_ready(),'type=',type(data))
                 self.__auxq.sender_slow()(data)
             self.__fast = False
 
         # called when a connection can successfully be made
         if self.__widget.send_channel is not None:
             if monitor_debug:
-                print '-       Monitor: set_connected true',self.__widget.send_channel
+                print('-       Monitor: set_connected true',self.__widget.send_channel)
             self.__osc.set_connected(self.__widget.send_channel, True)
         else:
             if monitor_debug:
-                print '-       Monitor: **** not set_connected ****'
+                print('-       Monitor: **** not set_connected ****')
         # try sending change in status
         osc_path = self.__widget.get_property_string('target-name')
         if osc_path!='':
             if monitor_debug:
-                print '-       Monitor: sent osc connected 1'
+                print('-       Monitor: sent osc connected 1')
             self.__osc.send(osc_path+'/connected',1)
 
     def unplumb(self):
         if monitor_debug:
-            print '-       Monitor: unplumb',self.__anchor.get_address()
+            print('-       Monitor: unplumb',self.__anchor.get_address())
                 
         if self.__fast is True:
             self.clear_sink()
@@ -119,16 +119,16 @@ class Monitor(proxy.AtomProxy):
         # called when the port being controlled goes away
         if self.__widget.send_channel is not None:
             if monitor_debug:
-                print '-       Monitor: set_connected false',self.__widget.send_channel
+                print('-       Monitor: set_connected false',self.__widget.send_channel)
             self.__osc.set_connected(self.__widget.send_channel, False)
         else:
             if monitor_debug:
-                print '-       Monitor: **** not set_connected ****'
+                print('-       Monitor: **** not set_connected ****')
         # try sending change in status
         osc_path = self.__widget.get_property_string('target-name')
         if osc_path!='':
             if monitor_debug:
-                print '-       Monitor: send osc connected 0'
+                print('-       Monitor: send osc connected 0')
             self.__osc.send(osc_path+'/connected',0)
         
 
@@ -149,7 +149,7 @@ class Widget(atom.Atom):
 
     def property_change(self,key,value,delegate):
         if widget_debug:
-            print 'Widget: property_change',key,value,'is open=',self.open()
+            print('Widget: property_change',key,value,'is open=',self.open())
         if self.open():
             if key == 'target-id':
                 # need to make sure we have a widget first so wait until target-name is set
@@ -164,13 +164,13 @@ class Widget(atom.Atom):
                 if self.__name != name:
                     if self.send_channel is not None:
                         if widget_debug:
-                            print '-   Widget: delete OSC widget, name=',self.__name,'send_channel=',self.send_channel
+                            print('-   Widget: delete OSC widget, name=',self.__name,'send_channel=',self.send_channel)
                         self.__osc.del_widget(self.send_channel)
                     #self.__osc.del_widget_by_name(value.as_string())
                     self.send_channel = self.__osc.add_widget(value.as_string(),self.__recv_queue,self.__send_queue)
                     self.__name = name
                     if widget_debug:
-                        print '-   Widget: create OSC widget, name=',self.__name,'send_channel=',self.send_channel
+                        print('-   Widget: create OSC widget, name=',self.__name,'send_channel=',self.send_channel)
                     
                 # target was waiting for widget so create one now
                 if not self.have_target:
@@ -181,17 +181,17 @@ class Widget(atom.Atom):
         name = self.get_property_string('target-name')
         id = self.get_property_string('target-id')
         if widget_debug:
-            print 'Widget: open widget server',name,id
+            print('Widget: open widget server',name,id)
         if name and id:
             if self.__name != name:
                if self.send_channel is not None:
                     if widget_debug:
-                        print '-   Widget: delete OSC widget, name=',self.__name,'send_channel=',self.send_channel
+                        print('-   Widget: delete OSC widget, name=',self.__name,'send_channel=',self.send_channel)
                     self.__osc.del_widget(self.send_channel)
                self.send_channel = self.__osc.add_widget(name,self.__recv_queue,self.__send_queue)
                self.__name = name
                if widget_debug:
-                   print '-   Widget: create OSC widget, name=',self.__name,'send_channel=',self.send_channel
+                   print('-   Widget: create OSC widget, name=',self.__name,'send_channel=',self.send_channel)
             self.have_widget = True
 
             # target set which will plumb if possible
@@ -200,7 +200,7 @@ class Widget(atom.Atom):
 
     def close_server(self):
         if widget_debug:
-            print 'Widget: close widget server',self.get_property_string('target-name'),self.get_property_string('target-id')
+            print('Widget: close widget server',self.get_property_string('target-name'),self.get_property_string('target-id'))
         atom.Atom.close_server(self)
         self.__monitor.set_target('')
         if self.send_channel is not None:
@@ -210,7 +210,7 @@ class Widget(atom.Atom):
         self.have_target = False
         self.have_widget = False
         if widget_debug:
-            print 'Widget: close widget server count=',self.get_property_long('ref-count')
+            print('Widget: close widget server count=',self.get_property_long('ref-count'))
             
     def destroy(self):
         # remove this widget from the targets controllers
@@ -252,12 +252,12 @@ class WidgetManager(atom.Atom):
 
     def __create(self,index):
         if widget_manager_debug:
-            print 'WidgetManager: __create',index
+            print('WidgetManager: __create',index)
         return Widget(self.__osc)
 
     def __wreck(self,index,node):
         if widget_manager_debug:
-            print 'WidgetManager: __wreck',index
+            print('WidgetManager: __wreck',index)
         pass
 
     def create_widget(self,name = None):
@@ -268,17 +268,17 @@ class WidgetManager(atom.Atom):
                 # no address so this atom does not exist in this setup (e.g. when importing tabs)
                 address = ''
             if widget_manager_debug:
-                print 'WidgetManager: create_widget name =',name,' address=',address
+                print('WidgetManager: create_widget name =',name,' address=',address)
             # reference count number of widgets with a particular OSC path (target-name)
             # create by the current osc path, associate with the current target address
-            for (k,v) in self.iteritems():
+            for (k,v) in self.items():
                 if v.get_property_string('target-name') == name:
                     count = v.get_property_long('ref-count')
                     current_address = v.get_property_string('target-id')
                     # does current address exist anymore?
                     if address!=current_address:
                         if widget_manager_debug:
-                            print 'WidgetManager: changing address',current_address,'->',address
+                            print('WidgetManager: changing address',current_address,'->',address)
                         # change address, remove current controller
                         v.destroy()
                         # set new address and new controller
@@ -291,14 +291,14 @@ class WidgetManager(atom.Atom):
             return self[i].setup(address,name or '/widget%d' % i)
         else:
             if widget_manager_debug:
-                print 'WidgetManager: could not create widget name =',name
+                print('WidgetManager: could not create widget name =',name)
             return False
 
 
     def destroy_widget(self,name):
         if widget_manager_debug:
-            print 'WidgetManager: destroy_widget'
-        for (k,v) in self.iteritems():
+            print('WidgetManager: destroy_widget')
+        for (k,v) in self.items():
             # destroy by it's OSC path (target-name)
             if v.get_property_string('target-name') == name:
                 count = v.get_property_long('ref-count')
@@ -317,17 +317,17 @@ class WidgetManager(atom.Atom):
 
     def check_widget_name_updates(self, changed_nodes):
         if widget_manager_debug:
-            print 'WidgetManager: check_widget_name_updates',changed_nodes
+            print('WidgetManager: check_widget_name_updates',changed_nodes)
         #print 'changed_nodes:',changed_nodes
         if self.__stage_server_instance is not None:
             new_names = {}
             # update names in widgets
-            for (k,v) in self.iteritems():
+            for (k,v) in self.items():
                 address = v.get_property_string('target-id')
                 if address in changed_nodes:
                         new_name = self.__stage_server_instance.build_osc_name(address)
                         if widget_manager_debug:
-                            print 'WidgetManager: changing widget name', address, new_name
+                            print('WidgetManager: changing widget name', address, new_name)
                         # set name in widget
                         v.set_property_string('target-name',new_name)
                         # set the new osc widget as connected since plumbing not changed
@@ -339,7 +339,7 @@ class WidgetManager(atom.Atom):
                 self.__stage_server_instance.updateAllWidgetPaths(new_names)
 
         else:
-            print 'WidgetManager: warning: when checking widget name updates, stage server not defined'
+            print('WidgetManager: warning: when checking widget name updates, stage server not defined')
 
         if widget_manager_debug:
-            print 'WidgetManager: check_widget_name_updates done'
+            print('WidgetManager: check_widget_name_updates done')

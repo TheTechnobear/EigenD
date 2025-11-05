@@ -732,7 +732,7 @@ void *piw::python_delegate_t::make_collection()
 
 void *piw::python_delegate_t::make_term(const char *p, unsigned l, void *c)
 {
-    PyObject *pred = PyString_FromStringAndSize(p,l);
+    PyObject *pred = PyUnicode_FromStringAndSize(p,l);
     PyObject *cobj = (PyObject *)c;
     PyObject *term = py_make_term(pred,cobj);
     Py_DECREF(pred);
@@ -788,7 +788,7 @@ void *piw::python_delegate_t::make_none()
 
 void *piw::python_delegate_t::make_string(const char *p, unsigned l)
 {
-    PyObject *value = PyString_FromStringAndSize(p,l);
+    PyObject *value = PyUnicode_FromStringAndSize(p,l);
     PyObject *term = py_make_string(value);
     Py_DECREF(value);
     return term;
@@ -796,7 +796,7 @@ void *piw::python_delegate_t::make_string(const char *p, unsigned l)
 
 void *piw::python_delegate_t::make_variable(const char *p, unsigned l)
 {
-    PyObject *value = PyString_FromStringAndSize(p,l);
+    PyObject *value = PyUnicode_FromStringAndSize(p,l);
     PyObject *term = py_make_variable(value);
     Py_DECREF(value);
     return term;
@@ -807,15 +807,15 @@ void *piw::python_delegate_t::make_subst(const char *p1, unsigned l1, const char
 
     if(!p2 || !l2)
     {
-        PyObject *value1 = PyString_FromStringAndSize(p1,l1);
+        PyObject *value1 = PyUnicode_FromStringAndSize(p1,l1);
         PyObject *term = py_make_subst1(value1);
         Py_DECREF(value1);
         return term;
     }
     else
     {
-        PyObject *value1 = PyString_FromStringAndSize(p1,l1);
-        PyObject *value2 = PyString_FromStringAndSize(p2,l2);
+        PyObject *value1 = PyUnicode_FromStringAndSize(p1,l1);
+        PyObject *value2 = PyUnicode_FromStringAndSize(p2,l2);
         PyObject *term = py_make_subst2(value1,value2);
         Py_DECREF(value1);
         Py_DECREF(value2);

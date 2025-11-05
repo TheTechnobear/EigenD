@@ -19,19 +19,20 @@
 #
 
 from pisession import session
-from pi import index,async,timeout,proxy
+from pi import index,timeout,proxy
+from pi import piasync
 
 import optparse
 import sys
 import piw
 import picross
 
-class Connector(proxy.AtomProxy,async.Deferred):
+class Connector(proxy.AtomProxy,piasync.Deferred):
 
     monitor = set()
 
     def __init__(self,address):
-        async.Deferred.__init__(self)
+        piasync.Deferred.__init__(self)
         proxy.AtomProxy.__init__(self)
         self.__anchor = piw.canchor()
         self.__anchor.set_client(self)
@@ -48,9 +49,9 @@ class Connector(proxy.AtomProxy,async.Deferred):
     def node_ready(self):
         self.succeeded()
 
-class Finder(piw.index,async.Deferred):
+class Finder(piw.index,piasync.Deferred):
     def __init__(self):
-        async.Deferred.__init__(self)
+        piasync.Deferred.__init__(self)
         piw.index.__init__(self)
         piw.tsd_index('<language>',self)
 

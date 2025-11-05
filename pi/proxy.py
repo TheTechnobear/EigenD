@@ -313,9 +313,9 @@ class AtomProxy(node.Client):
         try:
             node.Client.close_client(self)
         except:
-            print '************************'
+            print('************************')
             traceback.print_stack()
-            print '************************'
+            print('************************')
             raise
 
         if self.__syncers is not None:

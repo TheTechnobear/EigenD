@@ -35,7 +35,8 @@ from error import PipError
 def get_template():
     if '__loader__' in globals():
         d = os.path.join(os.path.dirname(__file__),'template')
-        return __loader__.get_data(d)
+        data = __loader__.get_data(d)
+        return data.decode('utf-8') if isinstance(data, bytes) else data
     else:
         d = os.path.join(os.path.dirname(__file__),'template')
         return open(d).read()
@@ -44,20 +45,20 @@ def generate(module, ifile, ofile, path):
     tree=process.process(path,module,ifile)
     text=expand.expand(get_template(),tree)
 
-    output=file(ofile,"w")
+    output=open(ofile,"w")
     output.write(text)
     output.close()
 
 def cli():
     if len(sys.argv) < 4:
-        print "usage: pip module in-file out-file [includes]"
+        print("usage: pip module in-file out-file [includes]")
         sys.exit(-1)
 
     try:
         generate(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4:])
         sys.exit(0)
-    except PipError,e:
-        print e
+    except PipError as e:
+        print(e)
 
     sys.exit(-1)
         

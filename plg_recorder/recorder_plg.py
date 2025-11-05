@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,action,bundles,const,domain,errors,async,resource,utils,schedproxy,node,logic,files,upgrade,paths,toggle
+from pi import agent,atom,action,bundles,const,domain,errors,resource,utils,schedproxy,node,logic,files,upgrade,paths,toggle
+from pi import piasync
 from . import recorder_version as version,recorder_native
 import piw
 import picross
@@ -66,7 +67,7 @@ class TakeLibrary:
         return len(self.__takes)
 
     def takelist(self):
-        l = list(self.__takes.itervalues())
+        l = list(self.__takes.values())
         l.sort(lambda a,b: cmp(int(a[0]),int(b[0])))
         return l
 
@@ -102,7 +103,7 @@ class TakeLibrary:
         if bits is None: return
         cookie,desc,oname,path,perm = bits
         newpath = self.perm_path(cookie,name)
-        print 'rename',path,'to',newpath
+        print('rename',path,'to',newpath)
         resource.os_rename(path,newpath)
         self.__takes[cookie] = (cookie,desc,name,newpath,True)
         self.__observer.library_changed(cookie)
@@ -110,7 +111,7 @@ class TakeLibrary:
     def delete_temp(self,cookie):
         cookie = int(cookie)
         bits = self.__takes.get(cookie)
-        print 'delete temp',cookie,bits
+        print('delete temp',cookie,bits)
         if bits and not bits[4]:
             self.delete(cookie)
 
@@ -141,7 +142,7 @@ class TakeLibrary:
 
     def setup(self,id):
         id = id.replace('<','').replace('>','').replace(':','_').replace('/','_')
-        print 'setup',id
+        print('setup',id)
         self.__id = id
         for path in resource.glob_glob(self.temp_path('*','*')):
             resource.os_remove(path)
@@ -149,7 +150,7 @@ class TakeLibrary:
             self.add_file(path)
 
     def name2cookie(self,name):
-        for c,d,n,f,p in self.__takes.itervalues():
+        for c,d,n,f,p in self.__takes.values():
             if n==name:
                 return str(c)
         return None
@@ -207,20 +208,20 @@ class TakeBrowser(atom.Atom):
 
     def rpc_setselected(self,arg):
         (path,selected)=logic.parse_clause(arg)
-        print 'Take:setselected',selected    
+        print('Take:setselected',selected    )
         self.__selected=str(selected)
     
     def rpc_activated(self,arg):
         (path,selected)=logic.parse_clause(arg)
-        print 'Take:activated',selected    
+        print('Take:activated',selected    )
         self.agent.activate(str(selected))
         return logic.render_term(('',''))
 
     def resolve_name(self,name):
-        print 'take:resolve_name(%s)' % name
+        print('take:resolve_name(%s)' % name)
         if name=='selection':
             name=self.__selected
-            print 'name=selected',self.__selected
+            print('name=selected',self.__selected)
         c = self.agent.library.name2cookie(name)
         if c is None:
             return '[]'
@@ -286,7 +287,7 @@ class Voice(atom.Atom):
     def rpc_enumerate(self,a):
         #print 'enum',a
         s = logic.render_term((len(self.__voices),0))
-        print 'voice enumerate:',s
+        print('voice enumerate:',s)
         return s
 
     def rpc_finfo(self,a):
@@ -294,7 +295,7 @@ class Voice(atom.Atom):
         (path,idx) = logic.parse_clause(a)
         voices = [ (str(i+1),"Take %s" % v,n) for (i,(v,n)) in enumerate(self.__voices) ]
         s = render_list(voices,idx,lambda i,t: logic.render_term((t[0],t[1],t[2])))
-        print 'voice finfo',a,s
+        print('voice finfo',a,s)
         return s
 
     def rpc_fideal(self,arg):
@@ -331,8 +332,8 @@ class Recorder(recorder_native.recorder):
             self.abort()
             r.failed('recording aborted')
 
-        self.__started = async.Deferred()
-        self.__done = async.Deferred()
+        self.__started = piasync.Deferred()
+        self.__done = piasync.Deferred()
 
         rc = self.record(duration)
         if rc != record_ok:
@@ -608,11 +609,11 @@ class Agent(agent.Agent):
 
     def scheduler_ready(self):
         self.__schedready = True
-        print 'attached to scheduler'
+        print('attached to scheduler')
 
     def scheduler_gone(self):
         self.__schedready = False
-        print 'detached from scheduler'
+        print('detached from scheduler')
 
     def __record(self,subject,duration,mode):
 
@@ -620,34 +621,34 @@ class Agent(agent.Agent):
         mode = self.__crack_mode(mode)
 
         if not self.__schedready:
-            print 'no scheduler'
-            return async.success(errors.state_error1('scheduler','use'))
+            print('no scheduler')
+            return piasync.success(errors.state_error1('scheduler','use'))
 
         result,started,done = self.recorder.record_start(duration)
 
         if result==record_err_no_clock:
-            print 'metronome isnt started'
-            return async.success(errors.state_error1('metronome','start'))
+            print('metronome isnt started')
+            return piasync.success(errors.state_error1('metronome','start'))
 
         if result==record_err_in_prog:
-            print 'recording already in progress'
-            return async.success(errors.message('recording already in progress'))
+            print('recording already in progress')
+            return piasync.success(errors.message('recording already in progress'))
 
         id = self.library.nextid()
         if not self.__is_overdub_enabled():
             self.__unplay_auto()
 
-        print 'recording',duration,'bars',id
+        print('recording',duration,'bars',id)
 
         def trigger_ok(r,trigger):
             cookie = self.player.load(id,r,0)
             event,status = self.verb_defer(3,(True,trigger,2,mode),trigger,None,self.cookie_arg(id))
             self.player.unload(cookie,False)
             self[5].update()
-            print 'trigger created',trigger,'cookie is', cookie
+            print('trigger created',trigger,'cookie is', cookie)
 
         def trigger_failed(msg):
-            print 'cannot create trigger',msg
+            print('cannot create trigger',msg)
 
         def started_ok(r):
             start = r.get_tag(3).as_float()
@@ -656,17 +657,17 @@ class Agent(agent.Agent):
             self.library.write(recorder_native.recording(),id)
             trigger = self.__scheduler.create_trigger('schema("%s",[m(3,%f,%f)])' % (desc,duration,start%duration))
             trigger.setCallback(trigger_ok,r).setErrback(trigger_failed)
-            print 'record started: start=',start,'duration=',duration
+            print('record started: start=',start,'duration=',duration)
 
         def started_failed(msg):
-            print 'record failed:',msg
+            print('record failed:',msg)
             
         def done_ok(r):
-            print 'record completed: signals=',r.signals(),'wires=',r.wires(),'start=',r.get_tag(2)
+            print('record completed: signals=',r.signals(),'wires=',r.wires(),'start=',r.get_tag(2))
             self.library.write(r,id)
 
         def done_failed(msg):
-            print 'record failed:',msg
+            print('record failed:',msg)
             self.__unplay_auto()
             
         done.setCallback(done_ok).setErrback(done_failed)
@@ -686,7 +687,7 @@ class Agent(agent.Agent):
             for m in masterids:
                 s = paths.id2server(m)
                 if s == talker:
-                    print 'canceling',k,v.args,v.get_property_termlist('master')
+                    print('canceling',k,v.args,v.get_property_termlist('master'))
                     v.rpc_cancel(None)
                     del self[3][k]
                     break
@@ -704,7 +705,7 @@ class Agent(agent.Agent):
 
     def get_voices(self):
         for (id,ctx,cookie) in self.verb_events(lambda l,i: i==3):
-            print id,ctx,cookie
+            print(id,ctx,cookie)
             take = self.player.cookiename(cookie)
             name = self.library.cookie2name(take)
             yield (take,name)
@@ -787,13 +788,13 @@ class Agent(agent.Agent):
         c = self.player.getcookie(arg)
         for (id,ctx,cookie) in self.verb_events(lambda l,i: i==3):
              if c==cookie:
-                print 'matching cookie',c,' found' 
+                print('matching cookie',c,' found' )
                 return True 
-        print 'cookie',c,'not found'
+        print('cookie',c,'not found')
         return False
 
     def __tog_play_now(self,subj,arg,mode):
-        print '__tog_play_now'
+        print('__tog_play_now')
         if self.playing(arg):
             return self.__unplay(subj,arg)
         else:
@@ -809,7 +810,7 @@ class Agent(agent.Agent):
 
         if not cookie:
             thing= 'take %s' %str(arg)
-            return async.success(errors.invalid_thing(thing,'play'))
+            return piasync.success(errors.invalid_thing(thing,'play'))
 
         f = self.player.player(cookie,mode)
         ff = utils.fastchange(f)
@@ -823,7 +824,7 @@ class Agent(agent.Agent):
 
         type,thing = action.crack_ideal(action.arg_objects(arg)[0])
         cookie = str(thing.args[1][2])
-        print 'take',arg,'cookie',cookie
+        print('take',arg,'cookie',cookie)
         return cookie
 
     def __crack_mode(self,mode):
@@ -835,28 +836,28 @@ class Agent(agent.Agent):
         return mode_stretch
 
     def __tog_repeat(self,subj,arg,mode):
-        print '__tog_repeat',arg
+        print('__tog_repeat',arg)
         t = self.__crack_arg(arg)
         if self.playing(arg):
-            print 'playing: call unplay'
+            print('playing: call unplay')
             return self.__unplay(subj,arg)
         else:
-            print 'not playing: call repeat'
+            print('not playing: call repeat')
             return self.__repeat(subj,arg,mode)
 
     def __repeat(self,subj,arg,mode):
         arg = self.__crack_arg(arg)
         mode = self.__crack_mode(mode)
 
-        print 'repeat mode',mode
+        print('repeat mode',mode)
 
         if not self.__schedready:
-            return async.success(errors.state_error1('scheduler','use'))
+            return piasync.success(errors.state_error1('scheduler','use'))
 
         path = self.library.cookie2file(arg)
         if not path or not resource.os_path_exists(path):
             thing='take %s' % str(arg)
-            return async.success(errors.invalid_thing(thing,'repeat'))
+            return piasync.success(errors.invalid_thing(thing,'repeat'))
 
         recording = recorder_native.read(path)
         cookie = self.player.load(arg,recording,1)
@@ -866,10 +867,10 @@ class Agent(agent.Agent):
         desc = "take %s every %g song beat" % (arg,duration)
         schema = 'schema("%s",[m(3,%f,%f)])' % (desc,duration,start%duration)
 
-        r = async.Deferred()
+        r = piasync.Deferred()
 
         def trigger_ok(trigger):
-            print '__repeat:trigger_ok'
+            print('__repeat:trigger_ok')
             event,status = self.verb_defer(3,(False,trigger,4,mode),trigger,None,self.cookie_arg(arg))
             self[5].update()
             self.player.unload(cookie,False)
@@ -884,7 +885,7 @@ class Agent(agent.Agent):
         return r
 
     def __tog_play_aue(self,subj,arg,a,u,e,mode):
-        print '__tog_play_aue'
+        print('__tog_play_aue')
         if self.playing(arg):
             return self.__unplay(subj,arg)
         else:
@@ -901,22 +902,22 @@ class Agent(agent.Agent):
         e = tsm(e)
 
         if not self.__schedready:
-            return async.success(errors.state_error1('scheduler','use'))
+            return piasync.success(errors.state_error1('scheduler','use'))
 
         path = self.library.cookie2file(arg)
         if not path or not resource.os_path_exists(path):
             thing='take %s' %str(arg)
-            return async.success(errors.invalid_thing(thing,'play'))
+            return piasync.success(errors.invalid_thing(thing,'play'))
         recording = recorder_native.read(path)
         cookie = self.player.load(arg,recording,1)
         delta = recording.get_tag(5).as_float()
         schema = schedproxy.make_schema(a,u,e,delta,prefix='take %s' % arg)
 
         #print 'playback',arg,'delta=',delta,'schema',schema
-        r = async.Deferred()
+        r = piasync.Deferred()
 
         def trigger_ok(trigger):
-            print '__play_aue:trigger_ok'
+            print('__play_aue:trigger_ok')
             event,status = self.verb_defer(3,(False,trigger,4,mode),trigger,None,self.cookie_arg(arg))
             self.player.unload(cookie,False)
             r.succeeded(action.nosync_return())
@@ -930,7 +931,7 @@ class Agent(agent.Agent):
         return r
 
     def __tog_play_ue(self,subj,arg,u,e,m):
-        print '__tog_play_ue'
+        print('__tog_play_ue')
         if self.playing(arg):
             return self.__unplay(subj,arg)
         else:
@@ -940,7 +941,7 @@ class Agent(agent.Agent):
         return self.__play_aue(subj,arg,None,u,e,m)
 
     def __tog_play_e(self,subj,arg,e,m):
-        print '__tog_play_e'
+        print('__tog_play_e')
         if self.playing(arg):
             return self.__unplay(subj,arg)
         else:
@@ -967,7 +968,7 @@ class Agent(agent.Agent):
             r = recorder_native.read(path)
             return self.player.load(id,r,poly)
 
-        print 'no recording named',id
+        print('no recording named',id)
         return None
 
     def __name(self,subj,thing,name):
@@ -979,27 +980,27 @@ class Agent(agent.Agent):
             return action.nosync_return()
         except:
             utils.log_exception()
-            return async.success(errors.invalid_value(thing,'name'))
+            return piasync.success(errors.invalid_value(thing,'name'))
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __copy(self,sub,take):
         type,thing = action.crack_ideal(action.arg_objects(take)[0])
         id = self.library.nextid()
         fn = self.library.perm_path(id,None)
 
-        print 'copy',type,thing,'to',self.id(),fn
+        print('copy',type,thing,'to',self.id(),fn)
 
         r = files.copy_file(logic.render_term(thing),fn)
         yield r
 
         if not r.status():
-            yield async.Coroutine.failure(*r.args())
+            yield piasync.Coroutine.failure(*r.args())
 
-        print 'transfer complete'
+        print('transfer complete')
 
         self.library.add_file(fn)
         self[5].update()
-        yield async.Coroutine.success(action.nosync_return())
+        yield piasync.Coroutine.success(action.nosync_return())
 
     def __delete(self,subj,thing):
         self.__unplay(subj,thing)
@@ -1008,6 +1009,6 @@ class Agent(agent.Agent):
             self.library.delete(cookie)
             return action.nosync_return()
         except:
-            return async.success(errors.invalid_value(cookie,'delete'))
+            return piasync.success(errors.invalid_value(cookie,'delete'))
 
 agent.main(Agent)

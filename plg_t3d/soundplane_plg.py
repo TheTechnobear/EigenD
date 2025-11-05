@@ -82,7 +82,7 @@ class Agent(agent.Agent):
         self[5] = atom.Atom(domain=domain.Bool(),init=True,policy=atom.default_policy(self.__quantize),names='quantize')
          
         self.device.touch_mode(True)
-        print "soundplane connect ", self[3]
+        print("soundplane connect ", self[3])
         self.device.connect(self[4].get_value(),0)
 
     def close_server(self):
@@ -109,7 +109,7 @@ class Agent(agent.Agent):
 
     def __server_port(self,value):
         self[4].set_value(value)
-        print "soundplane connect ", self[4]
+        print("soundplane connect ", self[4])
         self.device.connect(self[4].get_value(),0)
         return True
 

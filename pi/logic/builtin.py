@@ -61,7 +61,7 @@ def pred_fail(engine,term,env):
 
 def pred_print(engine,term,env):
     term = terms.expand(term,env)
-    print ' '.join(terms.render_term(a) for a in term.args)
+    print(' '.join(terms.render_term(a) for a in term.args))
     return True
 
 def func_cat(rules,term,env):

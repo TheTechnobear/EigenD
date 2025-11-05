@@ -210,5 +210,5 @@ def test():
     p.set_pga(15)
     p.set_output(alg_out)
 
-    print 'temp is',p.temp2celcius(p.get_temp())
-    print 'config',hex(p.read_register(reg_config))
+    print('temp is',p.temp2celcius(p.get_temp()))
+    print('config',hex(p.read_register(reg_config)))

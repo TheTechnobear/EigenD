@@ -30,7 +30,7 @@ class ScrollPanel(wx.ScrollBar):
         self.Bind(wx.EVT_SCROLL, self.onScroll)
 
     def onScroll(self,evt):
-        print '***** onScroll',evt.GetPosition()
+        print('***** onScroll',evt.GetPosition())
         offset=evt.GetPosition()
         if self.listener:
             self.listener.scrollbarScroll(offset)
@@ -47,7 +47,7 @@ class ScrollPanel(wx.ScrollBar):
                 self.__showing=False
                 self.sizer.Detach(self)
                 self.sizer.Layout()
-        print 'ScrollPanel:set',position,thumbSize, maxPos
+        print('ScrollPanel:set',position,thumbSize, maxPos)
         self.SetScrollbar(position,thumbSize,maxPos,thumbSize)
 
 

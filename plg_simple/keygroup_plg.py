@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,action,bundles,domain,errors,paths,policy,async,logic,const,node,upgrade,utils,container,timeout,paths,guid
+from pi import agent,atom,action,bundles,domain,errors,paths,policy,logic,const,node,upgrade,utils,container,timeout,paths,guid
+from pi import piasync
 from . import keygroup_version as version
 from pi.logic.shortcuts import *
 import piw
@@ -390,7 +391,7 @@ class OutputList(atom.Atom):
         outputs = self.listinstances()
 
         if name in outputs:
-            return async.failure('output in use')
+            return piasync.failure('output in use')
 
         output = self.create(name)
         return output.id()
@@ -403,9 +404,9 @@ class OutputList(atom.Atom):
                 self.__outputs_changed()
                 return arg
 
-        return async.failure('output not in use')
+        return piasync.failure('output not in use')
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def load_state(self,state,delegate,phase):
         self.__plumbing = False
 
@@ -463,7 +464,7 @@ class OutputList(atom.Atom):
 
     def activate(self,name):
         for k,v in self.items():
-            print 'activate',name,k
+            print('activate',name,k)
             if k==name:
                 self.agent.mode_selector.activate(k)
                 break
@@ -889,8 +890,8 @@ class Agent(agent.Agent):
     def __uncreate(self,subj,grp):
         a = action.concrete_object(grp)
         if self[1].uncreate(a):
-            return async.success(action.removed_return(a))
-        return async.success(errors.doesnt_exist('output','un create'))
+            return piasync.success(action.removed_return(a))
+        return piasync.success(errors.doesnt_exist('output','un create'))
 
     def __musicalclear(self,subject,name):
         self.__set_musical_mapping(())

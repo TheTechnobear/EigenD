@@ -1,5 +1,6 @@
 
-from pi import agent,atom,domain,utils,bundles,upgrade,paths,audio,async,collection,policy,proxy,node,container,logic,action,errors,resource
+from pi import agent,atom,domain,utils,bundles,upgrade,paths,audio,collection,policy,proxy,node,container,logic,action,errors,resource
+from pi import piasync
 from pisession import workspace
 import piw
 from . import rig_version as version,rig_native
@@ -444,19 +445,19 @@ class InputList(collection.Collection):
         j.set_ordinal(ordinal)
         self[k] = j
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_create(self,name):
         k = self.find_hole()
         j = RigInput(self.__scope,k,self.__output_peer,self.__outer)
         j.set_ordinal(name)
         self[k] = j
-        yield async.Coroutine.success(j)
+        yield piasync.Coroutine.success(j)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_wreck(self,k,e,name):
         del self[k]
         e.destroy_input()
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def dynamic_create(self,i):
         return RigInput(self.__scope,i,self.__output_peer,self.__outer)
@@ -464,12 +465,12 @@ class InputList(collection.Collection):
     def dynamic_destroy(self,i,v):
         v.destroy_input()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_delinstance(self,arg):
         iid = paths.to_relative(paths.to_absolute(arg,scope=self.scope()))
         r = collection.Collection.rpc_delinstance(self,iid)
         yield r
-        yield async.Coroutine.completion(r.status(),*r.args(),**r.kwds())
+        yield piasync.Coroutine.completion(r.status(),*r.args(),**r.kwds())
 
         
 class OutputList(atom.Atom):
@@ -484,7 +485,7 @@ class OutputList(atom.Atom):
     def load_state(self,state,delegate,phase):
         if phase == 1:
             delegate.set_deferred(self,state)
-            return async.success()
+            return piasync.success()
 
         return atom.Atom.load_state(self,state,delegate,phase-1)
 
@@ -500,7 +501,7 @@ class OutputList(atom.Atom):
     def rpc_instancename(self,arg):
         return self.get_property_string('name');
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_delinstance(self,arg):
         iid = paths.to_relative(paths.to_absolute(arg,scope=self.scope()))
         pid = None
@@ -512,9 +513,9 @@ class OutputList(atom.Atom):
         if pid:
             r =  self.__peer.rpc_delinstance(pid)
             yield r
-            yield async.Coroutine.completion(r.status(),*r.args(),**r.kwds())
+            yield piasync.Coroutine.completion(r.status(),*r.args(),**r.kwds())
         else:
-            yield async.Coroutine.failure('output not in use')
+            yield piasync.Coroutine.failure('output not in use')
 
 
 class InnerGroup(atom.Atom):
@@ -566,19 +567,19 @@ class InnerGroupList(collection.Collection):
         j.set_ordinal(ordinal)
         self[k] = j
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_create(self,name):
         k = self.find_hole()
         j = InnerGroup(self.__scope,k,self.__outer_peer)
         j.set_ordinal(name)
         self[k] = j
-        yield async.Coroutine.success(j)
+        yield piasync.Coroutine.success(j)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_wreck(self,k,e,name):
         del self[k]
         del self.__outer_peer[k]
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def dynamic_create(self,i):
         return InnerGroup(self.__scope,i,self.__outer_peer)
@@ -586,12 +587,12 @@ class InnerGroupList(collection.Collection):
     def dynamic_destroy(self,i,v):
         del self.__outer_peer[k]
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_delinstance(self,arg):
         iid = paths.to_relative(paths.to_absolute(arg,scope=self.scope()))
         r = collection.Collection.rpc_delinstance(self,iid)
         yield r
-        yield async.Coroutine.completion(r.status(),*r.args(),**r.kwds())
+        yield piasync.Coroutine.completion(r.status(),*r.args(),**r.kwds())
 
 
 class InnerAgent(agent.Agent):
@@ -599,7 +600,7 @@ class InnerAgent(agent.Agent):
         agent.Agent.__init__(self,signature=version,names='gateway',ordinal=1)
 
         self.__description = outer_agent.get_description(full=True)
-        print 'inner agent',self.__description
+        print('inner agent',self.__description)
         self.__registry = workspace.get_registry()
         self.__outer_agent = outer_agent
         self.__name = outer_agent.inner_name
@@ -651,7 +652,7 @@ class InnerAgent(agent.Agent):
 
     def update_description(self):
         self.__description = self.__outer_agent.get_description(full=True)
-        print 'inner agent description now',self.__description
+        print('inner agent description now',self.__description)
         self.__workspace.set_enclosure(self.__description)
 
     def __create_input(self,subject,dummy,name):
@@ -663,7 +664,7 @@ class InnerAgent(agent.Agent):
         self.__outer_agent[3].create_input(name)
 
     def save(self,filename):
-        print 'saving rig',self.__name,'to',filename
+        print('saving rig',self.__name,'to',filename)
         return self.__workspace.save_file(filename)
 
     def load(self,filename):
@@ -735,7 +736,7 @@ class OuterGroupList(atom.Atom):
     def load_state(self,state,delegate,phase):
         if phase == 1:
             delegate.set_deferred(self,state)
-            return async.success()
+            return piasync.success()
 
         return atom.Atom.load_state(self,state,delegate,phase-1)
 
@@ -751,7 +752,7 @@ class OuterGroupList(atom.Atom):
     def rpc_instancename(self,arg):
         return self.get_property_string('name');
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_delinstance(self,arg):
         iid = paths.to_relative(paths.to_absolute(arg,scope=self.scope()))
         pid = None
@@ -763,9 +764,9 @@ class OuterGroupList(atom.Atom):
         if pid:
             r =  self.__peer.rpc_delinstance(pid)
             yield r
-            yield async.Coroutine.completion(r.status(),*r.args(),**r.kwds())
+            yield piasync.Coroutine.completion(r.status(),*r.args(),**r.kwds())
         else:
-            yield async.Coroutine.failure('output not in use')
+            yield piasync.Coroutine.failure('output not in use')
 
 
 class OuterAgent(agent.Agent):
@@ -819,19 +820,19 @@ class OuterAgent(agent.Agent):
         name = action.abstract_string(name) if name else None
         self.__inner_agent[3].create_input(name)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def load_state(self,state,delegate,phase):
         yield agent.Agent.load_state(self,state,delegate,phase)
         rig_file = self.rig_file(delegate.path)
-        print 'rig load state',phase,rig_file
+        print('rig load state',phase,rig_file)
         if resource.os_path_exists(rig_file):
-            print 'loading rig',self.inner_name,'from',rig_file
+            print('loading rig',self.inner_name,'from',rig_file)
             r = self.__inner_agent.load(rig_file)
             yield r
-            print 'rig load errors',r.args()[0]
+            print('rig load errors',r.args()[0])
 
     def agent_presave(self,filename):
-        print 'starting presave',filename
+        print('starting presave',filename)
         return self.__inner_agent.save(self.rig_file(filename))
 
     def agent_postload(self,filename):

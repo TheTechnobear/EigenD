@@ -40,7 +40,7 @@ class Agent(agent.Agent):
         self.add_verb2(3,'clear([],None,role(None,[matches([scale])]))', callback=self.__clear_scale )
          
     def __tune_scale(self,subj,dummy,arg):
-        print 'tune scale',arg
+        print('tune scale',arg)
         type,thing = action.crack_ideal(action.arg_objects(arg)[0])
         scale = action.marshal(thing)
         self[2][2].get_policy().set_value(scale)
@@ -48,20 +48,20 @@ class Agent(agent.Agent):
         return action.nosync_return()
 
     def __clear_scale(self,subject,name):
-        print 'clear scale'
+        print('clear scale')
         self[2][2].set_value('')
         self.illuminator.reference_scale('');
         return True
         
 
     def __change_scale(self,value):
-        print 'change scale',value
+        print('change scale',value)
         self[2][2].set_value(value)
         self.illuminator.reference_scale(value);
         return True
 
     def __tune_tonic(self,subj,dummy,arg):
-        print 'tune tonic',arg
+        print('tune tonic',arg)
         type,thing = action.crack_ideal(action.arg_objects(arg)[0])
         tonic = int(thing)
         self[2][3].get_policy().set_value(tonic)
@@ -69,7 +69,7 @@ class Agent(agent.Agent):
         return action.nosync_return()
 
     def __change_tonic(self,value):
-        print 'change tonic',value
+        print('change tonic',value)
         self[2][3].set_value(value)
         self.illuminator.reference_tonic(value);
         return True

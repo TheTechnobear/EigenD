@@ -19,7 +19,8 @@
 #
 
 from pisession import session
-from pi import async,paths,const,index,proxy
+from pi import paths,const,index,proxy
+from pi import piasync
 
 import optparse
 import sys
@@ -35,10 +36,10 @@ class MirrorProxy(proxy.AtomProxy):
         return self.__class__(None)
 
     def node_ready(self):
-        print 'added',self.id()
+        print('added',self.id())
 
     def node_removed(self):
-        print 'removed',self.id()
+        print('removed',self.id())
 
 class Mirror:
     def __init__(self,name):

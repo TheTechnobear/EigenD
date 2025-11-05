@@ -1,7 +1,7 @@
 .PHONY: all etc html clean tags save load stage pkg test
 
 TOOLS ?= tools
-SCONS ?= $(TOOLS)/scons.py
+SCONS ?= PYTHONPATH=$(TOOLS)/packages/SCons4 python3 $(TOOLS)/packages/SCons4/bin/scons
 
 all:
 	@$(SCONS) -f $(TOOLS)/SConstruct -j1 target-default

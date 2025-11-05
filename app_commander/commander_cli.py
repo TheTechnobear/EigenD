@@ -94,7 +94,7 @@ class ViewManager(agent.Agent):
         self[26].enable()
 
     def __size_changed(self,d):
-        print '__size_changed'
+        print('__size_changed')
         if not d.is_string():
             return False
 
@@ -106,7 +106,7 @@ class ViewManager(agent.Agent):
             self.__doSetSize()
 
     def __setup_size(self):
-        print '__setup_size',self.__x,self.__y
+        print('__setup_size',self.__x,self.__y)
         self.__size.set_data(piw.makestring(logic.render_term((self.__x,self.__y)),0))
 
     def __create_lang(self):
@@ -124,27 +124,27 @@ class ViewManager(agent.Agent):
             return self.__rootFrame.getTitlePanel()
 
     def updateStatus(self,text):
-        print 'commander_cli:updateStatus',text
+        print('commander_cli:updateStatus',text)
         self.__rootFrame.updateStatus(text)
 
     def doSize(self):
-        print 'doSize'
+        print('doSize')
         if self.__rootFrame:
             size=self.__rootFrame.GetSize()
             screenSize=wx.DisplaySize()
             self.__x=int(100*(float(size[0])/float(screenSize[0])))
             self.__y=int(100*(float(size[1])/float(screenSize[1])))
-            print 'doSize',size,screenSize,self.__x,self.__y
+            print('doSize',size,screenSize,self.__x,self.__y)
 
             self.__setup_size()
 
     def __set_fontsize(self, value):
-        print '__set_fontsize',value
+        print('__set_fontsize',value)
         self.font=wx.Font(value,wx.FONTFAMILY_SWISS,wx.FONTSTYLE_NORMAL,weight=wx.FONTWEIGHT_NORMAL)
         return True
 
     def __scroll1(self,h,v):
-        print '__scroll1',h,v
+        print('__scroll1',h,v)
         picross.display_active()
         self.__scroll_dict(h*-1,v)
 
@@ -153,10 +153,10 @@ class ViewManager(agent.Agent):
         self.__scroll_history(h,v*-1)
     
     def __tap1(self):
-        print 'tap 1'
+        print('tap 1')
    
     def __tap2(self):
-        print 'tap 2'
+        print('tap 2')
 
     def __getDictionaryPanel(self):
         if self.__rootFrame:
@@ -229,20 +229,20 @@ class commanderApp(gui.App):
     def __init__(self,name,logfunc):
         gui.App.__init__(self,logfunc=logfunc,name=name)
 #        gui.App.__init__(self,name=name)
-        print 'commander starting'
+        print('commander starting')
         imageName=resource.find_release_resource('app_commander','commander_splash.png')
         if imageName:
             image=wx.Image(imageName,wx.BITMAP_TYPE_PNG)
             bmp=image.ConvertToBitmap()
             wx.SplashScreen(bmp,wx.SPLASH_CENTRE_ON_SCREEN|wx.SPLASH_TIMEOUT,2000,None,-1)
             wx.Yield()
-        print 'commander starting 2'
+        print('commander starting 2')
         self.agent = ViewManager(name)
-        print 'commander starting 3'
+        print('commander starting 3')
         piw.tsd_server('<%s>' % name, self.agent)
-        print 'commander starting 4'
+        print('commander starting 4')
         self.agent.advertise('<main>')
-        print 'commander starting 5'
+        print('commander starting 5')
 
 def cli():
     parser = optparse.OptionParser()
@@ -255,7 +255,7 @@ def cli():
 
     lock = resource.LockFile(name)
     if not lock.lock():
-        print 'cannot get lock: aborting'
+        print('cannot get lock: aborting')
         sys.exit(-1)
 
     if opts.stdout:
@@ -265,7 +265,7 @@ def cli():
 
     def logger(msg):
         if logfile:
-            print >>logfile,name,msg
+            print(name,msg, file=logfile)
             logfile.flush()
 
     app=commanderApp(name,logfunc=logger)

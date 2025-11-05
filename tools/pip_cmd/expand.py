@@ -27,11 +27,11 @@ import types
 import copy
 
 def fetch_val(dict,name):
-    if type(dict)!= types.DictType or len(name) == 0:
+    if type(dict)!= dict or len(name) == 0:
         return None
 
     n = name[0]
-    if not dict.has_key(n):
+    if not n in dict:
         return None
 
     v = dict[n]
@@ -68,10 +68,10 @@ class expand_state:
         output=''
         var=self.fetch_name(arg)
         if var:
-            if isinstance(var,types.ListType) or isinstance(var,types.TupleType):
+            if isinstance(var,list) or isinstance(var,tuple):
                 i=0;
                 for iter in var:
-                    if type(iter) is types.DictType:
+                    if type(iter) is dict:
                         state = expand_state(iter,self,i)
                         output += state.expand(code)
                         i+=1

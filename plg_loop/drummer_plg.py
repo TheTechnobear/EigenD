@@ -19,7 +19,8 @@
 #
 
 import piw
-from pi import agent,atom,domain,errors,action,bundles,async,utils,resource,logic,node,upgrade,const,paths,collection
+from pi import agent,atom,domain,errors,action,bundles,utils,resource,logic,node,upgrade,const,paths,collection
+from pi import piasync
 from . import drummer_version as version,loopdb,loop_native
 
 from pi.logic.shortcuts import T
@@ -107,7 +108,7 @@ class Voice(atom.Atom):
         return 'dsc(~(a)"#6","%s")' % self.voice
 
     def __loop_status(self,v):
-        print 'loop',self.voice,'status changed to',v
+        print('loop',self.voice,'status changed to',v)
 
         self[3].set_value(v)
 
@@ -179,7 +180,7 @@ class Voice(atom.Atom):
         if filename:
             filename,fileid = self.agent.loopdb.idforfile(filename)
 
-        print 'set loop',filename,fileid
+        print('set loop',filename,fileid)
 
         if fileid is None:
             self.looper.unload()
@@ -312,7 +313,7 @@ class VoiceList(collection.Collection):
 
     def rpc_finfo(self,a):
         (dlist,idx) = logic.parse_clause(a)
-        map = tuple([v.finfo() for v in self.itervalues()])
+        map = tuple([v.finfo() for v in self.values()])
         map = map[idx:]
         return logic.render_term(map)
 
@@ -324,15 +325,15 @@ class VoiceList(collection.Collection):
         self.__agent.update()
         return e
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self,ordinal=None):
         e=self.create_voice(ordinal)
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self,key,inst,ordinal):
         inst.disconnect()
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def __create_voice(self, index):
         self.__agent.update_lights(index)
@@ -426,7 +427,7 @@ class Agent(agent.Agent):
 
         if voice is not None:
             thing='voice %s' %str(id)
-            return async.success(errors.already_exists(thing,'create'))
+            return piasync.success(errors.already_exists(thing,'create'))
         
         self[5].create_voice(id)
 
@@ -439,7 +440,7 @@ class Agent(agent.Agent):
 
         if voice is not None:
             thing='voice %s' %str(id)
-            return async.success(errors.already_exists(thing,'create'))
+            return piasync.success(errors.already_exists(thing,'create'))
         
         self[5].create_voice(id)
 
@@ -452,7 +453,7 @@ class Agent(agent.Agent):
 
         if voice is None:       
             thing='voice %s' %str(id)
-            return async.success(errors.invalid_thing(thing,'first'))
+            return piasync.success(errors.invalid_thing(thing,'first'))
 
         self[5].del_voice(voice.voice)
 
@@ -461,7 +462,7 @@ class Agent(agent.Agent):
         voice = self[5].get_voice(int(id))
         if voice is None:       
             thing='voice %s' %str(id)
-            return async.success(errors.invalid_thing(thing,'first'))
+            return piasync.success(errors.invalid_thing(thing,'first'))
 
         voice.first()
 
@@ -471,7 +472,7 @@ class Agent(agent.Agent):
 
         if voice is None:
             thing='voice %s' %str(id)
-            return async.success(errors.invalid_thing(thing,'next'))
+            return piasync.success(errors.invalid_thing(thing,'next'))
 
         voice.next()
 
@@ -518,7 +519,7 @@ class Agent(agent.Agent):
 
         if voice is None:
             thing='voice %s' %str(id)
-            return async.success(errors.invalid_thing(thing,'play'))
+            return piasync.success(errors.invalid_thing(thing,'play'))
 
 
         return voice.loop_once,None

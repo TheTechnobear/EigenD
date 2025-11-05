@@ -22,7 +22,8 @@ import workbench_native
 import piw
 import zlib
 import sys
-from pi import database,agent,logic,node, async,rpc,index,plumber,resource,paths, help_manager,utils
+from pi import database,agent,logic,node,rpc,index,plumber,resource,paths, help_manager,utils
+from pi import piasync
 from pisession import session
 #from pibelcanto import lexicon
 from app_juceworkbench import upgrade
@@ -56,14 +57,14 @@ class Database(database.SimpleDatabase):
         self.__mainIndex.close_index()
 
     def value_changed(self,pid,value):
-        print 'id',pid,'value changed to',value
+        print('id',pid,'value changed to',value)
         self.__listener.value_changed(pid)
 
     def object_added(self,proxy):
         database.SimpleDatabase.object_added(self,proxy)
         id=proxy.database_id()
         if 'notagent' in proxy.protocols():
-            print id,'is not agent'
+            print(id,'is not agent')
         #print "object_added",id,'(',proxy.id(),')'
         s=id.split('#')
         name_part=s[0]
@@ -73,7 +74,7 @@ class Database(database.SimpleDatabase):
 
         if not '#' in id:
             self.__agentCount=self.__agentCount+1
-            print 'agentCount=',self.__agentCount, id, 'added'
+            print('agentCount=',self.__agentCount, id, 'added')
             self.update_progress()
 
     def update_progress(self):
@@ -89,7 +90,7 @@ class Database(database.SimpleDatabase):
             self.__listener.loaded(0.999)
 
     def check_progress(self):
-        print 'check_progress', self.__agentCount, self.__mainIndex.member_count()
+        print('check_progress', self.__agentCount, self.__mainIndex.member_count())
         if(self.__agentCount==self.__mainIndex.member_count()):
             if self.__listener:
                 self.__listener.loaded(0.999)
@@ -100,10 +101,10 @@ class Database(database.SimpleDatabase):
 
         if self.__listener:
             if not '#' in id:
-                print "Top level object removed", id
+                print("Top level object removed", id)
                 self.__listener.agentRemoved(id)
                 self.__agentCount=self.__agentCount-1;
-                print 'agentCount=',self.__agentCount, id, 'removed'
+                print('agentCount=',self.__agentCount, id, 'removed')
                 self.update_progress()
 
             else:
@@ -139,16 +140,16 @@ class Database(database.SimpleDatabase):
 
     def subsys_sync(self,proxy):
         id =proxy.database_id()
-        print "subsys_sync",id
+        print("subsys_sync",id)
         changed_parts=None
         added=False
         if id in self.__changedDict:
             changed_parts=self.__changedDict[id]
-            print 'database:subsystem sync',id,'changed parts=',changed_parts
+            print('database:subsystem sync',id,'changed parts=',changed_parts)
 
         if id in self.__addedList:
             added=True
-            print 'database:subsystem sync',id,'added'
+            print('database:subsystem sync',id,'added')
 
         if added:
             if self.__listener:
@@ -205,7 +206,7 @@ class WorkbenchState(node.server):
             self[i].set_data(c)
 
     def get_state(self):
-        z = ''.join([ n.get_data().as_blob2() for n in self.itervalues() ])
+        z = ''.join([ n.get_data().as_blob2() for n in self.values() ])
         return zlib.decompress(z) if z else ''
 
 class Index(piw.index):
@@ -213,16 +214,16 @@ class Index(piw.index):
         piw.index.__init__(self)
 
     def index_opened(self):
-        print 'Index: index_opened'
+        print('Index: index_opened')
 
     @utils.nothrow
     def index_changed(self):
-        print 'Index: index_changed', self.member_count()
+        print('Index: index_changed', self.member_count())
         if self.__listener:
             self.__listener.check_progress()
 
     def index_closed(self):
-        print 'Index: index_closed'
+        print('Index: index_closed')
 
     def addListener(self, listener):
         self.__listener=listener
@@ -238,11 +239,11 @@ class Agent(agent.Agent):
         self.__current_state = ''
 
     def rpc_addmon(self,arg):
-        print 'start monitoring',arg
+        print('start monitoring',arg)
         self.__database.start_monitor(arg)
 
     def rpc_delmon(self,arg):
-        print 'stop monitoring',arg
+        print('stop monitoring',arg)
         self.__database.stop_monitor(arg)
 
     def start(self):
@@ -251,11 +252,11 @@ class Agent(agent.Agent):
 
     def set_state(self,state):
         self.__current_state = state
-        print 'saving setup'
+        print('saving setup')
 #        print state
         self.__state.set_state(self.__current_state)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def load_state(self,state,delegate,phase):
         yield node.server.load_state(self,state,delegate,phase)
         self.__current_state = self.__state.get_state()
@@ -328,7 +329,7 @@ class Backend(workbench_native.c2p):
             test=test+'a'
             i=i+1
 
-        print "backend get_test_string",s,test
+        print("backend get_test_string",s,test)
         self.__frontend.test_string(test);
 
     def database(self):
@@ -339,7 +340,7 @@ class Backend(workbench_native.c2p):
         self.__scope = piw.tsd_scope()+'.'+scope if scope else piw.tsd_scope()
         self.index_name = '<%s:main>' % self.__scope
         self.agent_name = '<%s:workbench>' % self.__scope
-        print >>sys.__stdout__,'workspace scope=',self.__scope,'agent=',self.agent_name,'index=',self.index_name
+        print('workspace scope=',self.__scope,'agent=',self.agent_name,'index=',self.index_name, file=sys.__stdout__)
         self.__database.addListener(self.__frontend)
         self.__database.start(self.index_name)
         self.__agent.start()
@@ -385,19 +386,19 @@ class Backend(workbench_native.c2p):
     def get_fulldesc(self,id):
         return self.__database.find_full_display_desc(id)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def get_sourcekeys(self, pid, id):
         name=self.get_desc(id);
         if name=="musical map" or name=="physical map":
             r=rpc.invoke_rpc(pid,'fetch_sourcekeys',name); 
             yield r
             if not r.status():
-                yield async.Coroutine.failure('fetch_sourcekeys failed') 
+                yield piasync.Coroutine.failure('fetch_sourcekeys failed') 
             result=r.args()[0]
             if result!='None':
-                print "fetch_sourcekeys: result=",result
+                print("fetch_sourcekeys: result=",result)
                 self.__frontend.sourcekeys_updated(id,result)
-            yield async.Coroutine.success();
+            yield piasync.Coroutine.success();
 
     def get_inputs(self,sid,mid):
         #print "get_inputs", sid,mid,self.__database.get_inputs(sid,mid)
@@ -506,7 +507,7 @@ class Backend(workbench_native.c2p):
         return False;
 
     def get_numInputs(self,id):
-        print "get_numInputs: masters=", self.__database.find_masters(id);
+        print("get_numInputs: masters=", self.__database.find_masters(id);)
         return len(self.__database.find_masters(id))
 
     def get_using_inputs(self,id):
@@ -517,7 +518,7 @@ class Backend(workbench_native.c2p):
         for m in masters:   
             u=self.get_inputs(id,m)
 
-            print "workbench.py get_using_inputs: id=",id, "from=",m,"using",u
+            print("workbench.py get_using_inputs: id=",id, "from=",m,"using",u)
             if u!="":
                 using.add(u)
 
@@ -541,20 +542,20 @@ class Backend(workbench_native.c2p):
                 
             return path
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def activate(self,id,spath,uid):
-        print 'activate',id,spath,uid
+        print('activate',id,spath,uid)
         path=self.make_path(spath)   
         args=logic.render_term((tuple(path),uid))
         r=rpc.invoke_rpc(self.__database.to_usable_id(id),'activated',args)
         yield r
         if not r.status():
-            yield async.Coroutine.failure('rpc error')
-        print 'activate success'
+            yield piasync.Coroutine.failure('rpc error')
+        print('activate success')
         self.__frontend.activated(id)
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def enumerate(self,id,spath):
         path=self.make_path(spath)
         a=logic.render_term(tuple(path))
@@ -562,14 +563,14 @@ class Backend(workbench_native.c2p):
         yield r
 
         if not r.status():
-            yield async.Coroutine.failure('rpc error')
+            yield piasync.Coroutine.failure('rpc error')
 
         nf,nc=logic.parse_clause(r.args()[0])
-        print 'enumerate:path=', path,' nf=',nf, 'nc=',nc
+        print('enumerate:path=', path,' nf=',nf, 'nc=',nc)
         self.__frontend.enumerate_updated(id,spath,nf,nc);
-        yield async.Coroutine.success(nf,nc)
+        yield piasync.Coroutine.success(nf,nc)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def cinfo(self,id,spath,start,ncolls):
         path=self.make_path(spath)
         a=logic.render_term(tuple(path))
@@ -577,7 +578,7 @@ class Backend(workbench_native.c2p):
         yield r
 
         if not r.status():
-            yield async.Coroutine.failure('rpc error')
+            yield piasync.Coroutine.failure('rpc error')
 
         nf,nc=logic.parse_clause(r.args()[0])
         finish=start+ncolls
@@ -590,7 +591,7 @@ class Backend(workbench_native.c2p):
             yield r
 
             if not r.status():
-                yield async.Coroutine.failure('rpc error')
+                yield piasync.Coroutine.failure('rpc error')
        
             clist=logic.parse_clause(r.args()[0])
 
@@ -605,9 +606,9 @@ class Backend(workbench_native.c2p):
 
         self.__frontend.cinfo_updated(id,spath,set(colls));
 
-        yield async.Coroutine.success(colls,nc)
+        yield piasync.Coroutine.success(colls,nc)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def finfo(self,id,spath):
         path=self.make_path(spath)
         a=logic.render_term(tuple(path))
@@ -615,7 +616,7 @@ class Backend(workbench_native.c2p):
         yield r
 
         if not r.status():
-            yield async.Coroutine.failure('rpc error')
+            yield piasync.Coroutine.failure('rpc error')
 
         nf,nc=logic.parse_clause(r.args()[0])
         start=0
@@ -628,8 +629,8 @@ class Backend(workbench_native.c2p):
             r=(yield rpc.invoke_rpc(self.__database.to_usable_id(id),'finfo',a))
 
             if not r.status():
-                print 'rpc error, finfo',r.args()
-                yield async.Coroutine.failure('rpc error')
+                print('rpc error, finfo',r.args())
+                yield piasync.Coroutine.failure('rpc error')
 
             flist = logic.parse_clause(r.args()[0])
 
@@ -645,36 +646,36 @@ class Backend(workbench_native.c2p):
         for f in files:
            s.add(str(f[0])+"&&"+str(f[1]))
         self.__frontend.finfo_updated(id,spath,s)
-        yield async.Coroutine.success(files,nf)
+        yield piasync.Coroutine.success(files,nf)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def current(self,id):
         r=rpc.invoke_rpc(self.__database.to_usable_id(id),'current','')
         yield r
 
         if not r.status():
-            yield async.Coroutine.failure('rpc error')
+            yield piasync.Coroutine.failure('rpc error')
 
         c=logic.parse_clause(r.args()[0],paths.make_subst(id))
-        print  'r.args()[0]=',r.args()[0]
+        print('r.args()[0]=',r.args()[0])
         curr=''
         if c:
             
-            print  'backend current for',id, '=',c
+            print('backend current for',id, '=',c)
             (curr,cat)=c[0]
-            print 'current=',curr, 'current_cat=',cat
+            print('current=',curr, 'current_cat=',cat)
         self.__frontend.current(id, str(curr))
 
-        yield async.Coroutine.success(c)
+        yield piasync.Coroutine.success(c)
  
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def get_agents(self):
-        print 'Backend - get_agents'    
+        print('Backend - get_agents')
         names=set([])
         r=rpc.invoke_rpc(self.__database.to_usable_id('<eigend1>'),'listmodules','')
         yield r
         if not r.status():
-            yield async.Coroutine.failure('get_agents failed') 
+            yield piasync.Coroutine.failure('get_agents failed') 
         result=r.args()[0]
         if result!='None':
 
@@ -689,80 +690,80 @@ class Backend(workbench_native.c2p):
                     r=r+','
                 names.add(r)
             self.__frontend.agents_updated(names)
-        yield async.Coroutine.success(names) 
+        yield piasync.Coroutine.success(names) 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def get_instanceName(self,id):
-        print 'Backend - getInstanceName: id=',id
+        print('Backend - getInstanceName: id=',id)
         r=rpc.invoke_rpc(self.__database.to_usable_id(id),'instancename','')
         yield r
         if not r.status():
-            yield async.Coroutine.failure('get_instanceName failed')
+            yield piasync.Coroutine.failure('get_instanceName failed')
         result=r.args()[0]
         self.__frontend.instanceName(id,result)
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def get_instances(self,id):
-        print 'Backend - get_instances: id=',id
+        print('Backend - get_instances: id=',id)
         ords=set([])
         r=rpc.invoke_rpc(self.__database.to_usable_id(id),'listinstances','')
         yield r
         if not r.status():
-            yield async.Coroutine.failure('get_instances failed')
+            yield piasync.Coroutine.failure('get_instances failed')
         result=r.args()[0]
         if result!='None':
             ordinals=logic.parse_clauselist(result)
             for o in ordinals:
                 ords.add(str(o))
             self.__frontend.instances_updated(ords)
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def get_ordinals_used(self, agentType):
-        print 'Backend - get_ordinals_used'    
+        print('Backend - get_ordinals_used')
 
         r=rpc.invoke_rpc(self.__database.to_usable_id('<eigend1>'),'listmodules','')
         yield r
         if not r.status():
-            yield async.Coroutine.failure('get_ordinals_used failed') 
+            yield piasync.Coroutine.failure('get_ordinals_used failed') 
         result=r.args()[0]
         if result!='None':
 
             terms=logic.parse_termlist(result)
             for t in terms:
                 if t.args[0]==agentType:
-                    print "ordinals used=",t.args[2]
-        yield async.Coroutine.success() 
+                    print("ordinals used=",t.args[2])
+        yield piasync.Coroutine.success() 
 
     def create_instance(self,id,ord):
-        print 'backend create instance',id,ord
+        print('backend create instance',id,ord)
         rpc.invoke_rpc(self.__database.to_usable_id(id),'createinstance',logic.render_term(ord))
 
     def delete_instance(self,id,cid):
-        print 'backend delete instance',id,cid
+        print('backend delete instance',id,cid)
         rpc.invoke_rpc(self.__database.to_usable_id(id),'delinstance',cid)
 
     def delete_agent(self, id):
-        print 'backend delete agent',id
+        print('backend delete agent',id)
         rpc.invoke_rpc(self.__database.to_usable_id('<eigend1>'),'destroy',logic.render_term(id))
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def create_agent(self,agent,ordinal):
-        print 'backend create agent',agent,ordinal
+        print('backend create agent',agent,ordinal)
         plugin_def=logic.make_term('module',agent,ordinal)
         r=rpc.invoke_rpc(self.__database.to_usable_id('<eigend1>'),'addmodule',logic.render_term(plugin_def))
 
         yield(r)
         if not r.status():
 
-            print 'addmodule failed',agent,ordinal,r.args()[0]
+            print('addmodule failed',agent,ordinal,r.args()[0])
 
             self.__frontend.report_error('eigenD could not create agent '+ agent + ' ' + str(ordinal),r.args()[0])
-            yield async.Coroutine.failure('rpc_addmodule failed') 
+            yield piasync.Coroutine.failure('rpc_addmodule failed') 
 
-        yield async.Coroutine.success() 
+        yield piasync.Coroutine.success() 
 
 
     def hasEditableValue(self,id):
@@ -786,7 +787,7 @@ class Backend(workbench_native.c2p):
     def has_non_controller_master(self,id):
         val=False
         for m in self.__database.find_masters(id):
-           print m, m.split('#')[0]
+           print(m, m.split('#')[0])
 
            if (('interpreter'not in m) and (not self.has_protocol(m.split('#')[0],'controller'))):
                val=True
@@ -803,7 +804,7 @@ class Backend(workbench_native.c2p):
         proxy=self.__database.find_item(id)
         if(not proxy==None):
             return proxy.ordinal()
-        print 'proxy for',id,'not found'
+        print('proxy for',id,'not found')
         return 0
 
     def get_master_filter(self,id,mid):
@@ -843,7 +844,7 @@ class Backend(workbench_native.c2p):
         return str(val)
 
     def set_boolvalue(self,id,val):
-        print 'backend set_boolvalue',id,val
+        print('backend set_boolvalue',id,val)
         proxy=self.__database.find_item(id)
         if(not proxy==None):
             if val:
@@ -852,17 +853,17 @@ class Backend(workbench_native.c2p):
                 proxy.invoke_rpc('set_value','')
 #
     def set_stringvalue(self,id,val):
-        print 'backend set_stringvalue',id,val
+        print('backend set_stringvalue',id,val)
         proxy=self.__database.find_item(id)
         if(not proxy==None):
             proxy.invoke_rpc('set_value',val)
 
     def set_intvalue(self,id,val):
-        print 'backend set_intvalue',id,val
+        print('backend set_intvalue',id,val)
         self.__set_value(id,val)
 
     def set_floatvalue(self,id,val):
-        print 'backend set_floatvalue',id,val
+        print('backend set_floatvalue',id,val)
         self.__set_value(id,val);
 
     def __set_value(self,id,val):
@@ -871,7 +872,7 @@ class Backend(workbench_native.c2p):
             proxy.invoke_rpc('set_value',logic.render_term(val))
 
     def setName(self,id,name):
-        print 'Backend set name',name
+        print('Backend set name',name)
         proxy=self.__database.find_item(id)
         if (not proxy==None):
             names=name.split(' ')
@@ -900,33 +901,33 @@ class Backend(workbench_native.c2p):
             else:
                 self.__frontend.report_error('Invalid Belcanto name',errors + ' not in Belcanto lexicon')
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def connect_check(self, srcid,dstid):
         r=plumber.plumber(self.__database,(dstid,None),[(srcid,None)],check_only=True)
         yield(r)
         if not r.status():
-            print 'connect_check: connection not possible', srcid,dstid
+            print('connect_check: connection not possible', srcid,dstid)
             self.__frontend.connectionPossible(srcid,dstid, False)
-            yield async.Coroutine.failure('connection not possible') 
-        print 'connect_check: connection is possible',srcid,dstid
+            yield piasync.Coroutine.failure('connection not possible') 
+        print('connect_check: connection is possible',srcid,dstid)
         self.__frontend.connectionPossible(srcid,dstid, True)
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def connect(self, srcid,dstid):
         r=plumber.plumber(self.__database,(dstid,None),[(srcid,None)])
         yield(r)
         if not r.status():
-            print 'connect failed', srcid,dstid
-            yield async.Coroutine.failure('plumber connect failed') 
-        print 'Backend connect',srcid,dstid
-        yield async.Coroutine.success()
+            print('connect failed', srcid,dstid)
+            yield piasync.Coroutine.failure('plumber connect failed') 
+        print('Backend connect',srcid,dstid)
+        yield piasync.Coroutine.success()
 
 
-    @async.coroutine('internal eror')
+    @piasync.coroutine('internal eror')
     def connect_test(self,srcid,dstid,u,f,c):
-        print "connect_test",srcid,dstid,u,f,c
+        print("connect_test",srcid,dstid,u,f,c)
         proxy=self.__database.find_item(dstid)
         if proxy:
             if u==0:
@@ -938,16 +939,16 @@ class Backend(workbench_native.c2p):
             r=proxy.invoke_rpc('connect',logic.render_term(logic.make_term('conn',u,None,srcid,f,c)))
             yield(r)
             if not r.status():
-                print 'connect failed', srcid,dstid,u,f,c
+                print('connect failed', srcid,dstid,u,f,c)
                 self.__frontend.report_error('eigenD could not make connection '+ srcid + ':' + dstid,r.args()[0])
-                yield async.Coroutine.failure('rpc_connect failed') 
+                yield piasync.Coroutine.failure('rpc_connect failed') 
 
-            print 'Backend connect_test',srcid,dstid,u,f
-            yield async.Coroutine.success()
+            print('Backend connect_test',srcid,dstid,u,f)
+            yield piasync.Coroutine.success()
         else:
-            print 'proxy not found'
+            print('proxy not found')
 
-    @async.coroutine('internal eror')
+    @piasync.coroutine('internal eror')
     def disconnect(self,srcid,dstid,u,f,c):
         proxy=self.__database.find_item(dstid)
 
@@ -961,13 +962,13 @@ class Backend(workbench_native.c2p):
             r=proxy.invoke_rpc('disconnect',logic.render_term(logic.make_term('conn',u,None,srcid,f,c)))
             yield(r)
             if not r.status():
-                print 'disconnect failed', srcid,dstid,u,f,c
+                print('disconnect failed', srcid,dstid,u,f,c)
                 self.__frontend.report_error('eigenD could not disconnect wire '+ srcid + ':' + dstid,r.args()[0])
-                yield async.Coroutine.failure('rpc_disconnect failed') 
+                yield piasync.Coroutine.failure('rpc_disconnect failed') 
 
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
         else:
-            print 'proxy not found'
+            print('proxy not found')
 
 
     def mediator(self):
@@ -1007,7 +1008,7 @@ class Backend(workbench_native.c2p):
         proxy=self.__database.find_item(id)
         if proxy:
             prop=proxy.get_property(p,None);
-            print "getProperty",prop 
+            print("getProperty",prop )
             if prop is None:
                 return ''
             else:
@@ -1015,10 +1016,10 @@ class Backend(workbench_native.c2p):
         return ''
 
     def invoke(self,id,name,val):
-        print "Workbench backend invoke",name,val,"on",id
+        print("Workbench backend invoke",name,val,"on",id)
         proxy=self.__database.find_item(id)
         if proxy:
-            print "proxy found"
+            print("proxy found")
             proxy.invoke_rpc(name,logic.render_term(val))
 
     def monitor_on(self,id):

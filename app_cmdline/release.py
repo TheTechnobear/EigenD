@@ -22,5 +22,5 @@ import os
 from app_cmdline import version
 
 def main():
-    print version.version
+    print(version.version)
     

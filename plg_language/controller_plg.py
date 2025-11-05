@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,action,domain,bundles,async,container,paths,const,node,policy,logic,utils,proxy,collection
+from pi import agent,atom,action,domain,bundles,container,paths,const,node,policy,logic,utils,proxy,collection
+from pi import piasync
 from pi.logic.shortcuts import *
 import piw
 from . import controller_version as version,language_native
@@ -282,15 +283,15 @@ class ConnectorList(collection.Collection):
         del self[index]
         v.disconnect()
     
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self,ordinal=None):
         e = self.create_connector(ordinal)
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self,key,inst,ordinal):
         inst.disconnect()
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 class Controller0(piw.controller):
     def __init__(self,controller,cookie,sigmap):
@@ -347,20 +348,20 @@ class Agent(agent.Agent):
 
         if connector is None:       
             thing='connector %s' %str(id)
-            return async.success(errors.invalid_thing(thing,'un create'))
+            return piasync.success(errors.invalid_thing(thing,'un create'))
 
         self[4].del_connector(id)
         
     def clock_changed(self,clock):
-        for i in self[4].itervalues():
+        for i in self[4].values():
             i.set_controller_clock(clock)
 
     def latency_changed(self,latency):
-        for i in self[4].itervalues():
+        for i in self[4].values():
             i.set_controller_latency(latency)
 
     def close_server(self):
-        for i in self[4].itervalues():
+        for i in self[4].values():
             i.disconnect()
         agent.Agent.close_server(self)
 

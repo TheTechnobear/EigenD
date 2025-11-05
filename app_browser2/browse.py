@@ -21,7 +21,8 @@
 from app_browser2 import browse_db
 import piw
 import picross
-from pi import errors,node,logic,action,atom,async,paths,rpc
+from pi import errors,node,logic,action,atom,paths,rpc
+from pi import piasync
 
 from pisession import gui
 
@@ -85,9 +86,9 @@ class BrowseAgent(atom.Null):
         except ValueError:
             return None
         else:
-            print 'numCollections=',self.model.numCollections,dirNum
+            print('numCollections=',self.model.numCollections,dirNum)
             if (abs(dirNum)>=self.model.numCollections) or dirNum<0:
-                return async.success(errors.out_of_range('1 to %s' % str(self.model.numCollections),'show'))
+                return piasync.success(errors.out_of_range('1 to %s' % str(self.model.numCollections),'show'))
             self.model.changeDir(abs(dirNum))
 
     def back(self,*args):
@@ -105,7 +106,7 @@ class BrowseAgent(atom.Null):
 
     def setTargetId(self,id):
         self.__t=id
-        print 'BrowseAgent: setTargetId to ',self.__t
+        print('BrowseAgent: setTargetId to ',self.__t)
         self.__setup_target()
 
 class BrowseModel:
@@ -171,9 +172,9 @@ class BrowseModel:
     def setTargetId(self,id):
         self.agent.setTargetId(id)
 
-    @async.coroutine()
+    @piasync.coroutine()
     def changed(self,id):
-        print 'BrowseModel:changed'
+        print('BrowseModel:changed')
         if id==self.getTargetId():
             yield self.__get_name(id)
             yield self.__get_icon()
@@ -182,17 +183,17 @@ class BrowseModel:
                 yield self.__check_enumerate(self.getTargetId(),self.path)
                 self.flush_updates()
     
-    @async.coroutine()
+    @piasync.coroutine()
     def ready(self,id):
-        print 'BrowseModel:ready id=',id
+        print('BrowseModel:ready id=',id)
         r = gui.defer_bg(self.new_proxy.enumerate,id,[])
         yield r
 
         if not r.status():
-            print 'Enumerate check failed on',id,'- browse target unchanged'
+            print('Enumerate check failed on',id,'- browse target unchanged')
             self.__updating=False
         else:
-            print 'Enumerate check suceeded on', id
+            print('Enumerate check suceeded on', id)
 
             db = self.proxy
             if db:
@@ -218,7 +219,7 @@ class BrowseModel:
     def resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
 
-        print 'resolving virtual',arg,(a,o)
+        print('resolving virtual',arg,(a,o))
 
         if not self.getTargetId():
             return '[]'
@@ -234,24 +235,24 @@ class BrowseModel:
         if o<1:
             return '[]'
 
-        print 'resolving',o
+        print('resolving',o)
         return gui.defer_bg(self.__resolve1,self.getTargetId(),self.path,o,True)
     
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __resolve1(self,id,path,ordinal,asTerm=False):
         a=logic.render_term((tuple(path),ordinal-1))
         r=(yield rpc.invoke_rpc(id,'finfo',a))
 
         if not r.status():
-            print 'rpc error, finfo'
-            yield async.Coroutine.failure(*r.args(),**r.kwds())
+            print('rpc error, finfo')
+            yield piasync.Coroutine.failure(*r.args(),**r.kwds())
 
         flist = logic.parse_clause(r.args()[0])
 
         if not flist:
-            yield async.Coroutine.failure('no selection %d' % ordinal)
+            yield piasync.Coroutine.failure('no selection %d' % ordinal)
 
-        print 'flist=',flist
+        print('flist=',flist)
 
         (cookie,desc,name)=flist[0][:3]
         if len(flist[0])>3:
@@ -261,17 +262,17 @@ class BrowseModel:
         r=(yield rpc.invoke_rpc(id,'fideal',a))
 
         if not r.status():
-            print 'rpc error, fideal'
-            yield async.Coroutine.failure(*r.args(),**r.kwds())
+            print('rpc error, fideal')
+            yield piasync.Coroutine.failure(*r.args(),**r.kwds())
 
         try:
             ideal = logic.parse_clause(r.args()[0],paths.make_subst(id))
         except:
-            print 'cant parse:',r.args()[0]
+            print('cant parse:',r.args()[0])
             raise
 
-        print 'converted',ordinal,'to ideal',ideal
-        yield async.Coroutine.success(self.__render(ideal,asTerm))
+        print('converted',ordinal,'to ideal',ideal)
+        yield piasync.Coroutine.success(self.__render(ideal,asTerm))
 
     def __render(self,ideal,asTerm):
         if asTerm:
@@ -285,7 +286,7 @@ class BrowseModel:
             self.add_update(upd_path)
             self.__get_directory_details(True)
         else:
-            return async.success(errors.nothing_to_do('cancel'))
+            return piasync.success(errors.nothing_to_do('cancel'))
 
     def back(self):
         if self.path:
@@ -293,7 +294,7 @@ class BrowseModel:
             self.add_update(upd_path)
             self.__get_directory_details(True)
         else:
-            return async.success(errors.nothing_to_do('show'))
+            return piasync.success(errors.nothing_to_do('show'))
 
     def changeDir(self,dirNum):
         if self.cinfo and dirNum<=len(self.cinfo):
@@ -309,25 +310,25 @@ class BrowseModel:
             self.add_update(upd_path)
             self.__get_directory_details(True)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def change_target(self,targetId):
         self.__pending = targetId
 
         while True:
             if self.__updating:
-                yield async.Coroutine.success()
+                yield piasync.Coroutine.success()
 
             pending = self.__pending
             self.__pending = None
 
             if pending is None:
-                yield async.Coroutine.success()
+                yield piasync.Coroutine.success()
 
             yield self.__change_target(pending)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __change_target(self,targetId):
-        print 'browseModel.change_target',targetId
+        print('browseModel.change_target',targetId)
 
         self.__updating = True
 
@@ -344,11 +345,11 @@ class BrowseModel:
                 self.add_update(upd_all)
                 self.flush_updates()
                 self.__updating = False
-                yield async.Coroutine.success()
+                yield piasync.Coroutine.success()
 
             targetId = self.agent.getTargetId()
 
-        print 'BrowseModel: Attempt target change to',targetId,'from',self.getTargetId()
+        print('BrowseModel: Attempt target change to',targetId,'from',self.getTargetId())
 
         if self.proxy is None or (targetId !=self.getTargetId()):
             self.new_proxy=gui.call_bg_sync(self.__create_browse_proxy,targetId)
@@ -362,10 +363,10 @@ class BrowseModel:
         bp=browse_db.BrowseProxy(id,self.__getBrowserName(),self)
         return bp
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __get_name(self,targetId):    
         if self.proxy is None:
-            print '__get_name: proxy is None - returning'
+            print('__get_name: proxy is None - returning')
             return
             
         db=self.proxy
@@ -375,11 +376,11 @@ class BrowseModel:
         if r.status():
             (self.targetName,) = r.args()
         self.add_update(upd_title)
-        print 'get_name',self.targetName
+        print('get_name',self.targetName)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __get_directory_details(self,flush):
-        print 'getDirectoryDetails'
+        print('getDirectoryDetails')
         self.fileOffset=0
         self.listListener.set_refresh()
         self.listListener.set_selected(0)
@@ -388,12 +389,12 @@ class BrowseModel:
         yield self.__enumerate(self.getTargetId(),self.path)
         yield self.__get_cinfo(self.getTargetId(),self.path,0,10000)
         yield self.__get_dinfo(self.getTargetId(),self.path)
-        print 'getDirectoryDetails updating'
+        print('getDirectoryDetails updating')
         if flush:
             self.flush_updates()
-        print 'getDirectoryDetails done'
+        print('getDirectoryDetails done')
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __get_cinfo(self,id,path,start,ncolls):
         if self.proxy is None:
             return
@@ -403,11 +404,11 @@ class BrowseModel:
         yield r
 
         if not r.status():
-            print 'browse get_cinfo:notok',r.args()
+            print('browse get_cinfo:notok',r.args())
             self.cinfo=[]
             count=0
             self.add_update(upd_list)
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         (colls,total) = r.args()
 
@@ -426,10 +427,10 @@ class BrowseModel:
             count=count+1
         
         self.category_changed=True
-        print 'get_cinfo ok'
+        print('get_cinfo ok')
         yield self.__get_finfo(self.getTargetId(),self.path)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __get_dinfo(self,id,path):
         if self.proxy is None:
             return
@@ -439,15 +440,15 @@ class BrowseModel:
         yield r
 
         if not r.status():
-            print 'dinfo failed',r.args()
+            print('dinfo failed',r.args())
             #picross.to_front()
             self.keyval=[]
             self.add_update(upd_info)
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         (dlist,) = r.args()
 
-        print 'got_dinfo',dlist,logic.is_term(dlist)
+        print('got_dinfo',dlist,logic.is_term(dlist))
         #picross.to_front()
         self.keyval=[]
         if logic.is_term(dlist):
@@ -460,13 +461,13 @@ class BrowseModel:
                 
                 if len(dinfo)>1:
                     for k,v in dinfo[1:]:
-                        print k,v
+                        print(k,v)
                         self.keyval.append((k,v))
 
             self.add_update(upd_info)
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __get_finfo(self,id,path):
         if self.proxy is None:
             return
@@ -476,12 +477,12 @@ class BrowseModel:
         yield r
 
         if not r.status():
-            print 'browse get_finfo:notok',r.args()
+            print('browse get_finfo:notok',r.args())
             self.finfo=[]
             self.numFiles=len(self.finfo)
             self.finfo_for_new_category=False
             self.add_update(upd_list)
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         (files,total) = r.args()
 
@@ -496,10 +497,10 @@ class BrowseModel:
             self.finfo_for_new_category=True
             self.add_update(upd_list)
 
-        print 'browse get_finfo:ok'
+        print('browse get_finfo:ok')
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __enumerate(self,id,path):
         if self.proxy is None:
             return
@@ -509,8 +510,8 @@ class BrowseModel:
         yield r
 
         if not r.status():
-            print 'browse enumerate:notok',r.args()
-            yield async.Coroutine.success()
+            print('browse enumerate:notok',r.args())
+            yield piasync.Coroutine.success()
 
         (numFiles,numColl) = r.args()
 
@@ -526,7 +527,7 @@ class BrowseModel:
 
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __get_current(self,id):
         if self.proxy is None:
             return
@@ -536,14 +537,14 @@ class BrowseModel:
         yield r
 
         if not r.status():
-            print 'browse current:notok',r.args()
-            yield async.Coroutine.success()
+            print('browse current:notok',r.args())
+            yield piasync.Coroutine.success()
 
         (current,) = r.args()
 
         if current:
             (cookie,categories)=current[0]
-            print 'current ok',cookie,categories
+            print('current ok',cookie,categories)
             if self.current !=cookie:
                 self.current=cookie
                 self.add_update(upd_list)
@@ -556,7 +557,7 @@ class BrowseModel:
             self.add_update(upd_list)
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __check_enumerate(self,id,path):
         if self.proxy is None:
             return
@@ -566,21 +567,21 @@ class BrowseModel:
         yield r
 
         if not r.status():
-            print 'browse check_enumerate:notok',arg
-            yield async.Coroutine.success()
+            print('browse check_enumerate:notok',arg)
+            yield piasync.Coroutine.success()
 
         (numFiles,numColl) = r.args()
 
         if numFiles==self.numFiles:
-            print 'check_enumerate ok:'
+            print('check_enumerate ok:')
             yield self.__get_finfo(self.getTargetId(),path)
             yield self.__get_dinfo(self.getTargetId(),path)
         else:
-            print 'check_enumerate ok: number of files',numFiles,'changed'
+            print('check_enumerate ok: number of files',numFiles,'changed')
             self.path=[]
             yield self.__get_directory_details(False)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __get_icon(self):
         if self.proxy is None:
             return
@@ -593,17 +594,17 @@ class BrowseModel:
         self.add_update(upd_list)
 
     def activate(self,selection):
-        print 'activate',selection
+        print('activate',selection)
         if selection>0 and selection<=len(self.finfo):
             uid=self.finfo[selection-1][0] 
-            print 'Activate: No. in browser list=',selection,'uid=',uid
+            print('Activate: No. in browser list=',selection,'uid=',uid)
             
             args=logic.render_term((tuple(self.path),uid))
             self.__do_activate(self.getTargetId(),args)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __do_activate(self,id,args):
-        print '__do_activate',id,args
+        print('__do_activate',id,args)
         r=rpc.invoke_rpc(id,'activated',args)
         yield r
         if r.status():

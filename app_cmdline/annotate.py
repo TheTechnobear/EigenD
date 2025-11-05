@@ -23,5 +23,5 @@ import sys
 
 def cli():
     text = open(sys.argv[2]).read()
-    print 'annotate',sys.argv[1],'as:\n',text
+    print('annotate',sys.argv[1],'as:\n',text)
     session.run_session(lambda m: agentd.annotate(sys.argv[1],text),name='annotate')

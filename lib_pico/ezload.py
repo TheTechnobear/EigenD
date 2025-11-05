@@ -56,7 +56,7 @@ def find_release_resource(category,name):
     return None
 
 def firmware(vendor,product):
-    print "using version 5 of firmware"
+    print("using version 5 of firmware")
     return find_release_resource('firmware','pico.ihx')
 
 def ez_cpucs(ez, x):
@@ -99,7 +99,7 @@ def main():
         code = sys.argv[1]
 
     def doit(s):
-        print 'downloading to',s
+        print('downloading to',s)
         download(s, code)
 
     picross.enumerate(new_vendor,new_product,picross.make_string_functor(doit))

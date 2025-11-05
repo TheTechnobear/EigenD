@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,logic,node,utils,bundles,audio,domain,const,upgrade,errors,action,async,resource,inputparameter,paths
+from pi import agent,atom,logic,node,utils,bundles,audio,domain,const,upgrade,errors,action,resource,inputparameter,paths
+from pi import piasync
 from pibelcanto import lexicon
 from pi.logic.shortcuts import T
 from . import audio_unit_version as version, host_native
@@ -227,7 +228,7 @@ class PluginStateBlob(node.server):
                 self[i].set_data(c)
 
     def get_blob(self):
-        z = ''.join([ n.get_data().as_blob2() for n in self.itervalues() ])
+        z = ''.join([ n.get_data().as_blob2() for n in self.values() ])
         return piw.makeblob2(zlib.decompress(z) if z else '',0)
 
 
@@ -243,7 +244,7 @@ class PluginState(node.server):
         self[6] = PluginStateBlob()
         self.__state_loaded = False
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def load_state(self,state,delegate,phase):
         yield node.server.load_state(self,state,delegate,phase)
         self.__state_loaded = True
@@ -515,7 +516,7 @@ class Agent(agent.Agent):
         id = action.abstract_string(id)
         if self.set_plugin(id):
             return action.nosync_return()
-        return async.success(errors.doesnt_exist('plugin "%s"'%id,'open'))
+        return piasync.success(errors.doesnt_exist('plugin "%s"'%id,'open'))
 
     def __close(self,*arg):
         self.host.close()
@@ -563,7 +564,7 @@ class Agent(agent.Agent):
 
     def set_plugin(self,id):
         desc = self.__browser.get_description(id)
-        print 'set_plugin',id,desc
+        print('set_plugin',id,desc)
         if desc is not None:
             if self.host.open(desc):
                 self.__audio_input_channels.set_channels(self.host.input_channel_count())
@@ -702,26 +703,26 @@ class Upgrader(upgrade.Upgrader):
         pass
 
     def phase2_1_0_4(self,tools,address):
-        print 'upgrading host',address
+        print('upgrading host',address)
         root = tools.get_root(address)
         key_input = root.get_node(6,3)
-        print 'disconnecting key input',key_input.id()
+        print('disconnecting key input',key_input.id())
         conn = key_input.get_master()
         if not conn: return
         for c in conn:
-            print 'connection',c
+            print('connection',c)
             upstream_addr,upstream_path = paths.breakid_list(c)
             upstream_root = tools.get_root(upstream_addr)
             if not upstream_root: continue
             upstream = upstream_root.get_node(*upstream_path)
             upstream_slaves = logic.parse_clauselist(upstream.get_meta_string('slave'))
-            print 'old upstream slaves',upstream_slaves
+            print('old upstream slaves',upstream_slaves)
             upstream_slaves.remove(key_input.id())
-            print 'new upstream slaves',upstream_slaves
+            print('new upstream slaves',upstream_slaves)
             upstream.set_meta_string('slave', logic.render_termlist(upstream_slaves))
 
     def upgrade_1_0_4_to_1_0_5(self,tools,address):
-        print 'upgrading host',address
+        print('upgrading host',address)
         root = tools.get_root(address)
         state = root.get_node(255,5)
         if state.get_data().is_string():

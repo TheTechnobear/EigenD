@@ -120,7 +120,7 @@ def file_open(name,mode='r',buff=-1):
     return open(WC(name),mode,buff)
 
 def file_file(name,mode='r',buff=-1):
-    return file(WC(name),mode,buff)
+    return open(WC(name),mode,buff)
 
 def shutil_copyfile(src,dst):
     shutil.copyfile(WC(src),WC(dst))
@@ -287,7 +287,7 @@ def clean_current_setup():
 
 class LockFile:
     def __init__(self,name):
-        print 'init lock file',name
+        print('init lock file',name)
         
         filename = lock_file(name)
         self.__file = file_open(filename,'wb')
@@ -354,7 +354,7 @@ class LogFile:
     def __init__(self,target,logfile_max=7):
         self.__file =  file_open(get_logfile(target,logfile_max=logfile_max),'w')
         self.__start = time.time()
-        print >>self.__file,target,'startup on',str(datetime.datetime.today())
+        print('startup on',str(datetime.datetime.today()), file=self.__file,target)
 
     def write(self,s):
         if s=='\n' or s==' ':
@@ -370,7 +370,7 @@ def open_logfile(target,logfile_max=7):
     try:
         return LogFile(target,logfile_max)
     except:
-        print >>sys.__stderr__,"Unexpected error while opening logfile target '%s'" % (target)
+        print("Unexpected error while opening logfile target '%s'" % (target), file=sys.__stderr__)
         traceback.print_exc()
         return None
 

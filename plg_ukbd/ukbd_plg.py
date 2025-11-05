@@ -36,7 +36,7 @@ class VirtualKey(atom.Atom):
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
-        print 'resolving virtual',(a,o)
+        print('resolving virtual',(a,o))
         if not a and o is None: return self.__key(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17)
         if a==('standard',) and o is None: return self.__key(13,14,15,16,9,10,11,12,5,6,7,8,1,2,3,4)
         if a==('chosen',) and o is None: return self.__key(*self.choices)
@@ -130,7 +130,7 @@ class KeyboardAgent(agent.Agent):
     def download_keyboard(self,usbname):
         firmware = ezload.firmware(ezload.vendor,ezload.product)
         if firmware:
-            print 'loading firmware'
+            print('loading firmware')
             ezload.download(usbname,firmware)
 
     def next_keyboard(self):
@@ -143,10 +143,10 @@ class KeyboardAgent(agent.Agent):
         i=self.next_keyboard()
         k=Keyboard(usbname,i,self.domain,lambda: self.del_keyboard(i))
         self.add_subsystem(str(i),k)
-        print 'added keyboard',i,k.name()
+        print('added keyboard',i,k.name())
 
     def del_keyboard(self,i):
-        print 'removed keyboard',i
+        print('removed keyboard',i)
         self.remove_subsystem(str(i))
 
 

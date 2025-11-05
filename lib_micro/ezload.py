@@ -95,7 +95,7 @@ def main():
         code = sys.argv[1]
 
     def doit(s):
-        print 'downloading to',s
+        print('downloading to',s)
         download(s, code)
 
     picross.enumerate(vendor,product,picross.make_string_functor(doit))

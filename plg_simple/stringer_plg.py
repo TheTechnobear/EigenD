@@ -87,7 +87,7 @@ class Agent(agent.Agent):
     # toggle the enable state
     def __toggle_enable(self,arg):
         b = not self[6].get_value()
-        print 'toggle enable ->',b
+        print('toggle enable ->',b)
         self.__enable(b)
         self[6].set_value(b)
 

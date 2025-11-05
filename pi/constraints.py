@@ -415,7 +415,7 @@ def constraint_partof_1(db,c,objects):
 def constraint_proto_1(db,c,objects):
     matches = []
     proto = db.get_propcache('protocol').get_idset(c.args[0])
-    print 'protocol constraint',c.args[0],objects
+    print('protocol constraint',c.args[0],objects)
 
     for r in objects:
         if logic.is_pred(r,'virtual') and r.args[0] in proto:
@@ -476,7 +476,7 @@ def constraint_tagged_ideal_2(db,c,objects):
         if not srv:
             resolvers = idc.get_idset(typ)
 
-        print 'resolvers for',t,'=',resolvers
+        print('resolvers for',t,'=',resolvers)
             
         for srv in resolvers:
             result = rpc.invoke_rpc(srv,'resolve_ideal',action.marshal((typ,words)))
@@ -485,11 +485,11 @@ def constraint_tagged_ideal_2(db,c,objects):
             if result.status():
                 sub = paths.make_subst(srv)
                 i = logic.parse_clause(result.args()[0],sub)
-                print words,'resolved to',i,'via',t
+                print(words,'resolved to',i,'via',t)
                 matches.extend(i)
                 break
 
-            print 'resolution error',result.args(),'resolving',typ,words,'on',s
+            print('resolution error',result.args(),'resolving',typ,words,'on',s)
 
     yield async.Coroutine.success(matches)
 
@@ -522,7 +522,7 @@ def constraint_ideal_1(db,c,objects):
         if not srv:
             resolvers = idc.get_idset(typ)
 
-        print 'resolvers for',t,'=',resolvers
+        print('resolvers for',t,'=',resolvers)
             
         for srv in resolvers:
             result = rpc.invoke_rpc(srv,'resolve_ideal',action.marshal((typ,words)))
@@ -531,11 +531,11 @@ def constraint_ideal_1(db,c,objects):
             if result.status():
                 sub = paths.make_subst(srv)
                 i = logic.parse_clause(result.args()[0],sub)
-                print words,'resolved to',i,'via',t
+                print(words,'resolved to',i,'via',t)
                 matches.extend(i)
                 break
 
-            print 'resolution error',result.args(),'resolving',typ,words,'on',srv
+            print('resolution error',result.args(),'resolving',typ,words,'on',srv)
 
     yield async.Coroutine.success(matches)
             
@@ -547,12 +547,12 @@ def constraint_issubjectextended_3(db,c,objects):
     matches = []
 
     for o in objects:
-        print 'issubjectextended',verb,o
+        print('issubjectextended',verb,o)
         for r in db.search_key('RROLES',T('db_relation',verb,o,V('RROLES'))):
-            print 'r=',r
+            print('r=',r)
             rroles = dict((a.args[0],a.args[1]) for a in r)
             cr = (yield resolve_constraints_dict(db,croles,rroles))
-            print 'found',o,croles,rroles,cr.status()
+            print('found',o,croles,rroles,cr.status())
             if not cr.status() or not cr.args()[0]:
                 continue
 
@@ -570,13 +570,13 @@ def constraint_issubject_2(db,c,objects):
     matches = []
 
     for o in objects:
-        print 'issubject',verb,o
+        print('issubject',verb,o)
         for r in db.search_key('RROLES',T('db_relation',verb,o,V('RROLES'))):
             rroles = dict((a.args[0],a.args[1]) for a in r)
             cr = (yield resolve_constraints_dict(db,croles,rroles))
             if not cr.status() or not cr.args()[0]:
                 continue
-            print 'found',o,croles,rroles,cr.args()[1]
+            print('found',o,croles,rroles,cr.args()[1])
             matches.append(o)
             break
 
@@ -587,7 +587,7 @@ def __get_constraint(c):
         return globals().get('constraint_'+c)
     if logic.is_term(c):
         return globals().get('constraint_%s_%d' % (c.pred,c.arity))
-    print 'invalid constraint',c
+    print('invalid constraint',c)
     return None
 
 @async.coroutine('internal error')
@@ -619,7 +619,7 @@ def resolve_constraints(db,constraints, objects):
 def resolve_constraints_dict(db,constraints,objects):
     out_dict = dict()
 
-    for (cr,cc) in constraints.iteritems():
+    for (cr,cc) in constraints.items():
         oc = objects.get(cr)
         if oc is None:
             yield async.Coroutine.success(False,())

@@ -36,7 +36,7 @@ class CommandModel(language.LanguageDisplayModel):
         gui.call_bg_async(self.langmodel.inject,msg)
 
     def cmdline_changed(self,cmdline):
-        print 'CommandModel:cmdline_changed',cmdline
+        print('CommandModel:cmdline_changed',cmdline)
         words=cmdline[0].split()
         self.words=self.getWordTuples(words)
         notes=str(cmdline[1])
@@ -44,22 +44,22 @@ class CommandModel(language.LanguageDisplayModel):
         self.updateCommand()
 
     def updateCommand(self):
-        print 'CommandModel:update listener',self.words,self.notes,self.__listeners
+        print('CommandModel:update listener',self.words,self.notes,self.__listeners)
         for listener in self.__listeners:
             listener.commandUpdate()
 
     def language_disconnected(self):
-        print 'LanguageDisplayModel:language_disconnected'
+        print('LanguageDisplayModel:language_disconnected')
         for listener in self.__listeners:
             listener.statusUpdate("No Belcanto Interpreter")
         
     def language_ready(self,name):
-        print 'LanguageDisplayModel:language_ready'
+        print('LanguageDisplayModel:language_ready')
         for listener in self.__listeners:
-            print 'update status on  listeners'
+            print('update status on  listeners')
             listener.statusUpdate( "Belcanto Interpreter connected")
 
     def language_gone(self,name):
-        print 'LanguageDisplayModel:language_gone'
+        print('LanguageDisplayModel:language_gone')
         for listener in self.__listeners:
             listener.statusUpdate( "Belcanto Interpreter disconnected")

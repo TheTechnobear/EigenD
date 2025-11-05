@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,bundles,domain,errors,policy,utils,action,const,node,upgrade,logic,async,collection,talker
+from pi import agent,atom,bundles,domain,errors,policy,utils,action,const,node,upgrade,logic,collection,talker
+from pi import piasync
 from pi.logic.shortcuts import T
 from . import arranger_version as version,arranger_native
 import piw
@@ -72,32 +73,32 @@ class RowTarget(collection.Collection):
     def rpc_instancename(self,a):
         return 'action'
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_create(self,name):
         e = RowTargetEvent(self,self.__fastdata,name)
         self[name] = e
         e.attached()
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_wreck(self,k,e,name):
-        print 'killing event',k
+        print('killing event',k)
         del self[k]
         r = e.clear_phrase()
         yield r
-        print 'killed event',k
-        yield async.Coroutine.success()
+        print('killed event',k)
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def create_event(self,text,called=None):
         if called:
             if called in self:
-                yield async.Coroutine.failure('phrase exists')
+                yield piasync.Coroutine.failure('phrase exists')
             index = called
         else:
             index = self.find_hole()
 
-        print 'create event on row',self.id()
+        print('create event on row',self.id())
 
         e = RowTargetEvent(self,self.__fastdata,index)
         self[index] = e
@@ -105,7 +106,7 @@ class RowTarget(collection.Collection):
         r = e.set_phrase(text)
         yield r
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def cancel_event(self,called=None):
         for c,e in self.items():
             if not called or called==c:
@@ -144,14 +145,14 @@ class EventList(node.Server):
 
     def model_changed(self,d):
         r,c,e = self.__decode(d)
-        print 'model changed',d,r,c,e
+        print('model changed',d,r,c,e)
         if e is not None:
             self.__setup(r,c,e)
         else:
             self.__remove(r,c)
 
     def __setup(self,r,c,e):
-        print 'setup',r,c,e
+        print('setup',r,c,e)
         x = self.__find(r,c,True)
         if x is None:
             k = self.find_hole()
@@ -170,8 +171,8 @@ class EventList(node.Server):
             del self[k]
 
     def __find(self,r,c,find_null):
-        print 'find',r,c
-        for k,v in self.iteritems():
+        print('find',r,c)
+        for k,v in self.items():
             if find_null and not v.get_data().is_string():
                 return k,v
             r2,c2,_ = self.__split(v.get_data().as_string())
@@ -236,8 +237,8 @@ class Parameters(atom.Atom):
     def __start_create(self,ctx,subj,dummy,arg):
         v = int(action.abstract_string(arg))
         if v<1 or v>10000:
-            print 'loopstart out of range' 
-            return async.success(errors.out_of_range('1 to 10000','set'))
+            print('loopstart out of range')
+            return piasync.success(errors.out_of_range('1 to 10000','set'))
         return piw.trigger(self.__agent.model.set_loopstart(),piw.makelong_nb(v-1,0)),None
 
     def __start_set(self,d):
@@ -251,8 +252,8 @@ class Parameters(atom.Atom):
     def __end_create(self,ctx,subj,dummy,arg):
         v = int(action.abstract_string(arg))
         if v<1 or v>10000:
-            print 'loopend out of range'
-            return async.success(errors.out_of_range('1 to 10000','set'))
+            print('loopend out of range')
+            return piasync.success(errors.out_of_range('1 to 10000','set'))
         return piw.trigger(self.__agent.model.set_loopend(),piw.makelong_nb(v-1,0)),None
 
     def __end_set(self,d):
@@ -266,8 +267,8 @@ class Parameters(atom.Atom):
     def __step_create(self,ctx,subj,dummy,arg):
         v = float(action.abstract_string(arg))
         if v<1 or v>100:
-            print 'step out of range'
-            return async.success(errors.out_of_range('1 to 100','set'))
+            print('step out of range')
+            return piasync.success(errors.out_of_range('1 to 100','set'))
         return piw.trigger(self.__agent.model.set_stepnumerator(),piw.makefloat_nb(v,0)),None
 
     def __step_set(self,d):
@@ -281,8 +282,8 @@ class Parameters(atom.Atom):
     def __fraction_create(self,ctx,subj,dummy,arg):
         v = float(action.abstract_string(arg))
         if v<1 or v>100:
-            print 'fraction out of range'
-            return async.success(errors.out_of_range('1 to 100', 'set'))
+            print('fraction out of range')
+            return piasync.success(errors.out_of_range('1 to 100', 'set'))
         return piw.trigger(self.__agent.model.set_stepdenominator(),piw.makefloat_nb(v,0)),None
 
     def __fraction_set(self,d):
@@ -291,8 +292,8 @@ class Parameters(atom.Atom):
     def __position_create(self,ctx,subj,dummy,arg):
         v = int(action.abstract_string(arg))
         if v<1 or v>10000:
-            print 'position out of range'
-            return async.success(errors.out_of_range('1 to 10000', 'set'))
+            print('position out of range')
+            return piasync.success(errors.out_of_range('1 to 10000', 'set'))
         return piw.trigger(self.__agent.model.set_position(),piw.makelong_nb(v-1,0)),None
 
     def __doubletap_change(self,v):
@@ -377,19 +378,19 @@ class Agent(agent.Agent):
     def __wrecktarget(self,r,v):
         v.clear()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __createtarget_inst(self,r):
         e = RowTarget(self,r)
         self[5][r] = e
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wrecktarget_inst(self,k,e,name):
         r = e.clear()
         yield r
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __do_verb(self,subject,phrase,row,c):
         phrase = action.abstract_string(phrase)
         row = int(action.abstract_string(row))
@@ -405,33 +406,33 @@ class Agent(agent.Agent):
             self[5][row] = target
 
         if c and c in self[5][row]:
-            yield async.Coroutine.success(action.error_return('name in use','','do'))
+            yield piasync.Coroutine.success(action.error_return('name in use','','do'))
 
         e = target.create_event(phrase,c)
         yield e
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __cancel_verb(self,subj,row,c):
         row = int(action.abstract_string(row))
         c = int(action.abstract_string(c)) if c else None
 
         if row not in self[5]:
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         if c:
             if c not in self[5][row]:
-                yield async.Coroutine.success()
+                yield piasync.Coroutine.success()
 
             r = self[5][row].cancel_event(c)
             yield r
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
         else:
             v = self[5][row]
             id = v.id()
             v.clear()
             del self[5][row]
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
     def __clear_verb(self,subj=None):
         self.view.clear_events()

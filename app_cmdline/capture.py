@@ -19,7 +19,8 @@
 #
 
 from pisession import session
-from pi import async,paths,const,policy
+from pi import paths,const,policy
+from pi import piasync
 
 import optparse
 import sys
@@ -36,7 +37,7 @@ class Plumber:
         self.__plumber = policy.Plumber(self.__correlator,1,1,-1,policy.Plumber.input_input,policy.AnisoStreamPolicy(),address,self.__filter,False,self.__connected)
 
     def __connected(self,plumber):
-        print 'connected to',plumber.id(),plumber.domain()
+        print('connected to',plumber.id(),plumber.domain())
 
 def main():
     parser = optparse.OptionParser(usage=sys.argv[0]+' [options] tag=id ..')
@@ -61,7 +62,7 @@ def main():
         map[spl[1]]=prefix+spl[0]
 
     def coroutine():
-        r = async.Deferred()
+        r = piasync.Deferred()
         d = {}
 
         for (id,tag) in map.items():
@@ -71,17 +72,17 @@ def main():
 
     def handler(ei):
         traceback.print_exception(file=sys.stderr,*ei)
-        return async.Coroutine.failure('internal error')
+        return piasync.Coroutine.failure('internal error')
 
     def failed(msg):
-        print msg
+        print(msg)
         picross.exit(-1)
 
     def succeeded():
         picross.exit(0)
 
     def startup(dummy):
-        result = async.Coroutine(coroutine(),handler)
+        result = piasync.Coroutine(coroutine(),handler)
         result.setErrback(failed).setCallback(succeeded)
         return result
 

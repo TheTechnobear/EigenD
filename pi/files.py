@@ -73,7 +73,7 @@ class FileSystemFile:
         self.__hash = hashlib.md5(pi_resource.file_open(name,'r').read()).hexdigest()
         self.__size = pi_resource.os_path_getsize(name)
         self.__label = label
-        print 'file system file, name=',name,'hash=',self.__hash
+        print('file system file, name=',name,'hash=',self.__hash)
 
     def label(self):
         return self.__label
@@ -108,7 +108,7 @@ def get_data(ideal,cache=None):
     server = t.args[0][0]
     (perm,(label,type,size,md5),(server,cookie)) = t.args[1]
 
-    print 'files.get_data:',server,':',cookie
+    print('files.get_data:',server,':',cookie)
     data = ''
     hash = hashlib.md5()
 
@@ -169,7 +169,7 @@ class FileCache:
         r = async.Deferred()
 
         if uuid in self.__waiters:
-            print 'tagging onto',uuid,'download'
+            print('tagging onto',uuid,'download')
             self.__waiters[uuid].append(r)
             return r
 
@@ -196,10 +196,10 @@ class FileCache:
     def __getfile(self,cache_file,size,server,cookie,md5):
 
         if pi_resource.os_path_exists(cache_file) and pi_resource.os_path_getsize(cache_file)==size:
-            print 'returning',server,':',cookie,'from cache'
+            print('returning',server,':',cookie,'from cache')
             yield async.Coroutine.success(cache_file)
 
-        print 'FileCache.__getfile:downloading',server,':',cookie,'->',cache_file
+        print('FileCache.__getfile:downloading',server,':',cookie,'->',cache_file)
 
         hash = hashlib.md5()
         data = pi_resource.file_file(cache_file,"w")
@@ -207,7 +207,7 @@ class FileCache:
 
         while True:
             remaining = size-fetched
-            print 'FileCache.__getfile:',server,cookie,'size',size,'fetched',fetched,'transfer_size',transfer_size
+            print('FileCache.__getfile:',server,cookie,'size',size,'fetched',fetched,'transfer_size',transfer_size)
 
             if remaining <= 0:
                 break
@@ -216,7 +216,7 @@ class FileCache:
                 remaining = transfer_size
 
             x = logic.render_term((cookie,fetched,remaining))
-            print 'x=',x
+            print('x=',x)
             result = rpc.invoke_rpc(server,'download',x)
             yield result
 
@@ -252,7 +252,7 @@ def copy_file(ideal,filename):
     server = t.args[0][0]
     (perm,(label,type,size,md5),cookie) = t.args[1]
 
-    print 'downloading',ideal,'to',filename
+    print('downloading',ideal,'to',filename)
 
     hash = hashlib.md5()
     data = pi_resource.file_file(filename,"w")
@@ -287,7 +287,7 @@ def copy_file(ideal,filename):
         data.write(rsp)
 
     data.close()
-    print 'size',size,'fetched',fetched,'transfer_size',transfer_size
+    print('size',size,'fetched',fetched,'transfer_size',transfer_size)
 
     if hash.hexdigest() == md5:
         yield async.Coroutine.success(filename)

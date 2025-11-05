@@ -56,8 +56,8 @@ if master_env.Detect('exctags'): ctags='exctags'
 if master_env.Detect('exuberant-ctags'): ctags='exuberant-ctags'
 
 if ctags and not os.getenv('PI_NOTAGS'):
-    srcfiles1 = map(dirname,glob.glob(join('*','SConscript')))
-    srcfiles2 = map(dirname,glob.glob(join('*','*','SConscript')))
+    srcfiles1 = list(map(dirname,glob.glob(join('*','SConscript'))))
+    srcfiles2 = list(map(dirname,glob.glob(join('*','*','SConscript'))))
     tags = master_env.Command('#tags',[],ctags+' --langdef=pip --langmap=pip:.pip --extra=+fq --c-kinds=+pxvtmdc --recurse %s' % ' '.join(srcfiles1+srcfiles2))
     master_env.AlwaysBuild(tags)
     master_env.Alias('target-default',tags)

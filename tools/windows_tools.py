@@ -73,7 +73,7 @@ def dir_enumerator(factory,count,abs_path,node,node_path,directories,components)
         dir_path = node_path+(d,)
         if dir_path in directories:
             sub_directory = directories[dir_path]
-            print 'directory hit for',dir_path
+            print('directory hit for',dir_path)
         else:
             count = count + 1
             sub_directory = factory.createElement( 'Directory' )
@@ -173,7 +173,7 @@ class PiWindowsEnvironment(generic_tools.PiGenericEnvironment):
         version = self.subst('$PI_RELEASE').split('-')[0]
         if re.match("^\\d+\\.\\d+$", version):
             version = version+".0"
-        print 'wsx for collection',name,'containing',package
+        print('wsx for collection',name,'containing',package)
         meta = self.shared.package_descriptions[package]
 
         pkgid = meta.get('pkgid')

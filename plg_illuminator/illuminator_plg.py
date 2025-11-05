@@ -17,7 +17,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,async,atom,collection,const,domain,policy,bundles,logic,action,utils,resource
+from pi import agent,atom,collection,const,domain,policy,bundles,logic,action,utils,resource
+from pi import piasync
 from . import illuminator_version as version
 
 import piw
@@ -77,7 +78,7 @@ class InterruptableHTTPServer(HTTPServer):
             try:
                 self.handle_request()
             except:
-                print 'server error: unexpected error', sys.exc_info()[0]
+                print('server error: unexpected error', sys.exc_info()[0])
         self.server_close()
 
 class IlluminatorRequestHandler(BaseHTTPRequestHandler):
@@ -293,15 +294,15 @@ class StoredLightMaps(collection.Collection):
         self.lightmaps_changed()
         self.agent.update()
     
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self,ordinal=None):
         e = self.create_lightmap(ordinal)
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self,key,inst,ordinal):
         self.lightmaps_changed()
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 class Agent(agent.Agent):
     def __init__(self, address, ordinal):
@@ -364,7 +365,7 @@ class Agent(agent.Agent):
 
     def stop_http(self):
         if self.httpServer:
-            print "shutting down HTTP server"
+            print("shutting down HTTP server")
             self.httpServer.stop()
             self.httpServer = None
 
@@ -373,7 +374,7 @@ class Agent(agent.Agent):
 
         port = self[5].get_value()
         if port:
-            print "starting up HTTP server on port", port
+            print("starting up HTTP server on port", port)
             self.snapshot = piw.tsd_snapshot()
             server = InterruptableHTTPServer(self, self.snapshot, '0.0.0.0', port, IlluminatorRequestHandler)
             server.start()
@@ -384,7 +385,7 @@ class Agent(agent.Agent):
             self.start_http()
             self[6].set_value(True)
         except:
-            print 'error starting HTTP server on port '+str(self[5].get_value()), sys.exc_info()[0]
+            print('error starting HTTP server on port '+str(self[5].get_value()), sys.exc_info()[0])
         self.__update_server_status()
 
     def __stop_server(self,subj=None,v=None):
@@ -392,7 +393,7 @@ class Agent(agent.Agent):
             self.stop_http()
             self[6].set_value(False)
         except:
-            print 'error stopping HTTP server on port '+str(self[5].get_value()), sys.exc_info()[0]
+            print('error stopping HTTP server on port '+str(self[5].get_value()), sys.exc_info()[0])
         self.__update_server_status()
 
     def __toggle_server(self,subj,v):
@@ -407,14 +408,14 @@ class Agent(agent.Agent):
     def __load_lightmap(self,subj,v):
         a = action.concrete_object(v)
         if self[8].load(a):
-            return async.success(action.concrete_return(a))
-        return async.success(errors.doesnt_exist('light mapping','load'))
+            return piasync.success(action.concrete_return(a))
+        return piasync.success(errors.doesnt_exist('light mapping','load'))
 
     def __delete_lightmap(self,subj,v):
         a = action.concrete_object(v)
         if self[8].uncreate(a):
-            return async.success(action.removed_return(a))
-        return async.success(errors.doesnt_exist('light mapping','delete'))
+            return piasync.success(action.removed_return(a))
+        return piasync.success(errors.doesnt_exist('light mapping','delete'))
 
     def __save_lightmap(self,subj,v=None):
         lm = self[8].create_lightmap()
@@ -432,8 +433,8 @@ class Agent(agent.Agent):
                 lm.set_ordinal(ordinal)
             lm[1].set_value(self[2].get_value())
             lm[2].set_value(self[3].get_value())
-            return async.success(action.concrete_return(lm.id()))
-        return async.success(errors.cant_error('light mapping','save'))
+            return piasync.success(action.concrete_return(lm.id()))
+        return piasync.success(errors.cant_error('light mapping','save'))
     
     def __update_server_status(self):
         self.server_lights.set_status(1, const.status_active if self[6].get_value() else const.status_inactive)

@@ -153,7 +153,7 @@ class ListPanel(wx.Window):
                 self.model.activate(self.topSelection+1-self.numColDisp)
                 self.timer2.Start(500,oneShot=True)
             else:
-                print '__doTap',self.topSelection, self.model.cinfo[self.topSelection]
+                print('__doTap',self.topSelection, self.model.cinfo[self.topSelection])
                 if self.model.cinfo[self.topSelection][1]=='Up one level':
                     self.model.back() 
                 else:
@@ -162,7 +162,7 @@ class ListPanel(wx.Window):
 #            self.timer2.Start(500,oneShot=True)
 
     def update(self):
-        print 'ListPanel:update'
+        print('ListPanel:update')
         dc=self.__getClientDC()
         self.doPaint(dc)
         self.__borderDrawing(dc)
@@ -224,12 +224,12 @@ class ListPanel(wx.Window):
             self.fl.draw(dc)
 
     def __drawIcon(self,dc):
-        print 'list_panel:drawIcon'
+        print('list_panel:drawIcon')
         if self.model.icon:
             icon=utils.iconHandler(self.model.icon)
             dc.DrawBitmap(icon,(0.5*self.GetClientSize()[0])-32,20)
         else:
-            print 'icon is None'
+            print('icon is None')
 
     def __doTopPanelDraw(self,dc):
         if self.model.finfo_for_new_category and self.model.finfo:
@@ -237,7 +237,7 @@ class ListPanel(wx.Window):
             self.model.finfo_for_new_category=False
         
         if self.topSelection>=self.model.numFiles+self.model.numCollections:
-            print 'topSelection=',self.topSelection,'numFiles=',self.model.numFiles
+            print('topSelection=',self.topSelection,'numFiles=',self.model.numFiles)
             self.topSelection=0
 #            self.resetVScroller(1)
 

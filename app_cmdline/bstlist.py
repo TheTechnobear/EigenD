@@ -31,14 +31,14 @@ def dump_node(db,snap,address,agent,path):
     node = agent.get_root()
     for e in path:
         if node.enum_children(e-1)!=e:
-            print 'No such path',address
+            print('No such path',address)
             return
         node = node.get_child(e)
 
-    print "Snapshot: ",snap.version(),'Agent:',address,'Type:',agent.get_type(),'Value:',node.get_data()
+    print("Snapshot: ",snap.version(),'Agent:',address,'Type:',agent.get_type(),'Value:',node.get_data())
     e=node.enum_children(0)
     while e!=0:
-        print "%4u:%s" % (e,node.get_child(e).get_data())
+        print("%4u:%s" % (e,node.get_child(e).get_data()))
         e=node.enum_children(e)
 
 def dump_agent(db,snap,address):
@@ -50,7 +50,7 @@ def dump_agent(db,snap,address):
             dump_node(db,snap,address,agent,path)
             return
 
-    print 'No agent',name
+    print('No agent',name)
 
 def dump_version(db,version,address):
     snap = db.get_trunk()
@@ -65,34 +65,34 @@ def dump_version(db,version,address):
             snap = db.get_version(p)
 
     if snap is None:
-        print 'No version',version
+        print('No version',version)
         return
 
     if address:
         dump_agent(db,snap,address[0])
         return
 
-    print "Snapshot: ",snap.version()
-    print "Agent                               Type Version Signature"
-    print "-----                               ---- ------- ---------"
+    print("Snapshot: ",snap.version())
+    print("Agent                               Type Version Signature")
+    print("-----                               ---- ------- ---------")
 
     agents = snap.agent_count()
     for i in range(0,agents):
         agent = snap.get_agent_index(i)
-        print "%-35s %-4d %10u %s" % (agent.get_address(),agent.get_type(),agent.get_checkpoint(),agent.get_root().get_data())
+        print("%-35s %-4d %10u %s" % (agent.get_address(),agent.get_type(),agent.get_checkpoint(),agent.get_root().get_data()))
 
 def dump_versions(db):
     snap = db.get_trunk()
 
-    print "Version     Timestamp                  Tag"
-    print "-------     ---------                  ---"
+    print("Version     Timestamp                  Tag")
+    print("-------     ---------                  ---")
 
     while True:
         p = snap.previous()
         t = time.ctime(snap.timestamp()/1000000.0)
         v = snap.version()
         l = snap.tag() or '-'
-        print "%-10u  %-24s   %s" % (v,t,l)
+        print("%-10u  %-24s   %s" % (v,t,l))
         if not p: break
         snap = db.get_version(p)
 

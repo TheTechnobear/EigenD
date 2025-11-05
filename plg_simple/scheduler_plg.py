@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,action,domain,bundles,utils,logic,node,async,schedproxy,const,upgrade,policy,talker,collection,paths,const
+from pi import agent,atom,action,domain,bundles,utils,logic,node,schedproxy,const,upgrade,policy,talker,collection,paths,const
+from pi import piasync
 from . import scheduler_version as version
 import piw
 from pi.logic.shortcuts import *
@@ -67,31 +68,31 @@ class EventBrowser(atom.Atom):
 
     def rpc_setselected(self,arg):
         (path,selected)=logic.parse_clause(arg)
-        print 'EventBrowser:setselected',path,selected    
+        print('EventBrowser:setselected',path,selected    )
         self.__selected=selected
     
     def rpc_activated(self,arg):
-        print 'EventBrowser:activated',arg    
+        print('EventBrowser:activated',arg    )
         return logic.render_term(('',''))
     
     def rpc_current(self,arg):
         return '[]'
 
     def resolve_name(self,name):
-        print 'EventBrowser:resolve_name',name
+        print('EventBrowser:resolve_name',name)
         if name=='selection':
             o=self.__selected
-            print 'name=selection',o
+            print('name=selection',o)
         else:
             try:
                 o=int(name)
                 o=int(o)-1
-                print 'o=',o
+                print('o=',o)
             except:
                 return '[]'
 
         for e in self.__eventlist():
-            print 'e.ordinal=',e.ordinal()
+            print('e.ordinal=',e.ordinal())
             if e.ordinal() == o:
                 return '[%s]' % self.__ideal(e)
 
@@ -111,7 +112,7 @@ class EventBrowser(atom.Atom):
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
-        print 'resolving virtual',arg,(a,o)
+        print('resolving virtual',arg,(a,o))
 
         if a or not o:
             return '[]'
@@ -125,15 +126,15 @@ class EventBrowser(atom.Atom):
         return '[]'
 
     def rpc_enumerate(self,a):
-        print 'enumerating',a
+        print('enumerating',a)
         return logic.render_term((len(self.__eventlist()),0))
 
     def rpc_cinfo(self,a):
-        print 'cinfo',a
+        print('cinfo',a)
         return '[]'
 
     def rpc_finfo(self,a):
-        print 'finfo',a
+        print('finfo',a)
         (dlist,cnum) = logic.parse_clause(a)
         # XXX
         #map = tuple([(i+cnum,e.describe(),None) for (i,e) in enumerate(self.__eventlist()[cnum:])])
@@ -168,11 +169,11 @@ class Event(talker.Talker):
 
     def compare(self,qschema):
         schema = action.unmarshal(self.get_schema())
-        print schema,qschema
+        print(schema,qschema)
         return schema.args[1]==qschema.args[1]
 
     def __change_schema(self,schema):
-        print 'disabling event',id(self.event),schema
+        print('disabling event',id(self.event),schema)
         self.event.detach()
         self.event.disable()
         if schema:
@@ -184,10 +185,10 @@ class Event(talker.Talker):
             self.event.attach(self.scheduler.controller)
             self.event.set_sequential_key(self.index)
             self[3].set_value(schema)
-            print 'enabling event',id(self.event),'for',s
+            print('enabling event',id(self.event),'for',s)
 
     def setup(self,schema):
-        print 'disabling event',id(self.event)
+        print('disabling event',id(self.event))
         self.event.detach()
         self.event.disable()
         self[3].set_value('')
@@ -200,10 +201,10 @@ class Event(talker.Talker):
             self.event.attach(self.scheduler.controller)
             self.event.set_sequential_key(self.index)
             self[3].set_value(schema.as_string())
-            print 'enabling event',id(self.event),'for',s
+            print('enabling event',id(self.event),'for',s)
 
     def cancel(self):
-        print 'canceling event',id(self.event)
+        print('canceling event',id(self.event))
         self.event.detach()
         self.event.disable()
         self.scheduler.light_aggregator.clear_output(self.index)
@@ -212,7 +213,7 @@ class Event(talker.Talker):
     def __enable_changed(self,d):
         if not d.is_bool():
             return
-        print 'setting enabled state to',d
+        print('setting enabled state to',d)
         self.event.set_self_light(const.status_selector_on if d.as_bool() else const.status_selector_off)
         self[4].set_value(d.as_bool())
 
@@ -221,7 +222,7 @@ class Event(talker.Talker):
             self.event.enable()
         else:
             self.event.disable()
-        print 'setting enabled state to',d
+        print('setting enabled state to',d)
         self[4].set_value(d)
 
 
@@ -269,7 +270,7 @@ class Agent(agent.Agent):
         self[6] = atom.Atom(domain=domain.String(),names='identifier')
 
     def __control_changed(self,d):
-        print "__control_changed",d
+        print("__control_changed",d)
 
     def __eventlist(self):
         return self[3].values()
@@ -280,9 +281,9 @@ class Agent(agent.Agent):
 
     def rpc_delete_trigger(self,args):
         trigger = action.unmarshal(args)
-        for (i,e) in self[3].iteritems():
+        for (i,e) in self[3].items():
             if e.trigger_id()==trigger:
-                print 'deleting event',e.trigger_id()
+                print('deleting event',e.trigger_id())
                 e.cancel()
                 del self[3][i]
                 self[5].update()
@@ -303,38 +304,38 @@ class Agent(agent.Agent):
         return e
 
     def rpc_create_trigger(self,schema):
-        print 'event schema is:',schema
+        print('event schema is:',schema)
         e = self.__create_event(schema)
-        return async.success(e.trigger_id())
+        return piasync.success(e.trigger_id())
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __do_verb(self,subject,text,at,until,every,called):
         text = action.abstract_string(text)
         schema = schedproxy.make_schema(at,until,every)
         called = int(action.abstract_string(called)) if called else None
-        print 'mode schema is:',schema
+        print('mode schema is:',schema)
 
         if called and called in self[3]:
-            yield async.Coroutine.success(action.error_return('name in use','','do'))
+            yield piasync.Coroutine.success(action.error_return('name in use','','do'))
 
         e = self.__create_event(schema,called)
         r = e.set_phrase(text)
         yield r 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __verb_cancel(self,subject,called):
         called = int(action.abstract_string(called))
 
         if called not in self[3]:
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         r = self[3][called].cancel()
         del self[3][called]
         self[5].update()
 
         yield r
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def __wreck(self,i,e):
         e.cancel()
@@ -345,17 +346,17 @@ class Agent(agent.Agent):
         self[5].update()
         return e
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self,k):
         e = Event(self,k)
         self[3][k] = e
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self,k,e,name):
         r = e.cancel()
         yield r
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def rpc_resolve_ideal(self,arg):
         (typ,name) = action.unmarshal(arg)

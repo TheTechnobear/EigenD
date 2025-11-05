@@ -19,8 +19,8 @@
 #
 
 from pisession import session
-from pi import rpc,async
-
+from pi import rpc
+from pi import piasync
 import optparse
 import sys
 import piw
@@ -49,25 +49,25 @@ def main():
 
         inv = rpc.invoke_rpc(id,name,arg,opts.timeout)
         yield inv
-        yield async.Coroutine.completion(inv.status(),inv.args()[0])
+        yield piasync.Coroutine.completion(inv.status(),inv.args()[0])
 
     def handler(ei):
         traceback.print_exception(file=sys.stderr,*ei)
-        return async.Coroutine.failure('internal error')
+        return piasync.Coroutine.failure('internal error')
 
     def failed(msg):
         if opts.verbose:
-            print >>sys.stderr,'rpc failed:',msg
+            print('rpc failed:',msg, file=sys.stderr)
         picross.exit(-1)
 
     def succeeded(msg):
         if opts.verbose:
-            print >>sys.stderr,'rpc succeeded:',msg
-        print msg
+            print('rpc succeeded:',msg, file=sys.stderr)
+        print(msg)
         picross.exit(0)
 
     def startup(dummy):
-        result = async.Coroutine(coroutine(),handler)
+        result = piasync.Coroutine(coroutine(),handler)
         result.setErrback(failed).setCallback(succeeded)
         return result
 

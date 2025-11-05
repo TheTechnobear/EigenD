@@ -28,5 +28,5 @@ def main():
     file.close()
 
     for name,pre,bank in sf2.sf_info(sys.argv[1]):
-        print name,pre,bank
+        print(name,pre,bank)
 

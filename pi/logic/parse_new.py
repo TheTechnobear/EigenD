@@ -33,7 +33,7 @@ class Delegate(piw.python_delegate):
         if self.__nosubst:
             return terms.make_subst(key)
         if key not in self.__subst:
-            print 'invalid substitution keyword %s' % key
+            print('invalid substitution keyword %s' % key)
             return None
         return self.__subst[key]
 

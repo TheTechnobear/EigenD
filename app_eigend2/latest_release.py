@@ -59,10 +59,10 @@ class LatestReleasePoller(threading.Thread):
     def run(self):
         self.__context.install()
         while True:
-            print 'latest release poller running',self.__cookie
+            print('latest release poller running',self.__cookie)
             self.__backend.set_latest_release(get_latest_release(self.__cookie,self.__info))
-            print 'latest release poller sleeping'
+            print('latest release poller sleeping')
             self.__event.wait(3600)
             self.__event.clear()
 
-        print 'latest release poller exiting'
+        print('latest release poller exiting')

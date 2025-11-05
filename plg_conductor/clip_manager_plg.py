@@ -17,7 +17,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,bundles,atom,action,domain,paths,upgrade,const,policy,node,utils,async,resource
+from pi import agent,bundles,atom,action,domain,paths,upgrade,const,policy,node,utils,resource
+from pi import piasync
 from . import clip_manager_version as version
 
 import piw
@@ -31,7 +32,7 @@ class ClipManagerWidget(atom.Atom):
         manager.initialise_widget(self.__widget)
 
     def widget_rpc(self,method,arg):
-        result = async.Deferred()
+        result = piasync.Deferred()
 
         def completed(rv):
             if not rv.is_string():

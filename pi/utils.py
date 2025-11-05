@@ -69,21 +69,21 @@ def weaken(callback,default=None):
     return WeakFunctionCallback(callback,default)
 
 def log_exception():
-    print 'start traceback:'
+    print('start traceback:')
     traceback.print_exc(limit=None)
-    print 'end traceback:'
+    print('end traceback:')
 
 def log_trace():
-    print 'start traceback:'
+    print('start traceback:')
     traceback.print_stack(limit=None)
-    print 'end traceback:'
+    print('end traceback:')
 
 def __nothrow(func,ret):
     def __do_nothrow(*args,**kwds):
         try:
             return func(*args,**kwds)
         except:
-            print 'ignored:'
+            print('ignored:')
             traceback.print_exc(limit=None)
             return ret
     return __do_nothrow
@@ -119,7 +119,7 @@ def index_iter(index):
             break
 
         if old_count != None:
-            print 'reiterating',new_count,old_count
+            print('reiterating',new_count,old_count)
 
         for i in range(0,new_count):
             m = index.member_name(i)
@@ -216,7 +216,7 @@ def pack_str(*l):
 def makedict(items,ts):
     d = piw.dictnull(ts)
     if type(items) == dict:
-        for (k,v) in items.iteritems():
+        for (k,v) in items.items():
             d = piw.dictset(d,k,v)
     elif type(items) == list:
         for e in items:
@@ -226,7 +226,7 @@ def makedict(items,ts):
 def makedict_nb(items,ts):
     d = piw.dictnull_nb(ts)
     if type(items) == dict:
-        for (k,v) in items.iteritems():
+        for (k,v) in items.items():
             d = piw.dictset_nb(d,k,v)
     elif type(items) == list:
         for e in items:

@@ -22,7 +22,8 @@ import os
 import picross
 import piw
 
-from pi import atom,bundles,domain,agent,logic,utils,node,action,async,upgrade
+from pi import atom,bundles,domain,agent,logic,utils,node,action,upgrade
+from pi import piasync
 from . import midi_input_version as version,midi_native
 
 class VirtualKey(atom.Atom):
@@ -36,7 +37,7 @@ class VirtualKey(atom.Atom):
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
-        print 'resolving virtual',arg,(a,o)
+        print('resolving virtual',arg,(a,o))
         if not a and o is None: return self.__key(*range(0,128))
         if a==('chosen',) and o is None: return self.__key(*self.choices)
         if a or o is None: return self.__key()
@@ -71,10 +72,10 @@ class VirtualCC(atom.Atom):
         self.__selected=None
 
     def rpc_setselected(self,arg):
-        print 'VirtualCC:setselected',arg    
+        print('VirtualCC:setselected',arg    )
     
     def rpc_activated(self,arg):
-        print 'VirtualCC:activated',arg    
+        print('VirtualCC:activated',arg    )
         return logic.render_term(('',''))
 
     def rpc_current(self,arg):
@@ -87,7 +88,7 @@ class VirtualCC(atom.Atom):
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
         a = (' '.join(a)).lower()
-        print 'midi cc resolving',a,o
+        print('midi cc resolving',a,o)
         if a in self.cdict: return self.__key(self.cdict[a])
         a2 = a+' coarse'
         if a2 in self.cdict: return self.__key(self.cdict[a2])
@@ -95,7 +96,7 @@ class VirtualCC(atom.Atom):
         if a or o is None: return self.__key()
         o=int(o)
         if o<0 or o>127: return self.__key()
-        print 'resolved to',self.__key(o)
+        print('resolved to',self.__key(o))
         return self.__key(o)
 
     def rpc_enumerate(self,a):
@@ -115,11 +116,11 @@ class VirtualCC(atom.Atom):
             cookie=int(cookie)
         except:
             utils.log_exception()
-            return async.failure('invalid cookie')
+            return piasync.failure('invalid cookie')
         for name,val in self.clist:
             if cookie==val:
                 return 'cmp([dsc(~(parent)"#2",%d)])' % val
-        return async.failure('invalid cookie')
+        return piasync.failure('invalid cookie')
 
 class VirtualProgramChange(atom.Atom):
     def __init__(self):
@@ -132,7 +133,7 @@ class VirtualProgramChange(atom.Atom):
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
-        print 'resolving virtual',arg,(a,o)
+        print('resolving virtual',arg,(a,o))
         if not a and o is None: return self.__key(*range(0,128))
         if a==('chosen',) and o is None: return self.__key(*self.choices)
         if a or o is None: return self.__key()
@@ -151,7 +152,7 @@ class VirtualTrigger(atom.Atom):
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
-        print 'resolving virtual',arg,(a,o)
+        print('resolving virtual',arg,(a,o))
         if not a and o is None: return self.__key(*range(0,128))
         if a==('chosen',) and o is None: return self.__key(*self.choices)
         if a or o is None: return self.__key()
@@ -169,11 +170,11 @@ class MidiDelegate(midi_native.midi_input):
         xid = '%x'%id
         for i,(u,n) in enumerate(self.sources):
             if u==xid:
-                print 'midi source changed',xid,name
+                print('midi source changed',xid,name)
                 self.sources[i] = (xid,name)
                 self.__notify()
                 return
-        print 'midi source added',xid,name
+        print('midi source added',xid,name)
         self.sources.append((xid,name))
         self.__notify()
 
@@ -181,7 +182,7 @@ class MidiDelegate(midi_native.midi_input):
         xid = '%x'%id
         for i,(u,n) in enumerate(self.sources):
             if u==xid:
-                print 'midi source removed',xid,n
+                print('midi source removed',xid,n)
                 del self.sources[i]
                 self.__notify()
                 return
@@ -227,7 +228,7 @@ class MidiPort(atom.Atom):
         self.set_value(port)
         self.__update()
         if self.open():
-            print 'set port to',port
+            print('set port to',port)
             if port:
                 self.__midi.set_port(int(port,16))
             else:
@@ -242,12 +243,12 @@ class MidiPort(atom.Atom):
 
     def rpc_setselected(self,arg):
         (path,selected)=logic.parse_clause(arg)
-        print 'MidiPort:setselected',selected    
+        print('MidiPort:setselected',selected    )
         self.__selected=selected
     
     def rpc_activated(self,arg):
         (path,selected)=logic.parse_clause(arg)
-        print 'MidiPort:activated',selected    
+        print('MidiPort:activated',selected    )
         port=selected
         self.set_port(port)
         return logic.render_term(('',''))
@@ -284,7 +285,7 @@ class MidiPort(atom.Atom):
         for id,n in self.__midi.sources:
             if id==cookie:
                 return 'ideal([~server,midiport],%s)' % logic.render_term(cookie)
-        return async.failure('invalid cookie')
+        return piasync.failure('invalid cookie')
 
     def rpc_current(self,arg):
         current = self.__midi.get_port()
@@ -354,7 +355,7 @@ class Agent(agent.Agent):
             self[5].clear_trim()
             for (cc,min,max,inv) in trim:
                 self[5].set_trim(cc,min,max,inv)
-            print 'trim:',trim
+            print('trim:',trim)
             self.get_private().set_data(val)
 
     def get_trim(self,cc):
@@ -382,7 +383,7 @@ class Agent(agent.Agent):
 
     def __invert(self,subj,arg):
         cc = int(arg[0].args[0][0].args[1])
-        print 'invert controller',cc
+        print('invert controller',cc)
         trim = self.get_trim(cc)
         trim[3] = not trim[3]
         self.set_trim(*trim)
@@ -395,7 +396,7 @@ class Agent(agent.Agent):
         else:
             val=int(action.abstract_string(val))
 
-        print 'set controller minimum',cc,val
+        print('set controller minimum',cc,val)
         trim = self.get_trim(cc)
         trim[1] = val
 
@@ -417,7 +418,7 @@ class Agent(agent.Agent):
         else:
             val=int(action.abstract_string(val))
 
-        print 'set controller maximum',cc,val
+        print('set controller maximum',cc,val)
         trim = self.get_trim(cc)
         trim[2] = val
 
@@ -433,7 +434,7 @@ class Agent(agent.Agent):
 
     def rpc_resolve_ideal(self,arg):
         (type,arg) = action.unmarshal(arg)
-        print 'resolving',arg
+        print('resolving',arg)
 
         if type=='midiport':
             return self[5].resolve_name(' '.join(arg))
@@ -441,10 +442,10 @@ class Agent(agent.Agent):
         return action.marshal(())
 
     def __chooseport(self,subj,arg):
-        print 'choose port',arg
-        print action.arg_objects(arg)[0]
+        print('choose port',arg)
+        print(action.arg_objects(arg)[0])
         (type,thing) = action.crack_ideal(action.arg_objects(arg)[0])
-        print type,thing
+        print(type,thing)
         self[5].set_port(thing)
 
 

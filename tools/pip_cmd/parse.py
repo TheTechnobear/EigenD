@@ -26,7 +26,7 @@ from error import PipError
 def merge(d1,d2):
     r = d1.copy()
     for (k,v) in d2.items():
-        if r.has_key(k):
+        if k in r:
             r[k]=r[k]+v
         else:
             r[k]=v
@@ -118,7 +118,7 @@ def t_newline(t):
     t.lineno += len(t.value)
 
 def t_error(t):
-    print "illegal input '%s'" % t.value[0]
+    print("illegal input '%s'" % t.value[0])
     t.skip(1)
 
 def p_statementlist_stmt(p):

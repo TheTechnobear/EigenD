@@ -17,7 +17,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,domain,policy,bundles,resource,collection,async,errors,action
+from pi import agent,atom,domain,policy,bundles,resource,collection,errors,action
+from pi import piasync
 from . import conductor_version as version
 
 import piw
@@ -28,21 +29,21 @@ class ClipPoolWidget(atom.Atom):
         atom.Atom.__init__(self,domain=domain.Blob(),names='Clip Pool',transient=True,policy=atom.default_policy(self.__changed),protocols="widget-clippool")
 
     def __changed(self,value):
-        print 'received',value
+        print('received',value)
 
 class ArrangeViewWidget(atom.Atom):
     def __init__(self):
         atom.Atom.__init__(self,domain=domain.Blob(),names='Arrangement View',transient=True,policy=atom.default_policy(self.__changed),protocols="widget-arrangeview")
 
     def __changed(self,value):
-        print 'received',value
+        print('received',value)
 
 class SceneViewWidget(atom.Atom):
     def __init__(self):
         atom.Atom.__init__(self,domain=domain.Blob(),names='Scene View',transient=True,policy=atom.default_policy(self.__changed),protocols="widget-sceneview")
 
     def __changed(self,value):
-        print 'received',value
+        print('received',value)
 
 class ChannelList(collection.Collection):
     def __init__(self, agent, names):
@@ -92,16 +93,16 @@ class ChannelList(collection.Collection):
         self.channels_changed()
         self.agent.update()
     
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self, ordinal=None):
         e = self.create_channel(ordinal)
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self, key, inst, ordinal):
         inst.disconnect()
         self.channels_changed()
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 class InputChannel(atom.Atom):
     def __init__(self, agent, index):
@@ -189,7 +190,7 @@ class Agent(agent.Agent):
 
         if channel is None:       
             thing='input %s' %str(id)
-            return async.success(errors.invalid_thing(thing,'un create'))
+            return piasync.success(errors.invalid_thing(thing,'un create'))
 
         self[1].del_channel(id)
 

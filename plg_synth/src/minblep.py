@@ -101,10 +101,10 @@ if __name__ == '__main__':
     ramp = add.accumulate(blep)[bl:bl*2]
     xramp = arange(bl,bl*2)
     g,i,r,p,e = linregress(xramp,ramp)
-    print 'intercept is',i
+    print('intercept is',i)
 
     osd = delay*oversampling
-    print 'shift is',osd+i
+    print('shift is',osd+i)
     sblep = shift(blep,osd+i)
     fo = open('sblep.out','w')
     for x in sblep: fo.write('%.18f\n'%x)

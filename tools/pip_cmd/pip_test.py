@@ -336,7 +336,7 @@ def compile_module(module,specification,include_path=[]):
     except: pass
 
     try:
-        f=file(spec_file,"w")
+        f=open(spec_file,"w")
         f.write(specification)
         f.close()
 
@@ -395,7 +395,7 @@ class pip_test(unittest.TestCase):
     def check_namespace(self,obj,doc,**kwds):
         self.assertTrue(hasattr(obj,'__doc__'))
         self.assertTrue(doc in obj.__doc__)
-        for (mname,mdoc) in kwds.iteritems():
+        for (mname,mdoc) in kwds.items():
             self.assertTrue(hasattr(obj,mname))
             method=getattr(obj,mname)
             if mdoc != None:

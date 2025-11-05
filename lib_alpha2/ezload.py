@@ -99,11 +99,11 @@ def download(device, filename):
 
 def main():
     def bs_doit(s):
-        print 'downloading base station MM firmware to',s
+        print('downloading base station MM firmware to',s)
         download(s, bs_firmware())
 
     def psu_doit(s):
-        print 'downloading PSU MM firmware to',s
+        print('downloading PSU MM firmware to',s)
         download(s, psu_firmware())
 
     picross.enumerate(vendor,bs_product,picross.make_string_functor(bs_doit))

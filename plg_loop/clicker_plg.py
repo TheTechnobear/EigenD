@@ -34,22 +34,22 @@ class WavSample:
 wav_reader = riff.Root('WAVE', riff.List(**{ 'fmt ': riff.Struct('<hHLLHH'), 'data': WavSample() }))
 
 def fgetsamples(filename):
-    print 'loading samples from ',filename
+    print('loading samples from ',filename)
     f = resource.file_open(filename,'rb',0)
     r = wav_reader.read(f)
-    print 'sample rate is',r['fmt '][2]
+    print('sample rate is',r['fmt '][2])
     return loop_native.canonicalise_samples(r['data'],float(r['fmt '][2]))
 
 def rgetsamples(res):
-    print 'loading samples from ',res
+    print('loading samples from ',res)
     from cStringIO import StringIO
     r = files.PkgResourceFile(res)
     r2 = wav_reader.read(StringIO(r.data(0,r.size())))
-    print 'sample rate is',r2['fmt '][2]
+    print('sample rate is',r2['fmt '][2])
     return loop_native.canonicalise_samples(r2['data'],float(r2['fmt '][2]))
 
 def wav_resource(name):
-    print 'loading wav resource',name
+    print('loading wav resource',name)
     uf = resource.user_resource_file(resource.loop_dir,name,version='')
     if resource.os_path_isfile(uf):
         return fgetsamples(uf)
@@ -100,7 +100,7 @@ class Agent(agent.Agent):
         return action.nosync_return()
 
     def __toggle(self,subj):
-        print 'clicker __toogle: playing=',self.__playing
+        print('clicker __toogle: playing=',self.__playing)
         if self.__playing:
             return self.__unplay(subj)
         else:

@@ -21,7 +21,8 @@
 import piw
 import traceback
 
-from pi import logic,action,async,errors
+from pi import logic,action,errors
+from pi import piasync
 from pi.logic.shortcuts import *
 from . import interpreter,imperative,noun,referent
 
@@ -87,15 +88,15 @@ class ObjectRefiner(interpreter.VerbAction):
 
     def run(self,interp,verb,mods,roles,args,flags,text):
         if not roles or roles[0] != 'none':
-            return async.failure('garbled %s relationship' % verb)
+            return piasync.failure('garbled %s relationship' % verb)
 
         text = self.noun.words()+(self.role,'which')+text+(verb,)
         r = tuple( T('role',r,a.to_prolog()) for (r,a) in zip(roles[1:],args[1:]) )
         q = T('orefiner',self.noun.generic_objects(),V('XX'),verb,args[0].to_prolog(),r,self.role)
-        print 'refining via',q
+        print('refining via',q)
         o = interp.get_database().search_any_key('XX',q) or ()
         interp.push(referent.Referent(objects=o,words=text))
-        return async.success()
+        return piasync.success()
 
 class SubjectRefiner(interpreter.VerbAction):
     def __init__(self,noun):
@@ -110,19 +111,19 @@ class SubjectRefiner(interpreter.VerbAction):
         q = T('srefiner',self.noun.generic_objects(),V('XX'),verb,r)
         o = interp.get_database().search_any_key('XX',q) or ()
         interp.push(referent.Referent(objects=o,words=text))
-        return async.success()
+        return piasync.success()
 
 def primitive_background(interp,word):
     interp.push(BgMarker(word))
-    return async.success()
+    return piasync.success()
 
 def primitive_modifier(interp,word):
     interp.push(referent.ModMarker(word))
-    return async.success()
+    return piasync.success()
 
 def primitive_role(interp,word):
     interp.push(RoleMarker(word))
-    return async.success()
+    return piasync.success()
 
 def primitive_ify(interp,word):
     w = interp.undo()
@@ -130,11 +131,11 @@ def primitive_ify(interp,word):
 
     if w is None:
         interp.clear()
-        return async.failure('invalid use of ify')
+        return piasync.failure('invalid use of ify')
 
     interp.close()
 
-    print w,'-ify'
+    print(w,'-ify')
     return primitive_verb(interp,w)
 
 def primitive_which(interp,word):
@@ -142,14 +143,14 @@ def primitive_which(interp,word):
     n = interp.pop(referent.Referent)
 
     if n is None:
-        return async.failure('which without a noun')
+        return piasync.failure('which without a noun')
 
     if r is None:
         interp.push(SubjectRefiner(n))
     else:
         interp.push(ObjectRefiner(r.word,n))
 
-    return async.success()
+    return piasync.success()
 
 
 def primitive_verb(interp,verb):
@@ -160,7 +161,7 @@ def primitive_verb(interp,verb):
     action=interp.get_action() or run_imperative
     text=(verb,)
 
-    print 'verb:',verb,map(str,interp.stack())
+    print('verb:',verb,map(str,interp.stack()))
 
     while not interp.empty():
         m = interp.pop(referent.ModMarker)
@@ -183,8 +184,8 @@ def primitive_verb(interp,verb):
 
         t = interp.pop(referent.Referent)
         if t is None:
-            print 'top stack is',interp.topany()
-            return async.failure('garbled form of '+verb)
+            print('top stack is',interp.topany())
+            return piasync.failure('garbled form of '+verb)
 
         text = t.words()+text
 
@@ -206,10 +207,10 @@ def primitive_verb(interp,verb):
 
 def run_imperative(interp,verb,mods,roles,args,flags,text):
     fg = ('bg' not in flags)
-    coresult = async.Coroutine(run_imperative_co(interp,verb,mods,roles,args,flags,fg,text),interpreter.rpcerrorhandler)
+    coresult = piasync.Coroutine(run_imperative_co(interp,verb,mods,roles,args,flags,fg,text),interpreter.rpcerrorhandler)
     if fg: return coresult
     interp.add_job(coresult)
-    return async.success()
+    return piasync.success()
 
 
 def run_imperative_co(interp,verb,mods,roles,args,flags,fg,text):
@@ -218,11 +219,11 @@ def run_imperative_co(interp,verb,mods,roles,args,flags,fg,text):
     yield sresult
 
     if not sresult.status():
-        yield async.Coroutine.failure(*sresult.args(),**sresult.kwds())
+        yield piasync.Coroutine.failure(*sresult.args(),**sresult.kwds())
 
     (verbs,) = sresult.args()
 
-    vresult = async.Aggregate(accumulate=True)
+    vresult = piasync.Aggregate(accumulate=True)
 
     for (verb,verb_args) in verbs:
         vresult.add(verb.subject(),verb.invoke(interp,verb.subject(),*verb_args))
@@ -236,10 +237,10 @@ def run_imperative_co(interp,verb,mods,roles,args,flags,fg,text):
     db = interp.get_database()
 
     for d in vs:
-        print "%s: ok" % db.find_desc(d)
+        print("%s: ok" % db.find_desc(d))
 
-    for (d,m) in vf.iteritems():
-        print "%s: %s" % (db.find_desc(d), m[0])
+    for (d,m) in vf.items():
+        print("%s: %s" % (db.find_desc(d), m[0]))
 
     context = set()
     sync = []
@@ -252,17 +253,17 @@ def run_imperative_co(interp,verb,mods,roles,args,flags,fg,text):
     msgs=[]
 
     def result_iter(vs,vf):
-        for (id,r) in vs.iteritems():
+        for (id,r) in vs.items():
             yield (id,r)
 
-        for (id,m) in vf.iteritems():
+        for (id,m) in vf.items():
             yield ( id,(errors.message(m[0]),) )
 
     for (vid,vr) in result_iter(vs,vf):
         err=False
         for r in vr:
             if not logic.is_term(r):
-                print 'duff return:',r
+                print('duff return:',r)
                 continue
             c = r.pred
 
@@ -287,27 +288,27 @@ def run_imperative_co(interp,verb,mods,roles,args,flags,fg,text):
             elif c=='msg':
                 msg = r.args[0]
                 msgs.append(msg)
-                print 'message',vid,msg
+                print('message',vid,msg)
         if err:
             nerr +=1
         else:
             nsucceeded += 1
 
-    print 'after verb, succeeded=',nsucceeded,'errors=',nerr,'sync=',sync,'obj=',context
+    print('after verb, succeeded=',nsucceeded,'errors=',nerr,'sync=',sync,'obj=',context)
 
     if fg and context:
-        print 'pushing',context,'to context stack'
+        print('pushing',context,'to context stack')
         interp.get_context().push_stack(context)
         interp.get_context().extend_scope(context)
 
     if dosync:
-        print 'starting sync after',verb,':',sync,[piw.address2server(o) for o in sync]
+        print('starting sync after',verb,':',sync,[piw.address2server(o) for o in sync])
         yield interp.sync(*[piw.address2server(o) for o in sync])
-        print 'sync done'
+        print('sync done')
 
     if nsucceeded:
-        yield async.Coroutine.success('%d verbs failed: %d verbs succeeded' % (nerr,nsucceeded),user_errors=tuple(errs),user_messages=tuple(msgs))
+        yield piasync.Coroutine.success('%d verbs failed: %d verbs succeeded' % (nerr,nsucceeded),user_errors=tuple(errs),user_messages=tuple(msgs))
     elif nerr:
-        yield async.Coroutine.failure('%d verbs failed: %d verbs succeeded' % (nerr,nsucceeded),user_errors=tuple(errs),user_messages=tuple(msgs))
+        yield piasync.Coroutine.failure('%d verbs failed: %d verbs succeeded' % (nerr,nsucceeded),user_errors=tuple(errs),user_messages=tuple(msgs))
 
-    yield async.Coroutine.success()
+    yield piasync.Coroutine.success()

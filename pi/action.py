@@ -99,7 +99,7 @@ def crack_ideal(obj):
 def timespec_map(arg):
     import sys
     l=arg[0].args[0]
-    print l
+    print(l)
     m={}
     while l:
         clk=l[1]

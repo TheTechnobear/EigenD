@@ -21,7 +21,11 @@ namespace
     typedef int pip_ssize_t;
 #endif
 
-    static bool pip_usegil = false;
+#if PY_VERSION_HEX >= 0x03000000
+    static bool pip_usegil = true;
+#else
+    static bool pip_usegil = true;  // Force new GIL API for testing
+#endif
 
     // unlocks python and relocks it on dtor
     class unlock_p2c
@@ -56,11 +60,12 @@ namespace
                 {
                     if(!pip_usegil)
                     {
+#if PY_VERSION_HEX < 0x03000000
                         PyEval_AcquireLock();
                         t_=PyThreadState_New(interp);
                         PyEval_ReleaseLock();
                         PyEval_AcquireThread(t_);
-                        return;
+#endif
                     }
 
                     gs_ = PyGILState_Ensure();
@@ -73,11 +78,12 @@ namespace
                 {
                     if(!pip_usegil)
                     {
+#if PY_VERSION_HEX < 0x03000000
                         PyEval_ReleaseThread(t_);
                         PyEval_AcquireLock();
                         PyThreadState_Delete(t_);
                         PyEval_ReleaseLock();
-                        return;
+#endif
                     }
 
                     PyGILState_Release(gs_);
@@ -108,37 +114,37 @@ struct pip_err_t: std::exception
     std::string what_;
 };
 
-static const char *module_docstring = <<moddoc>>;
+static const char *module_docstring = "<<moddoc>>";
 
 
 PyObject *tpcvt_uc(void *a)
 {
-    return PyInt_FromLong(*((unsigned char *)a));
+    return PyLong_FromLong(*((unsigned char *)a));
 }
 
 PyObject *tpcvt_s(void *a)
 {
-    return PyInt_FromLong(*((short *)a));
+    return PyLong_FromLong(*((short *)a));
 }
 
 PyObject *tpcvt_us(void *a)
 {
-    return PyInt_FromLong(*((unsigned short *)a));
+    return PyLong_FromLong(*((unsigned short *)a));
 }
 
 PyObject *tpcvt_i(void *a)
 {
-    return PyInt_FromLong(*((int *)a));
+    return PyLong_FromLong(*((int *)a));
 }
 
 PyObject *tpcvt_ui(void *a)
 {
-    return PyInt_FromLong(*((unsigned int *)a));
+    return PyLong_FromLong(*((unsigned int *)a));
 }
 
 PyObject *tpcvt_l(void *a)
 {
-    return PyInt_FromLong(*((long *)a));
+    return PyLong_FromLong(*((long *)a));
 }
 
 PyObject *tpcvt_ul(void *a)
@@ -174,7 +180,7 @@ PyObject *tpcvt_b(void *a)
 PyObject *tpcvt_c(void *a)
 {
     char c = *((const char *)a);
-    return PyString_FromStringAndSize(&c,1);
+    return PyUnicode_FromStringAndSize(&c,1);
 }
 
 PyObject *tpcvt_strset(void *a)
@@ -186,7 +192,7 @@ PyObject *tpcvt_strset(void *a)
 
     for(i=s->begin(); i!= s->end(); i++)
     {
-        PySet_Add(o,PyString_FromStringAndSize(i->c_str(),i->length()));
+        PySet_Add(o,PyUnicode_FromStringAndSize(i->c_str(),i->length()));
     }
 
     return o;
@@ -195,17 +201,17 @@ PyObject *tpcvt_strset(void *a)
 PyObject *tpcvt_stdstr(void *a)
 {
     std::string *s = (std::string *)a;
-    return PyString_FromStringAndSize(s->c_str(),s->length());
+    return PyUnicode_FromStringAndSize(s->c_str(),s->length());
 }
 
 PyObject *tpcvt_str(void *a)
 {
-    return PyString_FromString(*((const char **)a));
+    return PyUnicode_FromString(*((const char **)a));
 }
 
 PyObject *tpcvt_ustr(void *a)
 {
-    return PyString_FromString((const char *)*((const unsigned char **)a));
+    return PyUnicode_FromString((const char *)*((const unsigned char **)a));
 }
 
 PyObject *tpcvt_py(void *a)
@@ -217,9 +223,9 @@ PyObject *tpcvt_py(void *a)
 
 static long fplong(PyObject *o)
 {
-    if(PyInt_Check(o))
+    if(PyLong_Check(o))
     {
-        return PyInt_AsLong(o);
+        return PyLong_AsLong(o);
     }
 
     if(PyLong_Check(o))
@@ -238,9 +244,9 @@ static long fplong(PyObject *o)
 
 static long long fplonglong(PyObject *o)
 {
-    if(PyInt_Check(o))
+    if(PyLong_Check(o))
     {
-        return PyInt_AsLong(o);
+        return PyLong_AsLong(o);
     }
 
     if(PyLong_Check(o))
@@ -259,9 +265,9 @@ static long long fplonglong(PyObject *o)
 
 static unsigned long fpulong(PyObject *o)
 {
-    if(PyInt_Check(o))
+    if(PyLong_Check(o))
     {
-        long v = PyInt_AsLong(o);
+        long v = PyLong_AsLong(o);
 
         if(v<0)
         {
@@ -296,9 +302,9 @@ static unsigned long fpulong(PyObject *o)
 
 static unsigned long long fpulonglong(PyObject *o)
 {
-    if(PyInt_Check(o))
+    if(PyLong_Check(o))
     {
-        long v = PyInt_AsLong(o);
+        long v = PyLong_AsLong(o);
 
         if(v<0)
         {
@@ -338,9 +344,9 @@ static double fpdouble(PyObject *o)
         return PyFloat_AsDouble(o);
     }
 
-    if(PyInt_Check(o))
+    if(PyLong_Check(o))
     {
-        return (double)PyInt_AsLong(o);
+        return (double)PyLong_AsLong(o);
     }
 
     if(PyLong_Check(o))
@@ -470,8 +476,8 @@ int fpcvt_b(PyObject *o, void *a)
 
 int fpcvt_c(PyObject *o, void *a)
 {
-    char *s; pip_ssize_t l;
-    if(PyString_AsStringAndSize(o,&s,&l)>=0)
+    const char *s; pip_ssize_t l;
+    if((s = PyUnicode_AsUTF8AndSize(o, &l)))
     {
         if(l==1)
         {
@@ -486,8 +492,8 @@ int fpcvt_c(PyObject *o, void *a)
 
 int fpcvt_stdstr(PyObject *o, void *a)
 {
-    char *s; pip_ssize_t l;
-    if(PyString_AsStringAndSize(o,&s,&l)>=0)
+    const char *s; pip_ssize_t l;
+    if((s = PyUnicode_AsUTF8AndSize(o, &l)))
     {
         *((std::string *)a) = std::string(s,l);
         return 1;
@@ -498,21 +504,35 @@ int fpcvt_stdstr(PyObject *o, void *a)
 int fpcvt_strset(PyObject *o, void *a)
 {
     std::set<std::string> *s = (std::set<std::string> *)a;
-    Py_ssize_t pos = 0;
-    PyObject *e;
+    PyObject *iter, *item;
 
     s->clear();
 
-    while(_PySet_Next(o,&pos,&e))
+    if(!(iter = PyObject_GetIter(o)))
     {
-        char *ss; pip_ssize_t sl;
+        return 0;
+    }
 
-        if(PyString_AsStringAndSize(e,&ss,&sl)<0)
+    while((item = PyIter_Next(iter)))
+    {
+        const char *ss; pip_ssize_t sl;
+
+        if(!(ss = PyUnicode_AsUTF8AndSize(item, &sl)))
         {
+            Py_DECREF(item);
+            Py_DECREF(iter);
             return 0;
         }
 
         s->insert(std::string(ss,sl));
+        Py_DECREF(item);
+    }
+
+    Py_DECREF(iter);
+
+    if(PyErr_Occurred())
+    {
+        return 0;
     }
 
     return 1;
@@ -520,14 +540,14 @@ int fpcvt_strset(PyObject *o, void *a)
 
 int fpcvt_str(PyObject *o, void *a)
 {
-    const char *s = PyString_AsString(o);
+    const char *s = PyUnicode_AsUTF8(o);
     if(s) { *((const char **)a) = s; return 1; }
     return 0;
 }
 
 int fpcvt_ustr(PyObject *o, void *a)
 {
-    const unsigned char *s = (unsigned char *)PyString_AsString(o);
+    const unsigned char *s = (unsigned char *)PyUnicode_AsUTF8(o);
     if(s) { *((const unsigned char **)a) = s; return 1; }
     return 0;
 }
@@ -704,7 +724,7 @@ struct <<name>>_wrapper_: public <<name>>_type_ <<ifdef(isabstract){ // ABSTRACT
 
         <<ifdefxcf(returns.isvoid){
             Py_DECREF(result);
-            return;
+            return NULL;
         }ifdefxcf>>
 
         <<ifndefxcf(returns.isvoid){
@@ -1679,14 +1699,14 @@ PyMODINIT_FUNC MODULE_VISIBILITY init<<module>>(void)
     <<loop(imports){
         if(!(m=PyImport_ImportModule("<<name>>")))
         {
-            return;
+            return NULL;
         }
 
         <<loop_classes(classes){
             if(!(s=PyObject_GetAttrString(m,"pip_<<name>>_dispatch")) || !PyCObject_Check(s))
             {
                 PyErr_SetString(PyExc_RuntimeError,"incorrect or missing pip_<<name>>_dispatch in module <<parent.name>>");
-                return;
+                return NULL;
             }
 
             <<name>>_dispatcher_ = (<<name>>_dispatch_ *)PyCObject_AsVoidPtr(s);
@@ -1706,18 +1726,26 @@ PyMODINIT_FUNC MODULE_VISIBILITY init<<module>>(void)
     <<loop(classes){
         <<ifndef_imported(imported){
             if(PyType_Ready(&<<name>>_typeobject_)<0)
-                return;
+                return NULL;
         }ifndef_imported>>
     }loop>>
 
-    if(!(m=Py_InitModule("<<module>>",module_method_table)))
+    static PyModuleDef module_def = {
+        PyModuleDef_HEAD_INIT,
+        "<<module>>",
+        module_docstring,
+        -1,
+        module_method_table
+    };
+
+    if(!(m=PyModule_Create(&module_def)))
     {
-        return;
+        return NULL;
     }
 
-    if(!(s=PyString_FromString(module_docstring)))
+    if(!(s=PyUnicode_FromString(module_docstring)))
     {
-        return;
+        return NULL;
     }
 
     PyModule_AddObject(m,"__doc__",s);
@@ -1726,7 +1754,7 @@ PyMODINIT_FUNC MODULE_VISIBILITY init<<module>>(void)
         <<ifndef_imported(imported){
             if(!(s=PyCObject_FromVoidPtr(<<name>>_dispatcher_,0)))
             {
-                return;
+                return NULL;
             }
 
             PyModule_AddObject(m,"pip_<<name>>_dispatch",s);
@@ -1737,6 +1765,7 @@ PyMODINIT_FUNC MODULE_VISIBILITY init<<module>>(void)
 
     <<loop(classes){
     }loop>>
+    return m;
 }
 
 #ifdef __GNUC__

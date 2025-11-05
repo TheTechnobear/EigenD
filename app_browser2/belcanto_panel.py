@@ -50,13 +50,13 @@ class BelcantoPanel(wx.Window):
         evt.Skip()
 
     def historyUpdate(self):
-        print 'BelcantoPanel:update'
+        print('BelcantoPanel:update')
         if self.model.words:
             dc=self.__getClientDC()
             self.doPaint(dc)
 
     def updateStatus(self,str):
-        print 'BelcantoPanel:updateStatus',str
+        print('BelcantoPanel:updateStatus',str)
 #        self.agent.updateStatus(str)
 #        self.status=str
 #        self.update()
@@ -66,7 +66,7 @@ class BelcantoPanel(wx.Window):
         y=2
         x=2
         
-        print 'belcanto_panel:doPaint',self.model.words
+        print('belcanto_panel:doPaint',self.model.words)
         pts,weight=fonts.setFont(dc,ptfactor=0.75)
         displayText=[]
         maxWidth=0.95*self.GetClientSize()[0]
@@ -77,7 +77,7 @@ class BelcantoPanel(wx.Window):
         yInc=1.1*dc.GetTextExtent('A')[1]
         for choppedLine in displayText:
             dc.DrawText(choppedLine,x,y)
-            print 'BelcantoPanel',choppedLine
+            print('BelcantoPanel',choppedLine)
             y=y+yInc
 
         self.__borderDrawing(dc)

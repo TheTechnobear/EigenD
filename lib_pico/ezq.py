@@ -32,12 +32,12 @@ def main():
     (opts,args) = parser.parse_args(sys.argv)
 
     def query(s):
-        print 'querying',s
+        print('querying',s)
         ez = picross.usbdevice(s,0)
 
         if opts.len>0:
             r = ez.control_in(0x40|0x80,opts.req,opts.val,opts.idx,opts.len)
-            print ' '.join(['%x'%ord(x) for x in r])
+            print(' '.join(['%x'%ord(x) for x in r]))
 
         else:
             ez.control(0x40,opts.req,opts.val,opts.idx)

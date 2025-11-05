@@ -394,7 +394,7 @@ class ConnectablePolicyImpl:
             else:
                 return (id,piw.signal_cnc_filter(using,tgt))
 
-        print 'cop out of',stream
+        print('cop out of',stream)
         return ('',piw.null_filter())
 
     def close(self):
@@ -458,7 +458,7 @@ class FunctorController:
         self.__correlator = piw.correlator(cdomain,chr(1),piw.null_filter(),self.__backend.cookie(),0,0)
 
     def __dump(self,d):
-        print 'default control',d
+        print('default control',d)
 
     def get_backend(self,config):
         return PlumberBackend(self.__correlator,self.__policy,1,Plumber.input_input,-1,config.iid)
@@ -542,7 +542,7 @@ class TriggerFunctorController:
         self.__correlator = piw.correlator(cdomain,chr(1),piw.null_filter(),self.__backend.cookie(),0,0)
 
     def __dump(self,d):
-        print 'default control',d
+        print('default control',d)
 
     def get_backend(self,config):
         return PlumberBackend(self.__correlator,self.__policy,1,Plumber.input_input,-1,config.iid)

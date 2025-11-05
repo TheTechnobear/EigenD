@@ -21,14 +21,15 @@
 import sys
 import piw
 import picross
-from pi import agent,atom,bundles,domain,paths,upgrade,policy,utils,action,async,collection
+from pi import agent,atom,bundles,domain,paths,upgrade,policy,utils,action,collection
+from pi import piasync
 from pi.logic.shortcuts import T
 from . import delay_version as version,synth_native
 
 class Channel(atom.Atom):
     
     def __init__(self,chan,input,chan_num,vc,default_tap_time):
-        print 'Tap, channel init ',chan
+        print('Tap, channel init ',chan)
         # number of signals
         sigs=8
         self.input = input
@@ -66,24 +67,24 @@ class Channel(atom.Atom):
         self[1].add_verb2(1,'set([],None,role(None,[instance(~self)]),role(to,[mass([second])]))',callback=self.set_time_secs)
         self[1].add_verb2(2,'set([],None,role(None,[instance(~self)]),role(to,[mass([beat])]))',callback=self.set_time_beats)
         self[1].add_verb2(3,'set([],None,role(None,[instance(~self)]),role(to,[numeric]))',callback=self.set_time_beats_default)
-        print 'Channel, verbs done'
+        print('Channel, verbs done')
 
     def set_time_secs(self,subj,dummy,arg):
         time_secs = action.mass_quantity(arg)
-        print "set time secs",arg,"->",time_secs,self.id()
+        print("set time secs",arg,"->",time_secs,self.id())
         # time in seconds is -ve for now!
         self[1].get_policy().set_value(-time_secs)
         return action.nosync_return()
 
     def set_time_beats(self,subj,dummy,arg):
         time_beats = action.mass_quantity(arg)
-        print "set time beats",arg,"->",time_beats,self.id()
+        print("set time beats",arg,"->",time_beats,self.id())
         self[1].get_policy().set_value(time_beats)
         return action.nosync_return()
 
     def set_time_beats_default(self,subj,dummy,arg):
         time_beats = float(action.abstract_string(arg))
-        print "set time beats default",arg,"->",time_beats,self.id()
+        print("set time beats default",arg,"->",time_beats,self.id())
         self[1].get_policy().set_value(time_beats)
         return action.nosync_return()
 
@@ -91,7 +92,7 @@ class Channel(atom.Atom):
 class Tap(atom.Atom):
     
     def __init__(self,agent,tapno,default_tap_time):
-        print 'Tap, tap init ',tapno
+        print('Tap, tap init ',tapno)
         
         self.__agent = agent
         self.__tapno = tapno
@@ -116,14 +117,14 @@ class TapList(collection.Collection):
 
     # create tap, called when rebuilding state
     def __create_tap(self,tapno):
-        print "TapList: create tap ",tapno
+        print("TapList: create tap ",tapno)
         tap = Tap(self.__agent,tapno,self.__agent.default_tap_time)
         self.__agent.default_tap_time += self.__agent.default_tap_interval
         return tap 
     
     # wreck tap, called when rebuilding state
     def __wreck_tap(self,tapno,tapatom):
-        print "TapList: wreck tap",tapno
+        print("TapList: wreck tap",tapno)
         tapatom.destroy_tap()
 
     def create_tap(self,ordinal=None):
@@ -133,22 +134,22 @@ class TapList(collection.Collection):
         self.__agent.update()
         return e
     
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self,ordinal=None):
         e=self.create_tap(ordinal)
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self,key,inst,ordinal):
         inst.destroy_tap()
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 
 
 class Agent(agent.Agent):
 
     def __init__(self,address, ordinal):
-        print "Delay Init"
+        print("Delay Init")
         # verb container, used by all taps
         agent.Agent.__init__(self,signature=version,names='delay',container=8,ordinal=ordinal)
 
@@ -212,37 +213,37 @@ class Agent(agent.Agent):
         # enable time, time to fade in and out when enabling in ms
         self[13] = atom.Atom(names='enable time input', domain=domain.BoundedFloat(0,100000), init=100, policy=atom.default_policy(self.__set_enable_time))
 
-        print "create default tap..."
+        print("create default tap...")
 
         # create a single default tap
         self[7][1] = Tap(self,1,self.default_tap_time)
         self.default_tap_time += self.default_tap_interval
 
-        print "done."
+        print("done.")
         
     def __create_tap(self,subject,dummy):
-        print 'Delay, start create tap '
+        print('Delay, start create tap ')
         tapno = self[7].find_hole()        
         self[7][tapno] = Tap(self,tapno,self.default_tap_time)
         self.default_tap_time += self.default_tap_interval
         
     def __uncreate_tap(self,subject,tap):
         subject = action.concrete_object(tap)
-        print 'Delay, un create tap ',subject
+        print('Delay, un create tap ',subject)
         
-        for k,v in self[7].iteritems():
+        for k,v in self[7].items():
             if v.id()==subject:
                 self[7][k].destroy_tap()
                 del self[7][k]
                 return
 
     def __set_tap_interval(self,val):
-        print 'Set tap interval ',val
+        print('Set tap interval ',val)
         self.default_tap_interval = val  
         return True
 
     def __reset_delay_lines(self,subject):
-        print 'Delay, Reset'        
+        print('Delay, Reset')
         self.delay.reset_delay_lines()
 
     # set enable

@@ -75,7 +75,7 @@ class Registry:
         self.add_path(os.path.join(picross.contrib_compatible_dir(),'plugins'))
 
         for p in self.__path:
-            print 'Agent Path:',p
+            print('Agent Path:',p)
             self.scan_path(p,klass)
 
     def get_vocab(self):
@@ -109,12 +109,12 @@ class Registry:
             self.__path.append(path)
 
     def dump(self,dumper):
-        for (mname,vlist) in self.__registry.iteritems():
-            for (version,(cversion,module)) in vlist.iteritems():
-                print 'plugin %s:%s:%s %s' % (mname,version,cversion,dumper(module))
+        for (mname,vlist) in self.__registry.items():
+            for (version,(cversion,module)) in vlist.items():
+                print('plugin %s:%s:%s %s' % (mname,version,cversion,dumper(module)))
 
-        for (e,(m,c)) in self.__vocab.iteritems():
-            print 'vocab %s %s %s' % (e,m,c)
+        for (e,(m,c)) in self.__vocab.items():
+            print('vocab %s %s %s' % (e,m,c))
 
     def modules(self):
         return self.__registry.keys()
@@ -161,7 +161,7 @@ class Registry:
             mlist = self.__registry.get(orig)
 
         if mlist:
-            for (version,(cversion,module)) in mlist.iteritems():
+            for (version,(cversion,module)) in mlist.items():
                     yield (version,cversion,module)
 
     def add_module(self,name,version,cversion,module):
@@ -174,7 +174,7 @@ class Registry:
             r[name][version] = (cversion,module)
             return
 
-        print 'module %s:%s already defined' % (name,version)
+        print('module %s:%s already defined' % (name,version))
 
 
     def add_alias(self,name,version,original):
@@ -187,7 +187,7 @@ class Registry:
             a[name][version] = original
             return
 
-        print 'alias %s:%s already defined' % (name,version)
+        print('alias %s:%s already defined' % (name,version))
 
 
     def __find_paths(self,path):

@@ -69,7 +69,7 @@ class HistoryModel(language.LanguageDisplayModel):
                 self.update()
 
         def history_failed():
-            print 'history failed'
+            print('history failed')
         r.setCallback(history_ok).setErrback(history_failed)
     
     def __makeWords(self,w):

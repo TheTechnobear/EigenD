@@ -21,7 +21,8 @@
 import piw
 import picross
 
-from pi import agent,atom,domain,bundles,resource,action,logic,utils,async,node,upgrade,const
+from pi import agent,atom,domain,bundles,resource,action,logic,utils,node,upgrade,const
+from pi import piasync
 from . import sampler_oscillator_version as version,sf2,sampler2_native
 
 from pi.logic.shortcuts import T
@@ -132,7 +133,7 @@ class Sample(atom.Atom):
         if self.__split(cookie):
             i = self.__ideal(cookie)
             return i
-        return async.failure('invalid cookie')
+        return piasync.failure('invalid cookie')
 
     def rpc_resolve(self,arg):
         (a,o) = logic.parse_clause(arg)
@@ -230,7 +231,7 @@ class Sample(atom.Atom):
     def choose_cookie(self,c):
         if self.__setcurrent(c):
             return action.nosync_return()
-        return async.failure('choose_cookie failed %s' % c) 
+        return piasync.failure('choose_cookie failed %s' % c) 
 
     def resolve_name(self,n):
         if n=='selection':
@@ -253,7 +254,7 @@ class Sample(atom.Atom):
         if p:
             self.__setcurrent(p[0][0])
             return action.nosync_return()
-        return async.failure('first failed')
+        return piasync.failure('first failed')
 
     def next(self):
         self.__scan()
@@ -286,7 +287,7 @@ class Sample(atom.Atom):
                 self.__setcurrent(ps[0])   
                 return action.nosync_return()
 
-        return async.failure('no files')
+        return piasync.failure('no files')
 
     def unname(self,cookie):
         self.__scan()

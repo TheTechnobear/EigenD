@@ -36,7 +36,7 @@ def main():
 
         if len(sys.argv)==3:
             kbd.set_ledcolour(int(sys.argv[1])-1,colours[sys.argv[2]])
-            print ['%x'%ord(x) for x in kbd.debug()]
+            print(['%x'%ord(x) for x in kbd.debug()])
             picross.exit(0)
 
         cyc = [0x20,0x08,0x28,0]

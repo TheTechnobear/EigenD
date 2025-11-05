@@ -66,7 +66,7 @@ class usb_interface():
         time.sleep( 4 )
 
     def reset( self ):
-        print "Reseting USB"
+        print("Reseting USB")
 
     def bulk_transfer( self,packet ):
         bytes = packet.get_buffer()        
@@ -128,7 +128,7 @@ class usb_packet():
             self.add_cal_data()
             self.keynum = -1
         else:
-            print "Invalid msg"
+            print("Invalid msg")
             
     def add_frm_update_pdu( self,data ): # return left over string
         cap = FRM_UPDATE_LEN - len( self.packet_buff ) 
@@ -159,7 +159,7 @@ class usb_packet():
         data_list = data.split( " " )
         key = int( data_list.pop( 0 ) )
         if key != self.keynum:
-            print "Data for KEY!" , key
+            print("Data for KEY!", key)
             self.keynum = key
             LS,MS = find_LS_MS( key )
             self.packet_buff.append( LS )
@@ -180,7 +180,7 @@ class usb_packet():
         elif msg == CAL_DATA_MSG:
             self.add_cal_data_pdu( data )       
         else:
-            print "Data belongs to invalid msg"
+            print("Data belongs to invalid msg")
 
     def add_padding( self ):
         cap = self.max_packet_size - len( self.packet_buff ) 
@@ -214,7 +214,7 @@ def alpha_download(usb,filename,progress=None):
             continue
 
         if rectype == FRM_REC_EOF:
-            print "EOF is reached"
+            print("EOF is reached")
             packet.add_msg( FRM_COMMIT_MSG )
             packet.add_payload( FRM_COMMIT_MSG, check_sum )
             packet.add_padding()
@@ -274,9 +274,9 @@ def calibration_download(usb,filename):
 
 def progress(a,b):
     if a<b:
-        print a,b,'\r',
+        print(a,b,'\r', end="")
     else:
-        print 'done'
+        print('done')
 
     sys.stdout.flush()
 
@@ -294,13 +294,13 @@ def main():
 
     base_name = picross.find2(ezload.vendor,ezload.bs_product,False)
     if base_name:
-        print 'booting base station'
+        print('booting base station')
         ezload.download(base_name,ezload.bs_firmware())
         time.sleep(5)
 
     base_name = picross.find2(ezload.vendor,ezload.psu_product,False)
     if base_name:
-        print 'booting base station'
+        print('booting base station')
         ezload.download(base_name,ezload.psu_firmware())
         time.sleep(5)
 
@@ -308,7 +308,7 @@ def main():
     if not dev_name:
         dev_name = picross.find2(VENDOR_ID,PRODUCT_ID_PSU,False)
         if not dev_name:
-            print 'no base station or psu connected'
+            print('no base station or psu connected')
             return
 
     dev_usb = usb_interface(dev_name,4)
@@ -320,10 +320,10 @@ def main():
     inst = inst_types.get(inst_type)
 
     if not inst:
-        print 'no recognised instrument connected'
+        print('no recognised instrument connected')
         return
 
-    print 'instrument: %s version %d firmware version: %s.%s latest firmware: %s.%s' % (inst[0],inst_ver_hw,inst_ver[0],inst_ver[1],inst[1][0],inst[1][1])
+    print('instrument: %s version %d firmware version: %s.%s latest firmware: %s.%s' % (inst[0],inst_ver_hw,inst_ver[0],inst_ver[1],inst[1][0],inst[1][1]))
 
     if opts.calibration:
         calibration_download(dev_usb,opts.calibration);
@@ -337,5 +337,5 @@ def main():
 
     if inst_ver < inst[1]:
         file = ezload.find_release_resource('firmware',inst[2])
-        print 'downloading',file
+        print('downloading',file)
         alpha_download(dev_usb,file,progress);

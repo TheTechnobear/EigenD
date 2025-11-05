@@ -36,7 +36,7 @@ def cli():
         db = state.open_database(args[0],False)
         snap = db.get_trunk()
         sig = upgrade.get_setup_signature(snap,opts.text)
-        print sig
+        print(sig)
         sys.exit(0)
 
     session.run_session(session_main,name='signature')

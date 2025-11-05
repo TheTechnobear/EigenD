@@ -27,14 +27,14 @@ def check_words(klass, words, allow_none=False):
         if w is None:
             if allow_none:
                 continue
-            print 'vocab warning: None used as %s' % (w,klass)
+            print('vocab warning: None used as %s' % (w,klass))
 
         d = vocabulary.get(w)
         if d is None:
-            print 'vocab warning: %s not in vocabulary (used as %s)' % (w,klass)
+            print('vocab warning: %s not in vocabulary (used as %s)' % (w,klass))
             continue
         if d[1] != klass:
-            print 'vocab warning: %s used as %s (defined as %s)' % (w,klass,d[1])
+            print('vocab warning: %s used as %s (defined as %s)' % (w,klass,d[1]))
 
 def check_word(klass, *words):
     check_words(klass,words)
@@ -45,7 +45,7 @@ def add_word(english, music, klass):
     vocabulary[english] = (music,klass)
 
 def add_words(lex):
-    for (e,(m,t)) in lex.iteritems():
+    for (e,(m,t)) in lex.items():
         add_word(e,m,t)
 
 add_words(lexicon.lexicon)

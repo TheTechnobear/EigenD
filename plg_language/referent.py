@@ -18,11 +18,11 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import logic,async
-
+from pi import logic
+from pi import piasync
 class StackObj:
     def interpret(self,interp,klass,word):
-        return async.success(False)
+        return piasync.success(False)
     def stack_copy(self):
         return self
     def close(self,interp):
@@ -41,7 +41,7 @@ class Referent(StackObj):
         self.set_referent(words=words,objects=objects)
 
     def reinterpret(self,interp,scope):
-        return async.success(self)
+        return piasync.success(self)
 
     def set_referent(self,words=None,objects=None):
         self.__objects = tuple(objects or ())

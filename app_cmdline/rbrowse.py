@@ -52,7 +52,7 @@ class Browser(proxy.AtomProxy):
 
     def node_changed(self,parts):
         if 'timestamp' in parts:
-            print 'data changed'
+            print('data changed')
 
     def wait(self):
         self.__event.wait(5)
@@ -63,7 +63,7 @@ class Browser(proxy.AtomProxy):
         if self.__errmsg:
             raise self.__errmsg
 
-        print 'connected to',self.__address
+        print('connected to',self.__address)
 
     def run(self,func,*args,**kwds):
         d = func(*args,**kwds)
@@ -87,12 +87,12 @@ class Browser(proxy.AtomProxy):
             r=(yield self.invoke_rpc('cinfo',a))
 
             if not r.status():
-                print 'rpc error, cinfo',r.args()
+                print('rpc error, cinfo',r.args())
                 yield async.Coroutine.success()
 
             clist = logic.parse_clause(r.args()[0])
             for c in clist:
-                print c
+                print(c)
 
             current = current+len(clist)
 
@@ -104,13 +104,13 @@ class Browser(proxy.AtomProxy):
         r=(yield self.invoke_rpc('finfo',a))
 
         if not r.status():
-            print 'rpc error, finfo',r.args()
+            print('rpc error, finfo',r.args())
             yield async.Coroutine.success()
 
         try:
             flist = logic.parse_clause(r.args()[0])
         except:
-            print 'cant parse:',r.args()[0]
+            print('cant parse:',r.args()[0])
             yield async.Coroutine.success()
 
         (cookie,desc,name)=flist[0]
@@ -119,20 +119,20 @@ class Browser(proxy.AtomProxy):
         r=(yield self.invoke_rpc('fideal',a))
 
         if not r.status():
-            print 'rpc error, fideal',r.args()
+            print('rpc error, fideal',r.args())
             yield async.Coroutine.success()
 
         s=paths.make_subst(self.__address)
-        print 's=',s
+        print('s=',s)
 
         try:
             ideal = logic.parse_clause(r.args()[0],s)
         except:
-            print 'cant parse:',r.args()[0]
+            print('cant parse:',r.args()[0])
             raise
             yield async.Coroutine.success()
 
-        print cookie,desc,name,ideal
+        print(cookie,desc,name,ideal)
         yield async.Coroutine.success()
 
     @async.coroutine()
@@ -146,19 +146,19 @@ class Browser(proxy.AtomProxy):
             r=(yield self.invoke_rpc('finfo',a))
 
             if not r.status():
-                print 'rpc error, finfo',r.args()
+                print('rpc error, finfo',r.args())
                 yield async.Coroutine.success()
 
             try:
                 flist = logic.parse_clause(r.args()[0])
             except:
-                print 'cant parse:',r.args()[0]
+                print('cant parse:',r.args()[0])
                 yield async.Coroutine.success()
 
             for i,f in enumerate(flist):
                 if i+current >= finish:
                     break
-                print i+current,f
+                print(i+current,f)
 
             current = current+len(flist)
 
@@ -170,14 +170,14 @@ class Browser(proxy.AtomProxy):
         r=(yield self.invoke_rpc('enumerate',a))
 
         if not r.status():
-            print 'rpc error, enumerate',r.args()
+            print('rpc error, enumerate',r.args())
             yield async.Coroutine.success()
 
         (nf,nc) = logic.parse_clause(r.args()[0])
 
         (self.__dir,self.__nf,self.__nc) = (path,nf,nc)
 
-        print self.dir(),'files=',self.__nf,'collection=',self.__nc
+        print(self.dir(),'files=',self.__nf,'collection=',self.__nc)
         yield async.Coroutine.success()
 
     def __nullcmd(self):
@@ -186,12 +186,12 @@ class Browser(proxy.AtomProxy):
         return e
 
     def __help(self):
-        print 'cd - change to root'
-        print 'cd <cmp> - change to <cmp>'
-        print 'st <num> - stat collections'
-        print 'lc - list collections'
-        print 'lf - list 10 collections starting from 0'
-        print 'lf <num> - list 10 collections starting from <num>'
+        print('cd - change to root')
+        print('cd <cmp> - change to <cmp>')
+        print('st <num> - stat collections')
+        print('lc - list collections')
+        print('lf - list 10 collections starting from 0')
+        print('lf <num> - list 10 collections starting from <num>')
         return self.__nullcmd()
 
     def process(self,line):
@@ -224,7 +224,7 @@ class Browser(proxy.AtomProxy):
             p=self.__dir+[w[1]]
             return self.run(self.__cd,p)
 
-        print line,'unrecognised'
+        print(line,'unrecognised')
         return self.__nullcmd()
 
 class Cli(threading.Thread):
@@ -276,7 +276,7 @@ class Cli(threading.Thread):
 
 def main():
     if len(sys.argv) != 2:
-        print 'usage: brsh <ideal>'
+        print('usage: brsh <ideal>')
         sys.exit(-1)
 
     Cli(sys.argv[1]).mainloop()

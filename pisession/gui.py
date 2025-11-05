@@ -22,7 +22,8 @@ import piw, piagent, wx, picross
 import wx.lib.newevent
 import sys
 
-from pi import utils, async
+from pi import utils
+from pi import piasync
 from pisession import session
 
 (PiaServiceEvent, EVT_PIA_SERVICE) = wx.lib.newevent.NewEvent()
@@ -123,7 +124,7 @@ def call_fg_async(func,*args,**kwds):
     wx.GetApp().run_fg_async(func,*args,**kwds)
 
 def defer_bg(func,*args,**kwds):
-    d=async.Deferred()
+    d=piasync.Deferred()
     a=wx.GetApp()
 
     def bg_ok(*args,**kwds):
@@ -135,7 +136,7 @@ def defer_bg(func,*args,**kwds):
     def doit():
         try:
             r=utils.safe(func,*args,**kwds)
-            if not isinstance(r,async.Deferred):
+            if not isinstance(r,piasync.Deferred):
                 a.run_fg_async(d.succeeded,r)
                 return
             r.setCallback(bg_ok).setErrback(bg_failed)
@@ -147,7 +148,7 @@ def defer_bg(func,*args,**kwds):
     return d
 
 def defer_fg(func,*args,**kwds):
-    d=async.Deferred()
+    d=piasync.Deferred()
     a=wx.GetApp()
 
     def bg_ok(*args,**kwds):
@@ -159,7 +160,7 @@ def defer_fg(func,*args,**kwds):
     def doit():
         try:
             r=utils.safe(func,*args,**kwds)
-            if not isinstance(r,async.Deferred):
+            if not isinstance(r,piasync.Deferred):
                 a.run_bg_async(d.succeeded,r)
                 return
             r.setCallback(bg_ok).setErrback(bg_failed)

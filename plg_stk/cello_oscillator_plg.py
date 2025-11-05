@@ -20,7 +20,8 @@
 
 import piw
 from pi.logic.shortcuts import T
-from pi import agent,atom,domain,bundles,action,async,utils,upgrade,policy
+from pi import agent,atom,domain,bundles,action,utils,upgrade,policy
+from pi import piasync
 from . import cello_oscillator_version as version,stk_native
 
 def filtered_policy():
@@ -108,12 +109,12 @@ class Agent(agent.Agent):
         self.inst.set_cutoff_frequency(f)
 
     def __set_param_num(self,n):
-        print 'set param num',n
+        print('set param num',n)
         self.inst.set_param_num(n)
         return False
 
     def __set_param_val(self,v):
-        print 'set param val',v
+        print('set param val',v)
         self.inst.set_param_val(v)
         return False
 

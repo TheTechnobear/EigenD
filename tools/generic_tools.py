@@ -79,7 +79,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
             l.add_user(target)
 
     def __libs_fixup(self):
-        for l in self.shared.shlibmap.itervalues():
+        for l in self.shared.shlibmap.values():
             l.fixup(self)
 
     def __runtime_fixup(self):
@@ -102,10 +102,10 @@ class PiGenericEnvironment(SCons.Environment.Environment):
 
         def action(target,source,env):
             t = target[0].abspath
-            outp = file(t,"w")
+            outp = open(t,"w")
             outp.write(source[0].value)
             outp.close()
-            os.chmod(t,0755)
+            os.chmod(t,0o755)
 
         run_exp = self.Command(join(self['EXPDIR'],target),self.Value(text),action)
 
@@ -157,7 +157,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
 
     def clear_dir(self,var):
         path = self.Dir(self[var]).abspath
-        print 'clearing',path
+        print('clearing', path)
         shutil.rmtree(path, ignore_errors=True)
         self.safe_mkdir(path)
 
@@ -172,7 +172,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
         if not self.shared.release:
             raise RuntimeError('PiRelease not called')
 
-        print "building release",self.subst('$PI_RELEASE'),'compatible with',self.subst('$PI_COMPATIBLE')
+        print("building release", self.subst('$PI_RELEASE'), 'compatible with', self.subst('$PI_COMPATIBLE'))
 
         for (k,v) in self.shared.agent_groups.items():
             self.__build_manifest(k,v[0],v[1],v[2])
@@ -254,7 +254,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
 
         self.__getpython()
 
-        print "platform: %s python: %s" % (platform,self['PI_PYTHON'])
+        print("platform: %s python: %s" % (platform, self['PI_PYTHON']))
 
         #self.set_tool('pip',self.WhereIs('pip'))
 
@@ -364,7 +364,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
             cmds=cmds[1:]
             while cmds[0].startswith('-'):
                 cmds=cmds[1:]
-        print "%s (%s)" % (targets,cmds[0])
+        print("%s (%s)" % (targets, cmds[0]))
 
     @staticmethod
     def __isinlist(filename,filter):
@@ -419,7 +419,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
     @staticmethod
     def read_lexicon(source,e2m):
         m2e=dict()
-        input=file(source)
+        input=open(source)
         lineno=0
 
         for line in input:
@@ -465,10 +465,10 @@ class PiGenericEnvironment(SCons.Environment.Environment):
         if err:
             raise SCons.Errors.BuildError(node=source,errstr=err)
 
-        output=file(target[0].abspath,'w')
+        output=open(target[0].abspath,'w')
 
         output.write('lexicon={\n')
-        for (e,(m,c)) in e2m.iteritems():
+        for (e,(m,c)) in e2m.items():
             e = e.replace("'","\\'")
             if m is not None:
                 output.write("    '%s': ('%s','%s'),\n" % (e,m,c))
@@ -477,7 +477,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
         output.write("}\n");
 
         output.write('reverse_lexicon={\n')
-        for (e,(m,c)) in e2m.iteritems():
+        for (e,(m,c)) in e2m.items():
             e = e.replace("'","\\'")
             if m is not None:
                 output.write("    '%s': ('%s','%s'),\n" % (m,e,c))
@@ -541,7 +541,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
         env = self.Clone()
 
         def build_version(target,source,env):
-            output=file(target[0].abspath,'w')
+            output=open(target[0].abspath,'w')
             output.write(env.subst('version = "$PI_RELEASE"'))
             output.write("\n")
             output.close()
@@ -637,7 +637,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
         if 'external' in meta:
             for e in meta['external'].values():
                 if not os.path.exists(e):
-                    print e,'missing, skipping collection',name
+                    print(e, 'missing, skipping collection', name)
                     return
         else:
             meta['external'] = {}
@@ -709,10 +709,10 @@ class PiGenericEnvironment(SCons.Environment.Environment):
 
         def action(target,source,env):
             t = target[0].abspath
-            outp = file(t,"w")
+            outp = open(t,"w")
             outp.write(source[0].value)
             outp.close()
-            os.chmod(t,0755)
+            os.chmod(t,0o755)
 
         return self.Command(target,self.Value(text),action)
 
@@ -776,7 +776,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
             env.set_package(package)
 
         def build_version(target,source,env):
-            output=file(target[0].abspath,'w')
+            output=open(target[0].abspath,'w')
             output.write(env.subst('version = "$PI_RELEASE"'))
             output.write("\n")
             output.write(env.subst('cversion = "%s"' % source[1].value))
@@ -802,7 +802,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
 
         def build_manifest(target,source,env):
             t = target[0].abspath
-            outp = file(t,"w")
+            outp = open(t,"w")
 
             for a in source:
                 outp.write("%s\n" % a.value.lower())

@@ -89,7 +89,7 @@ class Agent(agent.Agent):
         self[11] = atom.Atom(domain=domain.Bool(),init=True,policy=atom.default_policy(self.__touch_mode),names='touch mode')
         self[12] = atom.Atom(domain=domain.Bool(),init=True,policy=atom.default_policy(self.__quantize),names='quantize')
          
-        print "t3d device connect ", self[7], "," , self[8]
+        print("t3d device connect ", self[7], "," , self[8])
         self.device.connect(self[7].get_value(),self[8].get_value())
 
 

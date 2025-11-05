@@ -82,7 +82,7 @@ def drawWindowHeader(parent,title,dc,blank=False):
     drawHeader(parent.GetSize(),title,dc,blank=blank)  
 
 def drawHeader(size,title,dc,position=(0,0),blank=False):
-    print 'drawHeader',title 
+    print('drawHeader',title )
     if blank:
         viewBackground=colours.defaultViewBackground
         dc.SetPen(wx.Pen(viewBackground))
@@ -373,7 +373,7 @@ class filledTitleItem:
         self.y=self.y-dyOffset
 
     def draw(self,dc):
-        print 'filledTitleItem:draw'
+        print('filledTitleItem:draw')
         pts,weight=fonts.setTableTitleFont(dc)
         dc.GradientFillLinear(wx.Rect(self.x,self.y,self.w,self.h),colours.titleBarGradient1,colours.titleBarGradient2,wx.SOUTH)
         x=self.x+0.5*(self.w-(dc.GetTextExtent(self.text)[0]))
@@ -400,7 +400,7 @@ class columnHeader:
         self.y=self.y-dyOffset
 
     def draw(self,dc):
-        print 'columnHeader:draw'
+        print('columnHeader:draw')
         pts,weight=fonts.setSubTableTitleFont(dc)
         h=dc.GetTextExtent('0')[1]
         dc.GradientFillLinear(wx.Rect(self.x,self.y,self.w,h),colours.titleBarGradient1,colours.titleBarGradient2,wx.SOUTH)

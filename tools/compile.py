@@ -28,6 +28,6 @@ dst = sys.argv[1]
 try:
     py_compile.compile(src,cfile=dst,doraise=True)
     sys.exit(0)
-except py_compile.PyCompileError,err:
+except py_compile.PyCompileError as err:
     sys.stderr.write(err.msg)
     sys.exit(-1)

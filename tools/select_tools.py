@@ -111,7 +111,7 @@ def posix():
     from posix import uname
     p = ('posix_'+uname()[0]+'_'+uname()[4]).replace(' ','_')
 
-    if globals().has_key(p):
+    if p in globals():
         return globals()[p]()
 
     raise RuntimeError("unsupported posix platform %s" % p)
@@ -125,7 +125,7 @@ darwin=posix
 linux2=posix
 
 def select():
-    if globals().has_key(sys.platform):
+    if sys.platform in globals():
         return globals()[sys.platform]()
 
     raise RuntimeError("unsupported platform %s" % sys.platform)

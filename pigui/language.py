@@ -124,7 +124,7 @@ class LanguageDisplayModel:
         pass
 
     def lexicon_changed(self):
-        print 'default lexicon changed'
+        print('default lexicon changed')
 
 
 class IndexModel(piw.index):
@@ -143,11 +143,11 @@ class IndexModel(piw.index):
                 listener.indexUpdate(self.added,self.removed)
 
     def index_closed(self):
-        print 'IndexModel','index_closed'
+        print('IndexModel','index_closed')
         
     def index_changed(self):
         if self.updateList():
-            print 'Index model changed: updating listeners'
+            print('Index model changed: updating listeners')
             for listener in self.__listeners:
                 listener.indexUpdate(self.added,self.removed)
     
@@ -161,13 +161,13 @@ class IndexModel(piw.index):
             newlist.append(utils.stripQuotes(name))
         for name in newlist:
             if name not in self.agentList:
-                print 'added',name
+                print('added',name)
                 self.agentList.append(name)
                 self.added.append(name)
                 listModified=True
         for name in self.agentList:
             if name not in newlist:
-                print 'removed',name
+                print('removed',name)
                 self.agentList.remove(name)
                 self.removed.append(name)
                 listModified=True
@@ -239,25 +239,25 @@ class LanguageModel:
     
     def lexicon_changed(self):
         picross.display_active()
-        print 'lexicon_changed'
+        print('lexicon_changed')
         #for display in self.displays:
         #    gui.call_fg_async(display.lexicon_changed)
     
     def history_cleared(self):
         picross.display_active()
-        print 'history_cleared'
+        print('history_cleared')
         for display in self.displays:
             gui.call_fg_async(display.history_cleared)
     
     def cmdline_changed(self):
         picross.display_active()
         cmdline=self.lang.get_cmdline()
-        print 'LanguageModel:cmdline_changed, ',cmdline
+        print('LanguageModel:cmdline_changed, ',cmdline)
         for display in self.displays:
             gui.call_fg_async(display.cmdline_changed,cmdline)
 
     def context_changed(self,name,listeners,lurkers):
-        print 'context changed',name,listeners,lurkers
+        print('context changed',name,listeners,lurkers)
         for display in self.displays:
             gui.call_fg_async(display.context_changed,name,listeners,lurkers)
 
@@ -266,7 +266,7 @@ class LanguageModel:
             return [k,self.lang.get_history(k)]
 
     def language_ready(self):
-        print 'LanguageModel:language_ready' 
+        print('LanguageModel:language_ready')
 
         for display in self.displays:
             gui.call_fg_async(display.language_ready,self.langName)
@@ -275,18 +275,18 @@ class LanguageModel:
         self.lang.flush()
 
     def lexicon_changed(self):
-        print 'LanguageModel:lexicon_changed'
+        print('LanguageModel:lexicon_changed')
         for display in self.displays:
             gui.call_fg_async(display.lexicon_changed)
 
     def language_gone(self):
-        print 'LanguageModel:language_gone' 
+        print('LanguageModel:language_gone')
         for display in self.displays:
             gui.call_fg_async(display.language_gone,self.langName)
         self.status=0
 
     def language_disconnected(self):
-        print 'LanguageModel:language_disconnected' 
+        print('LanguageModel:language_disconnected')
         for display in self.displays:
             gui.call_fg_async(display.language_disconnected)
         self.status=2
@@ -301,6 +301,6 @@ class LanguageModel:
         self.displays.remove(display)
 
     def inject(self,msg):
-        print 'LanguageModel: inject',msg
+        print('LanguageModel: inject',msg)
         self.lang.inject(msg)
 

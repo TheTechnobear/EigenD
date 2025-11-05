@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import atom,logic,const,resource,node,agent,async
+from pi import atom,logic,const,resource,node,agent
+from pi import piasync
 import os
 import piw
 import picross
@@ -81,7 +82,7 @@ class ScriptManager(atom.Atom):
         self.__cache = {}
         os.path.walk(resource.WC(self.__factorydir),walker,resource.WC(self.__factorydir))
         os.path.walk(resource.WC(self.__userdir),walker,resource.WC(self.__userdir))
-        print 'rebuilt cache:',len(self.__cache),'named scripts'
+        print('rebuilt cache:',len(self.__cache),'named scripts')
 
 
     def read_script(self,filename):
@@ -138,7 +139,7 @@ class ScriptManager(atom.Atom):
             
 
     def rpc_fideal(self,arg):
-        return async.failure('invalid cookie')
+        return piasync.failure('invalid cookie')
 
     def rpc_displayname(self,arg):
         return 'scripts'
@@ -212,7 +213,7 @@ class ScriptManager(atom.Atom):
         self.__selected = selected
         self.__armed = selected
         self.__status='armed'
-        print 'arming',self.__armed
+        print('arming',self.__armed)
         self.update()
         return logic.render_term(('',''))
 
@@ -302,7 +303,7 @@ class ScriptManager(atom.Atom):
 
     def __cinfo0(self,path):
         if self.__armed:
-            print 'disarming'
+            print('disarming')
             self.__armed=None
             self.__status=None
             self.update()

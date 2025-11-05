@@ -40,7 +40,7 @@ pcurrent = pstart
 rcurrent = rstart
 ycurrent = ystart
 for x in range(0,steps):
-    print '%d %d %d'%(pcurrent,rcurrent,ycurrent)
+    print('%d %d %d' % (pcurrent,rcurrent,ycurrent))
     pcurrent += pinc
     rcurrent += rinc
     ycurrent += yinc

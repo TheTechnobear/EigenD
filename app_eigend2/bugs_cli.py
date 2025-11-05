@@ -126,7 +126,7 @@ def get_content_type(filename):
 
 def get_bug():
     dir = resource.user_resource_dir(resource.bugs_dir,version='')
-    print 'checking '+dir
+    print('checking '+dir)
     bugs = resource.glob_glob(os.path.join(dir,'*.zip'))
     return bugs[0] if bugs else None
 
@@ -149,13 +149,13 @@ def send_one_bug():
         return 0
 
     try:
-        print 'sending '+bug
+        print('sending '+bug)
         send_bug(bug)
         resource.os_unlink(bug)
-        print 'sent '+bug
+        print('sent '+bug)
         return 1
     except:
-        print 'failed to send '+bug
+        print('failed to send '+bug)
         return -1
 
 class BugsLogger(object):
@@ -168,7 +168,7 @@ class BugsLogger(object):
             self.logfile.write(msg)
             self.logfile.flush()
         else:
-            print >>sys.__stdout__,self.name,msg,
+            print(msg,, file=sys.__stdout__,self.name)
 
 def cli():
     parser = optparse.OptionParser()
@@ -181,25 +181,25 @@ def cli():
 
     lock = resource.LockFile(name)
     if not lock.lock():
-        print 'cannot get lock: aborting'
+        print('cannot get lock: aborting')
         sys.exit(-1)
 
     if not opts.stdout:
         sys.stdout = BugsLogger(name)
 
-    print 'starting bugfiler'
+    print('starting bugfiler')
     try:
-        print 'bugfiler running'
+        print('bugfiler running')
         while send_one_bug()>0:
-            print 'more bugs to send'
+            print('more bugs to send')
             continue
-        print 'bugfiler done'
+        print('bugfiler done')
     except:
         import traceback
-        print 'exception raised' 
-        print 'start traceback:'
+        print('exception raised')
+        print('start traceback:')
         exeinfo = traceback.format_exc(limit=None)
-        print exeinfo
+        print(exeinfo)
         picross.exit(0)
 
-    print 'bugfiler exiting'
+    print('bugfiler exiting')

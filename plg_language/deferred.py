@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import async,logic,rpc,paths
+from pi import logic,rpc,paths
+from pi import piasync
 from . import interpreter,imperative
 
 
@@ -36,7 +37,7 @@ class SubDelegate(interpreter.Delegate):
         return 
 
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def cancel_action(agent,actions):
     for a in actions:
         if logic.is_pred_arity(a,'deferred_action',2):
@@ -44,17 +45,17 @@ def cancel_action(agent,actions):
             result = rpc.invoke_rpc(vid,'cancel','')
             yield result
 
-    yield async.Coroutine.success()
+    yield piasync.Coroutine.success()
 
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def create_deferred_action(actions,trigger,interp,verb,mods,roles,args,flags,text):
     sresult = imperative.run(interp,verb,mods,roles,args)
 
     yield sresult
 
     if not sresult.status():
-        yield async.Coroutine.failure(*sresult.args(),**sresult.kwds())
+        yield piasync.Coroutine.failure(*sresult.args(),**sresult.kwds())
 
     (verbs,) = sresult.args()
 
@@ -64,7 +65,7 @@ def create_deferred_action(actions,trigger,interp,verb,mods,roles,args,flags,tex
         vresult = verb.defer(interp,trigger,None,*verb_args)
         yield vresult
         if not vresult.status():
-            print 'deferred action failed',vresult.args(),vresult.kwds()
+            print('deferred action failed',vresult.args(),vresult.kwds())
             failed = True
             break
 
@@ -76,12 +77,12 @@ def create_deferred_action(actions,trigger,interp,verb,mods,roles,args,flags,tex
     if failed:
         vresult = cancel_action(interp.get_agent(),actions)
         yield vresult
-        yield async.Coroutine.failure('deferred action failed')
+        yield piasync.Coroutine.failure('deferred action failed')
 
-    yield async.Coroutine.success()
+    yield piasync.Coroutine.success()
 
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def create_action(agent,action_term):
     if logic.is_pred_arity(action_term,'phrase',2):
         (trigger,text) = action_term.args
@@ -92,7 +93,7 @@ def create_action(agent,action_term):
         result = interp.process_block(words)
         yield result
         if not result.status():
-            yield async.Coroutine.failure(*result.args(),**result.kwds())
-        yield async.Coroutine.success(actions)
+            yield piasync.Coroutine.failure(*result.args(),**result.kwds())
+        yield piasync.Coroutine.success(actions)
 
-    yield async.Coroutine.failure('invalid action')
+    yield piasync.Coroutine.failure('invalid action')

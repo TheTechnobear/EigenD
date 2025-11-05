@@ -19,29 +19,29 @@
 #
 
 import sys
-import distutils.sysconfig
+import sysconfig
 import os.path
 
-cv = distutils.sysconfig.get_config_vars()
+cv = sysconfig.get_config_vars()
 
 def do_win32():
     executable = sys.executable
-    incpath = distutils.sysconfig.get_python_inc(False)
-    libpath = os.path.join(distutils.sysconfig.PREFIX,'libs')
+    incpath = sysconfig.get_path('include')
+    libpath = os.path.join(sys.prefix,'libs')
     return (executable,incpath,libpath,'Python26','',sys.prefix)
 
 def do_nonframework():
     executable = sys.executable
     version = 'python'+cv['VERSION']
-    incpath = distutils.sysconfig.get_python_inc(False)
+    incpath = sysconfig.get_path('include')
     library = version
-    libpath = os.path.join(distutils.sysconfig.PREFIX,'lib',version,'config')
+    libpath = os.path.join(sys.prefix,'lib',version,'config')
     return (executable,incpath,libpath,library,'',sys.prefix)
 
 def do_framework():
     executable = sys.executable
     framework = os.path.join(cv['PYTHONFRAMEWORKPREFIX'],cv['PYTHONFRAMEWORKDIR'],'Versions',cv['VERSION'])
-    incpath = distutils.sysconfig.get_python_inc(False)
+    incpath = sysconfig.get_path('include')
     library = ''
     libpath = ''
     link = os.path.join(framework,'Python')
@@ -52,11 +52,11 @@ def do_detect():
     if sys.platform == 'win32':
         return do_win32()
 
-    if cv.has_key('PYTHONFRAMEWORK'):
+    if 'PYTHONFRAMEWORK' in cv:
         framework = cv['PYTHONFRAMEWORK']
         if framework:
             return do_framework()
     return do_nonframework()
 
-print ';'.join(do_detect())
+print(';'.join(do_detect()))
 

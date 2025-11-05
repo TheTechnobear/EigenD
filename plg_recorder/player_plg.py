@@ -49,13 +49,13 @@ class Agent(agent.Agent):
         note = action.mass_quantity(note)
         velocity = action.mass_quantity(velocity)
         length = max(1,int(1000000*action.mass_quantity(s)))
-        print 'play note',note,'velocity',velocity,'sec',s,'us',length
+        print('play note',note,'velocity',velocity,'sec',s,'us',length)
         return self.player.play(note,velocity,length),None
 
     def __playnv(self,ctx,subj,note,velocity):
         note = action.mass_quantity(note)
         velocity = action.mass_quantity(velocity)
-        print 'play note',note,'velocity',velocity
+        print('play note',note,'velocity',velocity)
         return self.player.play(note,velocity,500000),None
 
 

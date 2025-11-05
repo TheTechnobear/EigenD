@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import async,logic,action,errors,rpc,paths,constraints,utils,paths
+from pi import logic,action,errors,rpc,paths,constraints,utils,paths
+from pi import piasync
 from pi.logic.shortcuts import *
 from . import noun,interpreter
 
@@ -63,7 +64,7 @@ def __filter_scope(obj_set, inner_scope, outer_scope):
     return set(obj_set)
 
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def __check_constraints(db,order,clist,args):
     #
     # args is dict of role -> Referent
@@ -81,17 +82,17 @@ def __check_constraints(db,order,clist,args):
         yield sr
 
         if not sr.status():
-            yield async.Coroutine.failure()
+            yield piasync.Coroutine.failure()
 
         if not sr.args()[0]:
-            yield async.Coroutine.failure()
+            yield piasync.Coroutine.failure()
 
         argsout.append(sr.args()[1])
 
-    yield async.Coroutine.success(argsout)
+    yield piasync.Coroutine.success(argsout)
 
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def run(interp,verb,mods,roles,args):
 
     db=interp.get_database()
@@ -111,7 +112,7 @@ def run(interp,verb,mods,roles,args):
     verb_set = __filter_scope(verb_set,inner_scope,outer_scope)
 
     if not verb_set: 
-        yield async.Coroutine.failure('nothing uses verb',user_errors=((errors.nothing_uses_verb(verb),''),))
+        yield piasync.Coroutine.failure('nothing uses verb',user_errors=((errors.nothing_uses_verb(verb),''),))
 
     matches = []
 
@@ -147,7 +148,7 @@ def run(interp,verb,mods,roles,args):
             matches.append((v,verb_args))
 
     if not matches:
-        yield async.Coroutine.failure('inappropriate use',user_errors=((errors.inappropriate_use(verb),''),))
+        yield piasync.Coroutine.failure('inappropriate use',user_errors=((errors.inappropriate_use(verb),''),))
 
     checked = {}
 
@@ -168,6 +169,6 @@ def run(interp,verb,mods,roles,args):
         checked[d] = (v,args)
 
     if not checked:
-        yield async.Coroutine.failure('inappropriate arguments',user_errors=((errors.inappropriate_arguments(verb),''),))
+        yield piasync.Coroutine.failure('inappropriate arguments',user_errors=((errors.inappropriate_arguments(verb),''),))
 
-    yield async.Coroutine.success(checked.values())
+    yield piasync.Coroutine.success(checked.values())

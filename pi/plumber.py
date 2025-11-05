@@ -26,7 +26,7 @@ class Endpoint:
         src_chan = ostuff.channel or src_chan
         if src_chan: src_chan = str(src_chan)
         d=logic.render_term(logic.make_term('conn',dst_chan,self.channel,oid,src_chan,ostuff.connect_static and 'ctl' or None))
-        print 'connecting',d,'->',self.id,'dst_chan',dst_chan
+        print('connecting',d,'->',self.id,'dst_chan',dst_chan)
         rpc.invoke_rpc(self.qid,'connect',d)
 
     def __repr__(self):
@@ -98,7 +98,7 @@ class Endpoint:
 
 @async.coroutine('internal error')
 def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_only=False):
-    print 'plumber connect: checkonly= ',check_only
+    print('plumber connect: checkonly= ',check_only)
     assoc_cache = db.get_assoccache()
     partof_cache = db.get_partcache()
     proto_cache = db.get_propcache('protocol')
@@ -110,14 +110,14 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
         if 'using' in proto_cache.get_valueset(ti):
             dst_chan=True
 
-    print 'connect2 from:',from_descriptors
-    print '-          to:',ti,tp
-    print '-    dst_chan:',dst_chan
+    print('connect2 from:',from_descriptors)
+    print('-          to:',ti,tp)
+    print('-    dst_chan:',dst_chan)
 
     if 1 == len(from_descriptors) and 0 == len(partof_cache.direct_lefts(ti)) and 0 == len(partof_cache.direct_lefts(from_descriptors[0][0])):
         (fi,fp) = from_descriptors[0]
-        print 'direct connect from:',fi,fp
-        print '-                to:',ti,tp
+        print('direct connect from:',fi,fp)
+        print('-                to:',ti,tp)
         fe = Endpoint(db,fi,channel=fp)
         te = Endpoint(db,ti,channel=tp)
         if dst_chan is True:
@@ -127,7 +127,7 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
                 iixm = db.get_inputs(te.id,ii2)
                 iix = iix.union(iixm)
             dst_chan = 1+reduce(max,iix,0)
-            print 'dst_chan',dst_chan,iix
+            print('dst_chan',dst_chan,iix)
         if dst_chan == 0:
             dst_chan = None
         te.connect(fe,src_chan,dst_chan)
@@ -172,11 +172,11 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
                 if fi in all_output:
                     normoutputs.append(Endpoint(db,fi,channel=fp))
 
-    print 'ni=',norminputs
-    print 'ro=',revoutputs
-    print 'no=',normoutputs
-    print 'ri=',revinputs
-    print 'u=',dst_chan
+    print('ni=',norminputs)
+    print('ro=',revoutputs)
+    print('no=',normoutputs)
+    print('ri=',revinputs)
+    print('u=',dst_chan)
 
     allinputs = norminputs+revinputs
     alloutputs = normoutputs+revoutputs
@@ -189,13 +189,13 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
                 iixm = db.get_inputs(ii.id,ii2)
                 iix = iix.union(iixm)
         dst_chan = 1+reduce(max,iix,0)
-        print 'dst_chan',dst_chan,iix
+        print('dst_chan',dst_chan,iix)
 
     if dst_chan == 0:
         dst_chan = None
 
     if len(allinputs)==1 and len(alloutputs)==1:
-        print 'direct connect'
+        print('direct connect')
         if check_only is False:
             allinputs[0].connect(alloutputs[0],src_chan,dst_chan)
         yield async.Coroutine.success([])
@@ -206,12 +206,12 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
         scores = {}
         for o in normoutputs:
             s = Endpoint.score(o,i)
-            print o.id,'->',i.id,'score',s
+            print(o.id,'->',i.id,'score',s)
             if s[0]>0:
                 scores[s] = o
 
         if not scores:
-            print i.id,'no inputs'
+            print(i.id,'no inputs')
             continue
 
         best = max(scores.keys())
@@ -222,12 +222,12 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
         scores = {}
         for o in revoutputs:
             s = Endpoint.score(o,i)
-            print o.id,'->',i.id,'score',s
+            print(o.id,'->',i.id,'score',s)
             if s[0]>0:
                 scores[s] = o
 
         if not scores:
-            print i.id,'no inputs'
+            print(i.id,'no inputs')
             continue
 
         best = max(scores.keys())

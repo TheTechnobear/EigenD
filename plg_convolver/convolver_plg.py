@@ -33,7 +33,8 @@ import sys
 import piw
 import picross
 import math
-from pi import  action,agent,atom,bundles,domain,files,paths,policy,resource,riff,upgrade,utils,node,logic,index,guid,rpc,async,state,container
+from pi import  action,agent,atom,bundles,domain,files,paths,policy,resource,riff,upgrade,utils,node,logic,index,guid,rpc,state,container
+from pi import piasync
 from pi.logic.shortcuts import T
 from . import convolver_version as version, convolver_native
 
@@ -131,7 +132,7 @@ class ImpulseBrowser(atom.Atom):
     def __setcurrent(self,cookie):
         if cookie!=self.get_value():
             # cookie is the stripped filename
-            if not self.__f2p.has_key(cookie):
+            if not self.cookie in __f2p:
                 return False
             filepath = self.__f2p[cookie]
             self.agent.load_impulse_response(filepath)
@@ -208,7 +209,7 @@ class ImpulseBrowser(atom.Atom):
     def choose_cookie(self,c):
         if self.__setcurrent(c):
             return action.nosync_return()
-        return async.failure('choose_cookie failed %s' % c) 
+        return piasync.failure('choose_cookie failed %s' % c) 
 
     # called from resolve
     def __ideals(self,*cookies):
@@ -343,13 +344,13 @@ class Agent(agent.Agent):
 
 class Upgrader(upgrade.Upgrader):
     def upgrade_1_0_0_to_1_0_1(self,tools,address):
-        print 'upgrading convolver',address
+        print('upgrading convolver',address)
         root = tools.get_root(address)
         dry_vol = root.get_node(7,254).get_data().as_float()
         wet_vol = 1-dry_vol
         dry_db = 20*math.log10(dry_vol)
         wet_db = 20*math.log10(wet_vol)+24 # we're now automatically reducing by 24 db in the impulse importer
-        print 'dry vol',dry_vol,'dry db',dry_db,'wet vol',wet_vol,'wet db',wet_db
+        print('dry vol',dry_vol,'dry db',dry_db,'wet vol',wet_vol,'wet db',wet_db)
         root.get_node(7,254).set_data(piw.makefloat_bounded(24,-24,0,dry_db,0))
         root.ensure_node(11,254).set_data(piw.makefloat_bounded(24,-24,0,wet_db,0))
 

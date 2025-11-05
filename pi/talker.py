@@ -139,7 +139,7 @@ class Talker(atom.Atom):
 
     def __phrase_done(self,r,*a,**kw):
         self.__running.remove(r)
-        print 'running:',self.__running
+        print('running:',self.__running)
 
         self.__active_phrase_operation = False 
 
@@ -178,7 +178,7 @@ class Talker(atom.Atom):
         interp = self.get_property_string('interpreter')
         actions = self.get_property_string('actions')
 
-        print 'clear phrase',interp,actions
+        print('clear phrase',interp,actions)
 
         if actions and interp:
             r = rpc.invoke_rpc(interp,'cancel_action',actions)
@@ -188,7 +188,7 @@ class Talker(atom.Atom):
         self.del_property('actions')
         self.del_property('help')
         self.set_value('')
-        if self.has_key(1):
+        if 1 in self:
             self[1].clear_connections()
 
     @async.coroutine('internal error')
@@ -200,7 +200,7 @@ class Talker(atom.Atom):
         if not interp:
             yield async.Coroutine.failure('no interpreter')
 
-        print 'set phrase',interp,v
+        print('set phrase',interp,v)
 
         actions = logic.render_term(logic.make_term('phrase',self[2].id(),v))
         result = rpc.invoke_rpc(interp,'create_action',actions)
@@ -222,7 +222,7 @@ class Talker(atom.Atom):
                 if a.args[1]:
                     c.append(self.make_connection(i,a.args[1]))
 
-        if self.has_key(1):
+        if 1 in self:
             self[1].set_connections(logic.render_termlist(c))
 
         yield async.Coroutine.success()

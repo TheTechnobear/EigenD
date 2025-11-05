@@ -102,16 +102,16 @@ class HelpManager:
             doc_file = resource.user_resource_file(resource.help_dir,'documentation.xml')
             ((major,minor,build),tag) = resource.split_version(version.version)
             doc_url = "%s/%d.%d" % (doc_base,major,minor)
-            print 'loading documentation from',doc_url
+            print('loading documentation from',doc_url)
             doc_conn = urllib.urlopen(doc_url)
             doc_text = doc_conn.read()
             doc_conn.close()
             doc_out = resource.file_open(doc_file,'w')
             doc_out.write(doc_text)
             doc_out.close()
-            print 'loaded documentation'
+            print('loaded documentation')
         except:
-            print 'failed to update documentation'
+            print('failed to update documentation')
             utils.log_exception()
             return
 
@@ -128,13 +128,13 @@ class HelpManager:
             self.load_file(user_doc)
             return
         except:
-            print user_doc,'invalid'
+            print(user_doc,'invalid')
             pass
 
         self.load_file(release_doc)
 
     def load_file(self,path):
-        print 'loading',path
+        print('loading',path)
         node = cElementTree.parse(resource.WC(path))
 
         assert node.getroot().tag == 'documentation'

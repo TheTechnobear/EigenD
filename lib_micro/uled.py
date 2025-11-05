@@ -34,10 +34,10 @@ def main():
 
     if len(sys.argv)==3:
         kbd.set_ledcolour(int(sys.argv[1])-1,colours[sys.argv[2]])
-        print ['%x'%ord(x) for x in kbd.debug()]
+        print(['%x'%ord(x) for x in kbd.debug()])
     else:
         for k in range(0,17):
             for c in ("red","green","orange","off"):
                 kbd.set_ledcolour(k,colours[c])
-                print k,c,['%x'%ord(x) for x in kbd.debug()]
+                print(k,c,['%x'%ord(x) for x in kbd.debug()])
                 time.sleep(0.5)

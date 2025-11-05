@@ -28,7 +28,8 @@ import sys
 import math
 import piw
 import picross
-from pi import agent,atom,bundles,domain,async,action,upgrade,policy,node,container,utils,logic,const,errors,collection
+from pi import agent,atom,bundles,domain,action,upgrade,policy,node,container,utils,logic,const,errors,collection
+from pi import piasync
 from pi.logic.shortcuts import T
 from . import console_mixer_version as version,synth_native
 
@@ -132,7 +133,7 @@ class FxSendControlsList(atom.Atom):
     def load_state(self,state,delegate,phase):
         if phase == 1:
             delegate.set_deferred(self,state)
-            return async.success()
+            return piasync.success()
 
         return atom.Atom.load_state(self,state,delegate,phase-1)
 
@@ -199,10 +200,10 @@ class FxChannel(atom.Atom):
 
     def property_change(self,k,v,delegate):
         if k in [ 'name','ordinal' ]:
-            for k,v in self.main_agent.channels.iteritems():
+            for k,v in self.main_agent.channels.items():
                 v.update_fx_send_controls(self.fx_chan_num)
 
-            for k,v in self.main_agent.fxchannels.iteritems():
+            for k,v in self.main_agent.fxchannels.items():
                 if k!=self.fx_chan_num:
                     v.update_fx_send_controls(self.fx_chan_num)
             
@@ -222,10 +223,10 @@ class FxChannel(atom.Atom):
         return logic.render_term(T('keyval',tuple(l)))
 
     def disconnect(self):
-        for k,v in self.main_agent.channels.iteritems():
+        for k,v in self.main_agent.channels.items():
             v.remove_fx_send_ctrls(self.fx_chan_num)
 
-        for k,v in self.main_agent.fxchannels.iteritems():
+        for k,v in self.main_agent.fxchannels.items():
             if k!=self.fx_chan_num:
                 v.remove_fx_send_ctrls(self.fx_chan_num)
 
@@ -250,10 +251,10 @@ class FxChannel(atom.Atom):
         del self[5][index]
 
     def plumb_fx_send_ctrls(self):
-        for k,v in self.main_agent.channels.iteritems():
+        for k,v in self.main_agent.channels.items():
             v.add_fx_send_ctrls(self.fx_chan_num)
 
-        for k,v in self.main_agent.fxchannels.iteritems():
+        for k,v in self.main_agent.fxchannels.items():
             if k!=self.fx_chan_num:
                 v.add_fx_send_ctrls(self.fx_chan_num)
                 self.add_fx_send_ctrls(k)
@@ -303,19 +304,19 @@ class FxChannelList(collection.Collection):
         del self[index]
         v.disconnect()
     
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self,ordinal=None):
         o = self.find_hole()
         e = FxChannel(self.__agent,o)
         self[o] = e
         e.plumb_fx_send_ctrls()
         e.set_ordinal(int(ordinal))
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self,key,inst,ordinal):
         inst.disconnect()
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 # -------------------------------------------------------------------------------------------------------------------------------------------
 # Input channel agent
@@ -498,7 +499,7 @@ class Agent(agent.Agent):
 
         pan_function = pan_laws[v]
         self.pan = piw.make_f2f_table(-1,1,1000,picross.make_f2f_functor(pan_function))
-        print 'set pan law',v,self.pan(-1),self.pan(0),self.pan(1)
+        print('set pan law',v,self.pan(-1),self.pan(0),self.pan(1))
         self.mixer.set_curves(self.vol,self.pan)
 
     def changes_pending(self):
@@ -513,8 +514,8 @@ class Agent(agent.Agent):
             self.fxchannels.update()
 
     def __channels(self):
-        channels = [c for c in self.channels.itervalues() if c.inuse()]
-        channels.extend([c for c in self.fxchannels.itervalues() if c.inuse()])
+        channels = [c for c in self.channels.values() if c.inuse()]
+        channels.extend([c for c in self.fxchannels.values() if c.inuse()])
         return channels
 
     def rpc_enumerate(self,arg):
@@ -634,7 +635,7 @@ class Agent(agent.Agent):
             
 
         if False:
-            return async.failure('Console Mixer: effect channel %s already exists' % key)
+            return piasync.failure('Console Mixer: effect channel %s already exists' % key)
 
         new_fx_chan = self.fxchannels.create_named_fxchannel(name,ordinal)
         return action.concrete_return(new_fx_chan.id())
@@ -642,12 +643,12 @@ class Agent(agent.Agent):
     def __uncreate_fx_chan(self,subject,chan):
         a = action.concrete_object(chan)
 
-        for k,v in self.fxchannels.iteritems():
+        for k,v in self.fxchannels.items():
             if v.id() == a:
                 self.fxchannels.del_fxchannel(k)
                 return
         
-        return async.failure('Console Mixer: effect channel doesnt exist')
+        return piasync.failure('Console Mixer: effect channel doesnt exist')
 
 
 class Upgrader(upgrade.Upgrader):
@@ -655,14 +656,14 @@ class Upgrader(upgrade.Upgrader):
         return -70.0*(1.0-(vol/100.0))
 
     def upgrade_1_0_1_to_1_0_2(self,tools,address):
-        print 'upgrading console mixer',address
+        print('upgrading console mixer',address)
 
         # master volume
         root = tools.get_root(address)
         master_vol = root.get_node(2,1,254).get_data().as_float()
         master_db = self.vol2db(master_vol)
         root.get_node(2,1,254).set_data(piw.makefloat_bounded(14,-70,0,master_db,0))
-        print 'master vol',master_vol,'db',master_db
+        print('master vol',master_vol,'db',master_db)
 
         # channel volumes
         for c in root.get_node(3).iter():
@@ -671,14 +672,14 @@ class Upgrader(upgrade.Upgrader):
                 chan_vol = chan_node.get_data().as_float()
                 chan_db = self.vol2db(chan_vol)
                 chan_node.set_data(piw.makefloat_bounded(14,-70,0,chan_db,0))
-                print 'channel vol',chan_vol,'db',chan_db
+                print('channel vol',chan_vol,'db',chan_db)
                 for s in c.get_node(4).iter():
                     send_node = s.get_node(2,254)
                     if send_node:
                         send_vol = send_node.get_data().as_float()
                         send_db = self.vol2db(send_vol)
                         send_node.set_data(piw.makefloat_bounded(14,-70,0,send_db,0))
-                        print 'send vol',send_vol,'db',send_db
+                        print('send vol',send_vol,'db',send_db)
 
         # fx channel volumes
         for c in root.get_node(4).iter():
@@ -687,14 +688,14 @@ class Upgrader(upgrade.Upgrader):
                 chan_vol = chan_node.get_data().as_float()
                 chan_db = self.vol2db(chan_vol)
                 chan_node.set_data(piw.makefloat_bounded(14,-70,0,chan_db,0))
-                print 'fx channel vol',chan_vol,'db',chan_db
+                print('fx channel vol',chan_vol,'db',chan_db)
                 for s in c.get_node(5).iter():
                     send_node = s.get_node(2,254)
                     if send_node:
                         send_vol = send_node.get_data().as_float()
                         send_db = self.vol2db(send_vol)
                         send_node.set_data(piw.makefloat_bounded(14,-70,0,send_db,0))
-                        print 'fx send vol',send_vol,'db',send_db
+                        print('fx send vol',send_vol,'db',send_db)
 
 agent.main(Agent,Upgrader)
 

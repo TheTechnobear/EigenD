@@ -1,4 +1,3 @@
-
 #
 # Copyright 2009 Eigenlabs Ltd.  http://www.eigenlabs.com
 #
@@ -88,7 +87,7 @@ def mycopytree(src, dst, symlinks=False, ignore=None):
             else:
                 os.link(srcname, dstname)
             # XXX What about devices, sockets etc.?
-        except (IOError, os.error), why:
+        except (IOError, os.error) as why:
             errors.append((srcname, dstname, str(why)))
         # catch the Error from the recursive copytree so that we can
         # continue with other files
@@ -96,23 +95,23 @@ def mycopytree(src, dst, symlinks=False, ignore=None):
             errors.extend(err.args[0])
     try:
         shutil.copystat(src, dst)
-    except OSError, why:
+    except OSError as why:
         if WindowsError is not None and isinstance(why, WindowsError):
             # Copying file access times may fail on Windows
             pass
         else:
             errors.extend((src, dst, str(why)))
     if errors:
-        raise shutil.Error, errors
+        raise shutil.Error(errors)
 
 class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
 
     def __init__(self,platform):
-        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','Library/Eigenlabs',python='/Library/Frameworks/Python.framework/Versions/2.7/bin/python')
+        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','Library/Eigenlabs',python='/opt/homebrew/opt/python@3.14/bin/python3.14')
         os_major=uname()[2].split('.')[0]
 
         self.Append(LIBS=Split('dl m pthread'))
-        print "Using ",platform
+        print("Using ", platform)
         if platform == 'macosx-x86-64' :
             self.Append(CXXFLAGS=Split('-std=c++11 -Wno-c++11-narrowing -Wno-inconsistent-missing-override -Wno-deprecated-register'))
             self.Append(CCFLAGS=Split('-arch x86_64  -msse3 -DDEBUG_DATA_ATOMICITY_DISABLED -DPI_PREFIX=\\"$PI_PREFIX\\" -mmacosx-version-min=10.13'))
@@ -166,7 +165,7 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
 
         def action(target,source,env):
             t = target[0].abspath
-            outp = file(t,"w")
+            outp = open(t,"w")
             outp.write(source[0].value)
             outp.close()
 
@@ -253,7 +252,7 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
             try: os.unlink(pname)
             except: pass
             #shutil.copyfile(program,pname)
-            #os.chmod(pname,0755)
+            #os.chmod(pname,0o755)
 
             #incmd = 'install_name_tool -add_rpath %s/bin %s' % (env.subst('$INSTALLDIR'), pname)
             #print incmd
@@ -306,10 +305,10 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
             res_dir = join(d,'Contents','Resources')
             for r in res:
                 if os.path.isfile(r):
-                    print 'link',r,'to',res_dir
+                    print('link', r, 'to', res_dir)
                     os.link(r,join(res_dir,basename(r)))
                 else:
-                    print 'copy',r,'to',res_dir
+                    print('copy', r, 'to', res_dir)
                     mycopytree(r,join(res_dir,basename(r)))
 
         return self.Command(self.Dir(app,self.Dir(dir)),[],make_app)
@@ -355,7 +354,7 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
             f.write('done\n')
             f.write('exit 0\n')
             f.close()
-            os.chmod(d,0755)
+            os.chmod(d,0o755)
 
         scriptdir = env.Dir(name,env.Dir('script',env.Dir('$PKGDIR')))
         scriptfile = env.File('postinstall',scriptdir)
@@ -371,7 +370,7 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
 
         def make_pkg(target,source,env):
             cmd = 'pkgbuild --identifier com.eigenlabs.%s-%s --component-plist %s --scripts %s --version %s --root %s %s' % (name.capitalize(),v,infonode[0].abspath,scriptdir.abspath,v,source[0].abspath,target[0].abspath)
-            print cmd
+            print(cmd)
             os.system(cmd)
             env.sign(target[0].abspath);
 
@@ -472,7 +471,7 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
             s = source[0].abspath
             pp = ''.join([' --package-path %s' % p for p in pkg_path])
             cmd = 'productbuild --resources %s --distribution %s %s %s' % (resdir.abspath,infonode[0].abspath,pp,d)
-            print cmd
+            print(cmd)
             os.system(cmd)
             env.sign(d);
 
@@ -494,7 +493,7 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
         cert = self.get('PI_CERTFILE')
         if cert:
             cmd = 'codesign -s "Eigenlabs Ltd" "%s"' % (tgt)
-            print cmd
+            print(cmd)
             os.system(cmd)
 
 fastmark_template = """

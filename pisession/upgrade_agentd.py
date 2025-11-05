@@ -119,7 +119,7 @@ class Upgrader(upgrade.Upgrader):
 
         plugins = []
 
-        for (ptype,plist) in plugs_by_type.iteritems():
+        for (ptype,plist) in plugs_by_type.items():
             ords_used = set()
             max_ord = 0
 
@@ -141,7 +141,7 @@ class Upgrader(upgrade.Upgrader):
         n2.set_data(piw.dictset(piw.dictnull(0),'agents',piw.makestring(logic.render_termlist(plugins),0)))
 
     def postupgrade(self,tools,address):
-        print 'eigend postupgrade'
+        print('eigend postupgrade')
 
         if tools.major_version() != 1:
             return
@@ -161,11 +161,11 @@ class Upgrader(upgrade.Upgrader):
                 a = tools.get_agent(actual_address)
                 if a and a.get_type() == 0:
                     tools.delete_agent(actual_address)
-                    print 'pruned bad agent',actual_address
+                    print('pruned bad agent',actual_address)
 
         return upgrade_plugins_v1(tools,address)
 
 
 def upgrade(oldv,newv,tools,address,phase):
-    print 'upgrade',address,oldv,newv,phase
+    print('upgrade',address,oldv,newv,phase)
     return Upgrader().upgrade(oldv,newv,tools,address,phase)

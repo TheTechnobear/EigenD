@@ -60,7 +60,7 @@ def iconHandler(image):
             img=wx.Image(image)
             return img.ConvertToBitmap()
         else:
-            print 'utils.iconHandler: image file length <=0'
+            print('utils.iconHandler: image file length <=0')
         return None
 
 def getDigitIndex(s):

@@ -1071,11 +1071,11 @@ class VerboseParser(Parser):
         try:
             value = Parser.eat(self, name)
             if self.verbose >= 1:
-                print self.token_info(token, "==", name)
+                print(self.token_info(token, "==", name))
             return value
         except WrongToken:
             if self.verbose >= 2:
-                print self.token_info(token, "!=", name)
+                print(self.token_info(token, "!=", name))
             raise
 
     def eatCSL(self, name):
@@ -1091,12 +1091,12 @@ class VerboseParser(Parser):
             value = Parser.eatCSL(self, name)
             if self.verbose >= 1:
                 token = self.lexer.token()
-                print self.token_info(token, "==", name)
+                print(self.token_info(token, "==", name))
             return value
         except WrongToken:
             if self.verbose >= 2:
                 token = Token("???", self.lexer.input[self.lexer.pos:self.lexer.pos+10].replace('\n', ' '), "???", self.lexer.line, self.lexer.row, self.lexer.line, self.lexer.row, self.lexer.pos, self.lexer.pos, self.lexer.pos)
-                print self.token_info(token, "!=", name)
+                print(self.token_info(token, "!=", name))
             raise
 
     def parse(self, axiom, input, *args, **kws):
@@ -1648,13 +1648,13 @@ class TPGParser(tpg.Parser):
     def re_check(self, expr, tok):
         try:
             sre_parse.parse(eval('r'+expr))
-        except Exception, e:
+        except Exception as e:
             raise LexicalError((tok.line, tok.row), "Invalid regular expression: %s (%s)"%(expr, e))
 
     def code_check(self, code, tok):
         try:
             parser.suite(code.code)
-        except Exception, e:
+        except Exception as e:
             erroneous_code = "\n".join([ "%2d: %s"%(i+1, l) for (i, l) in enumerate(code.code.splitlines()) ])
             raise LexicalError((tok.line, tok.row), "Invalid Python code (%s): \n%s"%(e, erroneous_code))
 
@@ -2085,7 +2085,7 @@ class TPGParser(tpg.Parser):
     def make_code(self, attribute, *source):
         source = "".join(self.flatten_nl(*source))
         local_namespace = {}
-        exec source in self.env, local_namespace
+        exec(source, self.env, local_namespace)
         code = local_namespace[attribute]
         return attribute, source, code
 

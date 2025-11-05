@@ -139,7 +139,7 @@ class server(piw.server):
         Find an unused index
         """
         for i in xrange(1,255):
-            if not self.isinternal(i) and (self.__children is None or not self.__children.has_key(i)):
+            if not self.isinternal(i) and (self.__children is None or not self.i in __children):
                 return i
 
         ex = self.__extension
@@ -157,7 +157,7 @@ class server(piw.server):
         """
         remove child from node
         """
-        for (k,v) in self.iteritems():
+        for (k,v) in self.items():
             if v is child:
                 del self[k]
                 return True
@@ -233,7 +233,7 @@ class server(piw.server):
         if key<1 or key>255:
             raise OverflowError('key %d not in range'%key)
 
-        if self.__children is not None and self.__children.has_key(key):
+        if self.__children is not None and self.key in __children:
             oldval=self.__children[key]
             del self.__children[key]
             oldval.close_server()
@@ -262,7 +262,7 @@ class server(piw.server):
         self.set_internal(key,val)
 
     def del_internal(self,key):
-        if self.__children is not None and self.__children.has_key(key):
+        if self.__children is not None and self.key in __children:
             oldval=self.__children[key]
             del self.__children[key]
             if len(self.__children) == 0:
@@ -285,16 +285,16 @@ class server(piw.server):
         self.del_internal(key)
 
     def values(self):
-        return list(self.itervalues())
+        return list(self.values())
 
     def items(self):
-        return list(self.iteritems())
+        return list(self.items())
 
     def keys(self):
-        return list(self.iterkeys())
+        return list(self.keys())
 
     def __iter__(self):
-        return self.iterkeys()
+        return self.keys()
 
     def iterkeys(self):
         if self.__children is not None:
@@ -313,7 +313,7 @@ class server(piw.server):
 
     def itervalues(self):
         if self.__children is not None:
-            for (k,v) in self.__children.iteritems():
+            for (k,v) in self.__children.items():
                 if not self.isinternal(k):
                     yield v
 
@@ -323,12 +323,12 @@ class server(piw.server):
         if en is None:
             return
 
-        for v in en.itervalues():
+        for v in en.values():
             yield v
 
     def iteritems(self):
         if self.__children is not None:
-            for (k,v) in self.__children.iteritems():
+            for (k,v) in self.__children.items():
                 if not self.isinternal(k):
                     yield (k,v)
 
@@ -338,11 +338,11 @@ class server(piw.server):
         if en is None:
             return
 
-        for (k,v) in en.iteritems():
+        for (k,v) in en.items():
             yield (k-1+ex,v)
 
     def has_key(self,k):
-        if self.__children is not None and self.__children.has_key(k):
+        if self.__children is not None and self.k in __children:
             return True
 
         ex = self.__extension
@@ -351,7 +351,7 @@ class server(piw.server):
         if en is None:
             return False
 
-        return en.has_key(k+1-ex)
+        return k+1-ex in en
 
     def setdefault(self,key,default=None):
         try:
@@ -362,7 +362,7 @@ class server(piw.server):
 
     def pop(self, key, *args):
         if len(args) > 1:
-            raise TypeError, "pop expected at most 2 arguments, got "\
+            raise TypeError("pop expected at most 2 arguments, got ")\
                               + repr(1 + len(args))
         try:
             value = self[key]
@@ -375,9 +375,9 @@ class server(piw.server):
 
     def popitem(self):
         try:
-            k, v = self.iteritems().next()
+            k, v = self.items().next()
         except StopIteration:
-            raise KeyError, 'container is empty'
+            raise KeyError('container is empty')
         del self[k]
         return (k, v)
 
@@ -386,7 +386,7 @@ class server(piw.server):
         if other is None:
             pass
         elif hasattr(other, 'iteritems'):  # iteritems saves memory and lookups
-            for k, v in other.iteritems():
+            for k, v in other.items():
                 self[k] = v
         elif hasattr(other, 'keys'):
             for k in other.keys():
@@ -398,7 +398,7 @@ class server(piw.server):
             self.update(kwargs)
 
     def __contains(self,k):
-        return self.has_key(k)
+        return k in self
 
     def get(self, key, default=None):
         try:
@@ -415,7 +415,7 @@ class server(piw.server):
 
     def attached(self):
         if self.__children is not None and self.open():
-            for (k,v) in self.__children.iteritems():
+            for (k,v) in self.__children.items():
                 if not v.open():
                     self.child_add(k,v)
 
@@ -429,7 +429,7 @@ class server(piw.server):
     def close_server(self):
         piw.server.close_server(self)
         if self.__children is not None:
-            for (k,v) in self.__children.iteritems():
+            for (k,v) in self.__children.items():
                 v.close_server()
 
     def populate(self,child_list):
@@ -610,11 +610,11 @@ class client(piw.client):
 
     def iteritems(self):
         if self.__children is not None:
-            for i in self.__children.iteritems():
+            for i in self.__children.items():
                 if not self.isinternal(i[0]):
                     yield i
         if self.__dynamic is not None:
-            for i in self.__dynamic.iteritems():
+            for i in self.__dynamic.items():
                 if not self.isinternal(i[0]):
                     yield i
 
@@ -622,7 +622,7 @@ class client(piw.client):
         if ex:
             en = self.get_internal(ex)
             if en:
-                for (k,v) in en.iteritems():
+                for (k,v) in en.items():
                     yield (k+ex-1,v)
 
     def set_internal(self,key,val):
@@ -652,7 +652,7 @@ class client(piw.client):
             try:
                 self.child_add(key,val)
             except:
-                print 'child',key,'of',self.id(),'disappeared'
+                print('child',key,'of',self.id(),'disappeared')
 
     def __setitem__(self,key,val):
         ex = self.__extension
@@ -670,7 +670,7 @@ class client(piw.client):
         return self.set_internal(key,val)
 
     def del_internal(self,key):
-        if self.__children is not None and self.__children.has_key(key):
+        if self.__children is not None and self.key in __children:
             oldval=self.__children[key]
             self.safe_close(oldval)
             del self.__children[key]
@@ -678,7 +678,7 @@ class client(piw.client):
                 self.__children = None
             return
 
-        if self.__dynamic is not None and self.__dynamic.has_key(key):
+        if self.__dynamic is not None and self.key in __dynamic:
             oldval=self.__dynamic[key]
             self.__wreck(key,oldval)
             del self.__dynamic[key]
@@ -722,7 +722,7 @@ class client(piw.client):
                         self.__dynamic[k]=v
                     except:
                         #utils.log_trace()
-                        print 'child',k,'of',self.id(),'disappeared'
+                        print('child',k,'of',self.id(),'disappeared')
                         self.__wreck(k,v)
                 else:
                     if not v.open():
@@ -730,11 +730,11 @@ class client(piw.client):
                             self.child_add(k,v)
                         except:
                             #utils.log_trace()
-                            print 'child',k,'of',self.id(),'disappeared'
+                            print('child',k,'of',self.id(),'disappeared')
 
             rep=None 
             if self.__dynamic is not None:
-                for (k,v) in self.__dynamic.iteritems():
+                for (k,v) in self.__dynamic.items():
                     if not v.open():
                         if self.__extension and k==self.__extension:
                             v.close_client()
@@ -775,7 +775,7 @@ class client(piw.client):
 
     def close_client(self):
         if self.__children is not None:
-            for (k,v) in self.__children.iteritems():
+            for (k,v) in self.__children.items():
                 self.safe_close(v)
         if self.__dynamic is not None:
             for (k,v) in self.__dynamic.items():
@@ -825,12 +825,12 @@ class client(piw.client):
 
     # fourth level uses definitions from lower levels
     def itervalues(self):
-        for _, v in self.iteritems():
+        for _, v in self.items():
             yield v
     def values(self):
-        return [v for _, v in self.iteritems()]
+        return [v for _, v in self.items()]
     def items(self):
-        return list(self.iteritems())
+        return list(self.items())
     def clear(self):
         for key in self.keys():
             del self[key]
@@ -844,7 +844,7 @@ class client(piw.client):
 
     def pop(self, key, *args):
         if len(args) > 1:
-            raise TypeError, "pop expected at most 2 arguments, got "\
+            raise TypeError("pop expected at most 2 arguments, got ")\
                               + repr(1 + len(args))
         try:
             value = self[key]
@@ -857,9 +857,9 @@ class client(piw.client):
 
     def popitem(self):
         try:
-            k, v = self.iteritems().next()
+            k, v = self.items().next()
         except StopIteration:
-            raise KeyError, 'container is empty'
+            raise KeyError('container is empty')
         del self[k]
         return (k, v)
 
@@ -868,7 +868,7 @@ class client(piw.client):
         if other is None:
             pass
         elif hasattr(other, 'iteritems'):  # iteritems saves memory and lookups
-            for k, v in other.iteritems():
+            for k, v in other.items():
                 self[k] = v
         elif hasattr(other, 'keys'):
             for k in other.keys():
@@ -892,7 +892,7 @@ Client = client
 def static(value=None,**children):
     a = Server(value)
 
-    for(k,v) in children.iteritems():
+    for(k,v) in children.items():
         if k[0:1]=='_':
             a[int(k[1:])] = v
 

@@ -18,7 +18,8 @@
 #
 
 from pi.logic.shortcuts import *
-from pi import action,logic,async,domain,utils,resource,rpc,timeout,plumber
+from pi import action,logic,domain,utils,resource,rpc,timeout,plumber
+from pi import piasync
 from . import interpreter,noun,imperative,referent
 import re
 
@@ -35,26 +36,26 @@ class Plumber:
         self.database = database
         self.agent = agent
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def verb2_18_unconnect(self,subject,t):
         """
         connect([un],global_unconnect,role(None,[concrete]))
         """
-        print 'un connect',t
+        print('un connect',t)
         for o in action.concrete_objects(t):
             t2 = self.database.to_database_id(o)
             tproxy = self.database.find_item(t2)
-            print '__unconnect',t2
+            print('__unconnect',t2)
             objs = self.database.search_any_key('W',T('input_list',t2,V('W')))
-            print '__unconnect',t2,objs
+            print('__unconnect',t2,objs)
 
             for (s,m) in objs:
                 sproxy = self.database.find_item(s)
                 yield interpreter.RpcAdapter(sproxy.invoke_rpc('clrconnect',''))
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def verb2_19_unconnect_from(self,subject,t,f):
         """
         connect([un],global_unconnect_from,role(None,[concrete]),role(from,[concrete,singular]))
@@ -62,7 +63,7 @@ class Plumber:
         f = self.database.to_database_id(action.concrete_object(f))
         for o in action.concrete_objects(t):
             t2 = self.database.to_database_id(o)
-            print 'un connect',t2,'from',f
+            print('un connect',t2,'from',f)
             tproxy = self.database.find_item(t2)
             objs = self.database.search_any_key('W',T('unconnect_from_list',t2,f,V('W')))
 
@@ -71,13 +72,13 @@ class Plumber:
                 cnxs = logic.parse_clauselist(sproxy.get_master())
                 for cnx in cnxs:
                     if logic.is_pred_arity(cnx,'conn',5) and self.database.to_database_id(cnx.args[2])==m:
-                        print 'disconnect',cnx,'from',s
+                        print('disconnect',cnx,'from',s)
                         yield interpreter.RpcAdapter(sproxy.invoke_rpc('disconnect',logic.render_term(cnx)))
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def verb2_20_connect(self,subject,src,dst,dst_chan,src_chan):
         """
         connect([],global_connect,role(None,[or([concrete],[composite([descriptor])])]),role(to,[concrete,singular]),option(into,[mass([channel])]),option(from,[abstract]))
@@ -92,7 +93,7 @@ class Plumber:
             if src_match:
                 src_chan = src_match.group(1)
             else:
-                yield async.Coroutine.failure("%s is not valid" % src_chan)
+                yield piasync.Coroutine.failure("%s is not valid" % src_chan)
 
         to_descriptor = (action.concrete_object(dst),None)
         to_descriptor = self.database.to_database_term(to_descriptor)
@@ -108,6 +109,6 @@ class Plumber:
             r = plumber.plumber(self.database,to_descriptor,from_descriptors,dst_chan=dst_chan,src_chan=src_chan)
             yield r
             if not r.status():
-                yield async.Coroutine.failure(*r.args(),**r.kwds())
+                yield piasync.Coroutine.failure(*r.args(),**r.kwds())
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()

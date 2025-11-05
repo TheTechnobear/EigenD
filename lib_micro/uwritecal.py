@@ -28,7 +28,7 @@ cal_len=cal_points+4
 def cli():
     file=sys.argv[1]
     if len(sys.argv) != 2:
-        print >>sys.stderr, 'usage: writecal filename'
+        print('usage: writecal filename', file=sys.stderr)
         sys.exit(1)
 
     k=passive(find(0xbeca, 0x0101),20)
@@ -45,9 +45,9 @@ def cli():
         for i,p in enumerate(points):
             k.set_calibration_point(i,p)
 
-        print 'writing key %d corner %d (min=%d max=%d)' % (key,corner,min,max)
+        print('writing key %d corner %d (min=%d max=%d)' % (key,corner,min,max))
         k.write_calibration_row()
 
-    print 'committing calibration to non volatile memory'
+    print('committing calibration to non volatile memory')
     k.commit_calibration()
 

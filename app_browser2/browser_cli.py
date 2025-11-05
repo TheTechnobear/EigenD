@@ -104,17 +104,17 @@ class ViewManager(agent.Agent):
         
         for k,v in list(self[252].items()):
             masterids = set([x.args[2] for x in v.get_property_termlist('master')])
-            print v.id(),'masters',masterids,' talker (',talker,')'
+            print(v.id(),'masters',masterids,' talker (',talker,')')
             for m in masterids:
                 s = paths.id2server(m)
                 if s == talker:
-                    print 'canceling',k,v.args,v.get_property_termlist('master')
+                    print('canceling',k,v.args,v.get_property_termlist('master'))
                     v.rpc_cancel(None)
                     break
         return action.nosync_return()
 
     def __do_browse(self,subject,*args):
-        print '__do_browse',args
+        print('__do_browse',args)
         #active()
 
         o=''
@@ -126,12 +126,12 @@ class ViewManager(agent.Agent):
                 o=action.crack_concrete(x)
             else:
                 o=args[0]
-            print 'o=',o
+            print('o=',o)
 
         self[8].model.change_target(o)
 #
     def __size_changed(self,d):
-        print '__size_changed'
+        print('__size_changed')
         if not d.is_string():
             return False
         l = logic.parse_clause(d.as_string())
@@ -142,7 +142,7 @@ class ViewManager(agent.Agent):
             self.__doSetSize()
 
     def __setup_size(self):
-        print '__setup_size',self.__x,self.__y
+        print('__setup_size',self.__x,self.__y)
         self.__size.set_data(piw.makestring(logic.render_term((self.__x,self.__y)),0))
 
     def __create_lang(self):
@@ -167,18 +167,18 @@ class ViewManager(agent.Agent):
         self.__rootFrame.updateStatus(text)
 
     def doSize(self):
-        print 'doSize'
+        print('doSize')
         if self.__rootFrame:
             size=self.__rootFrame.GetSize()
             screenSize=wx.DisplaySize()
             self.__x=int(100*(float(size[0])/float(screenSize[0])))
             self.__y=int(100*(float(size[1])/float(screenSize[1])))
-            print 'doSize',size,screenSize,self.__x,self.__y
+            print('doSize',size,screenSize,self.__x,self.__y)
 
             self.__setup_size()
 
     def __set_fontsize(self, value):
-        print '__set_fontsize',value
+        print('__set_fontsize',value)
         self.font=wx.Font(value,wx.FONTFAMILY_DEFAULT,wx.FONTSTYLE_NORMAL,weight=wx.FONTWEIGHT_NORMAL)
         return True
 
@@ -199,21 +199,21 @@ class ViewManager(agent.Agent):
         self.__scroll_path(h,v*-1)
     
     def __tap1(self):
-        print 'tap 1'
+        print('tap 1')
         active()
         vp=self.__getViewPanel()
         if vp:
             vp.tap(1)
     
     def __tap2(self):
-        print 'tap 2'
+        print('tap 2')
         active()
         vp=self.__getViewPanel()
         if vp:
             vp.tap(2)
 
     def __tap3(self):
-        print 'tap 3'
+        print('tap 3')
         active()
         self.onTap3()
 
@@ -281,11 +281,11 @@ class ViewManager(agent.Agent):
     
     def doHints(self,hints):
         view,target=logic.parse_clause(hints[0])
-        print 'Browser:doHints',view,target
+        print('Browser:doHints',view,target)
         if view=='browseview':
             self[8].model.change_target(target)
         else:
-            print 'No hint'
+            print('No hint')
 
     def getMainFrame(self):
         return self.__rootFrame
@@ -294,20 +294,20 @@ class browserApp(gui.App):
     def __init__(self,name,logfunc):
         gui.App.__init__(self,logfunc=logfunc,name=name)
 #        gui.App.__init__(self,name=name)
-        print '<browser starting>'
+        print('<browser starting>')
         imageName=resource.find_release_resource('app_browser2','browser_splash.png')
         if imageName:
             image=wx.Image(imageName,wx.BITMAP_TYPE_PNG)
             bmp=image.ConvertToBitmap()
             wx.SplashScreen(bmp,wx.SPLASH_CENTRE_ON_SCREEN|wx.SPLASH_TIMEOUT,2000,None,-1)
             wx.Yield()
-        print 'browser starting 2'
+        print('browser starting 2')
         self.agent = ViewManager(name)
-        print 'browser starting 3'
+        print('browser starting 3')
         piw.tsd_server(name, self.agent)
-        print 'browser starting 4'
+        print('browser starting 4')
         self.agent.advertise('<main>')
-        print 'browser starting 5'
+        print('browser starting 5')
 
 def cli():
     parser = optparse.OptionParser()
@@ -321,7 +321,7 @@ def cli():
 
     lock = resource.LockFile( name )
     if not lock.lock():
-        print 'cannot get lock: aborting'
+        print('cannot get lock: aborting')
         sys.exit(-1)
 
     if opts.stdout:
@@ -334,19 +334,19 @@ def cli():
         
     def logger(msg):
         if logfile:
-            print >>logfile,name,msg
+            print(name,msg, file=logfile)
             logfile.flush()
     
     try:
         app=browserApp(name,logfunc=logger)
     except:
         import traceback
-        print "exception raised" 
-        print "start traceback:"
+        print("exception raised")
+        print("start traceback:")
         exeinfo = traceback.format_exc(limit=None)
-        print exeinfo
+        print(exeinfo)
         picross.exit(0)
     
-    print "running application MainLoop"
+    print("running application MainLoop")
     app.MainLoop()
     picross.exit(0)

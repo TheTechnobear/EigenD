@@ -154,7 +154,7 @@ def randomise_data(d,mapping):
     t = d.time()
     v = d.as_string()
 
-    for (fn,tn) in mapping.iteritems():
+    for (fn,tn) in mapping.items():
         v=v.replace(fn,tn)
 
     if v == d.as_string():
@@ -259,7 +259,7 @@ def clr_tmp_setup():
     for g in resource.glob_glob(os.path.join(dbdir,'tmpsetup*')):
         try:
             resource.os_unlink(g)
-            print 'delete',g
+            print('delete',g)
         except:
             pass
 
@@ -272,11 +272,11 @@ def prepare_file(srcfile,version):
     db = state.open_database(dbfile,True)
     snap = db.get_trunk()
 
-    print srcfile,'version',snap.version()
+    print(srcfile,'version',snap.version())
 
     srcversion = get_version(snap)
 
-    print 'prepare:',srcversion,'for',version,'to',dbfile
+    print('prepare:',srcversion,'for',version,'to',dbfile)
 
     if srcversion != version:
         if not do_upgrade(snap):

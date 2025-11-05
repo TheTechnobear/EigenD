@@ -20,7 +20,8 @@
 
 import piw
 from pi.logic.shortcuts import T
-from pi import agent,atom,domain,bundles,action,async,utils,upgrade,policy
+from pi import agent,atom,domain,bundles,action,utils,upgrade,policy
+from pi import piasync
 from . import clarinet_oscillator_version as version,stk_native
 
 class Agent(agent.Agent):

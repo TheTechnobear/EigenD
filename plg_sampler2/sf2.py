@@ -132,7 +132,7 @@ class ZoneBuilder:
         for m in range(ms,me): self.__addmod(mod[m])
 
         if add:
-            for k,v in add.gen.iteritems():
+            for k,v in add.gen.items():
                 if k in gen_preset_ignore:
                     continue
 
@@ -177,7 +177,7 @@ class ZoneBuilder:
         rf = mtof(rk,transpose)
 
         looping = False
-        if self.gen.has_key(GEN_SAMPLEMODE):
+        if self.GEN_SAMPLEMODE in gen:
             if self.gen[GEN_SAMPLEMODE] != 0:
                 looping = True
 
@@ -201,7 +201,7 @@ class ZoneBuilder:
         return str(self.gen)
 
 def load_soundfont(file,bk,pre,transpose):
-    print 'loading bank',bk,'preset',pre,'from',file
+    print('loading bank',bk,'preset',pre,'from',file)
     f = resource.file_open(file,'rb',0)
     sf = SF2.read(f,name=file)
     f.close()
@@ -232,7 +232,7 @@ def load_soundfont(file,bk,pre,transpose):
         if inst is not None:
             for ii in range(sf['pdta']['inst'][inst][1],sf['pdta']['inst'][inst+1][1]):
                 izb = ZoneBuilder(sf['pdta']['ibag'],sf['pdta']['igen'],sf['pdta']['imod'],ii,base=gizb,add=pzb)
-                if izb.gen.has_key(GEN_SAMPLEID):
+                if izb.GEN_SAMPLEID in gen:
                     p.add_zone(izb.zone(sf['sdta']['smpl'],sf['pdta']['shdr'],transpose))
                 else:
                     if gizb is None:

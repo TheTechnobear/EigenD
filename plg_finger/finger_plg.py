@@ -194,7 +194,7 @@ class Fingering(atom.Atom):
         if self.__callback(fingering):
             self.set_value(fingering_name)
             self.update()
-            print 'fingering set to',fingering_name
+            print('fingering set to',fingering_name)
 
         return False
 
@@ -277,17 +277,17 @@ class Fingering(atom.Atom):
 
                         fingerings_from_this_file[fingering_name][i].append(pattern)
 
-                except FingeringError,e:
+                except FingeringError as e:
                     raise FingeringError("In fingering: '%s', %s" % (fingering_name,e.args[0]))
                 except:
                     raise FingeringError("In fingering: '%s', unknown error" % fingering_name)
 
-                print 'added',fingering_name,'from',filename
+                print('added',fingering_name,'from',filename)
 
-            print 'read %d fingerings from %s' % (len(fingerings_from_this_file),filename)
+            print('read %d fingerings from %s' % (len(fingerings_from_this_file),filename))
             return (fingerings_from_this_file,None)
                     
-        except FingeringError,e:
+        except FingeringError as e:
             message = e.args[0]
         except:
             message = 'unknown error'
@@ -371,7 +371,7 @@ class Agent(agent.Agent):
 
     def __set_fingering(self, f, current_fingering):
 
-        print 'setting fingering to',f
+        print('setting fingering to',f)
 
         current_fingering.clear_table()
         needed_polyphony = 1;

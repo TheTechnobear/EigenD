@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import atom,database,utils,logic,container,node,action,const,async,rpc,paths,index
+from pi import atom,database,utils,logic,container,node,action,const,rpc,paths,index
+from pi import piasync
 from . import noun,verb,macro,imperative
 import piw
 
@@ -101,18 +102,18 @@ class Database(database.Database):
 
         return rules,props,verbs,vocab
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def sync(self, *args):
         for dbid in args:
             (s,id,p) = paths.splitid(dbid)
-            print 'sync force',s,id
+            print('sync force',s,id)
             if s in self.__index:
                 self.__index[s].force('<%s>' % id)
 
         for i in self.__index.values():
             yield i.sync()
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def object_added(self,proxy):
         database.Database.object_added(self,proxy)

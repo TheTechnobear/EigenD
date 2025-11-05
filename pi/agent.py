@@ -214,7 +214,7 @@ class Agent(atom.Atom):
         return async.success()
 
     def set_enclosure(self,enclosure):
-        print 'enclosure set to',enclosure
+        print('enclosure set to',enclosure)
         self.__enclosure = enclosure
 
     def rpc_set_enclosure(self,enclosure):
@@ -286,7 +286,7 @@ class Agent(atom.Atom):
             oldkeys = newkeys
 
         if delegate.residual:
-            print 'didnt load after phase 1:',[(k,v.render()) for (k,v) in delegate.residual.items()]
+            print('didnt load after phase 1:',[(k,v.render()) for (k,v) in delegate.residual.items()])
 
         delegate.residual = delegate.deferred
 
@@ -307,7 +307,7 @@ class Agent(atom.Atom):
             oldkeys = newkeys
 
         if delegate.residual:
-            print 'didnt load after phase 2:',[(k,v.render()) for (k,v) in delegate.residual.items()]
+            print('didnt load after phase 2:',[(k,v.render()) for (k,v) in delegate.residual.items()])
 
         yield async.Coroutine.success(delegate.retval())
 
@@ -481,7 +481,7 @@ class Agent(atom.Atom):
         return None    
 
     def iter_subsys_items(self):
-        return self.__subsystems.iteritems()
+        return self.__subsystems.items()
 
     def iter_subsystem(self):
         return iter(self.__subsystems)
@@ -500,13 +500,13 @@ class Agent(atom.Atom):
         atom.Atom.close_server(self)
 
     def unload(self,destroy=False):
-        print 'agent unload, destroy=',destroy
+        print('agent unload, destroy=',destroy)
         if destroy:
             self.notify_destroy()
         self.close_server()
 
     def quit(self):
-        for v in self.__subsystems.itervalues():
+        for v in self.__subsystems.values():
             if hasattr(v,'on_quit'): v.on_quit()
         if hasattr(self,'on_quit'): self.on_quit()
 

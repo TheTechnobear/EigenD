@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,action,domain,bundles,utils,logic,node,async,schedproxy,const,upgrade,policy,paths,talker,collection
+from pi import agent,atom,action,domain,bundles,utils,logic,node,schedproxy,const,upgrade,policy,paths,talker,collection
+from pi import piasync
 from . import talker_version as version
 import piw
 import operator
@@ -178,22 +179,22 @@ class Key(collection.Collection):
     def rpc_instancename(self,a):
         return 'action'
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_create(self,name):
         e = Event(self,self.__event.fastdata(),name)
         self[name] = e
         e.attached()
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_wreck(self,k,e,name):
-        print 'killing event',k
+        print('killing event',k)
         del self[k]
         e.detach_event()
         r = e.clear_phrase()
         yield r
-        print 'killed event',k
-        yield async.Coroutine.success()
+        print('killed event',k)
+        yield piasync.Coroutine.success()
 
     def event_triggered(self,v):
         self.get_internal(250).get_policy().set_status(piw.makelong(0,0))
@@ -223,16 +224,16 @@ class Key(collection.Collection):
         self.agent.light_aggregator.clear_output(self.index+1)
         self.__event.detach()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def create_event(self,text,called=None):
         if called:
             if called in self:
-                yield async.Coroutine.failure('phrase exists')
+                yield piasync.Coroutine.failure('phrase exists')
             index = called
         else:
             index = self.find_hole()
 
-        print 'create event on key',self.id()
+        print('create event on key',self.id())
 
         e = Event(self,self.__event.fastdata(),index)
         self[index] = e
@@ -240,12 +241,12 @@ class Key(collection.Collection):
         r = e.set_phrase(text)
         yield r
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def redo(self):
         for c,e in self.items():
             yield e.redo()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def cancel_event(self,called=None):
         for c,e in self.items():
             if not called or called==c:
@@ -288,13 +289,13 @@ class Agent(agent.Agent):
     def __eventlist(self,k):
         el=[]
         if k in self[3]:
-            for e in self[3][k].itervalues():
+            for e in self[3][k].values():
                 el.append(e)
         return el
 
     def __keylist(self):
         kl=[]
-        for k in self[3].iterkeys():
+        for k in self[3].keys():
             kl.append(k)
         return kl
 
@@ -312,19 +313,19 @@ class Agent(agent.Agent):
     def __wreck(self,k,v):
         v.detach_key()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self,k):
         self.__update_lights(k)
         e = Key(self,self.controller,k)
         self[3][k] = e
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self,k,e,name):
         e.detach_key()
         r = e.cancel_event()
         yield r
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def __all_color_verb(self,subject,k,c,f):
         k = int(action.abstract_string(k))
@@ -340,23 +341,23 @@ class Agent(agent.Agent):
         if k in self[3]:
             self[3][k].set_color(c)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __redo_all_verb(self,subject):
         for k,e in self[3].items():
             yield e.redo()
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __redo_k_verb(self,subject,k):
         k = int(action.abstract_string(k))
         
         if k in self[3]:
             yield self[3][k].redo()
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __do_verb(self,subject,t,k,c):
         t = action.abstract_string(t)
         k = int(action.abstract_string(k))
@@ -367,22 +368,22 @@ class Agent(agent.Agent):
             self[3][k] = Key(self,self.controller,k)
 
         if c and c in self[3][k]:
-                yield async.Coroutine.success(action.error_return('name in use','','do'))
+                yield piasync.Coroutine.success(action.error_return('name in use','','do'))
 
         r = self[3][k].create_event(t,c)
         yield r
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __cancel_verb(self,subject,k,c):
         k = int(action.abstract_string(k))
         c = int(action.abstract_string(c)) if c else None
 
         if k not in self[3]:
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         if c and c not in self[3][k]:
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         r = self[3][k].cancel_event(c)
 
@@ -391,7 +392,7 @@ class Agent(agent.Agent):
             del self[3][k]
 
         yield r
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 
 agent.main(Agent)

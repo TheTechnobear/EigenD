@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,domain,errors,action,policy,utils,bundles,async,paths,collection
+from pi import agent,atom,domain,errors,action,policy,utils,bundles,paths,collection
+from pi import piasync
 from . import polyphonic_summer_version as version,synth_native
 
 import piw
@@ -75,15 +76,15 @@ class AudioInputList(collection.Collection):
         del self[index]
         v.disconnect()
     
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __create_inst(self,ordinal=None):
         e = self.create_input(ordinal)
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __wreck_inst(self,key,inst,ordinal):
         inst.disconnect()
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 class Agent(agent.Agent):
     def __init__(self,address, ordinal):
@@ -114,7 +115,7 @@ class Agent(agent.Agent):
 
         if channel is None:       
             thing='channel %s' %str(id)
-            return async.success(errors.invalid_thing(thing,'un create'))
+            return piasync.success(errors.invalid_thing(thing,'un create'))
 
         self[1].del_input(id)
 

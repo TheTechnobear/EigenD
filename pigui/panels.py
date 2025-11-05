@@ -126,7 +126,7 @@ class ViewDrawing:
     def doCentre(self):
         self.xScroll=self.xScrollCentre
         self.yScroll=self.yScrollCentre
-        print 'doCentre:setting xScroll to', self.xScroll,'yScroll to', self.yScroll
+        print('doCentre:setting xScroll to', self.xScroll,'yScroll to', self.yScroll)
         self.centre=False
         self.factory.reset1(self.xScroll,self.yScroll)
 
@@ -245,7 +245,7 @@ class ViewDrawing:
         return (self.xScroll,self.yScroll) 
 
     def draw1(self):
-        print 'viewdrawing draw1'
+        print('viewdrawing draw1')
         dc=wx.ClientDC(self.parentPanel)
         self.initDC(dc)
         self.doDrawing(dc)
@@ -261,7 +261,7 @@ class ViewDrawing:
         self.maxY=self.getMaxY(dc)
 
     def redraw1(self):
-        print 'viewdrawing redraw1'
+        print('viewdrawing redraw1')
         dc=wx.ClientDC(self.parentPanel)
         self.initDC(dc)
         self.doRedraw(dc)
@@ -270,7 +270,7 @@ class ViewDrawing:
         pass
 
     def paint(self):
-        print 'viewdrawing paint'
+        print('viewdrawing paint')
         dc=wx.PaintDC(self.parentPanel)
         self.initDC(dc)
         self.doScrollDrawing(dc)
@@ -287,7 +287,7 @@ class ViewDrawing:
         return 0
 
     def scroll_centre(self):
-        print 'view_drawing:scroll_centre'
+        print('view_drawing:scroll_centre')
         self.centre=True
         self.__scroll_draw()
 

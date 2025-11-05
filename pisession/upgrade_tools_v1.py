@@ -202,7 +202,7 @@ class Node:
         return []
 
     def move_connection(self,old_id,new_id):
-        print self.id(),'replacing',old_id,'with',new_id
+        print(self.id(),'replacing',old_id,'with',new_id)
         conn = self.get_meta('master')
         if conn and conn.is_string() and conn.as_string():
             conn_parsed = logic.parse_termlist(conn.as_string())
@@ -214,7 +214,7 @@ class Node:
                     conn_replaced.append(c)
             conn_new = logic.render_termlist(conn_replaced)
             self.set_meta_string('master',conn_new)
-            print self.id(),'replaced',conn,'with',conn_new
+            print(self.id(),'replaced',conn,'with',conn_new)
 
     def get_name(self):
         d = self.get_data()
@@ -327,7 +327,7 @@ class Node:
                         conn_txt = logic.render_termlist(output_connections)
                         c = self.ensure_node(*to)
                         c.set_meta_string('master', conn_txt)
-                        print 'connected',name,'for',c.id(),'from',conn_txt
+                        print('connected',name,'for',c.id(),'from',conn_txt)
             
 
 class Agent:
@@ -524,32 +524,32 @@ class UpgradeTools:
             return False
 
     def do_upgrade(self):
-        for (k,(oldsig,m)) in self.__mapping.iteritems():
+        for (k,(oldsig,m)) in self.__mapping.items():
             if self.get_root(k):
                 if oldsig.as_dict_lookup("subsystem").is_null():
                     if not self.call_phase(m,k,0):
-                        print 'upgrade v1 phase 0 failed',k
+                        print('upgrade v1 phase 0 failed',k)
                         return False
 
-        for (k,(oldsig,m)) in self.__mapping.iteritems():
+        for (k,(oldsig,m)) in self.__mapping.items():
             if self.get_root(k):
                 if oldsig.as_dict_lookup("subsystem").is_null():
                     if not self.call_phase(m,k,1):
-                        print 'upgrade v1 phase 1 failed',k
+                        print('upgrade v1 phase 1 failed',k)
                         return False
 
-        for (k,(oldsig,m)) in self.__mapping.iteritems():
+        for (k,(oldsig,m)) in self.__mapping.items():
             if self.get_root(k):
                 if oldsig.as_dict_lookup("subsystem").is_null():
                     if not self.call_phase(m,k,2):
-                        print 'upgrade v1 phase 2 failed',k
+                        print('upgrade v1 phase 2 failed',k)
                         return False
 
-        for (k,(oldsig,m)) in self.__mapping.iteritems():
+        for (k,(oldsig,m)) in self.__mapping.items():
             if self.get_root(k):
                 if oldsig.as_dict_lookup("subsystem").is_null():
                     if not self.call_phase(m,k,3):
-                        print 'upgrade v1 phase 3 failed',k
+                        print('upgrade v1 phase 3 failed',k)
                         return False
 
             root = self.get_root(k)

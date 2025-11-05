@@ -99,7 +99,7 @@ class LoopDatabase:
         self.prime()
 
     def scan(self,mtime1=None,mtime2=None):
-        print 'building database...'
+        print('building database...')
         cx = sqlite3.connect(resource.WC(self.__dbfile))
         cx.execute("""create table files (id int primary key,name text,desc text,file text, basename text)""")
         cx.execute("""create table meta (id int,tag text)""")
@@ -110,7 +110,7 @@ class LoopDatabase:
         nxt = 0
         nxt = self.__scandir(nxt,files,meta,os.path.join(picross.global_resource_dir(),'loop'))
         nxt = self.__scandir(nxt,files,meta,resource.user_resource_dir(resource.loop_dir,''))
-        print '%d loops indexed' % nxt
+        print('%d loops indexed' % nxt)
 
         if not mtime1:
             mtime1=self.__get_modtime(resource.user_resource_dir(resource.loop_dir,''))
@@ -127,7 +127,7 @@ class LoopDatabase:
         cx.commit()
 
     def rescan(self):
-        print 'rebuild loop database by request'
+        print('rebuild loop database by request')
         resource.os_remove(self.__dbfile)
         self.scan()
         self.prime()
@@ -146,7 +146,7 @@ class LoopDatabase:
         mtime2=self.__get_modtime(os.path.join(picross.global_resource_dir(),'loop'))
         modtime=self.__modtime()
         if not modtime or (abs(modtime[0][1]-mtime1)>1) or (abs(modtime[1][1]-mtime2)>1):
-            print 'LoopDatabase:database needs rebuilding',modtime,mtime1,mtime2
+            print('LoopDatabase:database needs rebuilding',modtime,mtime1,mtime2)
             resource.os_remove(self.__dbfile)
             self.scan(mtime1=mtime1,mtime2=mtime2)
 
@@ -180,7 +180,7 @@ class LoopDatabase:
                 r = cx.execute(qmodtime()).fetchall()
                 return r
 
-        print 'modtime not in tables'
+        print('modtime not in tables')
         return 0
    
     def enumerate(self, path):

@@ -286,7 +286,7 @@ void piw::correlator_t::impl_t::clocksink_ticked(unsigned long long f, unsigned 
     unsigned  long sr = get_sample_rate();
     unsigned bs = get_buffer_size();
 
-    unsigned count=0;
+    unsigned count __attribute__((unused)) = 0;
     correlator_voice_t *qi;
     while((qi=queue_.pop_front())!=0)
     {

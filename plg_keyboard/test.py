@@ -18,17 +18,17 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import logic,resource,timeout,async
-
+from pi import logic,resource,timeout
+from pi import piasync
 def writelib(kbd,i,libfile):
-    print 'writelib',i,libfile
+    print('writelib',i,libfile)
     for line in open(libfile).readlines():
         p,r,y = map(int,line.split())
         kbd.testmsg_write_lib(i,p,r,y)
     kbd.testmsg_finish_lib()
 
 def writeseq(kbd,seq):
-    print 'writeseq',seq
+    print('writeseq',seq)
     for l,k,t in seq:
         kbd.testmsg_write_seq(l,k,t)
     kbd.testmsg_finish_seq()
@@ -41,10 +41,10 @@ def runtest(kbd,clause):
     libs = {}
     for i,k in enumerate(set([k.pred for k in keypresses])):
         libs[k] = i
-        print 'sending lib message',i,k
+        print('sending lib message',i,k)
         libfile = resource.find_resource('keyboard','testlib_%s' % k)
         if not libfile:
-            print k,'keypress not found'
+            print(k,'keypress not found')
             return
 
         writelib(kbd,i,libfile)
@@ -56,12 +56,12 @@ def runtest(kbd,clause):
         time = int(t.args[1])
         seq.append((libs[t.pred],key,time))
 
-    print 'sending sequence len',len(seq)
+    print('sending sequence len',len(seq))
     writeseq(kbd,seq)
 
-    print 'running test'
+    print('running test')
     kbd.start_test(duration)
-    print 'waiting',duration,'ms for completion'
+    print('waiting',duration,'ms for completion')
     return timeout.Timer(duration)
 
 def arm_recording(kbd,clause):

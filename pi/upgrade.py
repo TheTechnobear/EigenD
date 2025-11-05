@@ -58,7 +58,7 @@ class Graph:
 
               if v1 == end: return path
 
-              for (v2, e) in G[v1].iteritems():
+              for (v2, e) in G[v1].items():
                   if v2 not in visited:
                     push(q, (cost + E[e], v2, path))
 

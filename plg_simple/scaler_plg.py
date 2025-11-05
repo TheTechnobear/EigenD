@@ -92,14 +92,14 @@ class Agent(agent.Agent):
 
 
     def __tune_tonic(self,subj,dummy,arg):
-        print 'set tonic',arg
+        print('set tonic',arg)
         type,thing = action.crack_ideal(action.arg_objects(arg)[0])
         tonic = int(thing)
         if not self.__fixed: self[4][5].get_policy().set_value(tonic)
         return action.nosync_return()
 
     def __tune_scale(self,subj,dummy,arg):
-        print 'set scale',arg
+        print('set scale',arg)
         type,thing = action.crack_ideal(action.arg_objects(arg)[0])
         if not self.__fixed: self[4][7].get_policy().set_value(action.marshal(thing))
         return action.nosync_return()

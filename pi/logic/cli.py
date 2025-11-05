@@ -39,13 +39,13 @@ def process(ruleset,line):
         success = True
         if len(answer)>0:
             results=True
-            print terms.render_result(answer)
+            print(terms.render_result(answer))
 
     if not success:
-        print "No"
+        print("No")
     else:
         if not results:
-            print "Yes"
+            print("Yes")
 
 def commandline(ruleset):
     while True:
@@ -57,15 +57,15 @@ def commandline(ruleset):
 
             if line == 'dump':
                 for r in ruleset.iterrules(line[4:].strip()):
-                    print r
+                    print(r)
                 continue
 
             process(ruleset,line)
 
         except builtin.LogicError,e:
-            print "raised: %s" % e.term
+            print("raised: %s" % e.term)
         except KeyboardInterrupt:
-            print "interrupt."
+            print("interrupt.")
         except EOFError:
             return
 

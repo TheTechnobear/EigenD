@@ -25,7 +25,7 @@ from pibelcanto import lexicon
 
 def reverse_lexicon():
     r={}
-    for e,(m,t) in lexicon.lexicon.iteritems(): r[m]=e
+    for e,(m,t) in lexicon.lexicon.items(): r[m]=e
     return r
 
 class Browser(langproxy.LanguageProxy):
@@ -34,11 +34,11 @@ class Browser(langproxy.LanguageProxy):
         self.__connected = False
 
     def language_ready(self):
-        print 'language agent connected'
+        print('language agent connected')
         self.__connected = True
 
     def language_gone(self):
-        print 'language agent disconnected'
+        print('language agent disconnected')
         self.__connected = False
 
     def run(self,func,*args,**kwds):
@@ -59,7 +59,7 @@ class Browser(langproxy.LanguageProxy):
         r=(yield self.invoke_rpc('exec',line))
 
         if not r.status():
-            print 'rpc error, exec',r.args()
+            print('rpc error, exec',r.args())
             yield async.Coroutine.success()
 
         yield async.Coroutine.success()
@@ -71,7 +71,7 @@ class Browser(langproxy.LanguageProxy):
 
     def process(self,line):
         if not self.__connected:
-            print 'not connected'
+            print('not connected')
             return self.__nullcmd()
             
         return self.run(self.__cmd,line)
@@ -92,7 +92,7 @@ class Cli(threading.Thread):
         for w in line.split():
             ew = self.__reverse.get(w)
             if ew is None:
-                print w,'not in lexicon'
+                print(w,'not in lexicon')
                 return (None,None)
             m.append('!'+w)
             e.append(ew)
@@ -114,7 +114,7 @@ class Cli(threading.Thread):
         if not mline:
             return 'invalid phrase'
 
-        print '  (',eline,')'
+        print('  (',eline,')')
 
         piw.tsd_lock()
 
@@ -130,7 +130,7 @@ class Cli(threading.Thread):
 
     def translate(self,l):
         mline = ' '.join([ self.translate_word(w) for w in l.split()])
-        print '  (',mline,')'
+        print('  (',mline,')')
 
     def startup(self,m):
         self.browser = Browser(self.__address)
@@ -160,7 +160,7 @@ class Cli(threading.Thread):
 
 def main():
     if len(sys.argv) != 2:
-        print 'usage: brcmd <language>'
+        print('usage: brcmd <language>')
         sys.exit(-1)
 
     Cli(sys.argv[1]).mainloop()

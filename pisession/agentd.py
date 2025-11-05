@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import atom,agent,action,errors,node,utils,async,index,guid,logic,files,resource,state,rpc,async,timeout,version,container,database
+from pi import atom,agent,action,errors,node,utils,index,guid,logic,files,resource,state,rpc,async,timeout,version,container,database
+from pi import piasync
 from pi.logic.shortcuts import *
 from pi.logic.terms import *
 from pisession import registry,upgrade,upgrade_agentd,session,workspace
@@ -498,8 +499,8 @@ class Agent(agent.Agent):
     def rpc_destroy(self,arg):
         a=logic.parse_clause(arg)
         if not self.__workspace.unload(a,True):
-            return async.failure('no such agent')
-        return async.success(a)
+            return piasync.failure('no such agent')
+        return piasync.success(a)
 
     def server_opened(self):
         agent.Agent.server_opened(self)
@@ -526,7 +527,7 @@ class Agent(agent.Agent):
             factory = self.__registry.get_module(plugin_name)
 
         if not factory:
-            return async.failure('no such agent')
+            return piasync.failure('no such agent')
 
         class DummyDelegate():
             def __init__(self):
@@ -538,37 +539,37 @@ class Agent(agent.Agent):
         address = self.__workspace.create(factory,delegate,address=address)
 
         if not address:
-            return async.failure(','.join(delegate.errors))
+            return piasync.failure(','.join(delegate.errors))
 
-        return async.success(address)
+        return piasync.success(address)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __rigcreateverb(self,subject,plugin,rig):
         rig = action.concrete_object(rig)
         plugin = action.abstract_string(plugin)
         result = rpc.invoke_rpc(rig,"createagent",plugin);
         yield result
         if result.status():
-            yield async.Coroutine.success(logic.parse_clause(result.args()[0]))
-        yield async.Coroutine.failure(*result.args())
+            yield piasync.Coroutine.success(logic.parse_clause(result.args()[0]))
+        yield piasync.Coroutine.failure(*result.args())
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __riguncreateverb(self,subject,agents):
         results = []
 
         for a in action.arg_objects(agents):
-            print 'a',a
+            print('a',a)
             o = action.crack_composite(a,action.crack_concrete)
             plugin = o[0]
             rig = o[1]
-            print 'un creating',plugin,'in',rig
+            print('un creating',plugin,'in',rig)
             result = rpc.invoke_rpc(rig,'uncreateagent',logic.render_term((plugin,)))
             yield result
             if result.status():
                 results.extend(logic.parse_clause(result.args()[0]))
 
-        yield async.Coroutine.success(results)
+        yield piasync.Coroutine.success(results)
 
     def __createverb(self,subject,plugin):
         plugin = action.abstract_string(plugin)
@@ -576,7 +577,7 @@ class Agent(agent.Agent):
         factory = self.__registry.get_module(plugin)
 
         if not factory:
-            return async.failure('no such agent')
+            return piasync.failure('no such agent')
 
         class DummyDelegate():
             def __init__(self):
@@ -598,21 +599,21 @@ class Agent(agent.Agent):
             if not self.__workspace.unload(a,True):
                 r.append(errors.doesnt_exist('agent','un create'))
 
-        return async.success(r)
+        return piasync.success(r)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def save_file(self,path,desc=''):
         r = self.__workspace.save_file(path,desc)
-        print 'calling workspace save'
+        print('calling workspace save')
         yield r
-        print 'called workspace save',r.status()
+        print('called workspace save',r.status())
         if not r.status():
-            yield async.Coroutine.failure(*r.args(),**r.kwds())
+            yield piasync.Coroutine.failure(*r.args(),**r.kwds())
 
         self.__backend.setups_changed(path)
-        print 'finished agentd save_file'
+        print('finished agentd save_file')
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __saveverb(self,subject,tag):
         tag = self.__process_tag(action.abstract_string(tag))
         delete_user_slot(tag)
@@ -621,7 +622,7 @@ class Agent(agent.Agent):
         r = self.__workspace.save_file(filename,'')
         yield r
         if not r.status():
-            yield async.Coroutine.failure('failed to save setup')
+            yield piasync.Coroutine.failure('failed to save setup')
 
         self.__backend.setups_changed(filename)
 
@@ -630,9 +631,9 @@ class Agent(agent.Agent):
         path = find_setup(tag)
 
         if not path:
-            print 'no such state',tag
+            print('no such state',tag)
             thing= 'setup %s' %str(tag)
-            return async.success(errors.doesnt_exist(thing,'load'))
+            return piasync.success(errors.doesnt_exist(thing,'load'))
 
 
         def deferred_load():
@@ -645,7 +646,7 @@ class Agent(agent.Agent):
         piw.tsd_thing(self.__thing)
         self.__thing.set_slow_timer_handler(utils.notify(deferred_load))
         self.__thing.timer_slow(500)
-        return async.success()
+        return piasync.success()
 
 
     def load_file(self,filename,upgrade_flag = False):
@@ -661,7 +662,7 @@ class Agent(agent.Agent):
 
     def __set_startup(self,subject,dummy,tag):
         tag = self.__process_tag(action.abstract_string(tag))
-        print '__set_startup',tag
+        print('__set_startup',tag)
         self.__backend.set_default_setup(tag)
 
     def __process_tag(self,tag):
@@ -675,7 +676,7 @@ class Agent(agent.Agent):
 def set_default_setup(path):
     try:
         def_state_file = resource.user_resource_file(resource.global_dir,resource.default_setup)
-        print 'default file:',def_state_file,path
+        print('default file:',def_state_file,path)
         fd = resource.file_open(def_state_file,'w').write(path)
         fd.close()
     except:

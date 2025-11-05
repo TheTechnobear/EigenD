@@ -97,7 +97,7 @@ class List(atom.Atom):
                 self.__delegate.unmap_param(iparam,oparam)
             elif midi != -1:
                 self.__delegate.unmap_midi(iparam,midi)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __map(self,a,fr,fo):
@@ -107,7 +107,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info)
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_enable(self,a,prop,fr,fo):
@@ -117,7 +117,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_enabled(True))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_enabled(True))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __unset_enable(self,a,prop,fr,fo):
@@ -128,7 +128,7 @@ class List(atom.Atom):
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_enabled(False))
 
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_scale(self,a,prop,fr,fo,to):
@@ -143,7 +143,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_scale(to_val))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_scale(to_val))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_low(self,a,prop,fr,fo,to):
@@ -158,7 +158,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_lo(to_val))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_lo(to_val))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_base(self,a,prop,fr,fo,to):
@@ -173,7 +173,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_base(to_val))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_base(to_val))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_high(self,a,prop,fr,fo,to):
@@ -188,7 +188,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_hi(to_val))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_hi(to_val))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_decimation(self,a,prop,fr,fo,to):
@@ -203,7 +203,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_decimation(to_val))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_decimation(to_val))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_scope(self,a,prop,fr,fo,to):
@@ -235,7 +235,7 @@ class List(atom.Atom):
                     self.__delegate.map_param(iparam,info.clone_with_scope(to_val))
                 elif midi != -1:
                     self.__delegate.map_midi(iparam,info.clone_with_scope(to_val))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_resolution(self,a,prop,fr,fo,to):
@@ -250,7 +250,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_resolution(to_val))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_resolution(to_val))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_secondary(self,a,prop,fr,fo,to):
@@ -265,7 +265,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_secondarycc(to_val))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_secondarycc(to_val))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_origin_return(self,a,prop,fr,fo):
@@ -275,7 +275,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_origin_return(True))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_origin_return(True))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __unset_origin_return(self,a,prop,fr,fo):
@@ -286,7 +286,7 @@ class List(atom.Atom):
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_origin_return(False))
 
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_curve(self,a,prop,fr,fo,to):
@@ -309,7 +309,7 @@ class List(atom.Atom):
                 self.__delegate.map_param(iparam,info.clone_with_curve(to_val))
             elif midi != -1:
                 self.__delegate.map_midi(iparam,info.clone_with_curve(to_val))
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __map_from_for(self,fr,fo):
@@ -360,7 +360,7 @@ class List(atom.Atom):
         if oparam_number < 0 and (midi_number < 0 or midi_number > 131):
             raise RuntimeError(errors.invalid_thing(for_str, 'map'))
 
-        print 'iparam:',iparam_number,'oparam:',oparam_number,'midi:',midi_number
+        print('iparam:',iparam_number,'oparam:',oparam_number,'midi:',midi_number)
 
         info = None
         if oparam_number != -1:
@@ -381,31 +381,31 @@ class List(atom.Atom):
             to_str = action.abstract_string(to)
             to_val = float(to_str)
             self.__delegate.set_minimum_decimation(to_val)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_notes(self,a,prop):
         try:
             self.__delegate.set_midi_notes(True)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __unset_notes(self,a,prop):
         try:
             self.__delegate.set_midi_notes(False)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_pitchbend(self,a,prop):
         try:
             self.__delegate.set_midi_pitchbend(True)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __unset_pitchbend(self,a,prop):
         try:
             self.__delegate.set_midi_pitchbend(False)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_pitch_range_upper(self,a,prop,to):
@@ -413,7 +413,7 @@ class List(atom.Atom):
             to_str = action.abstract_string(to)
             to_val = float(to_str)
             self.__delegate.set_pitchbend_up(to_val)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_pitch_range_lower(self,a,prop,to):
@@ -421,17 +421,17 @@ class List(atom.Atom):
             to_str = action.abstract_string(to)
             to_val = float(to_str)
             self.__delegate.set_pitchbend_down(to_val)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __set_hires_velocity(self,a,prop):
         try:
             self.__delegate.set_midi_hires_velocity(True)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message
 
     def __unset_hires_velocity(self,a,prop):
         try:
             self.__delegate.set_midi_hires_velocity(False)
-        except RuntimeError,e:
+        except RuntimeError as e:
             return e.message

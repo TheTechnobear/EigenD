@@ -132,17 +132,17 @@ class History(node.Server):
         v[3]=msg
         v=':'.join(v)
         self.__update(s,v)
-        print 'again',s,v
+        print('again',s,v)
         self.__buffer = []
         self.__setup()
 
     def __clearing(self,line):
         val=line=='!%s !%s' % (lexicon.lexicon['history'][0],lexicon.lexicon['clear'][0])
-        print 'clearing history',val
+        print('clearing history',val)
         return val
 
     def message(self,msg,desc='message',speaker=''):
-        print 'feedback:msg',msg
+        print('feedback:msg',msg)
         n = self.__next
         s = 1+(n-1)%self.history
         self.__next+=1
@@ -158,7 +158,7 @@ class History(node.Server):
             self.__again(status,msg)
             return
 
-        print 'buffer_done',self.__buffer,status,msg
+        print('buffer_done',self.__buffer,status,msg)
         n = self.__next
         s = 1+(n-1)%self.history
         self.__next+=1

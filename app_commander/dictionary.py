@@ -50,18 +50,18 @@ class DictionaryModel(language.LanguageDisplayModel):
             listener.dictionaryUpdate()
             
     def lexicon_changed(self):
-        print 'dictionary model lexicon changed'
+        print('dictionary model lexicon changed')
         language.LanguageDisplayModel.lexicon_changed(self)
         self.set_lexicon(self.get_lexicon())
         self.update()
 
     def set_lexicon(self,lex):
-        for (e,(m,t)) in lex.iteritems():
+        for (e,(m,t)) in lex.items():
             if m and e:
                 self.m2e[m]=e
                 self.e2m[e]=m
 
-        print 'Dictionary length', len(self.m2e)
+        print('Dictionary length', len(self.m2e))
         self.e2mkeys=self.e2m.keys()
         self.e2mkeys.sort()
         self.m2ekeys=self.m2e.keys()
@@ -157,7 +157,7 @@ class DictionaryPanel(wx.Window):
         return dc
 
     def onScroll(self,evt):
-        print 'onScroll: evtPos=',evt.GetPosition(),'scrollRange=',self.scrollRange
+        print('onScroll: evtPos=',evt.GetPosition(),'scrollRange=',self.scrollRange)
         offset=2*(float(evt.GetPosition())/float(self.maxX))-1
 
         self.scrollbarScroll(offset)
@@ -165,7 +165,7 @@ class DictionaryPanel(wx.Window):
     def onMouseWheel(self,evt):
         delta=evt.GetWheelDelta()
         rotation=evt.GetWheelRotation()
-        print 'onMouseWheel:delta=',delta,'rotation=',rotation
+        print('onMouseWheel:delta=',delta,'rotation=',rotation)
 #        deltaOffset=rotation*delta*evt.GetLinesPerAction()
 #        self.wheelScroll(deltaOffset)
 
@@ -178,7 +178,7 @@ class DictionaryPanel(wx.Window):
 #            self.__drawRequired=True
 
     def scrollbarScroll(self,offset):
-        print 'scrollbarScroll',offset
+        print('scrollbarScroll',offset)
         self.xScroll=offset
 #        self.agent.reset1(h=offset)
 #        dc=wx.ClientDC(self)
@@ -189,12 +189,12 @@ class DictionaryPanel(wx.Window):
         self.__borderDrawing(dc)
 
     def OnSize(self,evt):
-        print 'dictionaryPanel: OnSize'
+        print('dictionaryPanel: OnSize')
         self.__updateRequired=True
         evt.Skip()
 
     def scroll_both(self,h,v):
-        print 'DictionaryPanel scroll_both'
+        print('DictionaryPanel scroll_both')
 #        panels.ViewDrawing.scroll_both(self,h,None)
 
 #    def close(self):
@@ -204,7 +204,7 @@ class DictionaryPanel(wx.Window):
 #        self.model.addListener(self)
 
     def dictionaryUpdate(self):
-        print 'DictionaryPanel:update'
+        print('DictionaryPanel:update')
         self.__updateRequired=False
         dc=self.__getClientDC()
         self.drawingItems=[]
@@ -252,7 +252,7 @@ class DictionaryPanel(wx.Window):
 
     def swapDict(self,dict):
         newDict={}
-        for (k,v) in dict.iteritems():
+        for (k,v) in dict.items():
             newDict[v]=k
         return newDict
     
@@ -265,7 +265,7 @@ class DictionaryPanel(wx.Window):
 
     def doDrawing(self,dc):
         self.__backgroundDrawing(dc)
-        print 'dictionary: doDrawing'
+        print('dictionary: doDrawing')
         self.drawingItems=[]
         self.oldXOffset=0
         self.staveManager.clear()
@@ -370,7 +370,7 @@ class DictionaryPanel(wx.Window):
         dc.DrawRectangle(0,0,size[0],size[1])
 
     def test_scroll_both(self,h,v,mouse=False):
-        print 'dictionaryPanel:test_scroll_both',h,v
+        print('dictionaryPanel:test_scroll_both',h,v)
         self.xScroll=h
         self.yScroll=v
         # XXX testing 
@@ -396,7 +396,7 @@ class DictionaryPanel(wx.Window):
         return xScrollPos
 
     def doScrollDrawing(self,dc):
-        print 'Dictionary: doScrollDrawing'
+        print('Dictionary: doScrollDrawing')
         if self.drawingItems:
 	    self.__backgroundDrawing(dc)
             xOffset=self.getXScrollPos()
@@ -414,7 +414,7 @@ class DictionaryPanel(wx.Window):
         scrollbarpos=xOffset
         scrollbarthumb=self.GetClientSize()[0]
         self.scrollRange=self.maxX+self.GetClientSize()[0]-50
-        print 'setScrollBar:',scrollbarpos,scrollbarthumb,self.scrollRange
+        print('setScrollBar:',scrollbarpos,scrollbarthumb,self.scrollRange)
         self.SetScrollbar(wx.HORIZONTAL,scrollbarpos,scrollbarthumb,self.scrollRange)
 
     def __drawImpl(self,dc):

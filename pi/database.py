@@ -206,7 +206,7 @@ class VerbProxy:
             yield async.Coroutine.failure(rv or 'rpc error')
 
         rv = self.convert_result(action.unmarshal(rv))
-        print 'verb returns',rv
+        print('verb returns',rv)
         yield async.Coroutine.success(*rv)
 
     @async.coroutine('internal error')
@@ -221,7 +221,7 @@ class VerbProxy:
             yield async.Coroutine.failure(rv or 'rpc error')
 
         rv = self.convert_result(action.unmarshal(rv))
-        print 'verb defer returns',rv
+        print('verb defer returns',rv)
         yield async.Coroutine.success(rv)
 
 
@@ -237,7 +237,7 @@ class VerbProxy:
             yield async.Coroutine.failure(rv or 'rpc error')
 
         rv = self.convert_result(action.unmarshal(rv))
-        print 'verb defer returns',rv
+        print('verb defer returns',rv)
         yield async.Coroutine.success(rv)
 
     @async.coroutine('internal error')
@@ -252,7 +252,7 @@ class VerbProxy:
             yield async.Coroutine.failure(rv or 'rpc error')
 
         rv = self.convert_result(action.unmarshal(rv))
-        print 'verb defer returns',rv
+        print('verb defer returns',rv)
         yield async.Coroutine.success(rv)
 
     def __str__(self):
@@ -552,9 +552,9 @@ class Lexicon:
 
     def lexicon_iter(self,base=False):
         if base:
-            for i in self.__base_forward.iteritems():
+            for i in self.__base_forward.items():
                 yield i
-        for (e,(sid,m,c)) in self.__forward.iteritems():
+        for (e,(sid,m,c)) in self.__forward.items():
             yield (e,(m,c))
 
     def set_vocab(self,sid,lex):
@@ -563,7 +563,7 @@ class Lexicon:
         changed = False
         rlex = {}
 
-        for (e,(m,c)) in lex.iteritems():
+        for (e,(m,c)) in lex.items():
             rlex[m] = (e,c)
 
             if e in self.__base_forward or m in self.__base_reverse:
@@ -590,7 +590,7 @@ class Lexicon:
         echeck = set()
         mcheck = set()
 
-        for (e,(m,c)) in s[0].iteritems():
+        for (e,(m,c)) in s[0].items():
             f = self.__forward.get(e)
             r = self.__reverse.get(m)
 
@@ -605,7 +605,7 @@ class Lexicon:
         if not mcheck and not echeck:
             return
 
-        for (sid,(lex,rlex)) in self.__sources.iteritems():
+        for (sid,(lex,rlex)) in self.__sources.items():
             for e in echeck.copy():
                 if not e in lex:
                     continue
@@ -778,21 +778,21 @@ class ConnectionCache:
     def dump_subsys(self,id):
         for (sss,ssd) in self.__sss.items():
             if not id or id==sss:
-                print 'slave',sss
+                print('slave',sss)
                 for (mss,cd) in ssd.items():
-                    print '-master',mss
+                    print('-master',mss)
                     for (sid,mids) in cd.items():
                         for mid in mids:
-                            print '--',sid,'<-',mid
+                            print('--',sid,'<-',mid)
 
         for (mss,msd) in self.__mss.items():
             if not id or id==mss:
-                print 'master',mss
+                print('master',mss)
                 for (sss,cd) in msd.items():
-                    print '-slave',sss
+                    print('-slave',sss)
                     for (sid,mids) in cd.items():
                         for mid in mids:
-                            print '--',sid,'<-',mid
+                            print('--',sid,'<-',mid)
 
     def get_subsys_masters(self,ss):
         msd = self.__mss.get(ss)
@@ -802,8 +802,8 @@ class ConnectionCache:
 
         cn={}
 
-        for (sss,d) in msd.iteritems():
-            for (sid,mids) in d.iteritems():
+        for (sss,d) in msd.items():
+            for (sid,mids) in d.items():
                 cn.setdefault(sss,[]).extend([(mid,sid) for mid in mids])
 
         return cn
@@ -816,8 +816,8 @@ class ConnectionCache:
 
         cn={}
 
-        for (mss,d) in ssd.iteritems():
-            for (sid,mids) in d.iteritems():
+        for (mss,d) in ssd.items():
+            for (sid,mids) in d.items():
                 cn.setdefault(mss,[]).extend([(mid,sid) for mid in mids])
 
         return cn
@@ -897,12 +897,12 @@ class PropertyCache:
         self.__value2id = dict() # value -> frozenset(ids)
 
     def iterrules(self,pred):
-        for (id,props) in self.__id2value.iteritems():
+        for (id,props) in self.__id2value.items():
             if isinstance(props,frozenset):
                 yield "%s(%s,[%s])" % (pred,id,','.join(props))
             else:
                 yield "%s(%s,[%s])" % (pred,id,props)
-        for (prop,ids) in self.__value2id.iteritems():
+        for (prop,ids) in self.__value2id.items():
             yield "%s_reverse(%s,[%s])" % (pred,prop,','.join(ids))
 
     def set_id(self,id,values):
@@ -1120,10 +1120,10 @@ class DatabaseProxy(proxy.AtomProxy):
             self.database.get_verbcache().set_verbs(myid,verbs)
 
         if self.__rules is not None:
-            for v in self.__rules.itervalues():
+            for v in self.__rules.values():
                 self.database.assert_rules(v)
 
-        for c,(a,r) in props.iteritems():
+        for c,(a,r) in props.items():
             self.database.get_propcache(c).set_id(myid,a);
 
         utils.safe(self.database.object_added,self)
@@ -1156,7 +1156,7 @@ class DatabaseProxy(proxy.AtomProxy):
         oldrules = self.__rules
         if oldrules is None:
             oldrules = {}
-        for (k,v) in newrules.iteritems():
+        for (k,v) in newrules.items():
             o = oldrules.get(k)
             if o is not None:
                 self.database.retract_rules(o)
@@ -1170,7 +1170,7 @@ class DatabaseProxy(proxy.AtomProxy):
         elif newrules is not None:
             self.__rules.update(newrules)
 
-        for c,(a,r) in newprops.iteritems():
+        for c,(a,r) in newprops.items():
             if r is None:
                 self.database.get_propcache(c).set_id(myid,a);
             else:
@@ -1195,7 +1195,7 @@ class DatabaseProxy(proxy.AtomProxy):
         self.database.get_lexicon().remove_vocab(myid)
 
         if self.__rules is not None:
-            for v in self.__rules.itervalues():
+            for v in self.__rules.values():
                 self.database.retract_rules(v)
 
         for c in self.database.get_propcaches():
@@ -1337,7 +1337,7 @@ class Database(logic.Engine):
         return self.__lexicon
 
     def get_propcaches(self):
-        return self.__properties.iterkeys()
+        return self.__properties.keys()
 
     def get_propcache(self,name):
         return self.__properties[name]
@@ -1488,7 +1488,7 @@ class Database(logic.Engine):
             return VerbProxy(self,n,dbid,schema)
         except:
             utils.log_exception()
-            print 'malformed verb',dbid,schema
+            print('malformed verb',dbid,schema)
             return None
 
     @staticmethod

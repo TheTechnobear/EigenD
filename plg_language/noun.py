@@ -19,7 +19,8 @@
 #
 
 from pi.logic.shortcuts import *
-from pi import paths, logic, async, action, rpc
+from pi import paths, logic, action, rpc
+from pi import piasync
 from . import interpreter,referent
 
 import piw
@@ -51,7 +52,7 @@ def disambiguate(db,ids,words,all):
     awsi = aws.union(('input',))
     awsa = aws.union(('agent',))
 
-    print 'disambiguate',words
+    print('disambiguate',words)
 
     for o in ids:
         iws = name_cache.get_valueset(o)
@@ -73,7 +74,7 @@ def disambiguate_no_ordinal(db,ids,words,all):
     awsi = aws.union(('input',))
     awsa = aws.union(('agent',))
 
-    print 'disambiguate (no ordinal)',words
+    print('disambiguate (no ordinal)',words)
 
     for o in ids:
         iws = name_cache.get_valueset(o)
@@ -127,7 +128,7 @@ def get_rig_parts(rigs,oid):
         todo.update(c)
         parts.update(c)
 
-    print 'parts',oid,'=',parts
+    print('parts',oid,'=',parts)
     return parts
 
 def get_parts(db,ids):
@@ -150,13 +151,13 @@ def get_parts(db,ids):
 
     return val
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def refine_state(db,word,istate):
     ostate = []
     n = get_number(word)
 
     while istate:
-        print 'refine:',word,istate
+        print('refine:',word,istate)
         cstate = []
 
         if word=='all':
@@ -190,15 +191,15 @@ def refine_state(db,word,istate):
 
         istate = cstate
 
-    yield async.Coroutine.success(ostate)
+    yield piasync.Coroutine.success(ostate)
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def finalise_state(db,istate,all):
     objects = dict()
     max_pri = -1
     all_objects = set()
 
-    print 'finalise_state',all,istate
+    print('finalise_state',all,istate)
 
     for s in istate:
         r = s.flush(db)
@@ -211,15 +212,15 @@ def finalise_state(db,istate,all):
                 all_objects.update(oset)
                 if pri > max_pri: max_pri = pri
                 
-    print 'finalise_state',all,all_objects
+    print('finalise_state',all,all_objects)
 
     if all:
-        yield async.Coroutine.success(list(all_objects))
+        yield piasync.Coroutine.success(list(all_objects))
 
     if max_pri < 0:
-        yield async.Coroutine.success([])
+        yield piasync.Coroutine.success([])
     
-    yield async.Coroutine.success(list(objects[max_pri]))
+    yield piasync.Coroutine.success(list(objects[max_pri]))
 
 
 def make_state(pri,obj):
@@ -248,10 +249,10 @@ class State_Initial:
         return '<initial %s:%s:%s>' % (self.__inner,self.__outer,self.__all)
 
     def refine_number(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine_all(self,db,w):
-        return async.success([State_Initial(db,self.__outer,self.__inner,True)],[])
+        return piasync.success([State_Initial(db,self.__outer,self.__inner,True)],[])
 
     def partition(self,db,olist):
         p = {}
@@ -310,10 +311,10 @@ class State_Initial:
         if ivids:
             cstates.append(State_BufferedChild(db,pri_inner,[],self.__all,ivids))
 
-        return async.success(states,cstates)
+        return piasync.success(states,cstates)
 
     def flush(self,db):
-        return async.success([])
+        return piasync.success([])
 
 
 class State_Atom:
@@ -330,26 +331,26 @@ class State_Atom:
         ids = disambiguate(db,self.__ids,self.__words,self.__all)
 
         if not ids:
-            return async.success([],[])
+            return piasync.success([],[])
 
         if not self.__all and len(ids)!=1:
-            return async.success([],[])
+            return piasync.success([],[])
 
-        return async.success([State_FinalAtom_All(self.__pri,ids)],[])
+        return piasync.success([State_FinalAtom_All(self.__pri,ids)],[])
 
     def refine_number(self,db,w):
         nids = db.get_propcache('ordinal').get_idset(w)
         ids = self.__ids.intersection(nids)
 
         if not ids:
-            return async.success([],[])
+            return piasync.success([],[])
 
         ids = disambiguate(db,ids,self.__words,self.__all)
 
         if not self.__all and len(ids)!=1:
-            return async.success([],[])
+            return piasync.success([],[])
 
-        return async.success([State_FinalAtom_Unknown(self.__pri,ids)],[])
+        return piasync.success([State_FinalAtom_Unknown(self.__pri,ids)],[])
 
     def refine(self,db,w):
         states = []
@@ -358,29 +359,29 @@ class State_Atom:
         ids = self.__ids.intersection(wids)
 
         if w not in self.__words and ids:
-            return async.success([State_Atom(self.__pri,self.__words+[w],ids,self.__all)],[])
+            return piasync.success([State_Atom(self.__pri,self.__words+[w],ids,self.__all)],[])
 
         ids = disambiguate(db,self.__ids,self.__words,self.__all)
 
         if not self.__all and len(ids)!=1:
-            return async.success([],[])
+            return piasync.success([],[])
 
-        return async.success([],[State_FinalAtom_NoAll(self.__pri,ids)])
+        return piasync.success([],[State_FinalAtom_NoAll(self.__pri,ids)])
 
     def flush(self,db):
-        print 'pre-dis',self.__ids
+        print('pre-dis',self.__ids)
         ids = disambiguate_no_ordinal(db,self.__ids,self.__words,self.__all)
-        print 'post-dis',ids
+        print('post-dis',ids)
 
         if not self.__all and len(ids)!=1:
-            return async.success([])
+            return piasync.success([])
 
         vids = db.get_propcache('protocol').get_idset('virtual')
         cnc = ids.difference(vids)
         vrt = ids.intersection(vids)
         all = [T('cnc',o) for o in cnc]
         all.extend([T('virtual',o) for o in vrt])
-        return async.success([(self.__pri,all)])
+        return piasync.success([(self.__pri,all)])
 
 
 class State_FinalAtom_NoAll:
@@ -392,16 +393,16 @@ class State_FinalAtom_NoAll:
         return '<final_atom_noall %s>' % (self.__ids)
 
     def refine_all(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine_number(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine(self,db,w):
-        return async.success([],[State_FinalAtom(self.__pri,set([i]),False) for i in self.__ids])
+        return piasync.success([],[State_FinalAtom(self.__pri,set([i]),False) for i in self.__ids])
 
     def flush(self,db):
-        return async.success([])
+        return piasync.success([])
 
 
 class State_FinalAtom_All:
@@ -413,16 +414,16 @@ class State_FinalAtom_All:
         return '<final_atom_all %s>' % (self.__ids)
 
     def refine_all(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine_number(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine(self,db,w):
-        return async.success([],[State_FinalAtom(self.__pri,self.__ids,True)])
+        return piasync.success([],[State_FinalAtom(self.__pri,self.__ids,True)])
 
     def flush(self,db):
-        return async.success([])
+        return piasync.success([])
 
 
 class State_FinalAtom_Unknown:
@@ -434,13 +435,13 @@ class State_FinalAtom_Unknown:
         return '<final_atom_unknown %s>' % (self.__ids)
 
     def refine_all(self,db,w):
-        return async.success([State_FinalAtom_All(self.__pri,self.__ids)],[])
+        return piasync.success([State_FinalAtom_All(self.__pri,self.__ids)],[])
 
     def refine_number(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine(self,db,w):
-        return async.success([],[State_FinalAtom(self.__pri,set([i]),False) for i in self.__ids])
+        return piasync.success([],[State_FinalAtom(self.__pri,set([i]),False) for i in self.__ids])
 
     def flush(self,db):
         return State_FinalAtom(self.__pri,self.__ids,False).flush(db)
@@ -456,10 +457,10 @@ class State_FinalAtom:
         return '<final_atom %s:%s:%s>' % (self.__pri,self.__ids,self.__all)
 
     def refine_all(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine_number(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine(self,db,w):
         ostates = []
@@ -479,7 +480,7 @@ class State_FinalAtom:
         if vchildren:
             cstates.append(State_BufferedChild(db,self.__pri,[],self.__all,vchildren))
 
-        return async.success(ostates,cstates)
+        return piasync.success(ostates,cstates)
 
     def flush(self,db):
         ids = self.__ids
@@ -488,7 +489,7 @@ class State_FinalAtom:
         vrt = ids.intersection(vids)
         all = [T('cnc',o) for o in cnc]
         all.extend([T('virtual',o) for o in vrt])
-        return async.success([(self.__pri,all)])
+        return piasync.success([(self.__pri,all)])
 
 class State_BufferedChild:
     def __init__(self,db,pri,words,all,children):
@@ -501,10 +502,10 @@ class State_BufferedChild:
         return '<buffered_child %s:%s:%s>' % (self.__pri,self.__words,self.__children)
 
     def refine_all(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine_number(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine(self,db,w):
         states = []
@@ -513,15 +514,15 @@ class State_BufferedChild:
         vchildren = self.__children.intersection(wids)
 
         if vchildren:
-            return async.success([State_Virtual(self.__pri,self.__words,vchildren,self.__all)],[])
+            return piasync.success([State_Virtual(self.__pri,self.__words,vchildren,self.__all)],[])
 
         if not self.__children:
-            return async.success([],[])
+            return piasync.success([],[])
 
-        return async.success([State_BufferedChild(db,self.__pri,self.__words+[w],self.__all,self.__children)],[])
+        return piasync.success([State_BufferedChild(db,self.__pri,self.__words+[w],self.__all,self.__children)],[])
 
     def flush(self,db):
-        return async.success([])
+        return piasync.success([])
 
 class State_Virtual:
     def __init__(self,pri,words,ids,all):
@@ -533,99 +534,99 @@ class State_Virtual:
     def __repr__(self):
         return '<virtual %s:%s:%s:%s>' % (self.__pri,self.__words,self.__ids,self.__all)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def resolve(self,db,ids,words,ordinal):
         states = []
 
         for id in ids:
             id_words = db.get_propcache('name').get_valueset(id)
             id_working = tuple(set(words).difference(id_words))
-            print 'resolving',id_working,ordinal,'on',id
+            print('resolving',id_working,ordinal,'on',id)
             result = rpc.invoke_rpc(id,'resolve',action.marshal((id_working,ordinal)))
             yield result
             if not result.status():
-                print 'resolution error',result.args()
+                print('resolution error',result.args())
                 continue
 
             result = logic.parse_clause(result.args()[0],paths.make_subst(id))
-            print 'resolved to',result
+            print('resolved to',result)
 
             for r in result:
                 s = make_state(self.__pri,r)
                 if s is not None:
                     states.append(s)
 
-        yield async.Coroutine.success(states)
+        yield piasync.Coroutine.success(states)
 
     def refine_all(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def refine_number(self,db,w):
-        print 'refining',self.__ids,self.__words,w
+        print('refining',self.__ids,self.__words,w)
         ids = disambiguate_virtual(db,self.__ids,self.__words)
-        print 'refining',ids,self.__words,w
+        print('refining',ids,self.__words,w)
         r = self.resolve(db,ids,self.__words,w)
 
         yield r
 
         if not r.status():
-            print 'resolution error',r.args()
-            yield async.Coroutine.success([])
+            print('resolution error',r.args())
+            yield piasync.Coroutine.success([])
 
-        yield async.Coroutine.success(r.args()[0],[])
+        yield piasync.Coroutine.success(r.args()[0],[])
 
     def refine_all(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def refine(self,db,w):
         states = []
 
         wids = db.get_propcache('name').get_idset(w)
         refined_ids = self.__ids.intersection(wids)
 
-        print 'refined virtual',w,wids,self.__ids,refined_ids
+        print('refined virtual',w,wids,self.__ids,refined_ids)
 
         if refined_ids:
-            yield async.Coroutine.success([State_Virtual(self.__pri,self.__words+[w],refined_ids,self.__all)],[])
+            yield piasync.Coroutine.success([State_Virtual(self.__pri,self.__words+[w],refined_ids,self.__all)],[])
 
         if not self.__all:
-            yield async.Coroutine.success([],[])
+            yield piasync.Coroutine.success([],[])
 
         ids = disambiguate_virtual(db,self.__ids,self.__words)
         r = self.resolve(db,ids,self.__words,None)
         yield r
 
         if not r.status():
-            print 'resolution error',r.args()
-            yield async.Coroutine.success([])
+            print('resolution error',r.args())
+            yield piasync.Coroutine.success([])
 
-        yield async.Coroutine.success([],r.args()[0])
+        yield piasync.Coroutine.success([],r.args()[0])
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def flush(self,db):
         if not self.__all and not self.__words:
-            yield async.Coroutine.success([])
+            yield piasync.Coroutine.success([])
 
         ids = disambiguate_virtual(db,self.__ids,self.__words)
         r = self.resolve(db,ids,self.__words,None)
         yield r
 
         if not r.status():
-            print 'resolution error',r.args()
-            yield async.Coroutine.success([])
+            print('resolution error',r.args())
+            yield piasync.Coroutine.success([])
 
         s = finalise_state(db,r.args()[0],self.__all)
         yield s
 
         if not s.status():
-            print 'resolution error',s.args()
-            yield async.Coroutine.success([])
+            print('resolution error',s.args())
+            yield piasync.Coroutine.success([])
 
-        print 'finalisation returns',s.args(),'priority',self.__pri
+        print('finalisation returns',s.args(),'priority',self.__pri)
 
-        yield async.Coroutine.success([(self.__pri,s.args()[0])])
+        yield piasync.Coroutine.success([(self.__pri,s.args()[0])])
 
 
 class State_TaggedIdeal:
@@ -638,18 +639,18 @@ class State_TaggedIdeal:
         return '<ideal %s>' % (self.__ideal)
 
     def refine_number(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine_all(self,db,w):
-        return async.success([State_TaggedIdeal(self.__pri,self.__ideal,self.__words+[w])],[])
+        return piasync.success([State_TaggedIdeal(self.__pri,self.__ideal,self.__words+[w])],[])
 
     def refine(self,db,w):
-        return async.success([State_TaggedIdeal(self.__pri,self.__ideal,self.__words+[w])],[])
+        return piasync.success([State_TaggedIdeal(self.__pri,self.__ideal,self.__words+[w])],[])
 
     def flush(self,db):
         i=self.__ideal
         w=tuple(self.__words)
-        return async.success([(self.__pri,[T('tagged_ideal',i.args[0],i.args[1],w)])])
+        return piasync.success([(self.__pri,[T('tagged_ideal',i.args[0],i.args[1],w)])])
 
 
 class State_Ideal:
@@ -661,16 +662,16 @@ class State_Ideal:
         return '<ideal %s>' % (self.__ideal)
 
     def refine_number(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine_all(self,db,w):
-        return async.success([State_TaggedIdeal(self.__pri,self.__ideal,[w])],[])
+        return piasync.success([State_TaggedIdeal(self.__pri,self.__ideal,[w])],[])
 
     def refine(self,db,w):
-        return async.success([State_TaggedIdeal(self.__pri,self.__ideal,[w])],[])
+        return piasync.success([State_TaggedIdeal(self.__pri,self.__ideal,[w])],[])
 
     def flush(self,db):
-        return async.success([(self.__pri,[self.__ideal])])
+        return piasync.success([(self.__pri,[self.__ideal])])
 
 
 
@@ -684,26 +685,26 @@ class State_Descriptor:
         return '<descriptor %s:%s:%s>' % (self.__pri,self.__id,self.__path)
 
     def refine_all(self,db,w):
-        return async.success([],[])
+        return piasync.success([],[])
 
     def refine_number(self,db,w):
         nids = db.get_propcache('ordinal').get_idset(w)
 
         if self.__id not in nids:
-            return async.success([],[])
+            return piasync.success([],[])
 
-        return async.success([State_Descriptor(self.__pri,self.__id,self.__path)],[])
+        return piasync.success([State_Descriptor(self.__pri,self.__id,self.__path)],[])
 
     def refine(self,db,w):
         wids = db.get_propcache('name').get_idset(w)
 
         if self.__id not in wids:
-            return async.success([],[])
+            return piasync.success([],[])
 
-        return async.success([State_Descriptor(self.__pri,self.__id,self.__path)],[])
+        return piasync.success([State_Descriptor(self.__pri,self.__id,self.__path)],[])
 
     def flush(self,db):
-        return async.success([(self.__pri,[T('dsc',self.__id,self.__path)])])
+        return piasync.success([(self.__pri,[T('dsc',self.__id,self.__path)])])
 
 
 class State_Composite:
@@ -715,21 +716,21 @@ class State_Composite:
     def __repr__(self):
         return '<composite %s:%s>' % (self.__pri,self.__components)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def refine_number(self,db,w):
-        yield async.Coroutine.success([],[make_state(self.__pri,c) for c in self.__components])
+        yield piasync.Coroutine.success([],[make_state(self.__pri,c) for c in self.__components])
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def refine(self,db,w):
-        yield async.Coroutine.success([],[make_state(self.__pri,c) for c in self.__components])
+        yield piasync.Coroutine.success([],[make_state(self.__pri,c) for c in self.__components])
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def refine_all(self,db,w):
-        yield async.Coroutine.success([],[make_state(self.__pri,c) for c in self.__components])
+        yield piasync.Coroutine.success([],[make_state(self.__pri,c) for c in self.__components])
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def flush(self,db):
-        yield async.Coroutine.success([(self.__pri,[T('cmp',tuple(self.__components))])])
+        yield piasync.Coroutine.success([(self.__pri,[T('cmp',tuple(self.__components))])])
 
 class ConcreteReferent(referent.Referent):
     
@@ -753,7 +754,7 @@ class ConcreteReferent(referent.Referent):
             in_scope = inner
 
         self.__state = self.init_state(interp,out_scope,in_scope)
-        print 'initial state:',self.__state,in_scope,out_scope
+        print('initial state:',self.__state,in_scope,out_scope)
 
     def stack_copy(self):
         return ConcreteReferent(state=self.__state,words=self.__words,open=self.__open)
@@ -762,52 +763,52 @@ class ConcreteReferent(referent.Referent):
         db = interp.get_database()
         return [State_Initial(db,outer=oscope,inner=iscope)]
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def interpret(self,interp,klass,word):
         if not self.__open:
-            yield async.Coroutine.success(False)
+            yield piasync.Coroutine.success(False)
 
         if klass == 'noun':
-            print 'before',word,'state=',self.__state
+            print('before',word,'state=',self.__state)
             s = (yield ResolvHandler(refine_state(interp.get_database(),word,self.__state)))
             self.__words.append(word)
             self.__state = s
-            print 'after',word,'state=',s
-            yield async.Coroutine.success(True)
+            print('after',word,'state=',s)
+            yield piasync.Coroutine.success(True)
 
         if self.__state is None:
-            yield async.Coroutine.failure('need noun')
+            yield piasync.Coroutine.failure('need noun')
 
-        yield async.Arg0(self.close(interp),ResolutionError)
-        yield async.Coroutine.success(False)
+        yield piasync.Arg0(self.close(interp),ResolutionError)
+        yield piasync.Coroutine.success(False)
 
     def finalised(self,interp,objects):
         if len(objects)==0:
-            print "%s: doesn't exist" % ' '.join(self.__words)
+            print("%s: doesn't exist" % ' '.join(self.__words))
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def reinterpret(self,interp,scope):
         words = self.__words[:]
 
         ref = ConcreteReferent(interp=interp,outer=scope,inner=[])
 
-        print 'reinterpreting',words,'in',scope
+        print('reinterpreting',words,'in',scope)
 
         if not words:
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         for w in words:
             r = ref.interpret(interp,'noun',w)
             yield r
             if not r.status():
-                yield async.Coroutine.failure(r.args[0])
+                yield piasync.Coroutine.failure(r.args[0])
 
         r = ref.close(interp)
         yield r
         if not r.status():
-            yield async.Coroutine.failure(r.args[0])
+            yield piasync.Coroutine.failure(r.args[0])
 
-        yield async.Coroutine.success(ref)
+        yield piasync.Coroutine.success(ref)
 
     def reopen(self):
         if not self.__open:
@@ -817,7 +818,7 @@ class ConcreteReferent(referent.Referent):
             self.__open = True
         return True
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def close(self,interp):
         if self.__open:
             s = self.__state[:]
@@ -827,14 +828,14 @@ class ConcreteReferent(referent.Referent):
             if self.__words and self.__words[0]=='all':
                 all = True
 
-            print 'before flush, state=',s
+            print('before flush, state=',s)
             s = (yield ResolvHandler(finalise_state(interp.get_database(),s,all)))
             s = s+[logic.make_term('abstract',tuple(self.__words))]
-            print 'after flush, state=',s
+            print('after flush, state=',s)
             self.set_referent(words=self.__words,objects=s)
             self.finalised(interp,s)
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
 
 class QuoteReferent(referent.Referent):
@@ -849,11 +850,11 @@ class QuoteReferent(referent.Referent):
 
     def interpret(self,interp,klass,word):
         if not self.__open:
-            return async.success(False)
+            return piasync.success(False)
         self.__words.append(word)
         self.set_referent(words=self.__words,objects=(logic.make_term('abstract',tuple(self.__words[1:])),))
         self.__open = False
-        return async.success(True)
+        return piasync.success(True)
 
 class BlockReferent(referent.Referent):
 
@@ -868,7 +869,7 @@ class BlockReferent(referent.Referent):
 
     def interpret(self,interp,klass,word):
         if not self.__open:
-            return async.success(False)
+            return piasync.success(False)
 
         self.__words.append(word)
 
@@ -881,7 +882,7 @@ class BlockReferent(referent.Referent):
             else:
                 self.__delim.append(word)
 
-        return async.success(True)
+        return piasync.success(True)
 
 class IdReferent(referent.Referent):
 
@@ -895,7 +896,7 @@ class IdReferent(referent.Referent):
 
     def interpret(self,interp,klass,word):
         if not self.__open:
-            return async.success(False)
+            return piasync.success(False)
 
         self.__open = False
         self.__words.append(word)
@@ -904,7 +905,7 @@ class IdReferent(referent.Referent):
         olist = [T('cnc',o) for o in olist]
 
         self.set_referent(words=self.__words,objects=olist)
-        return async.success(True)
+        return piasync.success(True)
 
 class AddrReferent(referent.Referent):
 
@@ -918,12 +919,12 @@ class AddrReferent(referent.Referent):
 
     def interpret(self,interp,klass,word):
         if not self.__open:
-            return async.success(False)
+            return piasync.success(False)
 
         self.__open = False
         self.__words.append(word)
         self.set_referent(words=self.__words,objects=(T('cnc',word),))
-        return async.success(True)
+        return piasync.success(True)
 
 class ItReferent(referent.Referent):
     def __init__(self,objs,word):
@@ -942,11 +943,11 @@ class VarReferent(referent.Referent):
 
     def interpret(self,interp,klass,word):
         if not self.__open:
-            return async.success(False)
+            return piasync.success(False)
 
         if klass == 'noun':
             self.__words.append(word)
-            return async.success(True)
+            return piasync.success(True)
 
         self.__open = False
 
@@ -955,14 +956,14 @@ class VarReferent(referent.Referent):
         if var is not None:
             obj = logic.parse_clause(var)
 
-        print 'resolved variable', self.__words,obj
+        print('resolved variable', self.__words,obj)
 
         self.set_referent(words=self.__words,objects=obj)
-        return async.success(False)
+        return piasync.success(False)
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def primitive_noun(interp,word):
-    print 'noun input',word
+    print('noun input',word)
 
     try: n=float(word)
     except: n=None
@@ -973,7 +974,7 @@ def primitive_noun(interp,word):
             if t.reopen():
                 r = t.interpret(interp,'noun',word)
                 yield r
-                yield async.Coroutine.completion(r.status(),*r.args(),**r.kwds())
+                yield piasync.Coroutine.completion(r.status(),*r.args(),**r.kwds())
 
     prefix = [word]
 
@@ -992,67 +993,67 @@ def primitive_noun(interp,word):
         result = r.interpret(interp,'noun',w)
         yield result
         if not result.status():
-            yield async.Coroutine.failure(*r.args(),**r.kwds())
+            yield piasync.Coroutine.failure(*r.args(),**r.kwds())
 
-    yield async.Coroutine.success()
+    yield piasync.Coroutine.success()
 
 def primitive_possessive(interp,word):
     n = interp.pop(referent.Referent)
 
     if n is None:
-        return async.failure('no noun for it')
+        return piasync.failure('no noun for it')
 
     scope = n.concrete_ids()
 
     if not scope:
-        return async.failure('no noun for it')
+        return piasync.failure('no noun for it')
 
-    print 'possesive:',scope
+    print('possesive:',scope)
 
     r = ConcreteReferent(interp=interp,inner=set(scope))
     interp.push(r)
-    return async.Coroutine.success()
+    return piasync.Coroutine.success()
 
 def primitive_quote(interp,word):
     interp.push(QuoteReferent([word]))
-    return async.success()
+    return piasync.success()
 
 def primitive_block(interp,word):
     interp.push(BlockReferent([word],[word]))
-    return async.success()
+    return piasync.success()
 
 def primitive_it(interp,word):
     for c in interp.get_context().iter_stack():
         if len(c) == 1:
             interp.push(ItReferent(tuple(T('cnc',id) for id in c),word))
-            return async.success()
-    return async.failure('no it')
+            return piasync.success()
+    return piasync.failure('no it')
 
 def primitive_comma(interp,word):
-    return async.success()
+    return piasync.success()
 
 def primitive_addr(interp,word):
     interp.push(AddrReferent([word]))
-    return async.success()
+    return piasync.success()
 
 def primitive_var(interp,word):
     interp.push(VarReferent([word]))
-    return async.success()
+    return piasync.success()
 
 def primitive_id(interp,word):
     interp.push(IdReferent([word]))
-    return async.success()
+    return piasync.success()
 
 class ResolutionError(Exception):
     pass
 
-class ResolvHandler(async.Arg1):
+class ResolvHandler(piasync.Arg1):
     def __init__(self,deferred):
-        async.Arg1.__init__(self,deferred,ResolutionError)
+        piasync.Arg1.__init__(self,deferred,ResolutionError)
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def interpret(interp,scope,words):
-    print 'reinterpreting',words,'in',scope
+    print('reinterpreting',words,'in',scope)
 
     ref = ConcreteReferent(interp=interp,outer=scope,inner=[])
 
@@ -1060,12 +1061,12 @@ def interpret(interp,scope,words):
         r = ref.interpret(interp,'noun',w)
         yield r
         if not r.status():
-            yield async.Coroutine.failure(r.args[0])
+            yield piasync.Coroutine.failure(r.args[0])
 
     r = ref.close(interp)
     yield r
     if not r.status():
-        yield async.Coroutine.failure(r.args[0])
+        yield piasync.Coroutine.failure(r.args[0])
 
-    yield async.Coroutine.success(ref)
+    yield piasync.Coroutine.success(ref)
 

@@ -69,7 +69,7 @@ class PersistentMetaData:
 
         new_terms = set([ self.__canonicalise(v) for v in new_terms])
 
-        for (v,s) in self.__nodes.iteritems():
+        for (v,s) in self.__nodes.items():
             if v in new_terms:
                 new_terms.remove(v)
                 nodes[v] = s
@@ -111,21 +111,21 @@ class PersistentMetaData:
         return None
 
     def iterstate(self):
-        return self.__nodes.itervalues()
+        return self.__nodes.values()
 
     def visit(self, callback):
-        for (v,s) in self.__nodes.iteritems():
+        for (v,s) in self.__nodes.items():
             callback(v,s)
 
     def find(self, test):
-        for (v,s) in self.__nodes.iteritems():
+        for (v,s) in self.__nodes.items():
             if test(v,s):
                 return v
 
         return None
 
     def retract_state(self, test, destroy=False):
-        for (v,s) in self.__nodes.iteritems():
+        for (v,s) in self.__nodes.items():
             if test(v,s):
                 del self.__nodes[v]
                 self.__set_termlist()

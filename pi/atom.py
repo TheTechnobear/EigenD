@@ -136,7 +136,7 @@ class Atom(node.Server):
 
     def set_vocab(self,vocab):
         if vocab:
-            self.set_property_termlist('vocab',[ logic.make_term(e,m,c) for (e,(m,c)) in vocab.iteritems() ],notify=False)
+            self.set_property_termlist('vocab',[ logic.make_term(e,m,c) for (e,(m,c)) in vocab.items() ],notify=False)
         else:
             self.del_property('vocab')
 
@@ -155,9 +155,9 @@ class Atom(node.Server):
         d = DummyDelegate()
         self.__server_change(new_value,d)
         if d.errors:
-            print 'errors setting value'
+            print('errors setting value')
             for e in d.errors:
-                print '* ',e
+                print('* ',e)
 
     def __server_change(self,new_value,delegate):
 
@@ -335,7 +335,7 @@ class Atom(node.Server):
         s.status_action = utils.weaken(status_action)
 
         self.__verblist[label]=s
-        self.set_property_string('verbs',','.join([s.schema for s in self.__verblist.itervalues()]))
+        self.set_property_string('verbs',','.join([s.schema for s in self.__verblist.values()]))
 
     def rpc_vfind(self,arg):
         args = action.unmarshal(arg)
@@ -359,7 +359,7 @@ class Atom(node.Server):
             return async.success(action.marshal((id,status)))
 
     def verb_defer(self,index,ctx,trigger,subject,*args):
-        print 'deferring',self.__label,index,args
+        print('deferring',self.__label,index,args)
         args = ((subject or self.id()),) + args
         return self.__container.verbcontainer_defer(self.__label,index,ctx,trigger,*args)
 
@@ -422,7 +422,7 @@ class Atom(node.Server):
         return deferred
         
     def rpc_vinvoke(self,arg):
-        print 'verb:',arg
+        print('verb:',arg)
         args = action.unmarshal(arg)
         interp = args[0]
         index = int(args[1])
@@ -449,7 +449,7 @@ class Atom(node.Server):
             return s.create_action(ctx,*arg)
 
         def func(value):
-            print 'TRIGGER FUNCTION',value,value.as_norm()
+            print('TRIGGER FUNCTION',value,value.as_norm())
             if not value.is_null() and value.as_norm()!=0:
                 s.callback(*arg)
 
@@ -511,7 +511,7 @@ class Atom(node.Server):
         return rsp
 
     def resolve_file_cookie(self,cookie):
-        print 'resolve_file_cookie',cookie
+        print('resolve_file_cookie',cookie)
         if cookie.startswith('pkg_res:'):
             return files.PkgResourceFile(cookie[8:])
         elif cookie.startswith('file_sys:'):
@@ -645,7 +645,7 @@ class Atom(node.Server):
         self.__connection_scope = scope
 
     def notify_destroy(self):
-        print self.id(),'notify destroy'
+        print(self.id(),'notify destroy')
         for slave in self.get_property_termlist('slave'):
             slave = paths.to_absolute(slave,self.__connection_scope)
             myrid = paths.to_relative(self.id(),scope=paths.id2scope(slave))
@@ -653,7 +653,7 @@ class Atom(node.Server):
 
         self.clear_connections();
 
-        for (k,v) in self.iteritems():
+        for (k,v) in self.items():
             v.notify_destroy()
 
     def update_slaves(self,old):
@@ -895,7 +895,7 @@ class VerbContainer(Atom):
         return (event.id(),event.status)
 
     def verbcontainer_cancel(self,id):
-        for (i,e) in self.iteritems():
+        for (i,e) in self.items():
             if e.id()==id:
                 e.clear()
                 del self[i]
@@ -904,7 +904,7 @@ class VerbContainer(Atom):
         return False
 
     def verbcontainer_find(self,label,index,args):
-        events = tuple( e.id() for e in self.itervalues() if e.compare(label,index,args) )
+        events = tuple( e.id() for e in self.values() if e.compare(label,index,args) )
         return events
 
     def isclocked(self,label,index):

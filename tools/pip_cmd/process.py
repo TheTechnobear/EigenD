@@ -55,7 +55,7 @@ def process_inheritance(klasses, name):
 
     for k in klasses:
         if k['name'] == name:
-            if not k.has_key('processed'):
+            if not 'processed' in k:
                 k['processed']=1
 
                 if 'gc' in k['classflags']:
@@ -77,7 +77,7 @@ def process_inheritance(klasses, name):
                     kh[h['name']]=h
 
                 for h in b['handlers']:
-                    if not kh.has_key(h['name']):
+                    if not h['name'] in kh:
                         kh[h['name']]=h
 
                 k['handlers']=kh.values()
@@ -87,7 +87,7 @@ def process_inheritance(klasses, name):
                     km[m['name']]=m
 
                 for m in b['methods']:
-                    if m['isvirtual'] and not km.has_key(m['name']):
+                    if m['isvirtual'] and not m['name'] in km:
                         km[m['name']]=m
 
                 k['methods']=km.values()
@@ -118,7 +118,7 @@ def process_imports(path,source_spec,tree):
 
 def process(path,module,specfile):
 
-    input = file(specfile,"rU")
+    input = open(specfile,"r")
 
     spec=""
     for line in input:
@@ -144,7 +144,7 @@ def process(path,module,specfile):
                     k['iscopyable']=1
 
         for h in k['handlers']:
-            if h.has_key('ispure'):
+            if 'ispure' in h:
                 k['isabstract']=1
 
     return tree

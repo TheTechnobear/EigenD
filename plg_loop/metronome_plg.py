@@ -71,7 +71,7 @@ class Agent(agent.Agent):
         self.add_verb2(2,'stop([],None)',self.__stop,status_action=self.__status)
         self.add_verb2(3,'start([toggle],None)',self.__toggle,status_action=self.__status)
 
-        print 'init tempo=',self[2].get_value()
+        print('init tempo=',self[2].get_value())
         self.pinger.set_tempo(self[2].get_value())
         self.pinger.set_beats(self[3].get_value())
         self.pinger.set_range(self[8].get_value(),self[7].get_value())
@@ -88,16 +88,16 @@ class Agent(agent.Agent):
         self.set_property_string('timestamp',str(self.__timestamp))
 
     def rpc_enumerate(self,arg):
-        print 'metronome enumerate'
+        print('metronome enumerate')
         #return logic.render_term((1,0))
         return logic.render_term((0,0))
 
     def rpc_cinfo(self,arg):
-        print 'metronome __cinfo'
+        print('metronome __cinfo')
         return '[]'
 
     def rpc_finfo(self,arg):
-        print 'metronome __finfo'
+        print('metronome __finfo')
         return '[]'
 
     def rpc_dinfo(self,arg):
@@ -137,7 +137,7 @@ class Agent(agent.Agent):
 
     def __setup_playstate(self,playing):
         self.__playing=playing
-        print '__setup_playstate',self.__playing
+        print('__setup_playstate',self.__playing)
         self.update()
 
     def __playchanged(self,d):
@@ -150,7 +150,7 @@ class Agent(agent.Agent):
                 self.pinger.stop()
       
     def __set_midi_clock_enable(self,e):
-        print 'midi clock enable',e
+        print('midi clock enable',e)
         self.pinger.midi_clock_enable(e)
         self.update()
         return True
@@ -185,7 +185,7 @@ class Agent(agent.Agent):
         self.update()
 
     def __set_tempo(self,t):
-        print '__set_tempo to',t
+        print('__set_tempo to',t)
         self.pinger.set_tempo(t)
         return False
 
@@ -206,18 +206,18 @@ class Agent(agent.Agent):
         return False
 
     def __start(self,subj):
-        print 'start'
+        print('start')
         self.pinger.play()
         self.__setup_playstate(True)
         return action.nosync_return()
     
     def __toggle(self,subj):
-        print 'toggle'
+        print('toggle')
         self.pinger.toggle()
         return action.nosync_return()
 
     def __stop(self,subj):
-        print 'stop'
+        print('stop')
         self.pinger.stop()
         self.__setup_playstate(False)
         return action.nosync_return()

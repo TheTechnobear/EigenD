@@ -18,7 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import atom,agent,action,errors,node,utils,async,index,guid,logic,files,resource,state,rpc,async,timeout,version,container,database
+from pi import atom,agent,action,errors,node,utils,index,guid,logic,files,resource,state,rpc,async,timeout,version,container,database
+from pi import piasync
 from pisession import registry,upgrade
 from pi.logic.shortcuts import *
 from pi.logic.terms import *
@@ -52,7 +53,7 @@ def all_agents(snap):
 class Controller(state.Manager):
 
     def add_sync(self):
-        r = async.Deferred()
+        r = piasync.Deferred()
         if not self.__syncers and self.open():
             self.sync()
         self.__syncers.append(r)
@@ -97,7 +98,7 @@ class Controller(state.Manager):
         state.Manager.client_opened(self)
 
     def close_client(self):
-        print 'controller closing',self.address
+        print('controller closing',self.address)
         if not self.__first_sync:
             self.__workspace.agent_disconnected(self)
 
@@ -108,13 +109,13 @@ class Controller(state.Manager):
         if self.__saving:
             self.__saving = False
             version = self.__agent.set_checkpoint()
-            print 'saved final state of',self.address,'as',version
+            print('saved final state of',self.address,'as',version)
             checkpoint = self.__agent.checkpoint()
             checkpoint.set_type(self.__volatile)
             self.__workspace.set_agent(checkpoint)
 
         if not self.__volatile or (self.__created and self.__first_sync):
-            print 'erasing agent',self.address
+            print('erasing agent',self.address)
             self.__workspace.erase_agent(self.__agent)
 
         state.Manager.close_client(self)
@@ -126,7 +127,7 @@ class Controller(state.Manager):
                 self.__agent.set_checkpoint()
                 self.__workspace.set_agent(self.__agent)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def reload(self,snap,filename):
         t = time.time()
         yield self.add_sync()
@@ -136,8 +137,8 @@ class Controller(state.Manager):
         version=snap.get_checkpoint()
 
         if not version:
-            print self.address,'nothing to load'
-            yield async.Coroutine.success([])
+            print(self.address,'nothing to load')
+            yield piasync.Coroutine.success([])
 
         diff = self.get_diff(snap.get_root(),state.Mapping()).render()
 
@@ -162,7 +163,7 @@ class Controller(state.Manager):
             v = logic.parse_clause(r.args()[0])
             rve.extend(v)
 
-        yield async.Coroutine.success(rve)
+        yield piasync.Coroutine.success(rve)
 
 class AgentLoader:
     def __init__(self):
@@ -324,7 +325,7 @@ class Workspace(atom.Atom):
         factory = self.__registry.get_module(plugin_slug)
 
         if not factory:
-            return async.failure('no such agent')
+            return piasync.failure('no such agent')
 
         if plugin_def.arity>1:
             plugin_ordinal = plugin_def.args[1]
@@ -341,10 +342,10 @@ class Workspace(atom.Atom):
         plugin_addr = self.create(factory,delegate,ordinal=plugin_ordinal)
 
         if not plugin_addr:
-            return async.failure(','.join(delegate.errors))
+            return piasync.failure(','.join(delegate.errors))
 
-        print 'created',plugin_addr,'as',plugin_slug
-        return async.success(plugin_addr)
+        print('created',plugin_addr,'as',plugin_slug)
+        return piasync.success(plugin_addr)
 
     def flush(self,tag=''):
         cp=self.trunk.save(piw.tsd_time(),tag)
@@ -357,7 +358,7 @@ class Workspace(atom.Atom):
             s = self.find_agent(f.address)
 
             if not s:
-                print 'skipped',f.address
+                print('skipped',f.address)
                 self.__load_queue = self.__load_queue[1:]
                 f.enable_save()
                 continue
@@ -397,7 +398,7 @@ class Workspace(atom.Atom):
 
             break
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def post_load(self,path):
         for m in self.index.members():
             ma = m.address
@@ -411,12 +412,12 @@ class Workspace(atom.Atom):
         else:
             self.__backend.load_status(*args,**kwds)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def load_file(self,path,upgrade_flag = False,post_load = True):
 
         while self.__busy is not None:
-            print 'waiting for current load/save operation to complete'
-            r = async.Deferred()
+            print('waiting for current load/save operation to complete')
+            r = piasync.Deferred()
             self.__busy.append(r)
             self.__abort = True
             self.call_load_status()
@@ -431,15 +432,15 @@ class Workspace(atom.Atom):
         self.call_load_status('Preparing',0)
 
         if self.__abort:
-            yield async.Coroutine.success('aborted')
+            yield piasync.Coroutine.success('aborted')
 
         snapshot = self.__backend.run_foreground_sync(upgrade.prepare_file,path,version.version)
-        print 'loading from version',snapshot.version(),'in',path
+        print('loading from version',snapshot.version(),'in',path)
         agents = set(all_agents(snapshot))
 
         for m in self.index.members():
             if self.__abort:
-                yield async.Coroutine.success('aborted')
+                yield piasync.Coroutine.success('aborted')
 
             ma = m.address
             m.enable_save(False)
@@ -475,7 +476,7 @@ class Workspace(atom.Atom):
         else:
             self.__busy = None
 
-        yield async.Coroutine.completion(r.status(),e)
+        yield piasync.Coroutine.completion(r.status(),e)
 
     def __load1(self,snapshot,label,path):
         mapping = state.Mapping()
@@ -490,8 +491,8 @@ class Workspace(atom.Atom):
         parked = set()
         total = 0
 
-        r = async.Deferred()
-        r2 = async.Deferred()
+        r = piasync.Deferred()
+        r2 = piasync.Deferred()
         w = timeout.Watchdog(r2,False,'load timeout')
 
         for i in range(0,self.trunk.agent_count()):
@@ -514,7 +515,7 @@ class Workspace(atom.Atom):
                 w.disable()
 
             p = len(pending)
-            print 'loaded:',total-p,total,'in',time.time()-start,'s',n
+            print('loaded:',total-p,total,'in',time.time()-start,'s',n)
             if not p:
                 r2.succeeded()
             else:
@@ -526,8 +527,8 @@ class Workspace(atom.Atom):
             if status:
                 r.succeeded(self.__load_errors)
             else:
-                print 'watchdog fired; load failed'
-                print pending
+                print('watchdog fired; load failed')
+                print(pending)
                 r.failed(self.__load_errors)
 
             self.__load_errors = None
@@ -555,10 +556,10 @@ class Workspace(atom.Atom):
         return None
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def save_file(self,filename,description=''):
         if self.__busy is not None:
-            yield async.Coroutine.failure('Another save or load is in progress')
+            yield piasync.Coroutine.failure('Another save or load is in progress')
 
         self.__busy = []
 
@@ -566,23 +567,23 @@ class Workspace(atom.Atom):
 
         agents = set(all_agents(self.trunk))
 
-        print 'presave pass'
+        print('presave pass')
         for m in self.index.members():
             ma = m.address
             if ma in agents:
                 qa = self.index.to_absolute(ma)
-                print 'presave',qa
+                print('presave',qa)
                 r = rpc.invoke_rpc(qa,'presave',filename)
                 yield r
-                print 'presaved',qa
+                print('presaved',qa)
 
 
-        print 'save syncing'
+        print('save syncing')
         yield self.index.sync()
-        print 'save synced'
+        print('save synced')
         m = [ c.address for c in self.index.members() ]
 
-        print 'save parking'
+        print('save parking')
         for i in range(0,self.trunk.agent_count()):
             agent = self.trunk.get_agent_index(i)
             address = agent.get_address()
@@ -595,7 +596,7 @@ class Workspace(atom.Atom):
             checkpoint.set_type(1)
             self.trunk.set_agent(checkpoint)
 
-        print 'save parked'
+        print('save parked')
         cp = self.flush('saved')
         snap = self.database.get_version(cp)
 
@@ -605,7 +606,7 @@ class Workspace(atom.Atom):
 
         upgrade.copy_snap2file(snap,filename,tweaker=save_tweaker)
 
-        print 'save waking busy waiters'
+        print('save waking busy waiters')
         if self.__busy:
             busy_copy = self.__busy[:]
             self.__busy = None
@@ -614,8 +615,8 @@ class Workspace(atom.Atom):
         else:
             self.__busy = None
 
-        print 'save woke busy waiters'
-        yield async.Coroutine.success()
+        print('save woke busy waiters')
+        yield piasync.Coroutine.success()
 
     def server_opened(self):
         atom.Atom.server_opened(self)
@@ -709,13 +710,13 @@ class Workspace(atom.Atom):
         (address,plugin,version,cversion,ordinal) = signature.args
         module = self.__registry.get_compatible_module(plugin,cversion)
         new_signature = logic.make_term('a',address,module.name,module.version,module.cversion,ordinal)
-        print 'canonicalised ',signature,' to ',new_signature
+        print('canonicalised ',signature,' to ',new_signature)
         return new_signature
 
 
     def set_owner(self,owner):
         self.__owner = owner or "~a"
-        print "set owner", self.__owner
+        print("set owner", self.__owner)
         self.clear_frelation();
 
         def visitor(v,s):
@@ -724,7 +725,7 @@ class Workspace(atom.Atom):
         self.__meta.visit(visitor)
 
     def __asserted(self,signature,delegate,mordinal=None):
-        print 'loading',signature,'into enclosure',self.__enclosure
+        print('loading',signature,'into enclosure',self.__enclosure)
         (address,plugin,version,cversion,cordinal) = signature.args
         factory = self.__registry.get_compatible_module(plugin,cversion)
 
@@ -732,7 +733,7 @@ class Workspace(atom.Atom):
             delegate.add_error("No plugin for %s version %s" % (plugin,cversion))
             return None
 
-        print 'relation:',self.__relation(address)
+        print('relation:',self.__relation(address))
         self.add_frelation(self.__relation(address))
         agent = AgentLoader()
         if agent.load(factory.module,self.__name,address,cordinal,self.__enclosure,mordinal):
@@ -742,7 +743,7 @@ class Workspace(atom.Atom):
         return None
 
     def __retracted(self,signature,plugin,destroy):
-        print 'unloading',signature,'destroy=',destroy
+        print('unloading',signature,'destroy=',destroy)
         self.del_frelation(self.__relation(signature.args[0]))
         plugin.unload(destroy)
         return True
@@ -795,7 +796,7 @@ class Workspace(atom.Atom):
             address = guid.toguid("%s%d" % (factory.name,cordinal))
 
 
-        print 'assigned cordinal',cordinal,'to',factory.name
+        print('assigned cordinal',cordinal,'to',factory.name)
         signature = logic.make_term('a',address,factory.name,factory.version,factory.cversion,cordinal)
 
         plugin_state = self.__asserted(signature,delegate,ordinal)
