@@ -19,7 +19,7 @@
 #
 
 from pisession import test
-import domain
+from pi import domain
 import unittest
 import piw
 

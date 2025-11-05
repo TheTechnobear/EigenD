@@ -20,7 +20,8 @@
 
 import string
 
-__tx = string.maketrans('','')
+# Python 3: str.translate() with dict for deletions
+__tx_delete = str.maketrans('', '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz0123456789#_.')
 
 
 def make_subst(word):
@@ -212,8 +213,9 @@ def unify(src, src_env, dest, dest_env):
         return True
 
 def quotevarname(name):
-    h=name[0].translate(__tx,'ABCDEFGHIJKLMNOPQRSTUVWXYZ_')
-    t=name[1:].translate(__tx,'ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz0123456789')
+    # Python 3: translate with deletion dict
+    h=name[0].translate(str.maketrans('', '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'))
+    t=name[1:].translate(str.maketrans('', '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz0123456789'))
     if not h and not t: return name
     return "%%'%s'" % name.replace('%','%25').replace("'","%27")
 
@@ -222,12 +224,13 @@ def quotesimplename(name):
     if name is True: return 'True'
     if name is False: return 'False'
     if isinstance(name,int): return str(name)
-    if isinstance(name,long): return str(name)
+    # Python 3: int and long unified
     if isinstance(name,float): return str(name)
     if not isinstance(name,str): return '<%s>' % str(name)
     if not name: return "''"
-    h=name[0].translate(__tx,'abcdefghijklmnopqrstuvwxyz$@!#')
-    t=name[1:].translate(__tx,'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#_.')
+    # Python 3: translate with deletion dict
+    h=name[0].translate(str.maketrans('', '', 'abcdefghijklmnopqrstuvwxyz$@!#'))
+    t=name[1:].translate(str.maketrans('', '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#_.'))
     if not h and not t: return name
     return "'%s'" % name.replace('%','%25').replace("'","%27")
 

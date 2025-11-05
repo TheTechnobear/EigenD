@@ -18,8 +18,8 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import terms
-import parse
+from pi.logic import terms
+from pi.logic import parse
 
 T=terms.make_term
 V=terms.make_variable

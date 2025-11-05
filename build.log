@@ -1,0 +1,226 @@
+scons: Reading SConscript files ...
+platform: macos-arm64 python: /opt/homebrew/opt/python@3.14/bin/python3.14
+Using  macos-arm64
+clearing /Users/kodiak/projects/EigenD/tmp/stage
+clearing /Users/kodiak/projects/EigenD/tmp/pkg
+building release 2.2.1-community compatible with 2.2-community
+scons: done reading SConscript files.
+scons: Building targets ...
+tmp/obj/plg_arranger/src/arranger_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='arranger_native', tree['module']='arranger_native'
+tmp/obj/plg_arranger/src/arranger_native_python.os (g++)
+tmp/obj/plg_arranger/src/arranger_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_arranger/arranger_native.so (Install)
+tmp/obj/plg_audio/src/audio_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='audio_native', tree['module']='audio_native'
+tmp/obj/plg_audio/src/audio_native_python.os (g++)
+tmp/obj/plg_audio/src/audio_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_audio/audio_native.so (Install)
+tmp/obj/plg_conductor/src/conductor_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='conductor_native', tree['module']='conductor_native'
+tmp/obj/plg_conductor/src/conductor_native_python.os (g++)
+tmp/obj/plg_conductor/src/conductor_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_conductor/conductor_native.so (Install)
+tmp/obj/plg_finger/src/finger_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='finger_native', tree['module']='finger_native'
+tmp/obj/plg_finger/src/finger_native_python.os (g++)
+tmp/obj/plg_finger/src/finger_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_finger/finger_native.so (Install)
+tmp/obj/plg_host/src/host_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='host_native', tree['module']='host_native'
+tmp/obj/plg_host/src/host_native_python.os (g++)
+tmp/obj/plg_host/src/host_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_host/host_native.so (Install)
+tmp/obj/plg_keyboard/src/keyboard_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='keyboard_native', tree['module']='keyboard_native'
+tmp/obj/plg_keyboard/src/keyboard_native_python.os (g++)
+tmp/obj/plg_keyboard/src/keyboard_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_keyboard/keyboard_native.so (Install)
+tmp/obj/plg_language/src/language_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='language_native', tree['module']='language_native'
+tmp/obj/plg_language/src/language_native_python.os (g++)
+tmp/obj/plg_language/src/language_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_language/language_native.so (Install)
+tmp/obj/plg_livepad/src/livepad_plg_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='livepad_plg_native', tree['module']='livepad_plg_native'
+tmp/obj/plg_livepad/src/livepad_plg_native_python.os (g++)
+tmp/obj/plg_livepad/src/livepad_plg_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_livepad/livepad_plg_native.so (Install)
+tmp/obj/plg_loop/src/loop_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='loop_native', tree['module']='loop_native'
+tmp/obj/plg_loop/src/loop_native_python.os (g++)
+tmp/obj/plg_loop/src/loop_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_loop/loop_native.so (Install)
+tmp/obj/plg_midi/src/midi_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='midi_native', tree['module']='midi_native'
+tmp/obj/plg_midi/src/midi_native_python.os (g++)
+tmp/obj/plg_midi/src/midi_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_midi/midi_native.so (Install)
+tmp/obj/plg_midi_device/src/midi_device_plg_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='midi_device_plg_native', tree['module']='midi_device_plg_native'
+tmp/obj/plg_midi_device/src/midi_device_plg_native_python.os (g++)
+tmp/obj/plg_midi_device/src/midi_device_plg_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_midi_device/midi_device_plg_native.so (Install)
+tmp/obj/plg_midi_monitor/src/midi_monitor_plg_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='midi_monitor_plg_native', tree['module']='midi_monitor_plg_native'
+tmp/obj/plg_midi_monitor/src/midi_monitor_plg_native_python.os (g++)
+tmp/obj/plg_midi_monitor/src/midi_monitor_plg_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_midi_monitor/midi_monitor_plg_native.so (Install)
+tmp/obj/plg_osc/src/osc_plg_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='osc_plg_native', tree['module']='osc_plg_native'
+tmp/obj/plg_osc/src/osc_plg_native_python.os (g++)
+tmp/obj/plg_osc/src/osc_plg_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_osc/osc_plg_native.so (Install)
+tmp/obj/plg_pkbd/src/pkbd_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='pkbd_native', tree['module']='pkbd_native'
+tmp/obj/plg_pkbd/src/pkbd_native_python.os (g++)
+tmp/obj/plg_pkbd/src/pkbd_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_pkbd/pkbd_native.so (Install)
+tmp/obj/plg_primitive/src/primitive_plg_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='primitive_plg_native', tree['module']='primitive_plg_native'
+tmp/obj/plg_primitive/src/primitive_plg_native_python.os (g++)
+tmp/obj/plg_primitive/src/primitive_plg_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_primitive/primitive_plg_native.so (Install)
+tmp/obj/plg_recorder/src/recorder_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='recorder_native', tree['module']='recorder_native'
+tmp/obj/plg_recorder/src/recorder_native_python.os (g++)
+tmp/obj/plg_recorder/src/recorder_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_recorder/recorder_native.so (Install)
+tmp/obj/plg_rig/src/rig_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='rig_native', tree['module']='rig_native'
+tmp/obj/plg_rig/src/rig_native_python.os (g++)
+tmp/obj/plg_rig/src/rig_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_rig/rig_native.so (Install)
+tmp/obj/plg_sampler2/src/sampler2_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='sampler2_native', tree['module']='sampler2_native'
+tmp/obj/plg_sampler2/src/sampler2_native_python.os (g++)
+tmp/obj/plg_sampler2/src/sampler2_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_sampler2/sampler2_native.so (Install)
+tmp/obj/plg_scale_illuminator/src/scale_illuminator_plg_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='scale_illuminator_plg_native', tree['module']='scale_illuminator_plg_native'
+tmp/obj/plg_scale_illuminator/src/scale_illuminator_plg_native_python.os (g++)
+tmp/obj/plg_scale_illuminator/src/scale_illuminator_plg_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_scale_illuminator/scale_illuminator_plg_native.so (Install)
+tmp/obj/plg_stk/src/stk_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='stk_native', tree['module']='stk_native'
+tmp/obj/plg_stk/src/stk_native_python.os (g++)
+tmp/obj/plg_stk/src/stk_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_stk/stk_native.so (Install)
+tmp/obj/plg_strummer/src/strummer_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='strummer_native', tree['module']='strummer_native'
+tmp/obj/plg_strummer/src/strummer_native_python.os (g++)
+tmp/obj/plg_strummer/src/strummer_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_strummer/strummer_native.so (Install)
+tmp/obj/plg_synth/src/synth_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='synth_native', tree['module']='synth_native'
+tmp/obj/plg_synth/src/synth_native_python.os (g++)
+tmp/obj/plg_synth/src/synth_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_synth/synth_native.so (Install)
+tmp/obj/plg_t3d/src/t3d_plg_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='t3d_plg_native', tree['module']='t3d_plg_native'
+tmp/obj/plg_t3d/src/t3d_plg_native_python.os (g++)
+tmp/obj/plg_t3d/src/t3d_plg_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_t3d/t3d_plg_native.so (Install)
+tmp/obj/plg_ukbd/src/ukbd_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='ukbd_native', tree['module']='ukbd_native'
+tmp/obj/plg_ukbd/src/ukbd_native_python.os (g++)
+tmp/obj/plg_ukbd/src/ukbd_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/plugins/Eigenlabs/plg_ukbd/ukbd_native.so (Install)
+tmp/obj/lib_alpha2/src/alpha2_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='alpha2_native', tree['module']='alpha2_native'
+tmp/obj/lib_alpha2/src/alpha2_native_python.os (g++)
+tmp/obj/lib_alpha2/src/alpha2_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/alpha2_native.so (Install)
+tmp/obj/app_eigend2/eigend_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='eigend_native', tree['module']='eigend_native'
+tmp/obj/app_eigend2/eigend_native_python.os (g++)
+tmp/obj/app_eigend2/eigend_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/eigend_native.so (Install)
+tmp/obj/lib_micro/src/micro_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='micro_native', tree['module']='micro_native'
+tmp/obj/lib_micro/src/micro_native_python.os (g++)
+tmp/obj/lib_micro/src/micro_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/micro_native.so (Install)
+tmp/obj/lib_midi/src/midilib_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='midilib_native', tree['module']='midilib_native'
+tmp/obj/lib_midi/src/midilib_native_python.os (g++)
+tmp/obj/lib_midi/src/midilib_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/midilib_native.so (Install)
+tmp/obj/pi/src/state/pi_state_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='pi_state_native', tree['module']='pi_state_native'
+tmp/obj/pi/src/state/pi_state_native_python.os (g++)
+tmp/obj/pi/src/state/pi_state_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/pi_state_native.so (Install)
+tmp/obj/piagent/src/piagent_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='piagent_native', tree['module']='piagent_native'
+tmp/obj/piagent/src/piagent_native_python.os (g++)
+tmp/obj/piagent/src/piagent_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/piagent_native.so (Install)
+tmp/obj/lib_pico/src/pico_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='pico_native', tree['module']='pico_native'
+tmp/obj/lib_pico/src/pico_native_python.os (g++)
+tmp/obj/lib_pico/src/pico_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/pico_native.so (Install)
+tmp/obj/picross/src/picross_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='picross_native', tree['module']='picross_native'
+tmp/obj/picross/src/picross_native_python.os (g++)
+tmp/obj/picross/src/picross_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/picross_native.so (Install)
+tmp/obj/pisession/src/pisession_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='pisession_native', tree['module']='pisession_native'
+tmp/obj/pisession/src/pisession_native_python.os (g++)
+tmp/obj/pisession/src/pisession_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/pisession_native.so (Install)
+tmp/obj/piw/src/piw_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='piw_native', tree['module']='piw_native'
+tmp/obj/piw/src/piw_native_python.os (g++)
+tmp/obj/piw/src/piw_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/piw_native.so (Install)
+tmp/obj/app_install/post_install_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='post_install_native', tree['module']='post_install_native'
+tmp/obj/app_install/post_install_native_python.os (g++)
+tmp/obj/app_install/post_install_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/post_install_native.so (Install)
+tmp/obj/app_juceworkbench/workbench_native_python.cpp ("/opt/homebrew/opt/python@3.14/bin/python3.14")
+DEBUG: module='workbench_native', tree['module']='workbench_native'
+tmp/obj/app_juceworkbench/workbench_native_python.os (g++)
+tmp/obj/app_juceworkbench/workbench_native.so (g++)
+ld: warning: building for macOS-11.0, but linking with dylib '/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/Python' which was built for newer version 15.0
+tmp/modules/workbench_native.so (Install)
+tags (ctags)
+scons: done building targets.

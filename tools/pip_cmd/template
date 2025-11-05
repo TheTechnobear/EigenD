@@ -27,6 +27,44 @@ namespace
     static bool pip_usegil = true;  // Force new GIL API for testing
 #endif
 
+#ifndef PI_BYTEARRAY
+#define PI_BYTEARRAY
+    //note: defined in pic_bytearray.h AND tools/pip_cmd/template
+    //they must match, and be kept in sync !
+    class bytearray {
+    public:
+        bytearray() : data_(nullptr), size_(0) {}
+
+        bytearray(void* d, unsigned s) : data_(nullptr), size_(0)  {
+            copy(d,s);
+        }
+
+        ~bytearray() { delete data_; data_=nullptr;size_=0;}
+        
+        bytearray(const bytearray& d)  {
+            copy(d.data_,d.size_);
+        }
+
+        const bytearray& operator=(const bytearray& d) {
+            copy(d.data_,d.size_);
+            return *this;
+        }
+
+        void* data() const { return data_;}
+        unsigned size() const { return size_;}
+    private:
+
+        void copy(const void* d, unsigned s) {
+            delete data_;
+            size_= s;
+            data_= new char[size_];
+            memcpy(data_,d, size_);
+        }
+        char* data_;
+        unsigned size_;
+    };
+#endif //PI_BYTEARRAY
+
     // unlocks python and relocks it on dtor
     class unlock_p2c
     {
@@ -54,21 +92,18 @@ namespace
     class lock_c2p
     {
         public:
-            lock_c2p(PyInterpreterState *interp, bool fake=false): t_(0), gs_(PyGILState_LOCKED), f_(fake)
+            lock_c2p(PyInterpreterState *interp, bool fake=false): 
+                t_(0), 
+                f_(fake)
             {
                 if(!f_)
                 {
                     if(!pip_usegil)
                     {
-#if PY_VERSION_HEX < 0x03000000
-                        PyEval_AcquireLock();
                         t_=PyThreadState_New(interp);
-                        PyEval_ReleaseLock();
                         PyEval_AcquireThread(t_);
-#endif
+                        return;
                     }
-
-                    gs_ = PyGILState_Ensure();
                 }
              }
 
@@ -78,21 +113,15 @@ namespace
                 {
                     if(!pip_usegil)
                     {
-#if PY_VERSION_HEX < 0x03000000
                         PyEval_ReleaseThread(t_);
-                        PyEval_AcquireLock();
                         PyThreadState_Delete(t_);
-                        PyEval_ReleaseLock();
-#endif
+                        return;
                     }
-
-                    PyGILState_Release(gs_);
                 }
             }
 
         private:
             PyThreadState *t_;
-            PyGILState_STATE gs_;
             bool f_;
     };
 
@@ -114,7 +143,7 @@ struct pip_err_t: std::exception
     std::string what_;
 };
 
-static const char *module_docstring = "<<moddoc>>";
+static const char *module_docstring = <<moddoc>>;
 
 
 PyObject *tpcvt_uc(void *a)
@@ -202,6 +231,12 @@ PyObject *tpcvt_stdstr(void *a)
 {
     std::string *s = (std::string *)a;
     return PyUnicode_FromStringAndSize(s->c_str(),s->length());
+}
+
+PyObject *tpcvt_bytearray(void *a)
+{
+    bytearray *b = (bytearray *)a;
+    return PyBytes_FromStringAndSize((char*) b->data(),b->size());
 }
 
 PyObject *tpcvt_str(void *a)
@@ -536,6 +571,18 @@ int fpcvt_strset(PyObject *o, void *a)
     }
 
     return 1;
+}
+
+int fpcvt_bytearray(PyObject *o, void *a)
+{
+    //bytearray
+    char *s; pip_ssize_t l;
+    if(PyBytes_AsStringAndSize(o,&s,&l)>=0)
+    {
+        *((bytearray*)a) = bytearray(s,l);
+        return 1;
+    }
+    return 0;
 }
 
 int fpcvt_str(PyObject *o, void *a)

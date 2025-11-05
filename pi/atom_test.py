@@ -19,7 +19,7 @@
 #
 
 
-import atom,domain,const,policy
+from pi import atom, domain, const, policy
 from pisession import test
 from pi import paths
 import unittest

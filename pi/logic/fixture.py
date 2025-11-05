@@ -18,9 +18,9 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import terms
-import parse
-import engine
+from pi.logic import terms
+from pi.logic import parse
+from . import engine
 import unittest
 
 class Fixture(unittest.TestCase):

@@ -22,7 +22,8 @@
 Module for talking to a standard state manager
 """
 
-import piw,const,proxy,node
+import piw
+from pi import const, proxy, node
 
 class StateProxy(proxy.AtomProxy):
 

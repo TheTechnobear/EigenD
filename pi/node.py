@@ -19,9 +19,8 @@
 #
 
 import piw
-import const
+from pi import const, utils
 import picross
-import utils
 import traceback
 from pi import piasync
 
