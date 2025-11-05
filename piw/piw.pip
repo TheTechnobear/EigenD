@@ -2014,7 +2014,7 @@ inline setenv(args)
 <<<
    PyObject *o; bct_entity_t e;
    if(!PyArg_ParseTuple(args,"O",&o)) { return 0; }
-   if(!(e=(bct_entity_t)PyCObject_AsVoidPtr(o))) { PyErr_SetString(PyExc_TypeError,"expected CObject"); return 0; }
+   if(!(e=(bct_entity_t)PyCapsule_GetPointer(o, NULL))) { PyErr_SetString(PyExc_TypeError,"expected Capsule"); return 0; }
    piw::tsd_setcontext(e);
    Py_INCREF(Py_None); return Py_None;
 >>>
@@ -2063,7 +2063,7 @@ class tsd_subcontext[piw::tsd_subcontext_t]
 
     inline getenv(self,args)
     <<<
-        return PyCObject_FromVoidPtr(self->entity(),0);
+        return PyCapsule_New(self->entity(), NULL, NULL);
     >>>
 }
 

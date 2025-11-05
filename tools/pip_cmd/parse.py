@@ -79,6 +79,8 @@ reserved = {
 def t_LONGTEXT(t):
     r'\"\"\"(.|\n)*?\"\"\"'
     t.lineno += t.value.count('\n')
+    # Convert Python triple-quote docstring to C string literals  
+    # The \n between strings causes them to be on separate lines, avoiding """"
     t.value='\n'.join(map(lambda s: '"%s"' % s, t.value[3:-3].split('\n')))+'\n""\n'
     t.type = 'LONGTEXT'
     return t;

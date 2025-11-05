@@ -11,7 +11,7 @@ class c2p0[workbench::c2p0_t]
 
     inline token(self,args)
     <<<
-        return PyCObject_FromVoidPtr(self,0);
+        return PyCapsule_New(self, NULL, NULL);
     >>>
 }
 
@@ -89,7 +89,7 @@ class c2p[workbench::c2p_t]
     virtual void get_test_string(int)=0
     inline token(self,args)
     <<<
-        return PyCObject_FromVoidPtr(self,0);
+        return PyCapsule_New(self, NULL, NULL);
     >>>
 }
 

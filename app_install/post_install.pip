@@ -14,7 +14,7 @@ class c2p[post_install::c2p_t]
 
     inline token(self,args)
     <<<
-        return PyCObject_FromVoidPtr(self,0);
+        return PyCapsule_New(self, NULL, NULL);
     >>>
 }
 

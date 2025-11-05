@@ -26,15 +26,15 @@ import string
 import types
 import copy
 
-def fetch_val(dict,name):
-    if type(dict)!= dict or len(name) == 0:
+def fetch_val(dict_obj,name):
+    if not isinstance(dict_obj, dict) or len(name) == 0:
         return None
 
     n = name[0]
-    if not n in dict:
+    if not n in dict_obj:
         return None
 
-    v = dict[n]
+    v = dict_obj[n]
     if len(name) == 1:
         return v
 

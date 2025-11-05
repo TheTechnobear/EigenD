@@ -90,6 +90,6 @@ class context[pia::context_t]
 
     inline getenv(self,args)
     <<<
-        return PyCObject_FromVoidPtr(self->entity(),0);
+        return PyCapsule_New(self->entity(), NULL, NULL);
     >>>
 }

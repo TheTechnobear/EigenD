@@ -724,7 +724,7 @@ struct <<name>>_wrapper_: public <<name>>_type_ <<ifdef(isabstract){ // ABSTRACT
 
         <<ifdefxcf(returns.isvoid){
             Py_DECREF(result);
-            return NULL;
+            return;
         }ifdefxcf>>
 
         <<ifndefxcf(returns.isvoid){
@@ -1264,7 +1264,7 @@ static void <<name>>_dealloc_(<<name>>_object_* self)
 {
     <<ifdefgc(isgc){PyObject_GC_UnTrack((PyObject *)self); }ifdefgc>>
     <<name>>_delete_(self);
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject * <<name>>_new_(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -1351,16 +1351,15 @@ static const char *<<name>>_docstring_ = <<docstring>>;
 
 PyTypeObject <<name>>_typeobject_ = 
 {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "<<parent.module>>.<<name>>",/*tp_name*/
     sizeof(<<name>>_object_),          /*tp_basicsize*/
     0,                         /*tp_itemsize*/
     (destructor)<<name>>_dealloc_, /*tp_dealloc*/
-    0,                         /*tp_print*/
+    0,                         /*tp_vectorcall_offset*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
-    <<ifdefcmp(__cmp__){ (cmpfunc)<<name>>_wrapper_::special_cmp_method_ }ifdefcmp>> <<ifndefcmp(__cmp__){ 0 }ifndefcmp>>, /* tp_cmp */
+    0,                         /* tp_as_async */
     <<ifdefrepr(__repr__){ (reprfunc)<<name>>_wrapper_::special_repr_method_ }ifdefrepr>> <<ifndefrepr(__repr__){ 0 }ifndefrepr>>, /* tp_repr */
     0,                         /*tp_as_number*/
     0,                         /*tp_as_sequence*/
@@ -1681,7 +1680,7 @@ static PyMethodDef module_method_table[] = {
 #endif
 
 
-PyMODINIT_FUNC MODULE_VISIBILITY init<<module>>(void)
+PyMODINIT_FUNC MODULE_VISIBILITY PyInit_<<module>>(void)
 {
     PyObject *m;
     PyObject *s;
@@ -1703,13 +1702,13 @@ PyMODINIT_FUNC MODULE_VISIBILITY init<<module>>(void)
         }
 
         <<loop_classes(classes){
-            if(!(s=PyObject_GetAttrString(m,"pip_<<name>>_dispatch")) || !PyCObject_Check(s))
+            if(!(s=PyObject_GetAttrString(m,"pip_<<name>>_dispatch")) || !PyCapsule_CheckExact(s))
             {
                 PyErr_SetString(PyExc_RuntimeError,"incorrect or missing pip_<<name>>_dispatch in module <<parent.name>>");
                 return NULL;
             }
 
-            <<name>>_dispatcher_ = (<<name>>_dispatch_ *)PyCObject_AsVoidPtr(s);
+            <<name>>_dispatcher_ = (<<name>>_dispatch_ *)PyCapsule_GetPointer(s, NULL);
             Py_DECREF(s);
         }loop_classes>>
 
@@ -1752,7 +1751,7 @@ PyMODINIT_FUNC MODULE_VISIBILITY init<<module>>(void)
 
     <<loop(classes){
         <<ifndef_imported(imported){
-            if(!(s=PyCObject_FromVoidPtr(<<name>>_dispatcher_,0)))
+            if(!(s=PyCapsule_New(<<name>>_dispatcher_, NULL, NULL)))
             {
                 return NULL;
             }

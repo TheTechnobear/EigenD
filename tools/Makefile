@@ -1,10 +1,13 @@
-.PHONY: all etc html clean tags save load stage pkg test
+.PHONY: all etc html clean tags save load stage pkg test parallel
 
 TOOLS ?= tools
 SCONS ?= PYTHONPATH=$(TOOLS)/packages/SCons4 python3 $(TOOLS)/packages/SCons4/bin/scons
 
 all:
 	@$(SCONS) -f $(TOOLS)/SConstruct -j1 target-default
+
+parallel:
+	@$(SCONS) -f $(TOOLS)/SConstruct -j8 target-default
 
 single:
 	@$(SCONS) -f $(TOOLS)/SConstruct -j1 target-default
