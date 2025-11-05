@@ -18,13 +18,13 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import async,utils
+from pi import piasync,utils
 import piw
 
-class Timeout(async.Deferred):
+class Timeout(piasync.Deferred):
 
     def __init__(self, deferred, timeout, status, *args, **kwds):
-        async.Deferred.__init__(self)
+        piasync.Deferred.__init__(self)
 
         self.__original = deferred
         self.__status = status
@@ -63,12 +63,12 @@ class Timeout(async.Deferred):
 
 class Timer(Timeout):
     def __init__(self,timeout):
-        Timeout.__init__(self,async.Deferred(),timeout,True)
+        Timeout.__init__(self,piasync.Deferred(),timeout,True)
 
-class Watchdog(async.Deferred):
+class Watchdog(piasync.Deferred):
 
     def __init__(self, deferred, status, *args, **kwds):
-        async.Deferred.__init__(self)
+        piasync.Deferred.__init__(self)
 
         self.__original = deferred
         self.__status = status

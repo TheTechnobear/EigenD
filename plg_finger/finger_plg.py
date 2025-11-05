@@ -18,7 +18,7 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,bundles,atom,action,domain,paths,upgrade,const,policy,node,resource,logic,utils
+from pi import agent,bundles,atom,action,domain,paths,upgrade,const,policy,node,resource,logic,utils,piasync
 from plg_finger import fingerer_version as version
 
 import piw
@@ -159,7 +159,7 @@ class Fingering(atom.Atom):
         return 'fingerings'
 
     def rpc_fideal(self,arg):
-        return async.failure('invalid cookie')
+        return piasync.failure('invalid cookie')
 
     def rpc_activated(self,arg):
         (path,selected)=logic.parse_clause(arg)

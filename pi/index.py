@@ -19,7 +19,7 @@
 #
 
 import piw
-from pi import const,async,utils,paths
+from pi import const,piasync,utils,paths
 
 class Monitor(piw.client):
     def __init__(self,index,name,real):
@@ -67,7 +67,7 @@ class Index(piw.index):
             self.force(n)
 
         if len(self.__members) == 0:
-            return async.success()
+            return piasync.success()
 
         if len(self.__callbacks) == 0:
             members = set(self.__members.values())
@@ -75,7 +75,7 @@ class Index(piw.index):
             for c in members:
                 c.add_sync()
 
-        callback = async.Deferred()
+        callback = piasync.Deferred()
         self.__callbacks.append(callback)
         return callback
 

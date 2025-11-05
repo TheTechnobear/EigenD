@@ -351,13 +351,12 @@ void Atom::getDescendants(std::set<String>& ids)
     // XXX duplicated from workspace
     std::set<std::string>dids=backend_->get_descendants(juceToStdString(id_));
     std::set<std::string>::const_iterator i = dids.begin();
-    unsigned count = 0;
     
     while(i!=dids.end())
     {
         String s = String::fromUTF8(i->c_str());
         ids.insert(s);
-        i++; count++;
+        i++;
     }
 }
 
@@ -365,13 +364,12 @@ void Atom::getChildren(std::set<String>& ids)
 {
     std::set<std::string>cids=backend_->get_children(juceToStdString(id_));
     std::set<std::string>::const_iterator i = cids.begin();
-    unsigned count = 0;
     
     while(i!=cids.end())
     {
         String s = String::fromUTF8(i->c_str());
         ids.insert(s);
-        i++; count++;
+        i++;
     }
 }
 void Atom::getChildProps(std::vector<NamedId>& props, bool showNames)
@@ -1449,13 +1447,12 @@ void Workspace::getDescendants(String id,std::set<String>& ids)
     // XXX get rid of all the copying
     std::set<std::string>dids=backend_->get_descendants(juceToStdString(id));
     std::set<std::string>::const_iterator i = dids.begin();
-    unsigned count = 0;
     
     while(i!=dids.end())
     {
         String s = String::fromUTF8(i->c_str());
         ids.insert(s);
-        i++; count++;
+        i++;
     }
 }
 

@@ -59,15 +59,15 @@ class Agent(agent.Agent):
         self[1][12] = bundles.Output(1,False,names='pedal output',ordinal=3)
         self[1][13] = bundles.Output(1,False,names='pedal output',ordinal=4)
  
-		# key outputs
+        # key outputs
         self.koutput = bundles.Splitter(self.domain,self[1][1],self[1][2],self[1][3],self[1][4])
         self.kpoly = piw.polyctl(10,self.koutput.cookie(),False,5)
-		# breath
+        # breath
         self.boutput = bundles.Splitter(self.domain,self[1][5])
-		# strips
+        # strips
         self.s1output = bundles.Splitter(self.domain,self[1][6],self[1][7])
         self.s2output = bundles.Splitter(self.domain,self[1][8],self[1][9])
-		# pedals
+        # pedals
         self.poutput1 = bundles.Splitter(self.domain,self[1][10])
         self.poutput2 = bundles.Splitter(self.domain,self[1][11])
         self.poutput3 = bundles.Splitter(self.domain,self[1][12])
@@ -76,7 +76,7 @@ class Agent(agent.Agent):
         self[5]=bundles.Output(OUT_MIDI,False,names="midi output")
         self.midi_output = bundles.Splitter(self.domain, self[5])  
         
-		# now we need to set of outputs
+        # now we need to set of outputs
         self.output=piw.sclone()
         self.output.set_filtered_output(OUT_KEY,self.kpoly.cookie(),piw.first_filter(OUT_KEY))
         self.output.set_filtered_output(OUT_STRIP_1,self.s1output.cookie(),piw.first_filter(OUT_STRIP_1))
@@ -97,7 +97,7 @@ class Agent(agent.Agent):
         self[2] = atom.Atom(domain=domain.Aniso(), policy=self.input.vector_policy(IN_MIDI,False), names="midi input")
         self[4] = atom.Atom(domain=domain.Aniso(), protocols='revconnect', policy=self.input.vector_policy(IN_LIGHT,False,clocked=False), names="light input")
 
-		#values required for push
+        #values required for push
         self.device.channel(1)
         self.device.velocity_sample(4)
         self.device.enable_notes(True)
@@ -111,8 +111,8 @@ class Agent(agent.Agent):
         self.device.set_pb_map(STRIP_1,True)
         
     def controllerinit(self):
-    	scale=piw.makestring('[0,1,2,3,4,5,6,7,8,9,10,11,12]',0)
-    	octave=piw.makefloat_bounded(9,-1,0,-1,0)
+        scale=piw.makestring('[0,1,2,3,4,5,6,7,8,9,10,11,12]',0)
+        octave=piw.makefloat_bounded(9,-1,0,-1,0)
         dict=utils.makedict({'columnlen':self.device.get_columnlen(),'columnoffset':self.device.get_columnoffset(),'courselen':self.device.get_courselen(),'courseoffset':self.device.get_courseoffset(),'octave':octave,'scale':scale},0)
         return dict
 

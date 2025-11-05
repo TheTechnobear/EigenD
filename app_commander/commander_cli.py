@@ -38,7 +38,7 @@ class ViewManager(agent.Agent):
         agent.Agent.__init__(self,signature=upgrade.Signature(),volatile=True,names='eigencommander',ordinal=1)
 
         self.name = name
-        self.node = random.randrange(0, 1<<48L) | 0x010000000000L
+        self.node = random.randrange(0, 1<<48) | 0x010000000000
 
         self.langModel=gui.call_bg_sync(self.__create_lang)
         self.historyModel=history.HistoryModel(self.langModel)

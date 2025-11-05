@@ -18,7 +18,7 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import atom,agent,action,errors,node,utils,index,guid,logic,files,resource,state,rpc,async,timeout,version,container,database
+from pi import atom,agent,action,errors,node,utils,index,guid,logic,files,resource,state,rpc,piasync,timeout,version,container,database
 from pi import piasync
 from pisession import registry,upgrade
 from pi.logic.shortcuts import *

@@ -18,7 +18,7 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import atom,logic,async
+from pi import atom,logic,piasync
 
 class Collection(atom.Atom):
     def __init__(self,protocols=None,inst_creator=None,inst_wrecker=None,*args,**kwds):
@@ -28,10 +28,10 @@ class Collection(atom.Atom):
         atom.Atom.__init__(self,protocols=p,*args,**kwds)
 
     def instance_wreck(self,k,v,o):
-        return async.success()
+        return piasync.success()
 
     def instance_create(self,o):
-        return async.failure('not implemented')
+        return piasync.failure('not implemented')
 
     def listinstances(self):
         return [ self[i].get_property_long('ordinal',0) for i in self ]
@@ -50,27 +50,27 @@ class Collection(atom.Atom):
     def rpc_instancename(self,arg):
         return self.get_property_string('name');
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_createinstance(self,arg):
         name = int(arg)
         outputs = self.listinstances()
 
         if name in outputs:
-            yield async.Coroutine.failure('output in use')
+            yield piasync.Coroutine.failure('output in use')
 
         oresult = self.__creator(name)
         yield oresult
 
         if not oresult.status():
-            yield async.Coroutine.failure(*oresult.args(),**oresult.kwds())
+            yield piasync.Coroutine.failure(*oresult.args(),**oresult.kwds())
 
         output = oresult.args()[0]
         if hasattr(output,'id'):
-            yield async.Coroutine.success(output.id())
+            yield piasync.Coroutine.success(output.id())
         else:
-            yield async.Coroutine.failure(str(output))
+            yield piasync.Coroutine.failure(str(output))
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_delinstance(self,arg):
         for k,v in self.items():
             if v.id() == arg:
@@ -79,9 +79,9 @@ class Collection(atom.Atom):
                 oresult = self.__wrecker(k,v,o)
                 yield oresult
                 if k in self: del self[k]
-                yield async.Coroutine.success(arg)
+                yield piasync.Coroutine.success(arg)
 
-        yield async.Coroutine.failure('output not in use')
+        yield piasync.Coroutine.failure('output not in use')
 
 
 

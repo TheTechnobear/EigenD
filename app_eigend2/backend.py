@@ -67,7 +67,7 @@ class GarbageCollector(threading.Thread):
             print('starting gc pass',p)
             try:
                 o = gc.collect(p)
-                if o: print 'gc collected',o
+                if o: print('gc collected',o)
             except:
                 pass
             print('finished gc pass',p)
@@ -331,7 +331,7 @@ class Backend(eigend_native.c2p):
 
             self.run_background(bginit)
         except:
-            print(>>sys.__stdout__,'Initialisation failure')
+            print('Initialisation failure',file=sys.__stdout__)
             traceback.print_exc(limit=None,file=sys.__stdout__)
             raise
 

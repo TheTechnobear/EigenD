@@ -20,7 +20,7 @@
 
 import sys,threading,piw
 from pisession import session
-from pi import proxy,async,logic,action,const,paths
+from pi import proxy,piasync,logic,action,const,paths
 
 class Browser(proxy.AtomProxy):
 
@@ -58,10 +58,10 @@ class Browser(proxy.AtomProxy):
         self.__event.wait(5)
 
         if not self.__event.isSet():
-            raise "can't connect to",self.__address
+            raise RuntimeError(f"can't connect to {self.__address}")
 
         if self.__errmsg:
-            raise self.__errmsg
+            raise RuntimeError(self.__errmsg)
 
         print('connected to',self.__address)
 
@@ -78,7 +78,7 @@ class Browser(proxy.AtomProxy):
         d.setCallback(ok).setErrback(notok)
         return e
 
-    @async.coroutine()
+    @piasync.coroutine()
     def __lc(self):
         current = 0
 
@@ -88,7 +88,7 @@ class Browser(proxy.AtomProxy):
 
             if not r.status():
                 print('rpc error, cinfo',r.args())
-                yield async.Coroutine.success()
+                yield piasync.Coroutine.success()
 
             clist = logic.parse_clause(r.args()[0])
             for c in clist:
@@ -96,22 +96,22 @@ class Browser(proxy.AtomProxy):
 
             current = current+len(clist)
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine()
+    @piasync.coroutine()
     def __st(self,start):
         a=logic.render_term((tuple(self.__dir),start))
         r=(yield self.invoke_rpc('finfo',a))
 
         if not r.status():
             print('rpc error, finfo',r.args())
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         try:
             flist = logic.parse_clause(r.args()[0])
         except:
             print('cant parse:',r.args()[0])
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         (cookie,desc,name)=flist[0]
 
@@ -120,7 +120,7 @@ class Browser(proxy.AtomProxy):
 
         if not r.status():
             print('rpc error, fideal',r.args())
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         s=paths.make_subst(self.__address)
         print('s=',s)
@@ -130,12 +130,12 @@ class Browser(proxy.AtomProxy):
         except:
             print('cant parse:',r.args()[0])
             raise
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         print(cookie,desc,name,ideal)
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine()
+    @piasync.coroutine()
     def __lf(self,start):
         current = start
         finish = start+10
@@ -147,13 +147,13 @@ class Browser(proxy.AtomProxy):
 
             if not r.status():
                 print('rpc error, finfo',r.args())
-                yield async.Coroutine.success()
+                yield piasync.Coroutine.success()
 
             try:
                 flist = logic.parse_clause(r.args()[0])
             except:
                 print('cant parse:',r.args()[0])
-                yield async.Coroutine.success()
+                yield piasync.Coroutine.success()
 
             for i,f in enumerate(flist):
                 if i+current >= finish:
@@ -162,23 +162,23 @@ class Browser(proxy.AtomProxy):
 
             current = current+len(flist)
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
-    @async.coroutine()
+    @piasync.coroutine()
     def __cd(self,path):
         a=logic.render_term(tuple(path))
         r=(yield self.invoke_rpc('enumerate',a))
 
         if not r.status():
             print('rpc error, enumerate',r.args())
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
         (nf,nc) = logic.parse_clause(r.args()[0])
 
         (self.__dir,self.__nf,self.__nc) = (path,nf,nc)
 
         print(self.dir(),'files=',self.__nf,'collection=',self.__nc)
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def __nullcmd(self):
         e = threading.Event()

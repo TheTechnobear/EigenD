@@ -19,7 +19,7 @@
 #
 
 
-from pi import index,proxy,atom,domain,policy,bundles,async,logic,rpc,paths
+from pi import index,proxy,atom,domain,policy,bundles,piasync,logic,rpc,paths
 import piw
 
 class FinderProxy(proxy.AtomProxy):
@@ -94,17 +94,17 @@ class Talker(atom.Atom):
 
         self.set_phrase(v)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def load_state(self,state,delegate,phase):
         self.__loading = True
         yield atom.Atom.load_state(self,state,delegate,phase)
         self.__loading = False
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def builtin_set_value(self,v):
         result = self.set_phrase(v)
         yield result
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def make_connection(self,index,dsc):
         return logic.make_term('conn',index,1,dsc.args[0],dsc.args[1],None)
@@ -173,7 +173,7 @@ class Talker(atom.Atom):
         else:
             self.__active_phrase_operation = False 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __clear_phrase(self):
         interp = self.get_property_string('interpreter')
         actions = self.get_property_string('actions')
@@ -191,14 +191,14 @@ class Talker(atom.Atom):
         if 1 in self:
             self[1].clear_connections()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __set_phrase(self,v):
         result = self.__clear_phrase()
         yield result
 
         interp = self.__finder.fetch()
         if not interp:
-            yield async.Coroutine.failure('no interpreter')
+            yield piasync.Coroutine.failure('no interpreter')
 
         print('set phrase',interp,v)
 
@@ -208,7 +208,7 @@ class Talker(atom.Atom):
         yield result
 
         if not result.status():
-            yield async.Coroutine.failure(*result.args(),**result.kwds())
+            yield piasync.Coroutine.failure(*result.args(),**result.kwds())
 
         actions = result.args()[0]
         self.set_property_string('interpreter',interp)
@@ -225,5 +225,5 @@ class Talker(atom.Atom):
         if 1 in self:
             self[1].set_connections(logic.render_termlist(c))
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 

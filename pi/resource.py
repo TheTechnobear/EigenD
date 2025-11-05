@@ -354,7 +354,7 @@ class LogFile:
     def __init__(self,target,logfile_max=7):
         self.__file =  file_open(get_logfile(target,logfile_max=logfile_max),'w')
         self.__start = time.time()
-        print('startup on',str(datetime.datetime.today()), file=self.__file,target)
+        print('startup on',str(datetime.datetime.today()),target, file=self.__file)
 
     def write(self,s):
         if s=='\n' or s==' ':

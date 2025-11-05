@@ -59,7 +59,7 @@ namespace
         public:
             interp_t(const char *zip, const char *boot, const char *setup): tstate_(0)
             {
-                PyEval_AcquireLock();
+                PyEval_RestoreThread(PyThreadState_GET());
                 tstate_ = Py_NewInterpreter();
 
                 bool ok = initPython(zip,boot,setup);
@@ -90,7 +90,7 @@ namespace
                 {
                     PyEval_AcquireThread(tstate_);
                     Py_EndInterpreter(tstate_);
-                    PyEval_ReleaseLock();
+                    PyEval_SaveThread();
                 }
             }
 
@@ -100,7 +100,7 @@ namespace
 
                 if(!(sys=PyImport_AddModule("sys"))) goto err;
                 if(!(spath=PyObject_GetAttrString(sys,"path"))) goto err;
-                if(!(ppath = PyString_FromString(zip))) goto err;
+                if(!(ppath = PyUnicode_FromString(zip))) goto err;
 
                 PyList_Append(spath,ppath);
 
@@ -169,13 +169,13 @@ namespace
 
                 interp_->enter();
 
-                if(!(pyname = PyString_FromString(name))) goto err;
+                if(!(pyname = PyUnicode_FromString(name))) goto err;
                 if(!(module = PyImport_ImportModule((char *)agent))) goto err;
                 if(!(func = PyObject_GetAttrString(module,"main")) || !PyCallable_Check(func)) goto err;
                 if(!(unload = PyObject_GetAttrString(module,"unload")) || !PyCallable_Check(unload)) goto err;
                 if(!(fini = PyObject_GetAttrString(module,"fini")) || !PyCallable_Check(fini)) goto err;
                 if(!(args = PyTuple_New(2))) goto err;
-                if(!(env = PyCObject_FromVoidPtr(env_.entity(),0))) goto err;
+                if(!(env = PyCapsule_New(env_.entity(), NULL, NULL))) goto err;
 
                 PyTuple_SetItem(args,0,env); Py_INCREF(env);
                 PyTuple_SetItem(args,1,pyname); Py_INCREF(pyname);
@@ -215,7 +215,7 @@ namespace
 
             std::string __unload()
             {
-                PyObject *env = PyCObject_FromVoidPtr(env_.entity(),0);
+                PyObject *env = PyCapsule_New(env_.entity(), NULL, NULL);
                 PyObject *args = PyTuple_New(2);
                 PyTuple_SetItem(args,0,env);
                 PyTuple_SetItem(args,1,python_); Py_INCREF(python_);
@@ -230,12 +230,14 @@ namespace
                 }
 
                 my_ssize_t rvl;
-                char *rvs;
                 std::string rrv;
 
-                if(PyString_AsStringAndSize(rv,&rvs,&rvl)>=0)
+                if(PyUnicode_Check(rv))
                 {
-                    rrv=std::string(rvs,rvl);
+                    const char *utf8 = PyUnicode_AsUTF8AndSize(rv, &rvl);
+                    if(utf8) {
+                        rrv = std::string(utf8, rvl);
+                    }
                 }
                 else
                 {

@@ -119,7 +119,7 @@ class KeyboardAgent(agent.Agent):
     def __init__(self,address, ordinal):
         agent.Agent.__init__(self,signature=version,names='pico manager',protocols='has_subsys',ordinal=ordinal)
         self.domain = piw.clockdomain_ctl()
-        self.domain.set_source(piw.makestring('*', 0L))
+        self.domain.set_source(piw.makestring('*', 0))
 
         self.load_enumerator = picross.enumerator(ezload.vendor,ezload.product,picross.make_string_functor(self.download_keyboard))
         self.load_enumerator2 = picross.enumerator(ezload.new_vendor,ezload.new_product,picross.make_string_functor(self.download_keyboard))

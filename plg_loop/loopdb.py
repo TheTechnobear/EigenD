@@ -163,7 +163,7 @@ class LoopDatabase:
                         frows.append((n,resource.WC(b),resource.WC(p),resource.WC(f)))
                         mrows.extend([(n,t) for t in tags])
                         n = n+1
-                        if n%500==0: print '%d loops indexed'%n
+                        if n%500==0: print('%d loops indexed'%n)
                 except:
                     pass
         return n

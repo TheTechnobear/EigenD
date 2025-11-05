@@ -142,7 +142,7 @@ class BoundedInt(Domain):
         if v>=self.min and v<=self.max:
             return v
         return self.rest
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         v=int(v)
         if v>=self.min and v<=self.max:
             return piw.makelong_bounded(self.max,self.min,self.rest,v,t)
@@ -179,7 +179,7 @@ class Enum(Domain):
         if v in self.values:
             return v
         return self.rest
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         v=int(v)
         if v in self.values:
             return piw.makelong_bounded(self.max,self.min,self.min,v,t)
@@ -210,7 +210,7 @@ class EnumOrNull(Enum):
         if d.is_null(): return None
         if d.is_bool() and not d.as_bool(): return None
         return Enum.data2value(self,d)
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         if v is None: return piw.makenull(t)
         if v is False: return piw.makenull(t)
         return Enum.value2data(self,v,t)
@@ -245,7 +245,7 @@ class StringEnum(Domain):
                 return v
         return self.values[0]
 
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         if v is None: 
             raise ValueError('empty string is not in belcanto lexicon')
         for w in v.split():
@@ -323,7 +323,7 @@ class BoundedFloat(Domain):
             if v>=self.min and v<=self.max:
                 return v
         return self.rest
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         v=float(v)
         if v>=self.min and v<=self.max:
             return piw.makefloat_bounded(self.max,self.min,self.rest,v,t)
@@ -342,7 +342,7 @@ class BoundedFloatOrNull(BoundedFloat):
         if d.is_null(): return None
         if d.is_bool() and not d.as_bool(): return None
         return BoundedFloat.data2value(self,d)
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         if v is None: return piw.makenull(t)
         if v is False: return piw.makenull(t)
         return BoundedFloat.value2data(self,v,t)
@@ -361,7 +361,7 @@ class BoundedIntOrNull(BoundedInt):
     def data2value(self,d):
         if d.is_null(): return None
         return BoundedInt.data2value(self,d)
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         if v is None: return piw.makenull(t)
         return BoundedInt.value2data(self,v,t)
     def canonical(self):
@@ -390,7 +390,7 @@ class Bool(Domain):
         if d.is_null():
             return False
         return d.as_norm()!=0.0
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         v=bool(v)
         return piw.makebool(v,t)
     def canonical(self):
@@ -413,9 +413,9 @@ class Trigger(Domain):
         return piw.bool_denormalizer()
     def data2value(self,d):
         if not d.is_long():
-            return 0L
+            return 0
         return d.as_long()
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         v=long(v)
         return piw.makelong(v,t)
     def canonical(self):
@@ -446,7 +446,7 @@ class String(Domain):
             i = int(d.as_renorm(0,len(self.__choices),0))
             return self.__choices[i]
         raise ValueError('string value inappropriate')
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         if v is None: return piw.makestring('',0)
         v=str(v)
         return piw.makestring(v,t)
@@ -468,7 +468,7 @@ class Null(Domain):
         if d.is_null():
             return None
         raise ValueError('null value inappropriate')
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         if v is None:
             return piw.makenull(t)
         raise ValueError('null value %s inappropriate' % str(v))
@@ -486,7 +486,7 @@ class Blob(Domain):
         Domain.__init__(self,hints)
     def data2value(self,d):
         return d
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         if isinstance(v,piw.data_base): return v
         raise ValueError('value %s inappropriate' % v)
     def canonical(self):
@@ -505,7 +505,7 @@ class Aniso(Domain):
         self.control = control[0] if control is not None else None
     def data2value(self,d):
         return d
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         if isinstance(v,piw.data_base): return v
         raise ValueError('value %s inappropriate' % v)
     def canonical(self):
@@ -535,7 +535,7 @@ class Iso(Domain):
         return piw.null_denormalizer()
     def data2value(self,d):
         return None
-    def value2data(self,v,t=0L):
+    def value2data(self,v,t=0):
         return piw.data()
     def up(self,val):          return None
     def down(self,val):        return None

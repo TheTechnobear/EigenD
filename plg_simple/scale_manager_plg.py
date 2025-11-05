@@ -18,7 +18,7 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import agent,atom,action,logic,bundles,domain,policy,node,resource,async,talker,collection
+from pi import agent,atom,action,logic,bundles,domain,policy,node,resource,piasync,talker,collection
 from . import scale_manager_version as version
 import piw
 import os
@@ -59,21 +59,21 @@ class EventList(collection.Collection):
     def __wreck(self,k,v):
         pass
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_create(self,name):
         e = Event(self,self.__event,name)
         self[name] = e
         e.attached()
-        yield async.Coroutine.success(e)
+        yield piasync.Coroutine.success(e)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def instance_wreck(self,k,e,name):
         print('killing event',k)
         del self[k]
         r = e.clear_phrase()
         yield r
         print('killed event',k)
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def create_event(self,text):
         i = self.find_hole()
@@ -112,22 +112,22 @@ class Agent(agent.Agent):
         print('choose',scale,thing)
         self[2].reset_to(thing)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __cancel_verb(self,subject,i):
         i = int(action.abstract_string(i)) if i else None
         self[2].reset()
         self[3].cancel_event(i)
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def __query(self,k,u):
         return [ v.id() for v in self[3].values() ]
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __do_verb(self,subject,t,k,c):
         t = action.abstract_string(t)
         r = self[3].create_event(t)
         yield r
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def rpc_resolve_ideal(self,arg):
         (type,name) = action.unmarshal(arg)

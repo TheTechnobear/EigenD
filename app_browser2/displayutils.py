@@ -227,8 +227,8 @@ class BrowseList:
        return (highlight,scroll_selection,tap_selection,amber_selection)
    
     def draw(self,dc):
-#	drawutils.setPenColour(dc,colours.borderGradient1)
-#	drawutils.setBrushColour(dc,colours.borderGradient1)
+#   drawutils.setPenColour(dc,colours.borderGradient1)
+#   drawutils.setBrushColour(dc,colours.borderGradient1)
 #       dc.DrawRectangle(0,0,self.width,self.height)
 
         self.gridlines=[]
@@ -244,7 +244,7 @@ class BrowseList:
                if self.count>self.maxOffset:
                     break
                rectHeight=min((self.lineSpacing-1),(self.height-(ypos-1)))
-	       rectHeight=rectHeight+1
+               rectHeight=rectHeight+1
 
                if self.itemList:
                    if i <len(self.itemList):

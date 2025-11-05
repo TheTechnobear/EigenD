@@ -19,11 +19,11 @@
 #
 
 import piw
-from pi import async,paths
+from pi import piasync,paths
 
-class RpcInvocation(async.Deferred,piw.rpcclient):
+class RpcInvocation(piasync.Deferred,piw.rpcclient):
     def __init__(self,id,path,name,arg,timeout=30000):
-        async.Deferred.__init__(self)
+        piasync.Deferred.__init__(self)
         piw.rpcclient.__init__(self)
         arg = piw.makestring_len(arg,len(arg),0)
         name = piw.makestring(name,0)

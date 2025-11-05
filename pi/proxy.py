@@ -18,7 +18,7 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import const, index, node, utils, domain, paths, async, timeout, logic, rpc
+from pi import const, index, node, utils, domain, paths,piasync, timeout, logic, rpc
 from pi.logic.shortcuts import *
 
 import piw
@@ -256,7 +256,7 @@ class AtomProxy(node.Client):
             utils.log_exception()
 
     def add_sync(self):
-        r = async.Deferred()
+        r = piasync.Deferred()
         if not self.__syncers and self.open():
             self.sync()
         if self.__syncers is None:

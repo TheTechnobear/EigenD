@@ -18,7 +18,7 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import const, node, domain,errors, utils, policy, vocab, async, logic, files, action, rpc, paths
+from pi import const, node, domain,errors, utils, policy, vocab, piasync, logic, files, action, rpc, paths
 from pi import domain as pidomain
 
 import piw
@@ -342,7 +342,7 @@ class Atom(node.Server):
         index = int(args[0])
         args = args[1:]
         events = self.__container.verbcontainer_find(self.__label,index,args)
-        return async.success(action.marshal(events))
+        return piasync.success(action.marshal(events))
 
     def rpc_vdefer(self,arg):
         args = action.unmarshal(arg)
@@ -354,9 +354,9 @@ class Atom(node.Server):
         (id,status) = self.verb_defer(index,None,trigger,subject,*args)
 
         if id is None:
-            return async.failure('deferred function setup failed')
+            return piasync.failure('deferred function setup failed')
         else:
-            return async.success(action.marshal((id,status)))
+            return piasync.success(action.marshal((id,status)))
 
     def verb_defer(self,index,ctx,trigger,subject,*args):
         print('deferring',self.__label,index,args)
@@ -369,9 +369,9 @@ class Atom(node.Server):
         id = args[1]
 
         if self.verb_cancel(id):
-            return async.success(action.marshal(id))
+            return piasync.success(action.marshal(id))
         else:
-            return async.success(action.marshal(None))
+            return piasync.success(action.marshal(None))
 
     def verb_cancel(self,id):
         return self.__container.verbcontainer_cancel(id)
@@ -385,7 +385,7 @@ class Atom(node.Server):
         f = server.create_action(None,*args)
 
         if f is None:
-            return async.failure()
+            return piasync.failure()
 
         ff = piw.fastchange(utils.changify_nb(f[0]))
         t = piw.tsd_time()
@@ -393,21 +393,21 @@ class Atom(node.Server):
         ff(piw.makefloat_bounded(1,0,0,0,t+1))
 
         ret = (action.nosync_return(),)
-        return async.success(action.marshal(ret))
+        return piasync.success(action.marshal(ret))
 
     def __slowinvoke(self,server,interp,args):
         result = server.callback(*args)
 
-        if not isinstance(result,async.Deferred):
+        if not isinstance(result,piasync.Deferred):
             v = result if result else ()
             if not isinstance(v,tuple):
                 if isinstance(v,list):
                     v = tuple(v)
                 else:
                     v=(v,)
-            return async.success(action.marshal(v))
+            return piasync.success(action.marshal(v))
 
-        deferred = async.Deferred()
+        deferred = piasync.Deferred()
 
         def success(value = None):
             v = value if value else ()
@@ -497,7 +497,7 @@ class Atom(node.Server):
             file = self.resolve_file_cookie(cookie)
 
             if file is None:
-                return async.failure('bad cookie %s' % cookie)
+                return piasync.failure('bad cookie %s' % cookie)
 
             cache[cookie] = file
 
@@ -757,7 +757,7 @@ class FastEvent(Bool):
                 del self.container[i]
                 break
 
-        return async.success(action.marshal(None))
+        return piasync.success(action.marshal(None))
 
     def compare(self,label,index,args):
         if self.args is None:
@@ -847,7 +847,7 @@ class VerbContainer(Atom):
     def load_state(self,state,delegate,phase):
         if phase == 1:
             delegate.set_deferred(self,state)
-            return async.success()
+            return piasync.success()
 
         return Atom.load_state(self,state,delegate,phase-1)
 

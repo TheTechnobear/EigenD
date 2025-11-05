@@ -23,7 +23,7 @@ import sys
 import time
 import pibelcanto
 
-from pi import const,logic,paths,proxy,action,utils,index,async,constraints,rpc
+from pi import const,logic,paths,proxy,action,utils,index,piasync,constraints,rpc
 from pi.logic.shortcuts import *
 
 rules_database = """
@@ -192,7 +192,7 @@ class VerbProxy:
         t2 = filter_term(self.to_database,term)
         return t2
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def invoke(self, interp, *args):
         interpid = str(id(interp))
 
@@ -203,13 +203,13 @@ class VerbProxy:
         rv = r.args()[0]
 
         if not r.status():
-            yield async.Coroutine.failure(rv or 'rpc error')
+            yield piasync.Coroutine.failure(rv or 'rpc error')
 
         rv = self.convert_result(action.unmarshal(rv))
         print('verb returns',rv)
-        yield async.Coroutine.success(*rv)
+        yield piasync.Coroutine.success(*rv)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def defer(self, interp, *args):
         verb_args = action.marshal((self.__index,)+self.convert_args(args))
         r = rpc.invoke_rpc(self.__usable_id,'vdefer',verb_args)
@@ -218,14 +218,14 @@ class VerbProxy:
         rv = r.args()[0]
 
         if not r.status():
-            yield async.Coroutine.failure(rv or 'rpc error')
+            yield piasync.Coroutine.failure(rv or 'rpc error')
 
         rv = self.convert_result(action.unmarshal(rv))
         print('verb defer returns',rv)
-        yield async.Coroutine.success(rv)
+        yield piasync.Coroutine.success(rv)
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def find(self, interp, *args):
         verb_args = action.marshal((self.__index,)+self.convert_args(args))
         r = rpc.invoke_rpc(self.__usable_id,'vfind',verb_args)
@@ -234,13 +234,13 @@ class VerbProxy:
         rv = r.args()[0]
 
         if not r.status():
-            yield async.Coroutine.failure(rv or 'rpc error')
+            yield piasync.Coroutine.failure(rv or 'rpc error')
 
         rv = self.convert_result(action.unmarshal(rv))
         print('verb defer returns',rv)
-        yield async.Coroutine.success(rv)
+        yield piasync.Coroutine.success(rv)
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def cancel(self,interp,*args):
         verb_args = action.marshal((self.__index,)+self.convert_args(args))
         r = rpc.invoke_rpc(self.__usable_id,'vcancel',verb_args)
@@ -249,11 +249,11 @@ class VerbProxy:
         rv = r.args()[0]
 
         if not r.status():
-            yield async.Coroutine.failure(rv or 'rpc error')
+            yield piasync.Coroutine.failure(rv or 'rpc error')
 
         rv = self.convert_result(action.unmarshal(rv))
         print('verb defer returns',rv)
-        yield async.Coroutine.success(rv)
+        yield piasync.Coroutine.success(rv)
 
     def __str__(self):
         return "<verb %s:%s>" % (self.__database_id,self.__index)
@@ -1909,7 +1909,7 @@ class SimpleDatabase(Database):
     def sync(self, *args,**kwds):
         if self.__index:
             return self.__index.sync(*args,**kwds)
-        return async.success()
+        return piasync.success()
 
     def to_absolute_id(self,dbid):
         qid = self.__index.to_absolute(dbid)

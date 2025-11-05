@@ -57,11 +57,11 @@ class DomainTest(test.SessionFixture):
         b = True
         n = None
 
-        df = piw.makefloat(f,0L)
-        di = piw.makelong(i,0L)
-        df2 = piw.makefloat(f2,0L)
-        di2 = piw.makelong(i2,0L)
-        db = piw.makebool(b,0L)
+        df = piw.makefloat(f,0)
+        di = piw.makelong(i,0)
+        df2 = piw.makefloat(f2,0)
+        di2 = piw.makelong(i2,0)
+        db = piw.makebool(b,0)
         dn = piw.data()
 
         self.check_domain('bint(1,10)',i,di)
@@ -76,7 +76,7 @@ class DomainTest(test.SessionFixture):
         self.assertEquals('string()',str(sdom))
 
         s = 'hello'
-        ds = piw.makestring(s,0L)
+        ds = piw.makestring(s,0)
         n = sdom.normalizer()(ds)
         xn = int(256.0*(n.as_norm()+1.0)/2.0)
         dn = sdom.denormalizer()(n)

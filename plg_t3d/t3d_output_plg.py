@@ -93,7 +93,7 @@ class Agent(agent.Agent):
   
     def close_server(self):
         agent.Agent.close_server(self)
-    	self.t3d_output.stop()
+        self.t3d_output.stop()
 
     def __set_data_freq(self,value):
         self[3].set_value(value)

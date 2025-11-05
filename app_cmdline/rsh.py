@@ -20,7 +20,7 @@
 
 import sys,threading,piw
 from pisession import session
-from pi import proxy,async,logic,langproxy
+from pi import proxy,piasync,logic,langproxy
 from pibelcanto import lexicon
 
 def reverse_lexicon():
@@ -54,15 +54,15 @@ class Browser(langproxy.LanguageProxy):
         d.setCallback(ok).setErrback(notok)
         return e
 
-    @async.coroutine()
+    @piasync.coroutine()
     def __cmd(self,line):
         r=(yield self.invoke_rpc('exec',line))
 
         if not r.status():
             print('rpc error, exec',r.args())
-            yield async.Coroutine.success()
+            yield piasync.Coroutine.success()
 
-        yield async.Coroutine.success()
+        yield piasync.Coroutine.success()
 
     def __nullcmd(self):
         e = threading.Event()

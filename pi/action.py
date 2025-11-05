@@ -21,7 +21,7 @@
 import random
 import piw
 import traceback
-from pi import logic, utils, vocab, async, rpc
+from pi import logic, utils, vocab,piasync, rpc
 from pi.logic.shortcuts import *
 
 def abstract_wordlist(arg):

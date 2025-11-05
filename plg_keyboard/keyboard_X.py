@@ -502,7 +502,7 @@ class KeyboardFactory( agent.Agent ):
     def __init__( self, address , ordinal):
         agent.Agent.__init__(self,signature=version, names='alpha manager',protocols='has_subsys', ordinal=ordinal)
         self.domain = piw.clockdomain_ctl()
-        self.domain.set_source(piw.makestring('*', 0L))
+        self.domain.set_source(piw.makestring('*', 0))
 
         self.__thing = piw.thing()
         piw.tsd_thing(self.__thing)

@@ -25,7 +25,7 @@ from pigui import colours,fonts,drawutils
 class PathPanel(wx.Window):
     def __init__(self,parent,size,agent,style=wx.BORDER_NONE):
         wx.Window.__init__(self,parent,-1,size=size,style=style)  
-	self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(colours.borderGradient1)
         self.Bind(wx.EVT_LEFT_DOWN,self.onLeftDown)
         self.Bind(wx.EVT_LEFT_UP,self.onLeftUp)
@@ -91,16 +91,16 @@ class PathPanel(wx.Window):
         evt.Skip()
 
     def __getClientDC(self):
-	if self.IsDoubleBuffered():
+        if self.IsDoubleBuffered():
            dc=wx.ClientDC(self)
-	else:
-	   dc=wx.BufferedDC(wx.ClientDC(self))
-        dc.Clear()
-        brush=dc.GetBrush()
-        brush.SetColour(colours.borderGradient1)
-        dc.SetBackground(brush)
-        dc.SetFont(self.font)
-	return dc
+        else:
+            dc=wx.BufferedDC(wx.ClientDC(self))
+            dc.Clear()
+            brush=dc.GetBrush()
+            brush.SetColour(colours.borderGradient1)
+            dc.SetBackground(brush)
+            dc.SetFont(self.font)
+        return dc
 
     def setPath(self,path):
         print('PathPanel',path)
@@ -114,10 +114,10 @@ class PathPanel(wx.Window):
             self.scrollLength=len(self.path)
             self.scrollPos=len(self.path)
             self.__agent.reset3(1,1)
-#        dc=wx.ClientDC(self)
-	dc=self.__getClientDC()
-#        dc.SetFont(self.font)
-#        dc.Clear()
+        # dc=wx.ClientDC(self)
+        dc=self.__getClientDC()
+        # dc.SetFont(self.font)
+        # dc.Clear()
         self.doPaint(dc)
         self.Refresh()
             
@@ -141,12 +141,12 @@ class PathPanel(wx.Window):
 
     def __backgroundDrawing(self,dc):
         size=self.GetClientSize()
-	drawutils.setPenColour(dc,colours.borderGradient1)
-	drawutils.setBrushColour(dc,colours.borderGradient1)
+        drawutils.setPenColour(dc,colours.borderGradient1)
+        drawutils.setBrushColour(dc,colours.borderGradient1)
         dc.DrawRectangle(0,0,size[0],size[1])
     
     def doPaint(self,dc):
-	self.__backgroundDrawing(dc)
+        self.__backgroundDrawing(dc)
 
         if self.path:
             self.pathButtons=[]
@@ -198,7 +198,7 @@ class PathPanel(wx.Window):
 
     def __scrolldraw(self):
         dc=self.__getClientDC()
-	self.__backgroundDrawing(dc)
+        self.__backgroundDrawing(dc)
         self.__borderDrawing(dc)
 
         for pb in self.pathButtons:
@@ -220,8 +220,8 @@ class PathPanel(wx.Window):
         self.__drawPathButtons(dc)
 
     def __tapDraw(self):
-	dc=self.__getClientDC()
-	self.__backgroundDrawing(dc)
+        dc=self.__getClientDC()
+        self.__backgroundDrawing(dc)
         self.__borderDrawing(dc)
 
         for pb in self.pathButtons:

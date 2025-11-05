@@ -24,7 +24,7 @@ Module for talking to a standard language agent
 
 import piw
 import pibelcanto
-from pi import const,proxy,paths,utils,node,logic,async
+from pi import const,proxy,paths,utils,node,logic,piasync
 import sys
 
 def make_subc_path(*l):
@@ -246,7 +246,7 @@ class LanguageProxy(proxy.AtomProxy):
     def node_removed(self):
         self.__delegate.language_gone()
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __load_vocab(self):
         print('loading vocabulary')
         self.__lexicon = pibelcanto.lexicon.lexicon.copy()
@@ -262,7 +262,7 @@ class LanguageProxy(proxy.AtomProxy):
             yield r
 
             if not r.status():
-                yield async.Coroutine.failure('cannot load lexicon')
+                yield piasync.Coroutine.failure('cannot load lexicon')
 
             (t,l,x) = r.args()[0].split(':')
 

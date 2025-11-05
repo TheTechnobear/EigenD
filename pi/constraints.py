@@ -18,7 +18,7 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import async,logic,paths,rpc,action
+from pi import piasync,logic,paths,rpc,action
 from logic.shortcuts import *
 
 rules_constraints = """
@@ -290,7 +290,7 @@ def constraint_cmpdsc_1(db,c,objects):
 
     return matches
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def constraint_composite_1(db,c,objects):
     subc = c.args[0]
     matches = []
@@ -305,14 +305,14 @@ def constraint_composite_1(db,c,objects):
         yield result
 
         if not result.status():
-            yield async.Coroutine.failure(result.args()[0])
+            yield piasync.Coroutine.failure(result.args()[0])
 
         if result.args()[0]:
             matches.append(T('cmp',result.args()[1]))
 
-    yield async.Coroutine.success(matches)
+    yield piasync.Coroutine.success(matches)
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def constraint_or_2(db,c,objects):
     alternatives1 = c.args[0]
     alternatives2 = c.args[1]
@@ -320,20 +320,20 @@ def constraint_or_2(db,c,objects):
     r = resolve_constraints(db,alternatives1,objects)
     yield r
     if not r.status():
-        yield async.Coroutine.failure(r.args()[0])
+        yield piasync.Coroutine.failure(r.args()[0])
     if r.args()[0]:
-        yield async.Coroutine.success(r.args()[1])
+        yield piasync.Coroutine.success(r.args()[1])
 
     r = resolve_constraints(db,alternatives2,objects)
     yield r
     if not r.status():
-        yield async.Coroutine.failure(r.args()[0])
+        yield piasync.Coroutine.failure(r.args()[0])
     if r.args()[0]:
-        yield async.Coroutine.success(r.args()[1])
+        yield piasync.Coroutine.success(r.args()[1])
 
-    yield async.Coroutine.failure(())
+    yield piasync.Coroutine.failure(())
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def constraint_or_1(db,c,objects):
     alternatives = c.args[0]
 
@@ -341,11 +341,11 @@ def constraint_or_1(db,c,objects):
         r = resolve_constraints(db,subc,objects)
         yield r
         if not r.status():
-            yield async.Coroutine.failure(r.args()[0])
+            yield piasync.Coroutine.failure(r.args()[0])
         if r.args()[0]:
-            yield async.Coroutine.success(r.args()[1])
+            yield piasync.Coroutine.success(r.args()[1])
 
-    yield async.Coroutine.failure(())
+    yield piasync.Coroutine.failure(())
 
 def constraint_numeric(db,c,objects):
     matches = []
@@ -442,7 +442,7 @@ def remove_word(tup,word):
         tup = tuple(lst)
     return tup
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def constraint_tagged_ideal_2(db,c,objects):
     matches = []
     t = c.args[0]
@@ -491,10 +491,10 @@ def constraint_tagged_ideal_2(db,c,objects):
 
             print('resolution error',result.args(),'resolving',typ,words,'on',s)
 
-    yield async.Coroutine.success(matches)
+    yield piasync.Coroutine.success(matches)
 
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def constraint_ideal_1(db,c,objects):
     matches = []
     t = c.args[0]
@@ -537,9 +537,9 @@ def constraint_ideal_1(db,c,objects):
 
             print('resolution error',result.args(),'resolving',typ,words,'on',srv)
 
-    yield async.Coroutine.success(matches)
+    yield piasync.Coroutine.success(matches)
             
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def constraint_issubjectextended_3(db,c,objects):
     verb = c.args[0]   # ie 'create'
     croles = dict((a.args[0],a.args[1]) for a in c.args[2])  # ie '[role(by,[cnc(~self)])]'
@@ -561,9 +561,9 @@ def constraint_issubjectextended_3(db,c,objects):
 
             matches.append(T('cmp',(o,)+cr.args()[1][rr]))
 
-    yield async.Coroutine.success(matches)
+    yield piasync.Coroutine.success(matches)
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def constraint_issubject_2(db,c,objects):
     verb = c.args[0]   # ie 'create'
     croles = dict((a.args[0],a.args[1]) for a in c.args[1])  # ie '[role(by,[cnc(~self)])]'
@@ -580,7 +580,7 @@ def constraint_issubject_2(db,c,objects):
             matches.append(o)
             break
 
-    yield async.Coroutine.success(matches)
+    yield piasync.Coroutine.success(matches)
 
 def __get_constraint(c):
     if isinstance(c,str):
@@ -590,19 +590,19 @@ def __get_constraint(c):
     print('invalid constraint',c)
     return None
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def resolve_constraints(db,constraints, objects):
     for c in constraints:
         cfunc = __get_constraint(c)
         if cfunc is None:
-            yield async.Coroutine.failure('invalid constraint: %s'%c)
+            yield piasync.Coroutine.failure('invalid constraint: %s'%c)
 
         r = cfunc(db,c,objects)
 
-        if isinstance(r,async.Deferred):
+        if isinstance(r,piasync.Deferred):
             yield r
             if not r.status():
-                yield async.Coroutine.failure(r.args()[0])
+                yield piasync.Coroutine.failure(r.args()[0])
             objects = r.args()[0]
         else:
             objects = r
@@ -611,26 +611,26 @@ def resolve_constraints(db,constraints, objects):
             break
 
     if objects:
-        yield async.Coroutine.success(True,tuple(objects))
+        yield piasync.Coroutine.success(True,tuple(objects))
 
-    yield async.Coroutine.success(False,())
+    yield piasync.Coroutine.success(False,())
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def resolve_constraints_dict(db,constraints,objects):
     out_dict = dict()
 
     for (cr,cc) in constraints.items():
         oc = objects.get(cr)
         if oc is None:
-            yield async.Coroutine.success(False,())
+            yield piasync.Coroutine.success(False,())
         r = (yield resolve_constraints(db,cc,oc))
         if not r.status():
-            yield async.Coroutine.failure(r.args()[0])
+            yield piasync.Coroutine.failure(r.args()[0])
         if not r.args()[0]:
-            yield async.Coroutine.success(False,{})
+            yield piasync.Coroutine.success(False,{})
         out_dict[cr] = r.args()[1]
 
-    yield async.Coroutine.success(True,out_dict)
+    yield piasync.Coroutine.success(True,out_dict)
 
 def filter_result_ids(results,filt):
     r2 = []

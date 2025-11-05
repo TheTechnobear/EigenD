@@ -20,7 +20,7 @@
 
 import wx
 from pigui import colours,fonts,utils,drawutils,stavedrawing,panels,language
-from pi import atom,action,async,errors
+from pi import atom,action,piasync,errors
 
 def getRoles():
     return ()
@@ -95,7 +95,7 @@ class DictionaryAgent(atom.Null):
 
     def sortByWord(self,*args):
         if self.model.byWord:
-            return async.success(errors.nothing_to_do('show'))
+            return piasync.success(errors.nothing_to_do('show'))
         else:
             self.model.setByWord(True)
             self.model.update()
@@ -105,7 +105,7 @@ class DictionaryAgent(atom.Null):
             self.model.setByWord(False)
             self.model.update()
         else:
-            return async.success(errors.nothing_to_do('show'))
+            return piasync.success(errors.nothing_to_do('show'))
             
 class DictionaryPanel(wx.Window):
     def __init__(self,parent,size,agent,style=wx.BORDER_NONE | wx.HSCROLL):
@@ -398,7 +398,7 @@ class DictionaryPanel(wx.Window):
     def doScrollDrawing(self,dc):
         print('Dictionary: doScrollDrawing')
         if self.drawingItems:
-	    self.__backgroundDrawing(dc)
+            self.__backgroundDrawing(dc)
             xOffset=self.getXScrollPos()
             dxOffset=xOffset-self.oldXOffset
             self.oldXOffset=xOffset

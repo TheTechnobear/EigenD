@@ -59,7 +59,7 @@ class Agent(agent.Agent):
         val = float(action.abstract_string(arg))
         print('rcreate',ctx,subj,arg,val)
         if val<0 or val>72:
-            return async.failure('range inappropriate')
+            return piasync.failure('range inappropriate')
         b = piw.change_nb2(self.bender.set_range(),piw.slowchange_polled(utils.changify(self[8].get_policy().set_data),5000))
         return piw.trigger(b,piw.makefloat_nb(val,0)),None
 
@@ -67,7 +67,7 @@ class Agent(agent.Agent):
         val = float(action.abstract_string(arg))
         print('ocreate',ctx,subj,arg,val)
         if val<-72 or val>72:
-            return async.failure('offset inappropriate')
+            return piasync.failure('offset inappropriate')
         b = piw.change_nb2(self.bender.set_offset(),piw.slowchange_polled(utils.changify(self[9].get_policy().set_data),5000))
         return piw.trigger(b,piw.makefloat_nb(val,0)),None
 

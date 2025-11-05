@@ -472,7 +472,7 @@ class FastPolicyImpl(ConnectablePolicyImpl):
         self.__slow_handler = utils.fastchange(self.__handler)
         self.__ctl_handler = piw.change2(self.__slow_handler,piw.slowchange(utils.changify(self.__control)))
         self.__clock_domain = piw.clockdomain_ctl()
-        self.__clock_domain.set_source(piw.makestring('*', 0L))
+        self.__clock_domain.set_source(piw.makestring('*', 0))
         self.__clock = piw.clocksink()
         self.__clock_domain.sink(self.__clock,'FastPolicy')
         self.__upstream = None
@@ -555,7 +555,7 @@ class TriggerPolicyImpl(ConnectablePolicyImpl):
         self.__handler = handler
         self.__slow_handler = piw.fastchange(self.__handler)
         self.__clock_domain = piw.clockdomain_ctl()
-        self.__clock_domain.set_source(piw.makestring('*', 0L))
+        self.__clock_domain.set_source(piw.makestring('*', 0))
         self.__clock = piw.clocksink()
         self.__clock_domain.sink(self.__clock,'TriggerPolicy')
         self.__upstream = None
@@ -639,7 +639,7 @@ class LoadPolicyImpl(ConnectablePolicyImpl):
         self.__stream_policy = stream_policy or ThrottleStreamPolicy(500)
         self.__handler = utils.weaken(handler)
         self.__clock_domain = piw.clockdomain_ctl()
-        self.__clock_domain.set_source(piw.makestring('*', 0L))
+        self.__clock_domain.set_source(piw.makestring('*', 0))
         self.__backend = None
         self.__correlator = None
         self.__ctrl = None
@@ -684,7 +684,7 @@ class SlowPolicyImpl(ConnectablePolicyImpl):
         self.__stream_policy = stream_policy or ThrottleStreamPolicy(500)
         self.__handler = utils.weaken(handler)
         self.__clock_domain = piw.clockdomain_ctl()
-        self.__clock_domain.set_source(piw.makestring('*', 0L))
+        self.__clock_domain.set_source(piw.makestring('*', 0))
         self.__backend = None
         self.__correlator = None
         self.__callback = callback

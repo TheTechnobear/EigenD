@@ -210,16 +210,16 @@ class HistoryPanel(wx.Window):
         self.redrawRequired=False
 
     def OnPaint(self,evt):
-	dc=self.__getClientDC()
+        dc=self.__getClientDC()
         self.doPaint(dc)
-	evt.Skip()
+        evt.Skip()
 
     def __getClientDC(self):
-	if self.IsDoubleBuffered():
-           dc=wx.ClientDC(self)
-	else:
-	   dc=wx.BufferedDC(wx.ClientDC(self))
-	return dc
+        if self.IsDoubleBuffered():
+            dc=wx.ClientDC(self)
+        else:
+            dc=wx.BufferedDC(wx.ClientDC(self))
+        return dc
 
     def historyUpdate(self):
         print('history update')
@@ -249,7 +249,7 @@ class HistoryPanel(wx.Window):
 
     def draw(self,dc):
         print('history draw')
-	self.__backgroundDrawing(dc)
+        self.__backgroundDrawing(dc)
         self.__drawItems(dc)
         self.afterDraw(dc)
         self.updateScrollBar()
@@ -296,7 +296,7 @@ class HistoryPanel(wx.Window):
     def __scroll_draw(self):
         dc=self.__getClientDC()
         self.initDC(dc)
-	self.__backgroundDrawing(dc)
+        self.__backgroundDrawing(dc)
         yOffset=self.__getYScrollPos()
         self.__scrollDrawItems(dc,yOffset=yOffset)
         print('scrolldraw',yOffset)
@@ -350,9 +350,9 @@ class HistoryPanel(wx.Window):
         return self.minY+self.GetSize()[1]
 
     def __backgroundDrawing(self,dc):
-	size=self.GetClientSize()
-	drawutils.setPenColour(dc,colours.borderGradient1)
-	drawutils.setBrushColour(dc,colours.borderGradient1)
+        size=self.GetClientSize()
+        drawutils.setPenColour(dc,colours.borderGradient1)
+        drawutils.setBrushColour(dc,colours.borderGradient1)
         dc.DrawRectangle(0,0,size[0],size[1])
 
 class HistoryItem:

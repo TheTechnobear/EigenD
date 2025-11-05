@@ -168,7 +168,7 @@ class BugsLogger(object):
             self.logfile.write(msg)
             self.logfile.flush()
         else:
-            print(msg,, file=sys.__stdout__,self.name)
+            print(msg, self.name, file=sys.__stdout__)
 
 def cli():
     parser = optparse.OptionParser()

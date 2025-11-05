@@ -27,7 +27,7 @@ class InfoPanel(wx.Window):
         self.model=agent[8].model
         self.model.addInfoListener(self)
 
-	self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(colours.borderGradient1)
         self.__agent=agent
         self.Bind(wx.EVT_LEFT_DOWN,self.onLeftDown)
@@ -102,36 +102,36 @@ class InfoPanel(wx.Window):
 
     def onPaint(self,evt):
         dc=wx.AutoBufferedPaintDC(self)
-	#dc=self.__getClientDC()
+    #dc=self.__getClientDC()
         self.doPaint(dc)
         evt.Skip()
 
     def update(self):
         print('InfoPanel:update')
         #dc=wx.ClientDC(self)
-	dc=self.__getClientDC()
+        dc=self.__getClientDC()
         self.doPaint(dc)
 
     def __getClientDC(self):
-	if self.IsDoubleBuffered():
+        if self.IsDoubleBuffered():
            dc=wx.ClientDC(self)
-	else:
-	   dc=wx.BufferedDC(wx.ClientDC(self))
-        dc.Clear()
+        else:
+            dc=wx.BufferedDC(wx.ClientDC(self))
+            dc.Clear()
 
         font=wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
         font.SetPointSize(11)
-	dc.SetFont(font)
+        dc.SetFont(font)
 
         brush=dc.GetBrush()
         brush.SetColour(colours.borderGradient1)
         dc.SetBackground(brush)
-	return dc
+        return dc
 
     def doPaint(self,dc):
         size=self.GetClientSize()
-	drawutils.setPenColour(dc,colours.borderGradient1)
-	drawutils.setBrushColour(dc,colours.borderGradient1)
+        drawutils.setPenColour(dc,colours.borderGradient1)
+        drawutils.setBrushColour(dc,colours.borderGradient1)
         dc.DrawRectangle(0,0,size[0],size[1])
 
         self.__truncatedValues=[]
@@ -233,7 +233,7 @@ class InfoPanel(wx.Window):
 
     def __scrollDraw(self):
         #dc=wx.ClientDC(self)
-	dc=self.__getClientDC()
+        dc=self.__getClientDC()
         self.__doScrollDraw(dc)
         self.__borderDrawing(dc)
 

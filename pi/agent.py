@@ -22,7 +22,7 @@ import sys
 import os
 import piw
 
-from pi import atom,node,action,container,index,guid,files,utils,logic,rpc,async,const,paths,upgrade
+from pi import atom,node,action,container,index,guid,files,utils,logic,rpc,piasync,const,paths,upgrade
 
 import time
 import types
@@ -144,8 +144,8 @@ class RpcNode(piw.rpcserver):
 
         try:
             r = func(arg)
-            if r is None: r=async.success()
-            if not isinstance(r,async.Deferred): r=async.success(r)
+            if r is None: r=piasync.success()
+            if not isinstance(r,piasync.Deferred): r=piasync.success(r)
             self.__running.add(r)
         except:
             utils.log_exception()
@@ -211,7 +211,7 @@ class Agent(atom.Atom):
         self.__enclosure = None
 
     def load_agent_state(self,delegate):
-        return async.success()
+        return piasync.success()
 
     def set_enclosure(self,enclosure):
         print('enclosure set to',enclosure)
@@ -232,7 +232,7 @@ class Agent(atom.Atom):
         return d
 
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def rpc_loadstate(self,arg):
         (i,c,a) = arg.split(':',2)
 
@@ -244,7 +244,7 @@ class Agent(atom.Atom):
 
         if i!=c:
             self.__state_buffer[i] = a
-            yield async.Coroutine.success('[]')
+            yield piasync.Coroutine.success('[]')
 
         path = a
         arg = ''.join(self.__state_buffer)
@@ -309,7 +309,7 @@ class Agent(atom.Atom):
         if delegate.residual:
             print('didnt load after phase 2:',[(k,v.render()) for (k,v) in delegate.residual.items()])
 
-        yield async.Coroutine.success(delegate.retval())
+        yield piasync.Coroutine.success(delegate.retval())
 
     def rpc_preload(self,arg):
         return self.agent_preload(arg)
@@ -339,11 +339,11 @@ class Agent(atom.Atom):
                 return None
         return c
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __verb_builtin(self,target,op):
         targets = action.concrete_objects(target)
         rv = []
-        agg = async.Aggregate(accumulate=True)
+        agg = piasync.Aggregate(accumulate=True)
 
         for t in targets:
             (a,p) = paths.breakid_list(t)
@@ -351,7 +351,7 @@ class Agent(atom.Atom):
             if c is not None:
                 r = op(c)
                 if r is not None:
-                    if isinstance(r,async.Deferred):
+                    if isinstance(r,piasync.Deferred):
                         agg.add(t,r)
                     else:
                         rv.extend(r)
@@ -362,7 +362,7 @@ class Agent(atom.Atom):
             for r in agg.successes().values(): rv.extend(r)
             for r in agg.failures().values(): rv.extend(r)
 
-        yield async.Coroutine.success(rv)
+        yield piasync.Coroutine.success(rv)
 
     def __verb_builtin_set_value(self,subject,target,value):
         value = action.abstract_string(value)

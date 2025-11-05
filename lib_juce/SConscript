@@ -25,6 +25,27 @@ juce_env = env.Clone()
 me = env.Dir('.').abspath
 
 juce_env.Append(CPPPATH='modules')
+juce_env.Append(CPPPATH='#vst3sdk')
+
+# Build VST3 SDK as separate library for VST3 plugin hosting support
+if env['IS_MACOSX'] or env['IS_LINUX'] or env['IS_WINDOWS']:
+    vst3sdk_env = env.Clone()
+    vst3sdk_env.Append(CPPPATH='#vst3sdk')
+    vst3sdk_files = [
+        '#vst3sdk/public.sdk/source/vst/utility/stringconvert.cpp',
+        '#vst3sdk/pluginterfaces/base/conststringtable.cpp',
+        '#vst3sdk/pluginterfaces/base/ustring.cpp',
+        '#vst3sdk/public.sdk/source/vst/hosting/hostclasses.cpp',
+        '#vst3sdk/public.sdk/source/common/commonstringconvert.cpp',
+        '#vst3sdk/public.sdk/source/vst/hosting/pluginterfacesupport.cpp',
+        '#vst3sdk/pluginterfaces/base/funknown.cpp',
+        '#vst3sdk/pluginterfaces/base/coreiids.cpp',
+        '#vst3sdk/public.sdk/source/vst/vstinitiids.cpp'
+    ]
+    if env['IS_MACOSX']:
+        vst3sdk_env.Append(LINKFLAGS=['-framework', 'CoreFoundation'])
+    vst3sdk_env.PiSharedLibrary('pivst3sdk', vst3sdk_files, package='eigend', hidden=False)
+
 if env['IS_WINDOWS']:
     juce_files = Split("""
             modules/juce_audio_basics/juce_audio_basics.cpp
@@ -68,10 +89,10 @@ if env['IS_LINUX']:
 
 if env['IS_MACOSX']:
     juce_files = Split("""
+            modules/juce_audio_processors/juce_audio_processors.mm
             modules/juce_audio_basics/juce_audio_basics.mm
             modules/juce_audio_devices/juce_audio_devices.mm
             modules/juce_audio_formats/juce_audio_formats.mm
-            modules/juce_audio_processors/juce_audio_processors.mm
             modules/juce_audio_utils/juce_audio_utils.mm
             modules/juce_core/juce_core.mm
             modules/juce_cryptography/juce_cryptography.mm
@@ -87,7 +108,10 @@ if env['IS_MACOSX']:
     juce_env.Append(LINKFLAGS='-framework CoreFoundation -framework CoreAudioKit -framework AudioToolbox')
 
 juce_env.Append(CPPPATH=me)
-juce_env.PiSharedLibrary('pijuce',juce_files,package='eigend')
+juce_libraries = Split('pivst3sdk') if (env['IS_MACOSX'] or env['IS_LINUX'] or env['IS_WINDOWS']) else []
+if env['IS_MACOSX'] or env['IS_LINUX'] or env['IS_WINDOWS']:
+    juce_env.Append(LIBPATH=['$BINRUNDIR'])
+juce_env.PiSharedLibrary('pijuce',juce_files,libraries=juce_libraries,package='eigend')
 
 ejuce_env = env.Clone()
 ejuce_env.Append(CPPPATH='modules')

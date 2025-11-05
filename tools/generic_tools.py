@@ -1056,13 +1056,25 @@ static void init_path()
 extern int main(int argc, char **argv)
 {
   char pyhome[4096];
+  wchar_t wpyhome[4096];
+  wchar_t **wargv;
 
   init_pyhome(pyhome);
   init_path();
 
-  Py_SetPythonHome(pyhome);
+  // Convert char* to wchar_t* for Python 3
+  mbstowcs(wpyhome, pyhome, 4096);
+  Py_SetPythonHome(wpyhome);
   Py_Initialize();
-  PySys_SetArgv(argc, argv);
+  
+  // Convert argv to wchar_t** for Python 3
+  wargv = (wchar_t**)PyMem_Malloc(sizeof(wchar_t*) * argc);
+  for(int i = 0; i < argc; i++) {
+    size_t len = strlen(argv[i]) + 1;
+    wargv[i] = (wchar_t*)PyMem_Malloc(sizeof(wchar_t) * len);
+    mbstowcs(wargv[i], argv[i], len);
+  }
+  PySys_SetArgv(argc, wargv);
 
   {
       char cmdbuffer[4096];

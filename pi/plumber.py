@@ -1,5 +1,5 @@
 
-from pi import logic,async,rpc,domain,paths
+from pi import logic,piasync,rpc,domain,paths
 
 class Endpoint:
     def __init__(self,db,id,channel=None):
@@ -96,7 +96,7 @@ class Endpoint:
             return 1
         return 0
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_only=False):
     print('plumber connect: checkonly= ',check_only)
     assoc_cache = db.get_assoccache()
@@ -131,7 +131,7 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
         if dst_chan == 0:
             dst_chan = None
         te.connect(fe,src_chan,dst_chan)
-        yield async.Coroutine.success([])
+        yield piasync.Coroutine.success([])
 
     normoutputs = []
     revoutputs = []
@@ -198,7 +198,7 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
         print('direct connect')
         if check_only is False:
             allinputs[0].connect(alloutputs[0],src_chan,dst_chan)
-        yield async.Coroutine.success([])
+        yield piasync.Coroutine.success([])
 
     connections = []
 
@@ -235,10 +235,10 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
         connections.append((o,i))
 
     if not connections:
-        yield async.Coroutine.failure('incompatible')
+        yield piasync.Coroutine.failure('incompatible')
 
     if check_only is False:
         for (ostuff,istuff) in connections:
             istuff.connect(ostuff,src_chan,dst_chan)
 
-    yield async.Coroutine.success([])
+    yield piasync.Coroutine.success([])

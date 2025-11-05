@@ -76,7 +76,8 @@ class Error(Exception):
         row  : row number from where the error has been raised
         msg  : message associated to the error
     """
-    def __init__(self, (line, row), msg):
+    def __init__(self, pos, msg):
+        line, row = pos
         self.line, self.row = line, row
         self.msg = msg
     def __str__(self):

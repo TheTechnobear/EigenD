@@ -18,7 +18,7 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from pi import logic, async, rpc
+from pi import logic, piasync, rpc
 from pi import resource as pi_resource
 from picross import resource
 
@@ -96,12 +96,12 @@ class FileSystemFile:
 
 transfer_size = 7000
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def get_data(ideal,cache=None):
     t = logic.parse_clause(ideal)
 
     if not logic.is_pred_arity(t,'ideal',2,2) or not logic.is_list(t.args[0]) or t.args[0][1] != 'file':
-        yield async.Coroutine.failure('%s not a file reference' % ideal)
+        yield piasync.Coroutine.failure('%s not a file reference' % ideal)
         return
 
 
@@ -127,12 +127,12 @@ def get_data(ideal,cache=None):
         yield result
 
         if not result.status():
-            yield async.Coroutine.failure('file transfer error: %s' % result.args()[0])
+            yield piasync.Coroutine.failure('file transfer error: %s' % result.args()[0])
             return
 
         rsp = result.args()[0]
         if len(rsp) < remaining:
-            yield async.Coroutine.failure('file transfer error: short read')
+            yield piasync.Coroutine.failure('file transfer error: short read')
             return
             
 
@@ -140,9 +140,9 @@ def get_data(ideal,cache=None):
         data += rsp
 
     if hash.hexdigest() == md5:
-        yield async.Coroutine.success(data)
+        yield piasync.Coroutine.success(data)
 
-    yield async.Coroutine.failure('file transfer error: checksum error')
+    yield piasync.Coroutine.failure('file transfer error: checksum error')
 
 class FileCache:
     def __init__(self,cache):
@@ -159,14 +159,14 @@ class FileCache:
         t = logic.parse_clause(ideal)
 
         if not logic.is_pred_arity(t,'ideal',2,2) or not logic.is_list(t.args[0]) or t.args[0][1] != 'file':
-            return async.failure('%s not a file reference' % ideal)
+            return piasync.failure('%s not a file reference' % ideal)
 
         server = t.args[0][0]
         (perm,(label,type,size,md5),cookie) = t.args[1]
 
         uuid = '%s-%d-%s.%s' % (label,size,md5,type)
 
-        r = async.Deferred()
+        r = piasync.Deferred()
 
         if uuid in self.__waiters:
             print('tagging onto',uuid,'download')
@@ -192,12 +192,12 @@ class FileCache:
 
         return r
 
-    @async.coroutine('internal error')
+    @piasync.coroutine('internal error')
     def __getfile(self,cache_file,size,server,cookie,md5):
 
         if pi_resource.os_path_exists(cache_file) and pi_resource.os_path_getsize(cache_file)==size:
             print('returning',server,':',cookie,'from cache')
-            yield async.Coroutine.success(cache_file)
+            yield piasync.Coroutine.success(cache_file)
 
         print('FileCache.__getfile:downloading',server,':',cookie,'->',cache_file)
 
@@ -221,12 +221,12 @@ class FileCache:
             yield result
 
             if not result.status():
-                yield async.Coroutine.failure('file transfer error: %s' % result.args()[0])
+                yield piasync.Coroutine.failure('file transfer error: %s' % result.args()[0])
                 return
 
             rsp = result.args()[0]
             if len(rsp) < remaining:
-                yield async.Coroutine.failure('file transfer error: short read')
+                yield piasync.Coroutine.failure('file transfer error: short read')
                 return
                 
 
@@ -237,16 +237,16 @@ class FileCache:
         data.close()
 
         if hash.hexdigest() == md5:
-            yield async.Coroutine.success(cache_file)
+            yield piasync.Coroutine.success(cache_file)
 
-        yield async.Coroutine.failure('file transfer error: checksum error')
+        yield piasync.Coroutine.failure('file transfer error: checksum error')
 
-@async.coroutine('internal error')
+@piasync.coroutine('internal error')
 def copy_file(ideal,filename):
     t = logic.parse_clause(ideal)
 
     if not logic.is_pred_arity(t,'ideal',2,2) or not logic.is_list(t.args[0]) or t.args[0][1] != 'file':
-        yield async.Coroutine.failure('%s not a file reference' % filename)
+        yield piasync.Coroutine.failure('%s not a file reference' % filename)
         return
 
     server = t.args[0][0]
@@ -273,13 +273,13 @@ def copy_file(ideal,filename):
 
         if not result.status():
             pi_resource.os_unlink(filename)
-            yield async.Coroutine.failure('file transfer error: %s' % result.args()[0])
+            yield piasync.Coroutine.failure('file transfer error: %s' % result.args()[0])
             return
 
         rsp = result.args()[0]
         if len(rsp) < remaining:
             pi_resource.os_unlink(filename)
-            yield async.Coroutine.failure('file transfer error: short read')
+            yield piasync.Coroutine.failure('file transfer error: short read')
             return
 
         hash.update(rsp)
@@ -290,7 +290,7 @@ def copy_file(ideal,filename):
     print('size',size,'fetched',fetched,'transfer_size',transfer_size)
 
     if hash.hexdigest() == md5:
-        yield async.Coroutine.success(filename)
+        yield piasync.Coroutine.success(filename)
 
     pi_resource.os_unlink(filename)
-    yield async.Coroutine.failure('file transfer error: checksum error')
+    yield piasync.Coroutine.failure('file transfer error: checksum error')

@@ -507,7 +507,7 @@ class Backend(workbench_native.c2p):
         return False;
 
     def get_numInputs(self,id):
-        print("get_numInputs: masters=", self.__database.find_masters(id);)
+        print("get_numInputs: masters=", self.__database.find_masters(id))
         return len(self.__database.find_masters(id))
 
     def get_using_inputs(self,id):

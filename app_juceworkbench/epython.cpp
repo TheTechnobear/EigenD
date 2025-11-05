@@ -42,8 +42,9 @@
 
 void epython::PythonInterface::py_startup()
 {
-    char *pyhome = strdup(pic::python_prefix_dir().c_str());
-    Py_SetPythonHome(pyhome);
+    std::string pyhome_str = pic::python_prefix_dir();
+    std::wstring pyhome_wstr(pyhome_str.begin(), pyhome_str.end());
+    Py_SetPythonHome(pyhome_wstr.c_str());
 
     pic_init_dll_path();
 
@@ -153,11 +154,14 @@ void epython::PythonBackend::handle_error()
     if(!(o_main_dict = PyModule_GetDict(o_main))) goto err2;
     if(!(o_output = PyRun_String("sys.stdout.data", Py_eval_input, o_main_dict, o_main_dict))) goto err2;
 
-    if(o_output && PyString_Check(o_output))
+    if(o_output && PyUnicode_Check(o_output))
     {
-        char* output_str = PyString_AsString(o_output);
-        std::cerr << output_str << std::endl;
-        last_error_ = std::string(output_str);
+        const char* output_str = PyUnicode_AsUTF8(o_output);
+        if(output_str)
+        {
+            std::cerr << output_str << std::endl;
+            last_error_ = std::string(output_str);
+        }
     }
 
 err2:
@@ -192,7 +196,7 @@ void *epython::PythonBackend::mediator()
     if(!(o_args = PyTuple_New(0))) goto err;
     if(!(o_object = PyObject_CallObject(o_func,o_args))) goto err;
 
-    m = PyCObject_AsVoidPtr(o_object);
+    m = PyCapsule_GetPointer(o_object, NULL);
     error = false;
 
 err:

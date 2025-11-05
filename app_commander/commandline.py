@@ -693,7 +693,7 @@ class CommandPanel(wx.Window):
 
     def onTimer(self,evt):
         self.blink=not self.blink
-#	print 'onTimer',self.blink
+#   print 'onTimer',self.blink
         if self.displayManager.cursorStarted:
 #            dc=self.__getClientDC()
             dc=wx.ClientDC(self)

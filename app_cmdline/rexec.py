@@ -80,22 +80,22 @@ def main():
     agent = [None]
 
     def rpc_ok(*a,**kw):
-        if not opts.quiet: print 'rpc completed'
+        if not opts.quiet: print('rpc completed')
         language[0].original().cancel()
         picross.exit(0)
 
     def rpc_failed(msg):
-        if not opts.quiet: print 'rpc failed: ',msg
+        if not opts.quiet: print('rpc failed: ',msg)
         language[0].original().cancel()
         picross.exit(-1)
 
     def lang_connected():
-        if not opts.quiet: print 'connected to',agent[0]
+        if not opts.quiet: print('connected to',agent[0])
         rpc[0] = language[0].original().invoke_rpc('exec',cmdline,time=opts.rtimeout)
         rpc[0].setCallback(rpc_ok).setErrback(rpc_failed)
 
     def lang_discon():
-        if not opts.quiet: print 'language agent not connected'
+        if not opts.quiet: print('language agent not connected')
         language[0].original().cancel()
 
     def lang_found(name):
@@ -105,7 +105,7 @@ def main():
         finder[0].original().close_index()
 
     def lang_notfound():
-        if not opts.quiet: print 'language agent not found'
+        if not opts.quiet: print('language agent not found')
         finder[0].original().close_index()
 
     def doexec(manager):

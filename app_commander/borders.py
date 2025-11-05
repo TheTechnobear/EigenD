@@ -109,7 +109,7 @@ class BottomPanel(wx.Window):
     def __init__(self,parent,size,style=wx.BORDER_NONE):
         wx.Window.__init__(self,parent,-1,size=size,style=style)  
         self.Bind(wx.EVT_MOUSE_EVENTS,self.doNothing)
-	self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.SetBackgroundColour(colours.frame_border)
         self.Bind(wx.EVT_PAINT, self.onPaint)
 
@@ -128,15 +128,15 @@ class BottomPanel(wx.Window):
         pass
 
     def __getClientDC(self):
-	if self.IsDoubleBuffered():
-           dc=wx.ClientDC(self)
-	else:
-	   dc=wx.BufferedDC(wx.ClientDC(self))
-	return dc
+        if self.IsDoubleBuffered():
+            dc=wx.ClientDC(self)
+        else:
+            dc=wx.BufferedDC(wx.ClientDC(self))
+        return dc
 
     def onPaint(self,evt):
         #dc=wx.AutoBufferedPaintDC(self)
-	dc=self.__getClientDC()
+        dc=self.__getClientDC()
         self.doPaint(dc)
         evt.Skip()
 
@@ -155,7 +155,7 @@ class BottomPanel(wx.Window):
     def updateStatus(self,text):
         print('BottomPanel',text)
         self.connectionStatus=text
-	dc=self.__getClientDC()
+        dc=self.__getClientDC()
         self.doPaint(dc)
 
 
