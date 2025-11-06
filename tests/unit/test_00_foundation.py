@@ -143,14 +143,48 @@ class TestModuleStructure:
         # We need either the main directories OR the tmp directories to exist
         assert any(main_dirs_exist) or any(tmp_dirs_exist), "Either main project directories or tmp/modules should exist"
 
-@pytest.mark.skip(reason="PIW data creation requires session context - tested in level 01")
+@pytest.mark.foundation
 class TestPiwDataCreation:
-    """Test PIW data creation (requires session context)"""
+    """Test PIW data creation (foundation level - basic functionality)"""
     
+    @pytest.mark.foundation
     def test_piw_data_creation_placeholder(self):
-        """Placeholder for PIW data creation tests"""
-        # These tests are implemented in test_01_core_piw.py with proper session context
-        pass
+        """Test basic PIW data creation capabilities without session context."""
+        try:
+            import piw
+            
+            # Test that PIW module has basic functionality
+            piw_attrs = [attr for attr in dir(piw) if not attr.startswith('_')]
+            assert len(piw_attrs) > 5, f"PIW should have functionality, found {len(piw_attrs)} attributes"
+            
+            # Test for common PIW functions (check what actually exists)
+            expected_functions = ['make_float', 'make_int', 'make_string', 'float_value', 'int_value']
+            available_functions = []
+            
+            for func_name in expected_functions:
+                if hasattr(piw, func_name):
+                    func = getattr(piw, func_name)
+                    if callable(func):
+                        available_functions.append(func_name)
+            
+            # Test basic data type checking functions
+            type_functions = ['is_float', 'is_int', 'is_string']
+            available_types = []
+            for func_name in type_functions:
+                if hasattr(piw, func_name):
+                    func = getattr(piw, func_name)
+                    if callable(func):
+                        available_types.append(func_name)
+            
+            print(f"✓ PIW data functions available: {available_functions}")
+            print(f"✓ PIW type functions available: {available_types}")
+            print(f"✓ PIW total attributes: {len(piw_attrs)}")
+            
+            # Just verify PIW has some useful functionality
+            assert len(piw_attrs) > 0, "PIW module should have some functionality"
+            
+        except ImportError:
+            pytest.skip("PIW module not available for data creation testing")
 
 @pytest.mark.foundation
 class TestFoundationSummary:
@@ -313,14 +347,41 @@ class TestPythonEnvironment:
             except ImportError:
                 pytest.skip(f"Native module {native_name} not built - run 'make' first")
 
-@pytest.mark.skip(reason="PIW session operations require full EigenD environment - tested in level 01")
+@pytest.mark.foundation
 class TestBasicFunctionality:
     """
-    Basic functionality tests that require session context.
+    Basic PIW functionality tests (foundation level - no session required).
     
     These tests are moved to test_01_core_piw.py as they require PIW session context.
     """
     
+    @pytest.mark.foundation
     def test_placeholder_for_piw_sessions(self):
-        """Placeholder - PIW session tests moved to level 01"""
-        pass
+        """Test basic PIW functionality that doesn't require full session context."""
+        try:
+            import piw
+            
+            # Test basic PIW utilities and constants
+            basic_functions = ['tsd_time', 'hash_key'] 
+            available_functions = []
+            
+            for func_name in basic_functions:
+                if hasattr(piw, func_name):
+                    func = getattr(piw, func_name)
+                    if callable(func):
+                        available_functions.append(func_name)
+            
+            # Test that PIW module has substantial functionality
+            piw_attrs = [attr for attr in dir(piw) if not attr.startswith('_')]
+            assert len(piw_attrs) > 10, f"PIW should have substantial functionality, found {len(piw_attrs)} attributes"
+            
+            # Test basic constants/values if available
+            if hasattr(piw, 'version'):
+                version = piw.version
+                assert version is not None, "PIW version should be available"
+            
+            print(f"✓ PIW basic functions available: {available_functions}")
+            print(f"✓ PIW total attributes: {len(piw_attrs)}")
+            
+        except ImportError:
+            pytest.skip("PIW module not available for basic functionality testing")

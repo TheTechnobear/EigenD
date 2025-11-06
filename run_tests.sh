@@ -1,16 +1,19 @@
 #!/bin/bash
 
 # Professional EigenD Test Runner
-# Usage: ./run_tests.sh [--level LEVEL] [--timeout SECONDS] [--verbose] [--html]
+# Usage: ./run_tests.sh [--level LEVEL] [--test TEST_PATTERN] [--timeout SECONDS] [--verbose] [--html]
 
 set -e
 
 # Default values
 LEVEL=""
+TEST_PATTERN=""
 TIMEOUT=10
 VERBOSE=""
 HTML=""
 PYTHON_EXE=""
+PYTEST_EXTRA_ARGS=""
+DURATIONS=10  # Show 10 slowest tests by default
 
 # Colors for output
 RED='\033[0;31m'
@@ -43,6 +46,10 @@ while [[ $# -gt 0 ]]; do
             LEVEL="$2"
             shift 2
             ;;
+        --test|-k)
+            TEST_PATTERN="$2"
+            shift 2
+            ;;
         --timeout)
             TIMEOUT="$2"
             shift 2
@@ -55,15 +62,27 @@ while [[ $# -gt 0 ]]; do
             HTML="--html=reports/test_report.html --self-contained-html"
             shift
             ;;
+        --durations)
+            DURATIONS="$2"
+            shift 2
+            ;;
+        --no-durations)
+            DURATIONS="0"
+            shift
+            ;;
         --help|-h)
-            echo "Usage: $0 [--level LEVEL] [--timeout SECONDS] [--verbose] [--html]"
+            echo "Usage: $0 [--level LEVEL] [--test TEST_PATTERN] [--timeout SECONDS] [--verbose] [--html] [--durations N] [--pytest-args ARGS]"
             echo ""
             echo "Options:"
-            echo "  --level LEVEL      Run specific test level (foundation|core|data|plugins|applications|integration|all)"
-            echo "  --timeout SECONDS  Test timeout in seconds (default: 10)"
-            echo "  --verbose, -v      Verbose output"
-            echo "  --html             Generate HTML report"
-            echo "  --help, -h         Show this help"
+            echo "  --level LEVEL         Run specific test level (foundation|core|data|plugins|applications|integration|all)"
+            echo "  --test TEST_PATTERN   Run specific test(s) matching pattern (pytest -k syntax)"
+            echo "  --timeout SECONDS     Test timeout in seconds (default: 10)"
+            echo "  --verbose, -v         Verbose output"
+            echo "  --html                Generate HTML report"
+            echo "  --durations N         Show N slowest tests (default: 10, use 0 to disable)"
+            echo "  --no-durations        Disable duration reporting"
+            echo "  --pytest-args ARGS   Additional pytest arguments (e.g., --pytest-args='-s --tb=short')"
+            echo "  --help, -h            Show this help"
             echo ""
             echo "Test Levels:"
             echo "  foundation    - Basic Python 3.14 environment and imports"
@@ -73,7 +92,32 @@ while [[ $# -gt 0 ]]; do
             echo "  applications  - Application layer testing"
             echo "  integration   - End-to-end integration tests"
             echo "  all           - Run all tests"
+            echo ""
+            echo "Test Pattern Examples:"
+            echo "  --test 'mutex'                    - Run tests with 'mutex' in name"
+            echo "  --test 'mutex_function'           - Run specific test method"
+            echo "  --test 'mutex or session'         - Run tests matching either pattern"
+            echo "  --test 'not mutex'                - Run tests NOT matching pattern"
+            echo ""
+            echo "Performance Notes:"
+            echo "  PIW session tests reflect real EigenD behavior (~7s session cleanup)"
+            echo "  This is expected overhead for proper network component teardown"
+            echo "  Tests run in realistic conditions to avoid false positives"
+            echo ""
+            echo "Pytest Arguments Examples:"
+            echo "  --pytest-args='-s'               - Show print statements during tests"
+            echo "  --pytest-args='-s --tb=short'    - Show prints and short tracebacks"
+            echo "  --pytest-args='--pdb'            - Drop into debugger on failures"
+            echo "  --pytest-args='-x'               - Stop on first failure"
             exit 0
+            ;;
+        --pytest-args)
+            PYTEST_EXTRA_ARGS="$2"
+            shift 2
+            ;;
+        --pytest-args=*)
+            PYTEST_EXTRA_ARGS="${1#*=}"
+            shift
             ;;
         *)
             print_error "Unknown option: $1"
@@ -111,8 +155,23 @@ fi
 PYTEST_CMD="$PYTHON_EXE -m pytest"
 PYTEST_ARGS="--timeout=$TIMEOUT $VERBOSE"
 
+# Add duration reporting if enabled
+if [[ $DURATIONS -gt 0 ]]; then
+    PYTEST_ARGS="$PYTEST_ARGS --durations=$DURATIONS"
+fi
+
 if [[ -n "$HTML" ]]; then
     PYTEST_ARGS="$PYTEST_ARGS $HTML"
+fi
+
+# Add extra pytest arguments if specified
+if [[ -n "$PYTEST_EXTRA_ARGS" ]]; then
+    PYTEST_ARGS="$PYTEST_ARGS $PYTEST_EXTRA_ARGS"
+fi
+
+# Add test pattern if specified
+if [[ -n "$TEST_PATTERN" ]]; then
+    PYTEST_ARGS="$PYTEST_ARGS -k \"$TEST_PATTERN\""
 fi
 
 # Determine which tests to run
@@ -155,12 +214,60 @@ export PYTHONPATH="$PWD:$PYTHONPATH"
 print_status "Executing: $PYTEST_CMD $PYTEST_ARGS $TEST_PATH"
 echo ""
 
-if $PYTEST_CMD $PYTEST_ARGS $TEST_PATH; then
+# Record start time
+START_TIME=$(date +%s)
+START_TIME_READABLE=$(date '+%Y-%m-%d %H:%M:%S')
+print_status "Test run started at: $START_TIME_READABLE"
+echo ""
+
+# Use eval to properly handle complex command arguments
+FULL_COMMAND="$PYTEST_CMD $PYTEST_ARGS $TEST_PATH"
+if eval "$FULL_COMMAND"; then
+    # Calculate elapsed time
+    END_TIME=$(date +%s)
+    END_TIME_READABLE=$(date '+%Y-%m-%d %H:%M:%S')
+    ELAPSED_TIME=$((END_TIME - START_TIME))
+    ELAPSED_MINUTES=$((ELAPSED_TIME / 60))
+    ELAPSED_SECONDS=$((ELAPSED_TIME % 60))
+    
+    echo ""
     print_success "All tests completed successfully!"
+    print_status "Test run finished at: $END_TIME_READABLE"
+    
+    if [[ $ELAPSED_TIME -lt 60 ]]; then
+        print_status "Total execution time: ${ELAPSED_TIME} seconds"
+    else
+        print_status "Total execution time: ${ELAPSED_MINUTES}m ${ELAPSED_SECONDS}s (${ELAPSED_TIME} seconds total)"
+    fi
+    
+    # Warn if tests took longer than expected (accounting for PIW session overhead)
+    if [[ $ELAPSED_TIME -gt 300 ]]; then
+        print_warning "Test execution took longer than 5 minutes - potential performance issues detected"
+    elif [[ $ELAPSED_TIME -gt 120 ]]; then
+        print_warning "Test execution took longer than 2 minutes - may need investigation"
+        print_status "Note: PIW session tests include realistic ~7s cleanup per session"
+    fi
+    
     if [[ -n "$HTML" ]]; then
         print_status "HTML report generated: reports/test_report.html"
     fi
 else
+    # Calculate elapsed time even for failures
+    END_TIME=$(date +%s)
+    END_TIME_READABLE=$(date '+%Y-%m-%d %H:%M:%S')
+    ELAPSED_TIME=$((END_TIME - START_TIME))
+    ELAPSED_MINUTES=$((ELAPSED_TIME / 60))
+    ELAPSED_SECONDS=$((ELAPSED_TIME % 60))
+    
+    echo ""
     print_error "Some tests failed or encountered errors"
+    print_status "Test run finished at: $END_TIME_READABLE"
+    
+    if [[ $ELAPSED_TIME -lt 60 ]]; then
+        print_status "Total execution time: ${ELAPSED_TIME} seconds"
+    else
+        print_status "Total execution time: ${ELAPSED_MINUTES}m ${ELAPSED_SECONDS}s (${ELAPSED_TIME} seconds total)"
+    fi
+    
     exit 1
 fi

@@ -48,11 +48,13 @@ class Logger:
         pass
 
 def run_session(session,user=None,mt=1,name='ctx',logger=None,clock=True,rt=True):
+    import threading
+    
     def logfunc(msg):
         if logger:
             logger(msg)
         else:
-            print 
+            print
 
     context = None
 
@@ -63,6 +65,10 @@ def run_session(session,user=None,mt=1,name='ctx',logger=None,clock=True,rt=True
     context = scaffold.context('main',utils.statusify(ctxdun),utils.stringify(logfunc),name)
     stdio = (sys.stdout,sys.stderr)
     x = None
+    
+    # Store the main thread that called tsd_lock for cleanup
+    main_thread = threading.current_thread()
+    tsd_locked = False
 
     try:
         if logger:
@@ -70,17 +76,29 @@ def run_session(session,user=None,mt=1,name='ctx',logger=None,clock=True,rt=True
             sys.stderr = sys.stdout
 
         piw.setenv(context.getenv())
-        piw.tsd_lock()
+        # Only lock TSD on the main thread
+        if threading.current_thread() == main_thread:
+            piw.tsd_lock()
+            tsd_locked = True
 
         try:
             x = session(scaffold)
             context.trigger()
         finally:
-            piw.tsd_unlock()
+            # Only unlock TSD on the same thread that locked it
+            if tsd_locked and threading.current_thread() == main_thread:
+                piw.tsd_unlock()
+                tsd_locked = False
 
         scaffold.wait()
 
     finally:
+        # Final cleanup - only if we haven't unlocked yet and we're on the main thread
+        if tsd_locked and threading.current_thread() == main_thread:
+            try:
+                piw.tsd_unlock()
+            except:
+                pass  # Ignore errors during final cleanup
         sys.stdout,sys.stderr = stdio
 
     return x

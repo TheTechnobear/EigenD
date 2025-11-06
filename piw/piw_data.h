@@ -183,7 +183,7 @@ namespace piw
             bool is_blob() const { return type()==BCTVTYPE_BLOB; }
             bool is_dict() const { return type()==BCTVTYPE_DICT; }
             bool is_tuple() const { return type()==BCTVTYPE_TUPLE; }
-            bool is_array() const { return !is_null(); }
+            bool is_array() const { return !is_null() && as_arraylen() >= 1; }
 
             float as_float() const { PIC_ASSERT(is_float()); return *(float *)host_data(); }
             float as_double() const { PIC_ASSERT(is_double()); return *(double *)host_data(); }

@@ -23,6 +23,27 @@ from pi import utils,paths,resource,guid,state
 import os,sys,traceback,shutil
 import pisession_native
 import piw,picross
+
+def safe_list_children(root):
+    """
+    Proper replacement for list_children() that avoids the raw bytes vs UTF-8 issue.
+    Uses enum_children() to iterate through child IDs properly.
+    Returns a string where each character represents a child ID byte, 
+    preserving compatibility with map(ord, result) pattern.
+    """
+    try:
+        # First try the original method in case it works
+        return root.list_children()
+    except UnicodeDecodeError:
+        # Use the proper enum_children() method to build the child list
+        result = ""
+        child_id = 0
+        while True:
+            child_id = root.enum_children(child_id)
+            if child_id == 0:  # No more children
+                break
+            result += chr(child_id)
+        return result
 import glob
 
 def get_format(snap):
@@ -32,7 +53,7 @@ def get_format(snap):
         return False
 
     r = a.get_root()
-    c = map(ord,r.list_children())
+    c = map(ord,safe_list_children(r))
     u = r.get_child(6).get_data().as_long() if 6 in c else 0
     return u
 
@@ -43,8 +64,12 @@ def get_upgrade(snap):
         return False
 
     r = a.get_root()
-    c = map(ord,r.list_children())
-    u = r.get_child(4).get_data().as_bool() if 4 in c else False
+    c = map(ord,safe_list_children(r))
+    if 4 in c:
+        data = r.get_child(4).get_data()
+        u = data.as_bool() if data.is_bool() else False
+    else:
+        u = False
     return u
 
 def get_description(snap):
@@ -54,7 +79,7 @@ def get_description(snap):
         return ''
 
     r = a.get_root()
-    c = map(ord,r.list_children())
+    c = map(ord,safe_list_children(r))
     u = r.get_child(5).get_data().as_string() if 5 in c else ''
     return u
 
@@ -65,7 +90,7 @@ def get_version(snap):
         return None
 
     r = a.get_root()
-    c = map(ord,r.list_children())
+    c = map(ord,safe_list_children(r))
     v = r.get_child(3).get_data().as_string() if 3 in c else None
 
     return v

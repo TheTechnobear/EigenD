@@ -629,9 +629,14 @@ void EigenLoadComponent::selected(const piw::term_t &term,bool dbl)
 {
     slot_ = term.arg(3).value();
     selected_ = term.arg(4).value();
-    user_ = term.arg(6).value().as_bool();
+    piw::data_t user_data = term.arg(6).value();
+    user_ = user_data.is_bool() ? user_data.as_bool() : false;
 
-    std::string d = mediator_->backend()->get_description(selected_.as_string());
+    std::string d;
+    if(selected_.is_string())
+    {
+        d = mediator_->backend()->get_description(selected_.as_string());
+    }
     getLabel()->setText(d.c_str(),false);
 
     updateSetupButtons(true,user_);
@@ -1343,7 +1348,8 @@ bool EigenTreeItem::select_setup(const char *setup)
 
     if(term_.arity()>2)
     {
-        if(!strcmp(term_.arg(4).value().as_string(),setup))
+        piw::data_t setup_data = term_.arg(4).value();
+        if(setup_data.is_string() && !strcmp(setup_data.as_string(),setup))
         {
             setSelected(true,true);
             return true;
@@ -1387,7 +1393,11 @@ juce::String EigenTreeItem::getSlot()
 {
     if(term_.arity()>2)
     {
-        return term_.arg(3).value().as_string();
+        piw::data_t slot_data = term_.arg(3).value();
+        if(slot_data.is_string())
+        {
+            return slot_data.as_string();
+        }
     }
 
     return "";
@@ -1397,7 +1407,11 @@ void EigenTreeItem::paintItem (Graphics& g, int width, int height)
 {
     juce::String s;
 
-    s = term_.arg(0).value().as_string();
+    piw::data_t name_data = term_.arg(0).value();
+    if(name_data.is_string())
+    {
+        s = name_data.as_string();
+    }
 
     if(term_.arity()>2)
     {
@@ -1525,7 +1539,10 @@ EigenSaveComponent::EigenSaveComponent(EigenMainWindow *mediator, const std::str
 
     for(unsigned i=1;i<term_.arity();i++)
     {
-        juce::String sltt = term_.arg(i).arg(1).value().as_string();
+        piw::data_t sltt_data = term_.arg(i).arg(1).value();
+        if(!sltt_data.is_string()) continue;
+        
+        juce::String sltt = sltt_data.as_string();
         juce::String sltt2 = mediator_->backend()->words_to_notes(std::string(sltt.getCharPointer())).c_str();
 
         getWordsChooser()->addItem(sltt,i);
@@ -1533,7 +1550,8 @@ EigenSaveComponent::EigenSaveComponent(EigenMainWindow *mediator, const std::str
 
         int un = getUserNumber(sltt);
 
-        if(!strcmp(current.c_str(),term_.arg(i).arg(2).value().as_string()))
+        piw::data_t current_data = term_.arg(i).arg(2).value();
+        if(current_data.is_string() && !strcmp(current.c_str(),current_data.as_string()))
         {
             getWordsChooser()->setText(sltt);
             c = true;
@@ -1610,9 +1628,13 @@ void EigenSaveComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
     if(comboBoxThatHasChanged == getUserChooser())
     {
-        juce::String t(term_.arg(getUserChooser()->getSelectedId()).arg(1).value().as_string());
-        getWordsChooser()->setText(t,false);
-        comboBoxChanged(getWordsChooser());
+        piw::data_t text_data = term_.arg(getUserChooser()->getSelectedId()).arg(1).value();
+        if(text_data.is_string())
+        {
+            juce::String t(text_data.as_string());
+            getWordsChooser()->setText(t,false);
+            comboBoxChanged(getWordsChooser());
+        }
         return;
     }
 

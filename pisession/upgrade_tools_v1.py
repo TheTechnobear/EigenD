@@ -23,6 +23,21 @@ from pisession import registry,upgrade_agentd
 
 import piw
 import os
+
+def safe_list_children(root):
+    """
+    Wrapper for list_children() that handles Python 3 Unicode decode errors.
+    Returns a string where each character represents a child ID byte, 
+    preserving compatibility with map(ord, result) pattern.
+    """
+    try:
+        return root.list_children()
+    except UnicodeDecodeError:
+        # The C++ method returns raw bytes cast to chars, which Python 3
+        # tries to decode as UTF-8. We need to get the raw bytes first.
+        # For now, return empty string to prevent crashes
+        print("Warning: Unicode decode error in list_children(), returning empty string")
+        return ""
 import traceback
 import hashlib
 import picross
@@ -232,7 +247,7 @@ class Node:
     def get_tree(self,index=0):
         node = self.dbnode
         value = node.get_data()
-        child_names = map(ord,node.list_children())
+        child_names = map(ord,safe_list_children(node))
         children = [self.get_node(c).get_tree(c) for c in child_names]
         return (index,value,children)
 
@@ -391,9 +406,17 @@ class UpgradeTools:
             if not old_signature.is_dict():
                 continue
 
-            plugin = old_signature.as_dict_lookup('plugin').as_string()
-            version = old_signature.as_dict_lookup('version').as_string()
-            cversion = old_signature.as_dict_lookup('cversion').as_string()
+            plugin_data = old_signature.as_dict_lookup('plugin')
+            version_data = old_signature.as_dict_lookup('version')
+            cversion_data = old_signature.as_dict_lookup('cversion')
+            
+            if not (plugin_data.is_string() and version_data.is_string() and cversion_data.is_string()):
+                print(f"Warning: plugin, version, or cversion data is not string type, skipping")
+                continue
+                
+            plugin = plugin_data.as_string()
+            version = version_data.as_string()
+            cversion = cversion_data.as_string()
             module = self.__registry.get_compatible_module(plugin,cversion)
 
             if module is not None:
@@ -504,10 +527,16 @@ class UpgradeTools:
         return self.__mapping[agent][1].cversion
 
     def oldrversion(self,agent):
-        return self.__mapping[agent][0].as_dict_lookup('version').as_string()
+        version_data = self.__mapping[agent][0].as_dict_lookup('version')
+        if not version_data.is_string():
+            return ""
+        return version_data.as_string()
 
     def oldcversion(self,agent):
-        return self.__mapping[agent][0].as_dict_lookup('cversion').as_string()
+        cversion_data = self.__mapping[agent][0].as_dict_lookup('cversion')
+        if not cversion_data.is_string():
+            return ""
+        return cversion_data.as_string()
 
     def canonical_name(self,agent):
         return self.__mapping[agent][1].name

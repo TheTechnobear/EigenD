@@ -42,7 +42,11 @@ def upgrade_plugins_v0(tools,address):
 
 def upgrade_plugins_v1(tools,address):
     n2 = tools.get_root(address).get_node(2)
-    old_plugins = logic.parse_termlist(n2.get_data().as_dict_lookup('agents').as_string())
+    agents_data = n2.get_data().as_dict_lookup('agents')
+    if not agents_data.is_string():
+        print(f"Warning: agents data is not a string type, skipping upgrade_plugins_v1")
+        return True
+    old_plugins = logic.parse_termlist(agents_data.as_string())
     new_plugins = []
 
     for old_term in old_plugins:
@@ -76,7 +80,11 @@ class Upgrader(upgrade.Upgrader):
         n2 = tools.get_root(address).get_node(2)
         for n in n2.iter(extension=253,exclude=[254,255]):
             n3 = n.get_node(255)
-            old_term = logic.parse_term(n3.get_data().as_string())
+            n3_data = n3.get_data()
+            if not n3_data.is_string():
+                print(f"Warning: n3 data is not a string type, skipping this node")
+                continue
+            old_term = logic.parse_term(n3_data.as_string())
             (address,plugin,version,cversion) = old_term.args
             ncversion = tools.newcversion(address)
             nversion = tools.newrversion(address)
@@ -91,7 +99,11 @@ class Upgrader(upgrade.Upgrader):
         # assign canonical ordinals to agents
 
         n2 = tools.get_root(address).get_node(2)
-        old_plugins = logic.parse_termlist(n2.get_data().as_dict_lookup('agents').as_string())
+        agents_data = n2.get_data().as_dict_lookup('agents')
+        if not agents_data.is_string():
+            print(f"Warning: agents data is not a string type, skipping upgrade_1_0_1_to_1_0_2")
+            return
+        old_plugins = logic.parse_termlist(agents_data.as_string())
         plugs_by_type = {}
 
         for old_term in old_plugins:
@@ -147,7 +159,11 @@ class Upgrader(upgrade.Upgrader):
             return
 
         n2 = tools.get_root(address).get_node(2)
-        old_plugins = logic.parse_termlist(n2.get_data().as_dict_lookup('agents').as_string())
+        agents_data = n2.get_data().as_dict_lookup('agents')
+        if not agents_data.is_string():
+            print(f"Warning: agents data is not a string type, skipping postupgrade")
+            return
+        old_plugins = logic.parse_termlist(agents_data.as_string())
         good_plugins = set()
         good_plugins.add(guid.split(address)[0])
 

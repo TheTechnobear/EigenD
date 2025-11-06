@@ -19,12 +19,6 @@ Note: This file consolidates tests from scattered files in 05_integration/ subdi
 import pytest
 import sys
 import os
-from pathlib import Path
-
-# Set up paths
-PROJECT_ROOT = Path(__file__).parent.parent.parent  
-sys.path.insert(0, str(PROJECT_ROOT))
-sys.path.insert(0, str(PROJECT_ROOT / "tmp" / "modules"))
 
 @pytest.mark.integration
 class TestSystemIntegration:
