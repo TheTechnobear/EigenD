@@ -1,8 +1,55 @@
 # Python 3.14 Migration Notes - Copilot Branch
 
-## Status: 🚀 MIGRATION IN PROGRESS - TDD APPROACH (Updated: 2025-11-06)
+# Python 3.14 Migration Notes - Copilot Branch
+
+## Status: 🚀 MIGRATION IN PROGRESS - TDD APPROACH (Updated: 2024-11-06)
 
 **✅ TEST-DRIVEN DEVELOPMENT ACTIVE** - 36/43 tests passing across 6-layer hierarchy
+
+## 2024-11-06: VST3 SDK Integration - Hybrid Solution ✅ COMPLETED
+
+**Problem**: VST3 SDK object files being created in submodule directory causing Git "untracked content" issues
+- JUCE embedded VST3 SDK v3.6.13 vs external vst3sdk submodule v3.8.0
+- Build system creating object files in vst3sdk/ submodule directory
+- Git reporting "untracked content" in submodule
+
+**Root Cause Analysis**:
+- lib_juce/SConscript was compiling full VST3 SDK from external submodule
+- No VariantDir usage causing object files in source directory
+- Version conflict between JUCE's embedded (v3.6.13) and external (v3.8.0) VST3 SDK
+
+**Solution Implemented - Hybrid Approach**:
+1. **Removed JUCE's Embedded VST3 SDK**: Deleted entire lib_juce/modules/juce_audio_processors/format_types/VST3_SDK/ (108 files)
+2. **External Headers Only**: Use vst3sdk submodule for header files via CPPPATH
+3. **Minimal Utility Compilation**: Build only missing utility functions (stringconvert.cpp, commonstringconvert.cpp)
+4. **Proper Build Directory**: VST3 utility objects built in tmp/obj/vst3sdk/ using VariantDir
+
+**Technical Implementation**:
+```python
+# lib_juce/SConscript modifications
+vst3sdk_utility_files = [
+    'public.sdk/source/vst/utility/stringconvert.cpp',
+    'public.sdk/source/common/commonstringconvert.cpp'
+]
+
+for source_file in vst3sdk_utility_files:
+    vst3sdk_variant_dir.SConscript(
+        '#/vst3sdk/' + source_file,
+        variant_dir='tmp/obj/vst3sdk/' + os.path.dirname(source_file),
+        duplicate=0
+    )
+```
+
+**Verification Results** ✅:
+- Clean rebuild successful: `scons lib_juce` completed without errors
+- VST3 objects created in correct location: `tmp/obj/vst3sdk/public.sdk/source/`
+- No submodule pollution: `git status` in vst3sdk shows "working tree clean"
+- Headers resolved correctly from external vst3sdk submodule
+
+**Future TODO**: 
+- Update JUCE to latest version (includes newer VST3 SDK)
+- Remove external vst3sdk submodule once JUCE updated
+- Monitor for VST3 SDK compatibility issues
 
 ### ✅ Recent Fixes Completed (Nov 6, 2025)
 

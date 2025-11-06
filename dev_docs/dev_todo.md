@@ -1,6 +1,16 @@
 # Python 3.14 Migration TODO
 
-## Status: 🚀 TDD APPROACH IN PROGRESS - Updated 2025-11-06
+# Python 3.14 Migration TODO
+
+## Status: 🚀 TDD APPROACH IN PROGRESS - Updated 2024-11-06
+
+### ✅ COMPLETED TASKS
+
+**VST3 SDK Integration** - Completed 2024-11-06
+- ✅ Fixed object files being created in vst3sdk submodule
+- ✅ Implemented hybrid approach using external headers + minimal utility compilation
+- ✅ Verified clean rebuild works without submodule pollution
+- ✅ Proper VariantDir usage for build artifacts in tmp/obj/vst3sdk/
 
 ### 🎯 CURRENT PRIORITIES (36/43 tests passing)
 

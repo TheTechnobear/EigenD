@@ -145,9 +145,15 @@ make mpkg
 export BUILD_TARGET=arm && make
 export BUILD_TARGET=x86_64 && make
 
-# Direct SCons build for specific targets (use when make doesn't pass parameters)
+# IMPORTANT: For specific targets, use direct SCons command
+# The top-level Makefile does NOT pass parameters, so you cannot use 'make <target>'
+# Always use this format for building specific targets:
 PYTHONPATH=tools/packages/SCons4 python3 tools/packages/SCons4/bin/scons -f tools/SConstruct -j8 <target>
-# Example: PYTHONPATH=tools/packages/SCons4 python3 tools/packages/SCons4/bin/scons -f tools/SConstruct -j8 lib_juce
+
+# Examples:
+PYTHONPATH=tools/packages/SCons4 python3 tools/packages/SCons4/bin/scons -f tools/SConstruct -j8 lib_juce
+PYTHONPATH=tools/packages/SCons4 python3 tools/packages/SCons4/bin/scons -f tools/SConstruct -j8 plg_midi
+PYTHONPATH=tools/packages/SCons4 python3 tools/packages/SCons4/bin/scons -f tools/SConstruct -j8 app_eigend2
 ```
 
 ### Adding New Plugins
