@@ -8,9 +8,32 @@
 3. Focus: Complete integration layer, address PIW string segfault
 4. Test hierarchy: Foundation→Core→Data→Plugins→Applications→Integration
 
+## Migration Documentation
+**ALWAYS check these files for current status and context:**
+- `dev_docs/copilot-python_dev_notes.md` - Complete migration changelog and fixes applied
+- `dev_docs/copilot-python_dev_todo.md` - Current task tracking and priorities  
+- `dev_docs/copilot-session_resume.md` - Complete context for resuming work
+- `dev_docs/copilot-python_dev_howitworks.md` - Quick system reference
+- `dev_docs/copilot-python3-binary-protocol.md` - Binary protocol compatibility analysis
+
+**CRITICAL - Keep Documentation Current:**
+- **ALWAYS** update `copilot-session_resume.md` with current TDD status, test results, and recent fixes
+- **ALWAYS** add completed fixes to `copilot-python_dev_notes.md` with technical details
+- **ALWAYS** update `copilot-python_dev_todo.md` priorities as work progresses
+- **ALWAYS** keep `dev_docs/README.md` current with file list and organization changes
+- **DATE STAMP** all significant updates with current date in YYYY-MM-DD format
+
+## Documentation Policy
+**CRITICAL - Avoid Documentation Redundancy:**
+- **DO NOT** create new documentation files (README-*.md, *-instructions.md, etc.) without explicit user consent
+- **DO** update existing `dev_docs/copilot-*.md` files with new information
+- **DO** ask user before creating new docs: "Should I create a new file or update existing documentation?"
+- **EXCEPTION**: If you believe a genuinely new type of documentation is essential, explain why before creating
+- **REMEMBER**: We removed redundant files (.vscode/workspace-instructions.md, README-TDD.md, CONTINUE_HERE.md) to maintain single source of truth
+
 ## Quick Commands
-- `./run_tests.sh --level foundation` - Basic environment check
-- `./run_tests.sh --level all --verbose` - Full test suite  
+- `./run_tests.sh --quick --level foundation` - Fast TDD cycles (recommended)
+- `./run_tests.sh --level all --verbose` - Full test suite validation
 - Tests located in `tests/unit/test_XX_*.py` (XX = 00-05)
 
 ## Architecture Overview

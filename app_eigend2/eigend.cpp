@@ -629,14 +629,9 @@ void EigenLoadComponent::selected(const piw::term_t &term,bool dbl)
 {
     slot_ = term.arg(3).value();
     selected_ = term.arg(4).value();
-    piw::data_t user_data = term.arg(6).value();
-    user_ = user_data.is_bool() ? user_data.as_bool() : false;
+    user_ = term.arg(6).value().as_bool();
 
-    std::string d;
-    if(selected_.is_string())
-    {
-        d = mediator_->backend()->get_description(selected_.as_string());
-    }
+    std::string d = mediator_->backend()->get_description(selected_.as_string());
     getLabel()->setText(d.c_str(),false);
 
     updateSetupButtons(true,user_);
@@ -1348,8 +1343,7 @@ bool EigenTreeItem::select_setup(const char *setup)
 
     if(term_.arity()>2)
     {
-        piw::data_t setup_data = term_.arg(4).value();
-        if(setup_data.is_string() && !strcmp(setup_data.as_string(),setup))
+        if(!strcmp(term_.arg(4).value().as_string(),setup))
         {
             setSelected(true,true);
             return true;
@@ -1393,11 +1387,7 @@ juce::String EigenTreeItem::getSlot()
 {
     if(term_.arity()>2)
     {
-        piw::data_t slot_data = term_.arg(3).value();
-        if(slot_data.is_string())
-        {
-            return slot_data.as_string();
-        }
+        return term_.arg(3).value().as_string();
     }
 
     return "";
@@ -1407,11 +1397,7 @@ void EigenTreeItem::paintItem (Graphics& g, int width, int height)
 {
     juce::String s;
 
-    piw::data_t name_data = term_.arg(0).value();
-    if(name_data.is_string())
-    {
-        s = name_data.as_string();
-    }
+    s = term_.arg(0).value().as_string();
 
     if(term_.arity()>2)
     {
@@ -1539,10 +1525,7 @@ EigenSaveComponent::EigenSaveComponent(EigenMainWindow *mediator, const std::str
 
     for(unsigned i=1;i<term_.arity();i++)
     {
-        piw::data_t sltt_data = term_.arg(i).arg(1).value();
-        if(!sltt_data.is_string()) continue;
-        
-        juce::String sltt = sltt_data.as_string();
+        juce::String sltt = term_.arg(i).arg(1).value().as_string();
         juce::String sltt2 = mediator_->backend()->words_to_notes(std::string(sltt.getCharPointer())).c_str();
 
         getWordsChooser()->addItem(sltt,i);
@@ -1550,8 +1533,7 @@ EigenSaveComponent::EigenSaveComponent(EigenMainWindow *mediator, const std::str
 
         int un = getUserNumber(sltt);
 
-        piw::data_t current_data = term_.arg(i).arg(2).value();
-        if(current_data.is_string() && !strcmp(current.c_str(),current_data.as_string()))
+        if(!strcmp(current.c_str(),term_.arg(i).arg(2).value().as_string()))
         {
             getWordsChooser()->setText(sltt);
             c = true;
@@ -1628,13 +1610,9 @@ void EigenSaveComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
     if(comboBoxThatHasChanged == getUserChooser())
     {
-        piw::data_t text_data = term_.arg(getUserChooser()->getSelectedId()).arg(1).value();
-        if(text_data.is_string())
-        {
-            juce::String t(text_data.as_string());
-            getWordsChooser()->setText(t,false);
-            comboBoxChanged(getWordsChooser());
-        }
+        juce::String t(term_.arg(getUserChooser()->getSelectedId()).arg(1).value().as_string());
+        getWordsChooser()->setText(t,false);
+        comboBoxChanged(getWordsChooser());
         return;
     }
 
@@ -2012,40 +1990,24 @@ void EigenD::initialise (const String& commandLine)
         eigend::c2p_t *backend = (eigend::c2p_t *)python_->mediator();
         if(backend)
         {
-            try {
-                backend->set_args(commandLine.toUTF8());
-                
-                std::string logfile = backend->get_logfile();
+            backend->set_args(commandLine.toUTF8());
+            std::string logfile = backend->get_logfile();
 
-                if(logfile.length()>0)
-                {
-                    logfile_ = pic::fopen(logfile,"w");
-                }
-
-                try {
-                    main_window_ = new EigenMainWindow(manager,scaffold(),backend,primary_logger);
-                } catch (const std::exception& e) {
-                    throw; // Rethrow to maintain original behavior
-                }
-            } catch (const std::exception& e) {
-                throw; // Rethrow to maintain original behavior
-            } catch (...) {
-                juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, "Unknown Error", 
-                    "An unknown error occurred during backend operations");
-                return; // Exit gracefully instead of rethrowing
+            if(logfile.length()>0)
+            {
+                logfile_ = pic::fopen(logfile,"w");
             }
+
+            main_window_ = new EigenMainWindow(manager,scaffold(),backend,primary_logger);
         }
         else
         {
-            printf("❌ Backend mediator is null\n");
             juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, "An unexpected error occurred ...", python_->last_error().c_str());
         }
     }
     else
     {
-        printf("Failed to import app_eigend2.backend. Error: %s\n", python_->last_error().c_str());
-        juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, "Python Import Error", 
-            ("Failed to import app_eigend2.backend module:\n\n" + python_->last_error()).c_str());
+        juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, "An unexpected error occurred ...", python_->last_error().c_str());
     }
 
 }

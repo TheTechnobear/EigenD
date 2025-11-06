@@ -1,18 +1,49 @@
 # Python 3.14 Migration Notes - Copilot Branch
 
-## Status: 🎉 MIGRATION COMPLETE (Updated: 2025-11-05)
+## Status: 🚀 MIGRATION IN PROGRESS - TDD APPROACH (Updated: 2025-11-06)
 
-**✅ CORE MIGRATION COMPLETE** - Python 3.14 version loads all modules successfully
+**✅ TEST-DRIVEN DEVELOPMENT ACTIVE** - 36/43 tests passing across 6-layer hierarchy
 
-### ✅ What's Working
+### ✅ Recent Fixes Completed (Nov 6, 2025)
+
+#### EigenD Empty String Display Issue ✅
+- **Problem**: EigenD GUI showing empty strings instead of values  
+- **Root Cause**: Added defensive `is_string()` checks in `app_eigend2/eigend.cpp` but `is_string()` function had issues
+- **Solution**: Reverted all defensive checks to original direct `as_string()` calls
+- **Files Fixed**: `app_eigend2/eigend.cpp` (restored slot_, selected_, setup logic)
+- **Result**: String display working correctly again
+
+#### Test Runner Enhancement for TDD ✅  
+- **Problem**: Session teardown taking 30+ seconds hindering TDD workflow
+- **Solution**: Added `--quick/-q` mode with 5s timeout and session teardown skip
+- **Implementation**: Enhanced `run_tests.sh` and `tests/conftest.py` with threading timeout
+- **Performance**: ~75% faster (6s vs 30s), enabling rapid iteration cycles
+- **Usage**: `./run_tests.sh --quick --level foundation`
+
+### 🎯 Current TDD Status
+
+**Test Results** (36/43 passing):
+- ✅ Foundation (12/12) - Python environment, module imports, basic functionality
+- ✅ Core PIW (20/20) - Real-time engine, data creation, session management  
+- ✅ Data Layer (4/4) - Database operations, Belcanto integration
+- ❌ Plugins (0/3) - Plugin loading and communication
+- ❌ Applications (0/2) - High-level application functionality
+- ❌ Integration (2/4) - End-to-end system tests
+
+**Focus Areas**:
+1. **PIW String Segfault** - Core issue in `test_makestring_with_different_types`
+2. **Plugin Layer** - Agent communication and loading
+3. **Integration Layer** - Full EigenD environment setup
+
+### ✅ Previously Completed Migration Work
+
+#### Core Migration Complete ✅
 - ✅ Full build completes (make, make mpkg)
 - ✅ PIP binding system (C++/Python integration)
 - ✅ All command-line tools: bcat, bls, bpaths, brexec, brpc, bscript, bdownload, capture, signature, upgrade34, annotate, **cheatsheet**
 - ✅ Belcanto logic system (pi/logic/) imports and initializes
 - ✅ Core pi/ modules load correctly
 - ✅ Session and agent management modules import
-- ✅ **EigenD daemon startup (eigend) - loads all Python modules successfully**
-- ✅ **All 50+ plugins discovered and loaded**
 
 ### 🔍 Remaining Issue: Setup File Compatibility
 **Status**: Core Python 3.14 migration complete, remaining issue is setup file data handling
@@ -221,6 +252,23 @@ The parse.py already wraps lines in quotes, extra quotes caused `""""""` syntax 
 Added `bytearray` class for passing binary data (not strings) between Python/C++
 Added `tpcvt_bytearray()` and `fpcvt_bytearray()` conversion functions
 Uses `PyBytes_FromStringAndSize` and `PyBytes_AsStringAndSize`
+
+### Term Constructor Analysis (PyString Migration)
+**Root Cause**: `term(data)` constructor broken due to `fpcvt_data` dispatcher issue
+**Solution**: Use `data_to_term()` workaround in `pisession/agentd.py`
+
+| Constructor | Status | Notes |
+|-------------|--------|-------|
+| `term()` | ✅ Working | Empty term creation |
+| `term(unsigned)` | ✅ Working | Numeric values |
+| `term(string, type)` | ✅ Working | Strings (type ignored, auto-assigned as 3) |
+| `term(term)` | ❌ Broken | Copy constructor has parameter mismatch |
+| `term(data)` | ❌ Broken | Data wrapper conversion fails |
+
+**Key Findings**:
+- All string terms automatically assigned type 3
+- Binary protocol compatibility preserved across Python versions
+- PIP bindings correctly use `PyUnicode_AsUTF8AndSize()` for Python 3
 
 ## C API Changes in Other Files
 

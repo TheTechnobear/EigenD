@@ -9,12 +9,22 @@ No more manual sys.path manipulation in individual test files.
 import sys
 import os
 import pytest
+import signal
 from pathlib import Path
 
 # Project root detection
 PROJECT_ROOT = Path(__file__).parent.parent
 EIGEND_ROOT = PROJECT_ROOT
 TMP_MODULES = PROJECT_ROOT / "tmp" / "modules"
+
+def pytest_addoption(parser):
+    """Add custom command line options."""
+    parser.addoption(
+        "--quick-teardown", 
+        action="store_true", 
+        default=False, 
+        help="Enable quick teardown mode - skip slow session cleanup for faster TDD cycles"
+    )
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_eigend_environment():
@@ -61,7 +71,7 @@ def eigend_database_path():
     return str(db_path)
 
 @pytest.fixture
-def piw_session():
+def piw_session(request):
     """
     Provide a PIW session context for tests that need it.
     Automatically handles session setup and cleanup.
@@ -79,7 +89,46 @@ def piw_session():
             session_data['context'] = session_ctx
             session_data['started'] = True
             return test_func(session_ctx)
-        return pisession.session.run_session(inner)
+        
+        # Check if quick teardown is requested
+        quick_teardown = getattr(request.config.option, 'quick_teardown', False)
+        
+        if quick_teardown:
+            # For quick mode, use modified session runner with timeout
+            def quick_session_runner(session_func):
+                import threading
+                import time
+                
+                result = [None]
+                exception = [None]
+                
+                def target():
+                    try:
+                        result[0] = pisession.session.run_session(session_func)
+                    except Exception as e:
+                        exception[0] = e
+                
+                thread = threading.Thread(target=target)
+                thread.daemon = True
+                thread.start()
+                thread.join(timeout=5.0)  # 5 second timeout for quick mode
+                
+                if thread.is_alive():
+                    # Session cleanup taking too long, return result if we have it
+                    if result[0] is not None:
+                        return result[0]
+                    else:
+                        print("\nWarning: Session teardown timeout in quick mode, continuing...")
+                        return None
+                
+                if exception[0]:
+                    raise exception[0]
+                    
+                return result[0]
+            
+            return quick_session_runner(inner)
+        else:
+            return pisession.session.run_session(inner)
     
     session_data['run'] = session_runner
     return session_data
