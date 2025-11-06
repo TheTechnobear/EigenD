@@ -27,24 +27,18 @@ me = env.Dir('.').abspath
 juce_env.Append(CPPPATH='modules')
 juce_env.Append(CPPPATH='#vst3sdk')
 
-# Build VST3 SDK as separate library for VST3 plugin hosting support
-if env['IS_MACOSX'] or env['IS_LINUX'] or env['IS_WINDOWS']:
-    vst3sdk_env = env.Clone()
-    vst3sdk_env.Append(CPPPATH='#vst3sdk')
-    vst3sdk_files = [
-        '#vst3sdk/public.sdk/source/vst/utility/stringconvert.cpp',
-        '#vst3sdk/pluginterfaces/base/conststringtable.cpp',
-        '#vst3sdk/pluginterfaces/base/ustring.cpp',
-        '#vst3sdk/public.sdk/source/vst/hosting/hostclasses.cpp',
-        '#vst3sdk/public.sdk/source/common/commonstringconvert.cpp',
-        '#vst3sdk/public.sdk/source/vst/hosting/pluginterfacesupport.cpp',
-        '#vst3sdk/pluginterfaces/base/funknown.cpp',
-        '#vst3sdk/pluginterfaces/base/coreiids.cpp',
-        '#vst3sdk/public.sdk/source/vst/vstinitiids.cpp'
-    ]
-    if env['IS_MACOSX']:
-        vst3sdk_env.Append(LINKFLAGS=['-framework', 'CoreFoundation'])
-    vst3sdk_env.PiSharedLibrary('pivst3sdk', vst3sdk_files, package='eigend', hidden=False)
+juce_env.Append(CPPPATH='modules')
+juce_env.Append(CPPPATH='#vst3sdk')  # Add VST3 SDK headers for includes like <pluginterfaces/...>
+
+# TEMPORARY HYBRID APPROACH: JUCE has most VST3 implementation built-in, but needs some utility functions
+# TODO: Update JUCE to latest version which includes newer VST3 SDK, then remove external vst3sdk submodule
+# Current approach avoids object files in submodule while providing missing VST3 utilities
+vst3sdk_build_dir = '#tmp/obj/vst3sdk'
+env.VariantDir(vst3sdk_build_dir, '#vst3sdk', duplicate=0)
+vst3sdk_utility_files = [
+    vst3sdk_build_dir + '/public.sdk/source/vst/utility/stringconvert.cpp',
+    vst3sdk_build_dir + '/public.sdk/source/common/commonstringconvert.cpp'
+]
 
 if env['IS_WINDOWS']:
     juce_files = Split("""
@@ -60,7 +54,7 @@ if env['IS_WINDOWS']:
             modules/juce_graphics/juce_graphics.cpp
             modules/juce_gui_basics/juce_gui_basics.cpp
             modules/juce_gui_extra/juce_gui_extra.cpp
-        """)
+        """) + vst3sdk_utility_files
     juce_env.Append(CCFLAGS='/D "WINDOWS=1" /D "_LIB" /D "WIN32" /D "_WINDOWS" /D "NDEBUG" /D "JUCE_DLL_BUILD=1" /D "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1" /FI AppConfig.h  /arch:SSE2')
     juce_env.Append(LINKFLAGS="/nodefaultlib:libcmt.lib")
     juce_env.Append(LINKFLAGS='WS2_32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib')
@@ -82,7 +76,7 @@ if env['IS_LINUX']:
             modules/juce_graphics/juce_graphics.cpp
             modules/juce_gui_basics/juce_gui_basics.cpp
             modules/juce_gui_extra/juce_gui_extra.cpp
-        """)
+        """) + vst3sdk_utility_files
     juce_env.Append(CCFLAGS='-Wno-unused-variable -Wno-sign-compare -DLINUX=1 -DNDEBUG -DJUCE_DLL_BUILD -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 -include AppConfig.h')
     juce_env.Append(CPPPATH='/usr/include/freetype2')
     juce_env.Append(LIBS=Split('X11 freetype Xext asound'))
@@ -101,14 +95,14 @@ if env['IS_MACOSX']:
             modules/juce_graphics/juce_graphics.mm
             modules/juce_gui_basics/juce_gui_basics.mm
             modules/juce_gui_extra/juce_gui_extra.mm
-        """)
+        """) + vst3sdk_utility_files
     juce_env.Append(CCFLAGS='-Wno-unused-but-set-variable -Wno-uninitialized -Wno-sign-compare -DNDEBUG -DJUCE_DLL_BUILD -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 -include AppConfig.h')
     juce_env.Append(LINKFLAGS='-framework CoreAudio -framework CoreMIDI -framework AudioUnit -framework IOKit')
     juce_env.Append(LINKFLAGS='-framework Cocoa -framework Carbon -framework AppKit -framework QuartzCore')
     juce_env.Append(LINKFLAGS='-framework CoreFoundation -framework CoreAudioKit -framework AudioToolbox')
 
 juce_env.Append(CPPPATH=me)
-juce_libraries = Split('pivst3sdk') if (env['IS_MACOSX'] or env['IS_LINUX'] or env['IS_WINDOWS']) else []
+juce_libraries = []  # No separate VST3 lib needed since compiled statically
 if env['IS_MACOSX'] or env['IS_LINUX'] or env['IS_WINDOWS']:
     juce_env.Append(LIBPATH=['$BINRUNDIR'])
 juce_env.PiSharedLibrary('pijuce',juce_files,libraries=juce_libraries,package='eigend')

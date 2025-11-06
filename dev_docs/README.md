@@ -5,16 +5,19 @@ This directory contains developer-focused documentation for the EigenD project.
 ## AI Development Documentation
 
 ### Primary Files for GitHub Copilot
-- `copilot-python_dev_notes.md` - Complete migration changelog and fixes applied
-- `copilot-python_dev_todo.md` - Current task tracking and priorities  
+- `dev_notes.md` - Complete migration changelog and fixes applied
+- `dev_todo.md` - Current task tracking and priorities  
 - `copilot-session_resume.md` - Complete context for resuming work
-- `copilot-python_dev_howitworks.md` - Quick system reference
+- `dev_howitworks.md` - Quick system reference
 
 ### Technical Analysis
-- `copilot-python3-binary-protocol.md` - Binary protocol compatibility analysis
+- `binary_protocol.md` - Binary protocol compatibility analysis
 
 ### Legacy Files
-- `technobear-*.md` - Previous developer's documentation (retained for reference)
+- `prevmigration/` - Previous developer's migration documentation (retained for reference)
+  - `dev_howitworks.md` - System architecture notes
+  - `dev_notes.md` - Migration progress notes  
+  - `dev_todo.md` - Previous task tracking
 
 ## Organization
 

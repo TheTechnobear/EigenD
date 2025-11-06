@@ -10,16 +10,16 @@
 
 ## Migration Documentation
 **ALWAYS check these files for current status and context:**
-- `dev_docs/copilot-python_dev_notes.md` - Complete migration changelog and fixes applied
-- `dev_docs/copilot-python_dev_todo.md` - Current task tracking and priorities  
+- `dev_docs/dev_notes.md` - Complete migration changelog and fixes applied
+- `dev_docs/dev_todo.md` - Current task tracking and priorities  
 - `dev_docs/copilot-session_resume.md` - Complete context for resuming work
-- `dev_docs/copilot-python_dev_howitworks.md` - Quick system reference
-- `dev_docs/copilot-python3-binary-protocol.md` - Binary protocol compatibility analysis
+- `dev_docs/dev_howitworks.md` - Quick system reference
+- `dev_docs/binary_protocol.md` - Binary protocol compatibility analysis
 
 **CRITICAL - Keep Documentation Current:**
 - **ALWAYS** update `copilot-session_resume.md` with current TDD status, test results, and recent fixes
-- **ALWAYS** add completed fixes to `copilot-python_dev_notes.md` with technical details
-- **ALWAYS** update `copilot-python_dev_todo.md` priorities as work progresses
+- **ALWAYS** add completed fixes to `dev_notes.md` with technical details
+- **ALWAYS** update `dev_todo.md` priorities as work progresses
 - **ALWAYS** keep `dev_docs/README.md` current with file list and organization changes
 - **DATE STAMP** all significant updates with current date in YYYY-MM-DD format
 
@@ -47,6 +47,14 @@ EigenD is a modular music software system for Eigenharp instruments built on a P
 - **Session Management**: `pisession/` handles agent lifecycle and inter-agent communication
 
 ## Key Development Patterns
+
+### VST3 SDK Integration (Temporary Hybrid Approach)
+**Current Status**: Uses external VST3 SDK v3.8.0 headers with JUCE's built-in implementation + utility functions
+- **Issue**: JUCE's embedded VST3 SDK was v3.6.13 (older), external submodule has v3.8.0
+- **Solution**: Removed JUCE's embedded VST3 SDK, use external headers, compile only missing utility functions
+- **Files**: `lib_juce/SConscript` compiles `stringconvert.cpp` and `commonstringconvert.cpp` from external VST3 SDK
+- **Build Location**: VST3 utility objects built in `tmp/obj/vst3sdk/` (not in submodule)
+- **TODO**: Update JUCE to latest version (includes newer VST3 SDK), then remove external vst3sdk submodule
 
 ### Plugin Structure
 All plugins follow the Agent pattern in `pi/agent.py`:
@@ -136,6 +144,10 @@ make mpkg
 # Architecture-specific macOS builds
 export BUILD_TARGET=arm && make
 export BUILD_TARGET=x86_64 && make
+
+# Direct SCons build for specific targets (use when make doesn't pass parameters)
+PYTHONPATH=tools/packages/SCons4 python3 tools/packages/SCons4/bin/scons -f tools/SConstruct -j8 <target>
+# Example: PYTHONPATH=tools/packages/SCons4 python3 tools/packages/SCons4/bin/scons -f tools/SConstruct -j8 lib_juce
 ```
 
 ### Adding New Plugins
