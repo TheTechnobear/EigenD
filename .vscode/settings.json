@@ -4,6 +4,17 @@
         "*.mm": "cpp",
         "string": "cpp",
         "template": "cpp",
-        "map": "cpp"
-    }
+        "map": "cpp",
+        "*.pip": "cpp"
+    },
+    "python.defaultInterpreterPath": "/usr/bin/python3",
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "workbench.startupEditor": "readme",
+    "workbench.tips.enabled": false,
+    "files.defaultLanguage": "markdown",
+    "workbench.welcomePage.walkthroughs.openOnInstall": false,
+    "workbench.editor.enablePreview": false
 }

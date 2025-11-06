@@ -1,5 +1,18 @@
 # EigenD Development Guide for AI Agents
 
+## Current Project Status: Python 3.14 Migration (TDD Approach)
+
+**CRITICAL**: This workspace follows Test-Driven Development. Always:
+1. Run tests before making changes: `./run_tests.sh --level <level>`
+2. Current status: 36/43 tests passing across 6 layers
+3. Focus: Complete integration layer, address PIW string segfault
+4. Test hierarchy: Foundation→Core→Data→Plugins→Applications→Integration
+
+## Quick Commands
+- `./run_tests.sh --level foundation` - Basic environment check
+- `./run_tests.sh --level all --verbose` - Full test suite  
+- Tests located in `tests/unit/test_XX_*.py` (XX = 00-05)
+
 ## Architecture Overview
 
 EigenD is a modular music software system for Eigenharp instruments built on a Python/C++ hybrid architecture:

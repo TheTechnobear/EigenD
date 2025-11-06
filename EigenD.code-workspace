@@ -1,0 +1,68 @@
+{
+    "folders": [
+        {
+            "name": "EigenD",
+            "path": "."
+        }
+    ],
+    "settings": {
+        "workbench.startupEditor": "none"
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "ms-python.pytest",
+            "ms-vscode.cpptools"
+        ]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Test: Foundation",
+                "type": "shell",
+                "command": "./run_tests.sh",
+                "args": ["--level", "foundation"],
+                "group": "test",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Test: All Levels",
+                "type": "shell", 
+                "command": "./run_tests.sh",
+                "args": ["--level", "all", "--verbose"],
+                "group": {
+                    "kind": "test",
+                    "isDefault": true
+                },
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always",
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            },
+            {
+                "label": "Test: Applications", 
+                "type": "shell",
+                "command": "./run_tests.sh",
+                "args": ["--level", "applications"],
+                "group": "test",
+                "presentation": {
+                    "echo": true,
+                    "reveal": "always", 
+                    "focus": false,
+                    "panel": "shared"
+                },
+                "problemMatcher": []
+            }
+        ]
+    }
+}
