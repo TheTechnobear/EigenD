@@ -4,7 +4,7 @@ TOOLS ?= tools
 SCONS ?= PYTHONPATH=$(TOOLS)/packages/SCons4 python3 $(TOOLS)/packages/SCons4/bin/scons
 
 all:
-	@$(SCONS) -f $(TOOLS)/SConstruct -j1 target-default
+	@$(SCONS) -f $(TOOLS)/SConstruct -j8 target-default
 
 parallel:
 	@$(SCONS) -f $(TOOLS)/SConstruct -j8 target-default

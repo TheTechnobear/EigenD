@@ -16,5 +16,6 @@
     "workbench.tips.enabled": false,
     "files.defaultLanguage": "markdown",
     "workbench.welcomePage.walkthroughs.openOnInstall": false,
-    "workbench.editor.enablePreview": false
+    "workbench.editor.enablePreview": false,
+    "cmake.generator": "Unix Makefiles"
 }

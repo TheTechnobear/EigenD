@@ -229,6 +229,7 @@
 - Evaluate CMake vs SCons (SCons 4.x working, no immediate need)
 - CMake migration would require rewriting ~100+ build files (3-6 months effort)
 - Only consider if SCons proves problematic during full runtime testing
+- Need to consider Python install and possible use of virtual environment for final release, see python3.md
 
 ## Comparison with TheTechnobear's python3 Branch
 Our copilot branch is MORE COMPLETE than the python3 branch:
