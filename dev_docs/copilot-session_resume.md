@@ -2,7 +2,60 @@
 
 **Date:** 2025-11-06  
 **Branch:** copilot  
-**Status:** 🚀 TDD APPROACH IN PROGRESS - 36/43 tests passing
+**Status:** � **ROOT CAUSE IDENTIFIED** - PIW string corruption in Python 3 bindings
+
+## 🎯 BREAKTHROUGH: Root Cause 100% Confirmed
+
+### **CRITICAL ISSUE: PyUnicode_AsUTF8 Pointer Corruption**
+**Location:** `agentd.py` line 1035
+**Problem:** `piw.term(string, type_code)` uses wrong constructor
+**Root Cause:** Python 3 binding `fpcvt_str()` creates dangling pointers
+
+#### **Exact Technical Details:**
+```cpp
+// In tmp/obj/piw/src/piw_native_python.cpp (generated binding):
+int fpcvt_str(PyObject *o, void *a) {
+    const char *s = PyUnicode_AsUTF8(o);  // ← DANGEROUS
+    if(s) { *((const char **)a) = s; return 1; }  // ← STORES INTERNAL BUFFER POINTER
+    return 0;
+}
+
+// Called by: piw.term(string, type_code) 
+// → PyArg_ParseTuple(args,"O&O&", fpcvt_str, &a0, fpcvt_ui, &a1)
+// → term_wrapper_(..., const char *a0, unsigned int a1)
+// → term_type_(a0, a1)  // PREDICATE constructor, NOT data constructor!
+```
+
+#### **Why This Fails:**
+1. **Wrong Constructor:** `term_t(const char *, unsigned)` is for **predicates** ("foo(arg1,arg2)"), NOT string data
+2. **Pointer Corruption:** `PyUnicode_AsUTF8()` returns pointer to internal Python Unicode buffer
+3. **Dangling Reference:** When Python string gets garbage collected, pointer becomes invalid  
+4. **Segfault:** Later access to `.pred()` → `PyUnicode_FromString(corrupted_ptr)` → crash
+
+#### **Migration Factor:**
+- **Python 2.7:** Used `PyString_AsString()` with different lifetime semantics
+- **Python 3.x:** Uses `PyUnicode_AsUTF8()` with internal buffer tied to object lifetime
+- **Impact:** Same semantic bug now causes corruption instead of working by accident
+
+#### **Evidence - Stack Trace from Segfault:**
+```
+PyUnicode_FromString+0x14 [corrupted pointer]
+term_wrapper_::pred_method_ [calling .pred() on corrupted term]
+```
+
+#### **SOLUTION:**
+```python
+# WRONG (current agentd.py line 1035):
+term = piw.term(string, type_code)  # Creates predicate term with dangling pointer
+
+# CORRECT:  
+term = piw.term(piw.makestring(string, 0))  # Creates data term properly
+```
+
+### **Test Evidence Created:**
+- **test_pyunicode_asuft8_pointer_corruption()** - Reproduces the exact corruption mechanism
+- **test_term_constructor_semantic_analysis()** - Confirms predicate vs data constructor semantics
+- **Segfault confirmed** when accessing `.pred()` on corrupted predicate terms
 
 ## Quick Start for New Session
 

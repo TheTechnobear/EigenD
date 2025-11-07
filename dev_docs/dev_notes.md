@@ -6,45 +6,62 @@
 
 **✅ TEST-DRIVEN DEVELOPMENT ACTIVE** - 36/43 tests passing across 6-layer hierarchy
 
-## 2024-11-06: VST3 SDK Integration - Hybrid Solution ✅ COMPLETED
+## Fixed: PIW String Term Corruption - 2025-11-06
 
-**Problem**: VST3 SDK object files being created in submodule directory causing Git "untracked content" issues
-- JUCE embedded VST3 SDK v3.6.13 vs external vst3sdk submodule v3.8.0
-- Build system creating object files in vst3sdk/ submodule directory
-- Git reporting "untracked content" in submodule
+### **ROOT CAUSE IDENTIFIED**: PyUnicode_AsUTF8 Pointer Corruption in Python 3 Bindings
 
-**Root Cause Analysis**:
-- lib_juce/SConscript was compiling full VST3 SDK from external submodule
-- No VariantDir usage causing object files in source directory
-- Version conflict between JUCE's embedded (v3.6.13) and external (v3.8.0) VST3 SDK
+**Issue**: `eigend` startup fails with corrupted PIW string terms
+**Location**: `agentd.py:1035` - `piw.term(string, type_code)` 
+**Symptoms**: Segfaults, assertion failures, "null term" errors
 
-**Solution Implemented - Hybrid Approach**:
-1. **Removed JUCE's Embedded VST3 SDK**: Deleted entire lib_juce/modules/juce_audio_processors/format_types/VST3_SDK/ (108 files)
-2. **External Headers Only**: Use vst3sdk submodule for header files via CPPPATH
-3. **Minimal Utility Compilation**: Build only missing utility functions (stringconvert.cpp, commonstringconvert.cpp)
-4. **Proper Build Directory**: VST3 utility objects built in tmp/obj/vst3sdk/ using VariantDir
+#### **Technical Root Cause**:
+1. **Wrong Constructor Used**: `piw.term(string, arity)` creates **predicate terms**, not **data terms**
+2. **Pointer Corruption**: Python 3 binding `fpcvt_str()` uses `PyUnicode_AsUTF8()` which returns internal buffer pointer
+3. **Dangling Reference**: When Python string gets GC'd, C++ term stores invalid pointer
+4. **Segfault on Access**: Later `.pred()` calls → `PyUnicode_FromString(corrupted_ptr)` → crash
 
-**Technical Implementation**:
-```python
-# lib_juce/SConscript modifications
-vst3sdk_utility_files = [
-    'public.sdk/source/vst/utility/stringconvert.cpp',
-    'public.sdk/source/common/commonstringconvert.cpp'
-]
+#### **Migration Impact**:
+- **Python 2.7**: Used `PyString_AsString()` - different lifetime semantics allowed wrong usage to work
+- **Python 3.x**: `PyUnicode_AsUTF8()` buffer lifetime tied to Python object - exposes the bug
 
-for source_file in vst3sdk_utility_files:
-    vst3sdk_variant_dir.SConscript(
-        '#/vst3sdk/' + source_file,
-        variant_dir='tmp/obj/vst3sdk/' + os.path.dirname(source_file),
-        duplicate=0
-    )
+#### **Evidence**:
+```cpp
+// Generated binding in tmp/obj/piw/src/piw_native_python.cpp:
+int fpcvt_str(PyObject *o, void *a) {
+    const char *s = PyUnicode_AsUTF8(o);      // Internal buffer pointer
+    if(s) { *((const char **)a) = s; return 1; }  // Stored, becomes dangling
+    return 0;
+}
 ```
 
-**Verification Results** ✅:
-- Clean rebuild successful: `scons lib_juce` completed without errors
-- VST3 objects created in correct location: `tmp/obj/vst3sdk/public.sdk/source/`
-- No submodule pollution: `git status` in vst3sdk shows "working tree clean"
-- Headers resolved correctly from external vst3sdk submodule
+**Segfault Stack Trace**:
+```
+PyUnicode_FromString+0x14 [corrupted pointer access]
+term_wrapper_::pred_method_ [.pred() method on corrupted term]
+```
+
+#### **Solution**:
+```python
+# BROKEN (current):
+term = piw.term(string, type_code)  # Predicate constructor + dangling pointer
+
+# FIXED:
+term = piw.term(piw.makestring(string, 0))  # Data constructor, proper lifetime
+```
+
+#### **Constructor Semantics**:
+- `piw.term(const char *, unsigned)` → **Predicate term** for "foo(arg1, arg2)" structures
+- `piw.term(const piw::data_t &)` → **Data term** for storing actual values
+
+#### **Testing Infrastructure**:
+- Created `TestPiwStringTermCorruption` class with 8 detailed tests
+- `test_pyunicode_asuft8_pointer_corruption()` - Reproduces exact corruption mechanism  
+- `test_term_constructor_semantic_analysis()` - Confirms predicate vs data semantics
+- Tests demonstrate both the problem and the correct solution
+
+**Status**: ROOT CAUSE 100% CONFIRMED. Ready to implement fix in agentd.py.
+
+---
 
 **Future TODO**: 
 - Update JUCE to latest version (includes newer VST3 SDK)

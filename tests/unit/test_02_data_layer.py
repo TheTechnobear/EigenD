@@ -297,3 +297,187 @@ class TestDataLayerEdgeCases:
                 if result['success']:
                     assert result['is_string'], f"Special string {result['input']} should be recognized as string"
                     # Note: For null byte strings, we don't assert matches due to C++ string termination
+
+@pytest.mark.data
+@pytest.mark.migration  
+class TestSetupFileHandling:
+    """
+    Test setup file handling and string encoding compatibility.
+    
+    These tests target the specific issue causing eigend to crash when
+    reading setup files due to string assertion failures.
+    """
+    
+    @pytest.mark.data
+    def test_setup_file_string_encoding(self, piw_session):
+        """Test setup file string encoding compatibility.
+        
+        Reproduces: eigend crash reading current_setup-main
+        Issue: Setup files contain strings that fail is_string() check
+        """
+        def test_setup_encoding():
+            import piw
+            import os
+            results = {}
+            
+            try:
+                # Test strings that would typically be found in setup files
+                setup_strings = [
+                    "agent",
+                    "connection",
+                    "parameter", 
+                    "audio_unit",
+                    "plugin:audio_unit:2.3.0-community:1.0.5",
+                    "/Users/kodiak/Library/Eigenlabs/2.3.0-community/Global",
+                    "/Users/kodiak/projects/EigenD/tmp/plugins",
+                    "Eigenlabs/plg_primitive/latch_plg",
+                    "current_setup-main",
+                    "2.3.0-community",
+                    "input_connection",
+                    "output_connection",
+                ]
+                
+                for i, setup_str in enumerate(setup_strings):
+                    # Create data as if it came from a setup file
+                    str_data = piw.makestring(setup_str, 0)
+                    
+                    results[f'setup_{i}_original'] = setup_str
+                    results[f'setup_{i}_is_string'] = str_data.is_string()
+                    results[f'setup_{i}_type'] = str_data.type()
+                    
+                    # This is the critical test - calling as_string() after is_string() check
+                    if str_data.is_string():
+                        try:
+                            recovered = str_data.as_string()
+                            results[f'setup_{i}_recovered'] = recovered
+                            results[f'setup_{i}_matches'] = (recovered == setup_str)
+                        except Exception as e:
+                            results[f'setup_{i}_as_string_error'] = str(e)
+                            results[f'setup_{i}_as_string_error_type'] = type(e).__name__
+                    else:
+                        results[f'setup_{i}_not_string'] = True
+                
+                # Test the actual setup file if it exists
+                setup_file_path = "/Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main"
+                if os.path.exists(setup_file_path):
+                    results['setup_file_exists'] = True
+                    results['setup_file_size'] = os.path.getsize(setup_file_path)
+                    
+                    # Try to read a small portion to understand the format
+                    try:
+                        with open(setup_file_path, 'rb') as f:
+                            header = f.read(100)  # First 100 bytes
+                        results['setup_file_header'] = header[:50].hex()  # First 50 bytes as hex
+                        results['setup_file_readable'] = True
+                    except Exception as e:
+                        results['setup_file_read_error'] = str(e)
+                else:
+                    results['setup_file_exists'] = False
+                
+                return results
+                
+            except Exception as e:
+                results['error'] = str(e)
+                results['error_type'] = type(e).__name__
+                return results
+        
+        results = piw_session['run'](test_setup_encoding)
+        
+        # Check for errors
+        if 'error' in results:
+            pytest.fail(f"Setup encoding test failed: {results['error_type']}: {results['error']}")
+        
+        # All setup-style strings should work
+        for i in range(12):
+            assert results[f'setup_{i}_is_string'], f"Setup string {i} ('{results[f'setup_{i}_original']}') should be recognized as string"
+            
+            # If it was recognized as a string, as_string() should work
+            if results[f'setup_{i}_is_string']:
+                assert f'setup_{i}_as_string_error' not in results, f"Setup string {i} should not fail as_string() call"
+                assert results[f'setup_{i}_matches'], f"Setup string {i} should round-trip correctly"
+        
+        # Log setup file information for debugging
+        print(f"Setup file exists: {results.get('setup_file_exists', False)}")
+        if results.get('setup_file_exists'):
+            print(f"Setup file size: {results.get('setup_file_size', 'unknown')} bytes")
+
+    @pytest.mark.data
+    def test_setup_file_data_type_consistency(self, piw_session):
+        """Test data type consistency in setup files.
+        
+        Reproduces: Mixed data types causing assertion failures
+        Issue: Setup file contains data marked as strings but failing validation
+        """
+        def test_data_consistency():
+            import piw
+            results = {}
+            
+            try:
+                # Simulate the mix of data types that might be in a setup file
+                mixed_data_scenarios = [
+                    ("string_value", "test_string"),
+                    ("empty_string", ""),
+                    ("numeric_string", "123"),
+                    ("path_string", "/path/to/file"),
+                    ("version_string", "2.3.0-community"),
+                    ("colon_separated", "plugin:type:version"),
+                ]
+                
+                # Test creating mixed data and verifying type consistency
+                for name, value in mixed_data_scenarios:
+                    # Create string data
+                    str_data = piw.makestring(value, 0)
+                    
+                    # Also create some numeric data for comparison
+                    float_data = piw.makefloat(1.0, 0)
+                    
+                    # Test type detection
+                    results[f'{name}_str_is_string'] = str_data.is_string()
+                    results[f'{name}_str_type'] = str_data.type()
+                    results[f'{name}_float_is_string'] = float_data.is_string()
+                    results[f'{name}_float_type'] = float_data.type()
+                    
+                    # Test safe access patterns (like eigend should use)
+                    if str_data.is_string():
+                        try:
+                            str_value = str_data.as_string()
+                            results[f'{name}_str_value'] = str_value
+                            results[f'{name}_str_success'] = True
+                        except Exception as e:
+                            results[f'{name}_str_error'] = str(e)
+                            results[f'{name}_str_success'] = False
+                    
+                    # Verify float data is NOT treated as string
+                    if float_data.is_string():
+                        results[f'{name}_float_unexpected_string'] = True
+                    else:
+                        results[f'{name}_float_correctly_not_string'] = True
+                        try:
+                            float_value = float_data.as_float()
+                            results[f'{name}_float_value'] = float_value
+                        except Exception as e:
+                            results[f'{name}_float_error'] = str(e)
+                
+                return results
+                
+            except Exception as e:
+                results['error'] = str(e)
+                results['error_type'] = type(e).__name__
+                return results
+        
+        results = piw_session['run'](test_data_consistency)
+        
+        # Check for errors
+        if 'error' in results:
+            pytest.fail(f"Data consistency test failed: {results['error_type']}: {results['error']}")
+        
+        # Verify data type consistency
+        scenarios = ["string_value", "empty_string", "numeric_string", "path_string", "version_string", "colon_separated"]
+        for name in scenarios:
+            # String data should be consistently recognized
+            assert results[f'{name}_str_is_string'], f"{name} string should be recognized as string"
+            assert results[f'{name}_str_success'], f"{name} string should allow as_string() access"
+            
+            # Float data should NOT be recognized as string
+            assert results[f'{name}_float_correctly_not_string'], f"{name} float should not be recognized as string"
+            assert f'{name}_float_unexpected_string' not in results, f"{name} float should not be mistaken for string"
