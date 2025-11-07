@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Run EigenD (Check Build)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/tmp/bin/eigend",
+            "args": ["--stdout"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "CMake: Build Parallel"
+        },
+        {
+            "name": "Run EigenD (No Build Check)",
+            "type": "cppdbg", 
+            "request": "launch",
+            "program": "${workspaceFolder}/tmp/bin/eigend",
+            "args": ["--stdout"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        }
+    ]
+}

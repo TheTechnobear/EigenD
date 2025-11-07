@@ -346,3 +346,6 @@ Based on patterns so far, expect:
 ---
 
 **Ready to continue!** Start with fixing cheatsheet, then test daemon.
+
+---
+**2025-11-07:** Split `.github/chatmodes/Testing.chatmode.md` into a concise chatmode and a detailed prompt file at `dev_docs/prompts/Testing.chatmode.details.md`. The concise file directs agents to respond with three short bullets (Done / Discovered / Next). Changes made by automated assistant during this session.
