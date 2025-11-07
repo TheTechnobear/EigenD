@@ -398,7 +398,7 @@ class Agent(agent.Agent):
        
         target = None
 
-        if self[5].has_key(row):
+        if row in self[5]:
             target = self[5][row]
 
         if target is None:

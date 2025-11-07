@@ -26,7 +26,14 @@
    - Issue: Tests requiring full EigenD environment setup
    - Approach: Systematic debugging with TDD methodology
 
-3. **Run Comprehensive Migration Validation** ✅ **FINAL STEP**
+3. **Fix Workbench Application Crash** 🔧 **MEDIUM PRIORITY** - **NEW ISSUE 2024-11-07**
+   - Issue: Workbench crashes on startup in `epython::PythonBackend::mediator()`
+   - Location: `app_juceworkbench/epython.cpp:185` - PyCapsule_GetPointer failure
+   - Root Cause: Python 3 migration issue in Workbench's Python integration
+   - Impact: Workbench GUI tool not functional
+   - Next Steps: Investigate PyCapsule handling in workbench.pip binding
+
+4. **Run Comprehensive Migration Validation** ✅ **FINAL STEP**
    - Execute full test suite across all layers
    - Confirm complete Python 3.14 migration readiness
    - Status: Pending completion of above fixes
@@ -156,6 +163,7 @@
 - Different Python versions (3.8, 3.9, 3.10, 3.11, 3.12, 3.13)
 - Platform-specific Python installation differences
 - Package manager conflicts (pip vs system packages)
+- Windows : Python26 - get_pyprefix() pic_resources.cpp
 
 ## Next Steps - Beyond Migration Scope
 - Test pezload (Pico firmware loading - uses bytearray)
@@ -178,9 +186,9 @@
 
 ## Code Review Needed
 - Verify bytearray usage in pezload and MIDI code
-- Check all uses of pip_usegil flag behavior
-- Review any remaining #if PY_VERSION_HEX conditionals
-- Search for any missed Python 2 API calls
+- ✅ Check all uses of pip_usegil flag behavior - **COMPLETED 2024-11-07** (GIL management working correctly)
+- ✅ Review any remaining #if PY_VERSION_HEX conditionals - **COMPLETED 2024-11-07**
+- ✅ Search for any missed Python 2 API calls - **COMPLETED 2024-11-07** (Fixed: .has_key() → 'in', ConfigParser → configparser)
 
 ## Documentation
 - Update main README with Python 3.14 requirement
@@ -204,8 +212,8 @@
 - Performance comparison vs Python 2.7 version
 
 ## Potential Improvements
-- Remove #if PY_VERSION_HEX < 0x03000000 conditionals (Python 2 support)
-- Clean up compatibility macros in template
+- ✅ Remove #if PY_VERSION_HEX < 0x03000000 conditionals (Python 2 support) - **COMPLETED 2024-11-07**
+- ✅ Clean up compatibility macros in template - **COMPLETED 2024-11-07**
 - Update PLY (lex.py/yacc.py) to latest Python 3 version
 - Consider Python 3.14 specific optimizations
 
@@ -229,4 +237,4 @@ Our copilot branch is MORE COMPLETE than the python3 branch:
 - ✅ We fixed cmp(), long, string.maketrans (python3 branch has typos)
 - ✅ We fixed parser module (python3 branch incomplete)
 - ✅ We tested command-line tools (python3 branch untested)
-- ⚠️ python3 branch has bugs: encoder() vs encode() typo, unfixed long/cmp references
+- ✅ **No changes needed from python3 branch** - our migration is more comprehensive

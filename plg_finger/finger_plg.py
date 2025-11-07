@@ -23,7 +23,7 @@ from plg_finger import fingerer_version as version
 
 import piw
 import finger_native
-import ConfigParser
+import configparser
 import os
 import shutil
 
@@ -231,7 +231,7 @@ class Fingering(atom.Atom):
 
 
     def __read_fingering(self,filename):
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         fingerings_from_this_file = {}
         message = ''
 

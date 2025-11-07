@@ -46,11 +46,7 @@
 
 #include "pis_python.h"
 
-#if PY_VERSION_HEX >= 0x02050000
-    typedef Py_ssize_t my_ssize_t;
-#else
-    typedef int my_ssize_t;
-#endif
+typedef Py_ssize_t my_ssize_t;
 
 namespace
 {
