@@ -137,7 +137,7 @@ class ImpulseBrowser(atom.Atom):
     def __setcurrent(self,cookie):
         if cookie!=self.get_value():
             # cookie is the stripped filename
-            if not self.cookie in __f2p:
+            if not cookie in self.__f2p:
                 return False
             filepath = self.__f2p[cookie]
             self.agent.load_impulse_response(filepath)

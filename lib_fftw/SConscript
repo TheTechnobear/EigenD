@@ -20,312 +20,334 @@
 
 Import('env')
 
-import os,glob
+from SCons.Script import Dir
+import os
+import sys
+import platform
+import glob
 
-fftw_dirs = Split("""
-    src/kernel src/dft .
-    src/dft/scalar src/dft/scalar/codelets
-    src/rdft src/rdft/scalar src/rdft/scalar/r2cf src/rdft/simd src/rdft/simd/codelets
-    src/rdft/scalar/r2cb src/rdft/scalar/r2r src/reodft src/api src/simd src/simd/nonportable
-    src/dft/simd src/dft/simd/codelets
-""")
+# Determine the platform and architecture
+def get_platform_config():
+    """Return the appropriate config file name based on platform and architecture"""
+    system = sys.platform
+    machine = platform.machine().lower()
+    
+    if system == 'darwin':
+        # macOS
+        if machine in ['arm64', 'aarch64']:
+            return 'config_macosx_arm64.h'
+        else:
+            return 'config_macosx_x86_64.h'
+    elif system == 'win32':
+        return 'config_windows_x86_64.h'
+    elif system.startswith('linux'):
+        if machine in ['arm64', 'aarch64', 'armv8']:
+            return 'config_linux_arm64.h'
+        else:
+            return 'config_linux_x86_64.h'
+    else:
+        # Fallback
+        if env['IS_MACOSX']:
+            if env.get('IS_ARM', False):
+                return 'config_macosx_arm64.h'
+            else:
+                return 'config_macosx_x86_64.h'
+        elif env['IS_WINDOWS']:
+            return 'config_windows_x86_64.h'
+        elif env['IS_LINUX']:
+            if env.get('IS_ARM', False):
+                return 'config_linux_arm64.h'
+            else:
+                return 'config_linux_x86_64.h'
+    
+    return 'config.h'  # fallback
 
-fftw_files = Split("""
-    src/kernel/align.c src/kernel/alloc.c src/kernel/assert.c
-    src/kernel/awake.c src/kernel/buffered.c src/kernel/cpy1d.c
-    src/kernel/cpy2d-pair.c src/kernel/cpy2d.c src/kernel/ct.c
-    src/kernel/debug.c src/kernel/extract-reim.c src/kernel/hash.c
-    src/kernel/iabs.c src/kernel/kalloc.c src/kernel/md5-1.c src/kernel/md5.c
-    src/kernel/minmax.c src/kernel/ops.c src/kernel/pickdim.c src/kernel/plan.c
-    src/kernel/planner.c src/kernel/primes.c src/kernel/print.c
-    src/kernel/problem.c src/kernel/rader.c src/kernel/scan.c
-    src/kernel/solver.c src/kernel/solvtab.c src/kernel/stride.c
-    src/kernel/tensor.c src/kernel/tensor1.c src/kernel/tensor2.c
-    src/kernel/tensor3.c src/kernel/tensor4.c src/kernel/tensor5.c
-    src/kernel/tensor7.c src/kernel/tensor8.c src/kernel/tensor9.c
-    src/kernel/tile2d.c src/kernel/timer.c src/kernel/transpose.c
-    src/kernel/trig.c src/kernel/twiddle.c src/dft/bluestein.c
-    src/dft/buffered.c src/dft/conf.c src/dft/ct.c src/dft/dftw-direct.c
-    src/dft/dftw-directsq.c src/dft/dftw-generic.c src/dft/dftw-genericbuf.c
-    src/dft/direct.c src/dft/generic.c src/dft/indirect-transpose.c
-    src/dft/indirect.c src/dft/kdft-dif.c src/dft/kdft-difsq.c
-    src/dft/kdft-dit.c src/dft/kdft.c src/dft/nop.c src/dft/plan.c
-    src/dft/problem.c src/dft/rader.c src/dft/rank-geq2.c src/dft/solve.c
-    src/dft/vrank-geq1.c src/dft/zero.c src/dft/scalar/n.c src/dft/scalar/t.c
-    src/dft/scalar/codelets/codlist.c src/dft/scalar/codelets/n1_10.c
-    src/dft/scalar/codelets/n1_11.c src/dft/scalar/codelets/n1_12.c
-    src/dft/scalar/codelets/n1_13.c src/dft/scalar/codelets/n1_14.c
-    src/dft/scalar/codelets/n1_15.c src/dft/scalar/codelets/n1_16.c
-    src/dft/scalar/codelets/n1_2.c src/dft/scalar/codelets/n1_20.c
-    src/dft/scalar/codelets/n1_25.c src/dft/scalar/codelets/n1_3.c
-    src/dft/scalar/codelets/n1_32.c src/dft/scalar/codelets/n1_4.c
-    src/dft/scalar/codelets/n1_5.c src/dft/scalar/codelets/n1_6.c
-    src/dft/scalar/codelets/n1_64.c src/dft/scalar/codelets/n1_7.c
-    src/dft/scalar/codelets/n1_8.c src/dft/scalar/codelets/n1_9.c
-    src/dft/scalar/codelets/q1_2.c src/dft/scalar/codelets/q1_3.c
-    src/dft/scalar/codelets/q1_4.c src/dft/scalar/codelets/q1_5.c
-    src/dft/scalar/codelets/q1_6.c src/dft/scalar/codelets/q1_8.c
-    src/dft/scalar/codelets/t1_10.c src/dft/scalar/codelets/t1_12.c
-    src/dft/scalar/codelets/t1_15.c src/dft/scalar/codelets/t1_16.c
-    src/dft/scalar/codelets/t1_2.c src/dft/scalar/codelets/t1_20.c
-    src/dft/scalar/codelets/t1_25.c src/dft/scalar/codelets/t1_3.c
-    src/dft/scalar/codelets/t1_32.c src/dft/scalar/codelets/t1_4.c
-    src/dft/scalar/codelets/t1_5.c src/dft/scalar/codelets/t1_6.c
-    src/dft/scalar/codelets/t1_64.c src/dft/scalar/codelets/t1_7.c
-    src/dft/scalar/codelets/t1_8.c src/dft/scalar/codelets/t1_9.c
-    src/dft/scalar/codelets/t2_10.c src/dft/scalar/codelets/t2_16.c
-    src/dft/scalar/codelets/t2_20.c src/dft/scalar/codelets/t2_25.c
-    src/dft/scalar/codelets/t2_32.c src/dft/scalar/codelets/t2_4.c
-    src/dft/scalar/codelets/t2_5.c src/dft/scalar/codelets/t2_64.c
-    src/dft/scalar/codelets/t2_8.c src/rdft/buffered.c src/rdft/buffered2.c
-    src/rdft/conf.c src/rdft/ct-hc2c-direct.c src/rdft/ct-hc2c.c
-    src/rdft/dft-r2hc.c src/rdft/dht-r2hc.c src/rdft/dht-rader.c
-    src/rdft/direct-r2c.c src/rdft/direct-r2r.c src/rdft/direct2.c
-    src/rdft/generic.c src/rdft/hc2hc-direct.c src/rdft/hc2hc-generic.c
-    src/rdft/hc2hc.c src/rdft/indirect.c src/rdft/khc2c.c src/rdft/khc2hc.c
-    src/rdft/kr2c.c src/rdft/kr2r.c src/rdft/nop.c src/rdft/nop2.c
-    src/rdft/plan.c src/rdft/plan2.c src/rdft/problem.c src/rdft/problem2.c
-    src/rdft/rank-geq2-rdft2.c src/rdft/rank-geq2.c src/rdft/rank0-rdft2.c
-    src/rdft/rank0.c src/rdft/rdft-dht.c src/rdft/rdft2-inplace-strides.c
-    src/rdft/rdft2-rdft.c src/rdft/rdft2-strides.c
-    src/rdft/rdft2-tensor-max-index.c src/rdft/solve.c src/rdft/solve2.c
-    src/rdft/vrank-geq1-rdft2.c src/rdft/vrank-geq1.c
-    src/rdft/vrank3-transpose.c src/rdft/scalar/hc2c.c src/rdft/scalar/hfb.c
-    src/rdft/scalar/r2c.c src/rdft/scalar/r2r.c src/rdft/scalar/r2cf/codlist.c
-    src/rdft/scalar/r2cf/hc2cf2_16.c src/rdft/scalar/r2cf/hc2cf2_20.c
-    src/rdft/scalar/r2cf/hc2cf2_32.c src/rdft/scalar/r2cf/hc2cf2_4.c
-    src/rdft/scalar/r2cf/hc2cf2_8.c src/rdft/scalar/r2cf/hc2cf_10.c
-    src/rdft/scalar/r2cf/hc2cf_12.c src/rdft/scalar/r2cf/hc2cf_16.c
-    src/rdft/scalar/r2cf/hc2cf_2.c src/rdft/scalar/r2cf/hc2cf_20.c
-    src/rdft/scalar/r2cf/hc2cf_32.c src/rdft/scalar/r2cf/hc2cf_4.c
-    src/rdft/scalar/r2cf/hc2cf_6.c src/rdft/scalar/r2cf/hc2cf_8.c
-    src/rdft/scalar/r2cf/hc2cfdft2_16.c src/rdft/scalar/r2cf/hc2cfdft2_20.c
-    src/rdft/scalar/r2cf/hc2cfdft2_32.c src/rdft/scalar/r2cf/hc2cfdft2_4.c
-    src/rdft/scalar/r2cf/hc2cfdft2_8.c src/rdft/scalar/r2cf/hc2cfdft_10.c
-    src/rdft/scalar/r2cf/hc2cfdft_12.c src/rdft/scalar/r2cf/hc2cfdft_16.c
-    src/rdft/scalar/r2cf/hc2cfdft_2.c src/rdft/scalar/r2cf/hc2cfdft_20.c
-    src/rdft/scalar/r2cf/hc2cfdft_32.c src/rdft/scalar/r2cf/hc2cfdft_4.c
-    src/rdft/scalar/r2cf/hc2cfdft_6.c src/rdft/scalar/r2cf/hc2cfdft_8.c
-    src/rdft/scalar/r2cf/hf2_16.c src/rdft/scalar/r2cf/hf2_20.c
-    src/rdft/scalar/r2cf/hf2_25.c src/rdft/scalar/r2cf/hf2_32.c
-    src/rdft/scalar/r2cf/hf2_4.c src/rdft/scalar/r2cf/hf2_5.c
-    src/rdft/scalar/r2cf/hf2_8.c src/rdft/scalar/r2cf/hf_10.c
-    src/rdft/scalar/r2cf/hf_12.c src/rdft/scalar/r2cf/hf_15.c
-    src/rdft/scalar/r2cf/hf_16.c src/rdft/scalar/r2cf/hf_2.c
-    src/rdft/scalar/r2cf/hf_20.c src/rdft/scalar/r2cf/hf_25.c
-    src/rdft/scalar/r2cf/hf_3.c src/rdft/scalar/r2cf/hf_32.c
-    src/rdft/scalar/r2cf/hf_4.c src/rdft/scalar/r2cf/hf_5.c
-    src/rdft/scalar/r2cf/hf_6.c src/rdft/scalar/r2cf/hf_64.c
-    src/rdft/scalar/r2cf/hf_7.c src/rdft/scalar/r2cf/hf_8.c
-    src/rdft/scalar/r2cf/hf_9.c src/rdft/scalar/r2cf/r2cf_10.c
-    src/rdft/scalar/r2cf/r2cf_11.c src/rdft/scalar/r2cf/r2cf_12.c
-    src/rdft/scalar/r2cf/r2cf_128.c src/rdft/scalar/r2cf/r2cf_13.c
-    src/rdft/scalar/r2cf/r2cf_14.c src/rdft/scalar/r2cf/r2cf_15.c
-    src/rdft/scalar/r2cf/r2cf_16.c src/rdft/scalar/r2cf/r2cf_2.c
-    src/rdft/scalar/r2cf/r2cf_20.c src/rdft/scalar/r2cf/r2cf_25.c
-    src/rdft/scalar/r2cf/r2cf_3.c src/rdft/scalar/r2cf/r2cf_32.c
-    src/rdft/scalar/r2cf/r2cf_4.c src/rdft/scalar/r2cf/r2cf_5.c
-    src/rdft/scalar/r2cf/r2cf_6.c src/rdft/scalar/r2cf/r2cf_64.c
-    src/rdft/scalar/r2cf/r2cf_7.c src/rdft/scalar/r2cf/r2cf_8.c
-    src/rdft/scalar/r2cf/r2cf_9.c src/rdft/scalar/r2cf/r2cfII_10.c
-    src/rdft/scalar/r2cf/r2cfII_12.c src/rdft/scalar/r2cf/r2cfII_15.c
-    src/rdft/scalar/r2cf/r2cfII_16.c src/rdft/scalar/r2cf/r2cfII_2.c
-    src/rdft/scalar/r2cf/r2cfII_20.c src/rdft/scalar/r2cf/r2cfII_25.c
-    src/rdft/scalar/r2cf/r2cfII_3.c src/rdft/scalar/r2cf/r2cfII_32.c
-    src/rdft/scalar/r2cf/r2cfII_4.c src/rdft/scalar/r2cf/r2cfII_5.c
-    src/rdft/scalar/r2cf/r2cfII_6.c src/rdft/scalar/r2cf/r2cfII_64.c
-    src/rdft/scalar/r2cf/r2cfII_7.c src/rdft/scalar/r2cf/r2cfII_8.c
-    src/rdft/scalar/r2cf/r2cfII_9.c src/rdft/simd/hc2cbv.c
-    src/rdft/simd/hc2cfv.c src/rdft/simd/codelets/codlist.c
-    src/rdft/simd/codelets/hc2cbdftv_10.c src/rdft/simd/codelets/hc2cbdftv_12.c
-    src/rdft/simd/codelets/hc2cbdftv_16.c src/rdft/simd/codelets/hc2cbdftv_2.c
-    src/rdft/simd/codelets/hc2cbdftv_20.c src/rdft/simd/codelets/hc2cbdftv_32.c
-    src/rdft/simd/codelets/hc2cbdftv_4.c src/rdft/simd/codelets/hc2cbdftv_6.c
-    src/rdft/simd/codelets/hc2cbdftv_8.c src/rdft/simd/codelets/hc2cfdftv_10.c
-    src/rdft/simd/codelets/hc2cfdftv_12.c src/rdft/simd/codelets/hc2cfdftv_16.c
-    src/rdft/simd/codelets/hc2cfdftv_2.c src/rdft/simd/codelets/hc2cfdftv_20.c
-    src/rdft/simd/codelets/hc2cfdftv_32.c src/rdft/simd/codelets/hc2cfdftv_4.c
-    src/rdft/simd/codelets/hc2cfdftv_6.c src/rdft/simd/codelets/hc2cfdftv_8.c
-    src/rdft/scalar/r2cb/codlist.c src/rdft/scalar/r2cb/hb2_16.c
-    src/rdft/scalar/r2cb/hb2_20.c src/rdft/scalar/r2cb/hb2_25.c
-    src/rdft/scalar/r2cb/hb2_32.c src/rdft/scalar/r2cb/hb2_4.c
-    src/rdft/scalar/r2cb/hb2_5.c src/rdft/scalar/r2cb/hb2_8.c
-    src/rdft/scalar/r2cb/hb_10.c src/rdft/scalar/r2cb/hb_12.c
-    src/rdft/scalar/r2cb/hb_15.c src/rdft/scalar/r2cb/hb_16.c
-    src/rdft/scalar/r2cb/hb_2.c src/rdft/scalar/r2cb/hb_20.c
-    src/rdft/scalar/r2cb/hb_25.c src/rdft/scalar/r2cb/hb_3.c
-    src/rdft/scalar/r2cb/hb_32.c src/rdft/scalar/r2cb/hb_4.c
-    src/rdft/scalar/r2cb/hb_5.c src/rdft/scalar/r2cb/hb_6.c
-    src/rdft/scalar/r2cb/hb_64.c src/rdft/scalar/r2cb/hb_7.c
-    src/rdft/scalar/r2cb/hb_8.c src/rdft/scalar/r2cb/hb_9.c
-    src/rdft/scalar/r2cb/hc2cb2_16.c src/rdft/scalar/r2cb/hc2cb2_20.c
-    src/rdft/scalar/r2cb/hc2cb2_32.c src/rdft/scalar/r2cb/hc2cb2_4.c
-    src/rdft/scalar/r2cb/hc2cb2_8.c src/rdft/scalar/r2cb/hc2cb_10.c
-    src/rdft/scalar/r2cb/hc2cb_12.c src/rdft/scalar/r2cb/hc2cb_16.c
-    src/rdft/scalar/r2cb/hc2cb_2.c src/rdft/scalar/r2cb/hc2cb_20.c
-    src/rdft/scalar/r2cb/hc2cb_32.c src/rdft/scalar/r2cb/hc2cb_4.c
-    src/rdft/scalar/r2cb/hc2cb_6.c src/rdft/scalar/r2cb/hc2cb_8.c
-    src/rdft/scalar/r2cb/hc2cbdft2_16.c src/rdft/scalar/r2cb/hc2cbdft2_20.c
-    src/rdft/scalar/r2cb/hc2cbdft2_32.c src/rdft/scalar/r2cb/hc2cbdft2_4.c
-    src/rdft/scalar/r2cb/hc2cbdft2_8.c src/rdft/scalar/r2cb/hc2cbdft_10.c
-    src/rdft/scalar/r2cb/hc2cbdft_12.c src/rdft/scalar/r2cb/hc2cbdft_16.c
-    src/rdft/scalar/r2cb/hc2cbdft_2.c src/rdft/scalar/r2cb/hc2cbdft_20.c
-    src/rdft/scalar/r2cb/hc2cbdft_32.c src/rdft/scalar/r2cb/hc2cbdft_4.c
-    src/rdft/scalar/r2cb/hc2cbdft_6.c src/rdft/scalar/r2cb/hc2cbdft_8.c
-    src/rdft/scalar/r2cb/r2cb_10.c src/rdft/scalar/r2cb/r2cb_11.c
-    src/rdft/scalar/r2cb/r2cb_12.c src/rdft/scalar/r2cb/r2cb_128.c
-    src/rdft/scalar/r2cb/r2cb_13.c src/rdft/scalar/r2cb/r2cb_14.c
-    src/rdft/scalar/r2cb/r2cb_15.c src/rdft/scalar/r2cb/r2cb_16.c
-    src/rdft/scalar/r2cb/r2cb_2.c src/rdft/scalar/r2cb/r2cb_20.c
-    src/rdft/scalar/r2cb/r2cb_25.c src/rdft/scalar/r2cb/r2cb_3.c
-    src/rdft/scalar/r2cb/r2cb_32.c src/rdft/scalar/r2cb/r2cb_4.c
-    src/rdft/scalar/r2cb/r2cb_5.c src/rdft/scalar/r2cb/r2cb_6.c
-    src/rdft/scalar/r2cb/r2cb_64.c src/rdft/scalar/r2cb/r2cb_7.c
-    src/rdft/scalar/r2cb/r2cb_8.c src/rdft/scalar/r2cb/r2cb_9.c
-    src/rdft/scalar/r2cb/r2cbIII_10.c src/rdft/scalar/r2cb/r2cbIII_12.c
-    src/rdft/scalar/r2cb/r2cbIII_15.c src/rdft/scalar/r2cb/r2cbIII_16.c
-    src/rdft/scalar/r2cb/r2cbIII_2.c src/rdft/scalar/r2cb/r2cbIII_20.c
-    src/rdft/scalar/r2cb/r2cbIII_25.c src/rdft/scalar/r2cb/r2cbIII_3.c
-    src/rdft/scalar/r2cb/r2cbIII_32.c src/rdft/scalar/r2cb/r2cbIII_4.c
-    src/rdft/scalar/r2cb/r2cbIII_5.c src/rdft/scalar/r2cb/r2cbIII_6.c
-    src/rdft/scalar/r2cb/r2cbIII_64.c src/rdft/scalar/r2cb/r2cbIII_7.c
-    src/rdft/scalar/r2cb/r2cbIII_8.c src/rdft/scalar/r2cb/r2cbIII_9.c
-    src/rdft/scalar/r2r/codlist.c src/rdft/scalar/r2r/e01_8.c
-    src/rdft/scalar/r2r/e10_8.c src/reodft/conf.c
-    src/reodft/redft00e-r2hc-pad.c src/reodft/redft00e-r2hc.c
-    src/reodft/reodft00e-splitradix.c src/reodft/reodft010e-r2hc.c
-    src/reodft/reodft11e-r2hc-odd.c src/reodft/reodft11e-r2hc.c
-    src/reodft/reodft11e-radix2.c src/reodft/rodft00e-r2hc-pad.c
-    src/reodft/rodft00e-r2hc.c src/api/apiplan.c src/api/configure.c
-    src/api/execute-dft-c2r.c src/api/execute-dft-r2c.c src/api/execute-dft.c
-    src/api/execute-r2r.c src/api/execute-split-dft-c2r.c
-    src/api/execute-split-dft-r2c.c src/api/execute-split-dft.c
-    src/api/execute.c src/api/export-wisdom-to-file.c
-    src/api/export-wisdom-to-string.c src/api/export-wisdom.c src/api/f77api.c
-    src/api/flops.c src/api/forget-wisdom.c src/api/import-system-wisdom.c
-    src/api/import-wisdom-from-file.c src/api/import-wisdom-from-string.c
-    src/api/import-wisdom.c src/api/malloc.c src/api/map-r2r-kind.c
-    src/api/mapflags.c src/api/mkprinter-file.c src/api/mktensor-iodims.c
-    src/api/mktensor-iodims64.c src/api/mktensor-rowmajor.c
-    src/api/plan-dft-1d.c src/api/plan-dft-2d.c src/api/plan-dft-3d.c
-    src/api/plan-dft-c2r-1d.c src/api/plan-dft-c2r-2d.c
-    src/api/plan-dft-c2r-3d.c src/api/plan-dft-c2r.c src/api/plan-dft-r2c-1d.c
-    src/api/plan-dft-r2c-2d.c src/api/plan-dft-r2c-3d.c src/api/plan-dft-r2c.c
-    src/api/plan-dft.c src/api/plan-guru-dft-c2r.c src/api/plan-guru-dft-r2c.c
-    src/api/plan-guru-dft.c src/api/plan-guru-r2r.c
-    src/api/plan-guru-split-dft-c2r.c src/api/plan-guru-split-dft-r2c.c
-    src/api/plan-guru-split-dft.c src/api/plan-guru64-dft-c2r.c
-    src/api/plan-guru64-dft-r2c.c src/api/plan-guru64-dft.c
-    src/api/plan-guru64-r2r.c src/api/plan-guru64-split-dft-c2r.c
-    src/api/plan-guru64-split-dft-r2c.c src/api/plan-guru64-split-dft.c
-    src/api/plan-many-dft-c2r.c src/api/plan-many-dft-r2c.c
-    src/api/plan-many-dft.c src/api/plan-many-r2r.c src/api/plan-r2r-1d.c
-    src/api/plan-r2r-2d.c src/api/plan-r2r-3d.c src/api/plan-r2r.c
-    src/api/print-plan.c src/api/rdft2-pad.c src/api/the-planner.c
-    src/api/version.c src/simd/altivec.c src/simd/mips_ps.c src/simd/sse.c
-    src/simd/sse2.c src/simd/taint.c src/simd/nonportable/sse.c
-    src/simd/nonportable/sse2.c src/dft/simd/n1b.c src/dft/simd/n1f.c
-    src/dft/simd/n2b.c src/dft/simd/n2f.c src/dft/simd/n2s.c src/dft/simd/q1b.c
-    src/dft/simd/q1f.c src/dft/simd/t.c src/dft/simd/ts.c
-    src/dft/simd/codelets/codlist.c src/dft/simd/codelets/n1bv_10.c
-    src/dft/simd/codelets/n1bv_11.c src/dft/simd/codelets/n1bv_12.c
-    src/dft/simd/codelets/n1bv_13.c src/dft/simd/codelets/n1bv_14.c
-    src/dft/simd/codelets/n1bv_15.c src/dft/simd/codelets/n1bv_16.c
-    src/dft/simd/codelets/n1bv_2.c src/dft/simd/codelets/n1bv_20.c
-    src/dft/simd/codelets/n1bv_25.c src/dft/simd/codelets/n1bv_3.c
-    src/dft/simd/codelets/n1bv_32.c src/dft/simd/codelets/n1bv_4.c
-    src/dft/simd/codelets/n1bv_5.c src/dft/simd/codelets/n1bv_6.c
-    src/dft/simd/codelets/n1bv_64.c src/dft/simd/codelets/n1bv_7.c
-    src/dft/simd/codelets/n1bv_8.c src/dft/simd/codelets/n1bv_9.c
-    src/dft/simd/codelets/n1fv_10.c src/dft/simd/codelets/n1fv_11.c
-    src/dft/simd/codelets/n1fv_12.c src/dft/simd/codelets/n1fv_13.c
-    src/dft/simd/codelets/n1fv_14.c src/dft/simd/codelets/n1fv_15.c
-    src/dft/simd/codelets/n1fv_16.c src/dft/simd/codelets/n1fv_2.c
-    src/dft/simd/codelets/n1fv_20.c src/dft/simd/codelets/n1fv_25.c
-    src/dft/simd/codelets/n1fv_3.c src/dft/simd/codelets/n1fv_32.c
-    src/dft/simd/codelets/n1fv_4.c src/dft/simd/codelets/n1fv_5.c
-    src/dft/simd/codelets/n1fv_6.c src/dft/simd/codelets/n1fv_64.c
-    src/dft/simd/codelets/n1fv_7.c src/dft/simd/codelets/n1fv_8.c
-    src/dft/simd/codelets/n1fv_9.c src/dft/simd/codelets/n2bv_10.c
-    src/dft/simd/codelets/n2bv_12.c src/dft/simd/codelets/n2bv_14.c
-    src/dft/simd/codelets/n2bv_16.c src/dft/simd/codelets/n2bv_2.c
-    src/dft/simd/codelets/n2bv_20.c src/dft/simd/codelets/n2bv_32.c
-    src/dft/simd/codelets/n2bv_4.c src/dft/simd/codelets/n2bv_6.c
-    src/dft/simd/codelets/n2bv_64.c src/dft/simd/codelets/n2bv_8.c
-    src/dft/simd/codelets/n2fv_10.c src/dft/simd/codelets/n2fv_12.c
-    src/dft/simd/codelets/n2fv_14.c src/dft/simd/codelets/n2fv_16.c
-    src/dft/simd/codelets/n2fv_2.c src/dft/simd/codelets/n2fv_20.c
-    src/dft/simd/codelets/n2fv_32.c src/dft/simd/codelets/n2fv_4.c
-    src/dft/simd/codelets/n2fv_6.c src/dft/simd/codelets/n2fv_64.c
-    src/dft/simd/codelets/n2fv_8.c src/dft/simd/codelets/n2sv_16.c
-    src/dft/simd/codelets/n2sv_32.c src/dft/simd/codelets/n2sv_4.c
-    src/dft/simd/codelets/n2sv_64.c src/dft/simd/codelets/n2sv_8.c
-    src/dft/simd/codelets/q1bv_2.c src/dft/simd/codelets/q1bv_4.c
-    src/dft/simd/codelets/q1bv_5.c src/dft/simd/codelets/q1bv_8.c
-    src/dft/simd/codelets/q1fv_2.c src/dft/simd/codelets/q1fv_4.c
-    src/dft/simd/codelets/q1fv_5.c src/dft/simd/codelets/q1fv_8.c
-    src/dft/simd/codelets/t1buv_10.c src/dft/simd/codelets/t1buv_2.c
-    src/dft/simd/codelets/t1buv_3.c src/dft/simd/codelets/t1buv_4.c
-    src/dft/simd/codelets/t1buv_5.c src/dft/simd/codelets/t1buv_6.c
-    src/dft/simd/codelets/t1buv_7.c src/dft/simd/codelets/t1buv_8.c
-    src/dft/simd/codelets/t1buv_9.c src/dft/simd/codelets/t1bv_10.c
-    src/dft/simd/codelets/t1bv_12.c src/dft/simd/codelets/t1bv_15.c
-    src/dft/simd/codelets/t1bv_16.c src/dft/simd/codelets/t1bv_2.c
-    src/dft/simd/codelets/t1bv_20.c src/dft/simd/codelets/t1bv_25.c
-    src/dft/simd/codelets/t1bv_3.c src/dft/simd/codelets/t1bv_32.c
-    src/dft/simd/codelets/t1bv_4.c src/dft/simd/codelets/t1bv_5.c
-    src/dft/simd/codelets/t1bv_6.c src/dft/simd/codelets/t1bv_64.c
-    src/dft/simd/codelets/t1bv_7.c src/dft/simd/codelets/t1bv_8.c
-    src/dft/simd/codelets/t1bv_9.c src/dft/simd/codelets/t1fuv_10.c
-    src/dft/simd/codelets/t1fuv_2.c src/dft/simd/codelets/t1fuv_3.c
-    src/dft/simd/codelets/t1fuv_4.c src/dft/simd/codelets/t1fuv_5.c
-    src/dft/simd/codelets/t1fuv_6.c src/dft/simd/codelets/t1fuv_7.c
-    src/dft/simd/codelets/t1fuv_8.c src/dft/simd/codelets/t1fuv_9.c
-    src/dft/simd/codelets/t1fv_10.c src/dft/simd/codelets/t1fv_12.c
-    src/dft/simd/codelets/t1fv_15.c src/dft/simd/codelets/t1fv_16.c
-    src/dft/simd/codelets/t1fv_2.c src/dft/simd/codelets/t1fv_20.c
-    src/dft/simd/codelets/t1fv_25.c src/dft/simd/codelets/t1fv_3.c
-    src/dft/simd/codelets/t1fv_32.c src/dft/simd/codelets/t1fv_4.c
-    src/dft/simd/codelets/t1fv_5.c src/dft/simd/codelets/t1fv_6.c
-    src/dft/simd/codelets/t1fv_64.c src/dft/simd/codelets/t1fv_7.c
-    src/dft/simd/codelets/t1fv_8.c src/dft/simd/codelets/t1fv_9.c
-    src/dft/simd/codelets/t1sv_16.c src/dft/simd/codelets/t1sv_2.c
-    src/dft/simd/codelets/t1sv_32.c src/dft/simd/codelets/t1sv_4.c
-    src/dft/simd/codelets/t1sv_8.c src/dft/simd/codelets/t2bv_10.c
-    src/dft/simd/codelets/t2bv_16.c src/dft/simd/codelets/t2bv_2.c
-    src/dft/simd/codelets/t2bv_20.c src/dft/simd/codelets/t2bv_25.c
-    src/dft/simd/codelets/t2bv_32.c src/dft/simd/codelets/t2bv_4.c
-    src/dft/simd/codelets/t2bv_5.c src/dft/simd/codelets/t2bv_64.c
-    src/dft/simd/codelets/t2bv_8.c src/dft/simd/codelets/t2fv_10.c
-    src/dft/simd/codelets/t2fv_16.c src/dft/simd/codelets/t2fv_2.c
-    src/dft/simd/codelets/t2fv_20.c src/dft/simd/codelets/t2fv_25.c
-    src/dft/simd/codelets/t2fv_32.c src/dft/simd/codelets/t2fv_4.c
-    src/dft/simd/codelets/t2fv_5.c src/dft/simd/codelets/t2fv_64.c
-    src/dft/simd/codelets/t2fv_8.c src/dft/simd/codelets/t2sv_16.c
-    src/dft/simd/codelets/t2sv_32.c src/dft/simd/codelets/t2sv_4.c
-    src/dft/simd/codelets/t2sv_8.c src/dft/simd/codelets/t3bv_10.c
-    src/dft/simd/codelets/t3bv_16.c src/dft/simd/codelets/t3bv_20.c
-    src/dft/simd/codelets/t3bv_25.c src/dft/simd/codelets/t3bv_32.c
-    src/dft/simd/codelets/t3bv_4.c src/dft/simd/codelets/t3bv_5.c
-    src/dft/simd/codelets/t3bv_8.c src/dft/simd/codelets/t3fv_10.c
-    src/dft/simd/codelets/t3fv_16.c src/dft/simd/codelets/t3fv_20.c
-    src/dft/simd/codelets/t3fv_25.c src/dft/simd/codelets/t3fv_32.c
-    src/dft/simd/codelets/t3fv_4.c src/dft/simd/codelets/t3fv_5.c
-    src/dft/simd/codelets/t3fv_8.c
-    """)
+# Set the config file to use
+config_file = get_platform_config()
 
-env.Append(CPPPATH=fftw_dirs)
+# Base directory for FFTW 3.3.10 - need to make it relative to SConscript location
+script_dir = Dir('.').srcnode().abspath
+fftw_base = os.path.join(script_dir, 'fftw-3.3.10')
 
+# Include directories
+fftw_dirs = [
+    fftw_base,
+    os.path.join(fftw_base, 'kernel'),
+    os.path.join(fftw_base, 'dft'),
+    os.path.join(fftw_base, 'dft/scalar'),
+    os.path.join(fftw_base, 'dft/scalar/codelets'),
+    os.path.join(fftw_base, 'rdft'),
+    os.path.join(fftw_base, 'rdft/scalar'),
+    os.path.join(fftw_base, 'rdft/scalar/r2cf'),
+    os.path.join(fftw_base, 'rdft/scalar/r2cb'),
+    os.path.join(fftw_base, 'rdft/scalar/r2r'),
+    os.path.join(fftw_base, 'reodft'),
+    os.path.join(fftw_base, 'api'),
+    os.path.join(fftw_base, 'simd-support'),
+    '.',  # For config files
+]
+
+# Core source files (common to all platforms)
+kernel_files = [os.path.join(fftw_base, 'kernel', f) for f in [
+    'align.c', 'alloc.c', 'assert.c', 'awake.c', 'buffered.c', 'cpy1d.c',
+    'cpy2d-pair.c', 'cpy2d.c', 'ct.c', 'debug.c', 'extract-reim.c', 'hash.c',
+    'iabs.c', 'kalloc.c', 'md5-1.c', 'md5.c', 'minmax.c', 'ops.c', 'pickdim.c',
+    'plan.c', 'planner.c', 'primes.c', 'print.c', 'problem.c', 'rader.c',
+    'scan.c', 'solver.c', 'solvtab.c', 'stride.c', 'tensor.c', 'tensor1.c',
+    'tensor2.c', 'tensor3.c', 'tensor4.c', 'tensor5.c', 'tensor7.c', 'tensor8.c',
+    'tensor9.c', 'tile2d.c', 'timer.c', 'transpose.c', 'trig.c', 'twiddle.c'
+]]
+
+dft_files = [os.path.join(fftw_base, 'dft', f) for f in [
+    'bluestein.c', 'buffered.c', 'conf.c', 'ct.c', 'dftw-direct.c', 'dftw-directsq.c',
+    'dftw-generic.c', 'dftw-genericbuf.c', 'direct.c', 'generic.c', 'indirect-transpose.c',
+    'indirect.c', 'kdft-dif.c', 'kdft-difsq.c', 'kdft-dit.c', 'kdft.c', 'nop.c',
+    'plan.c', 'problem.c', 'rader.c', 'rank-geq2.c', 'solve.c', 'vrank-geq1.c', 'zero.c'
+]]
+
+dft_scalar_files = [os.path.join(fftw_base, 'dft/scalar', f) for f in ['n.c', 't.c']]
+
+# DFT scalar codelets
+dft_scalar_codelets = [os.path.join(fftw_base, 'dft/scalar/codelets', f) for f in [
+    'codlist.c', 'n1_2.c', 'n1_3.c', 'n1_4.c', 'n1_5.c', 'n1_6.c', 'n1_7.c', 'n1_8.c',
+    'n1_9.c', 'n1_10.c', 'n1_11.c', 'n1_12.c', 'n1_13.c', 'n1_14.c', 'n1_15.c', 'n1_16.c',
+    'n1_20.c', 'n1_25.c', 'n1_32.c', 'n1_64.c', 
+    'q1_2.c', 'q1_3.c', 'q1_4.c', 'q1_5.c', 'q1_6.c', 'q1_8.c',
+    't1_2.c', 't1_3.c', 't1_4.c', 't1_5.c', 't1_6.c', 't1_7.c', 't1_8.c', 't1_9.c',
+    't1_10.c', 't1_12.c', 't1_15.c', 't1_16.c', 't1_20.c', 't1_25.c', 't1_32.c', 't1_64.c',
+    't2_4.c', 't2_5.c', 't2_8.c', 't2_10.c', 't2_16.c', 't2_20.c', 't2_25.c', 't2_32.c', 't2_64.c'
+]]
+
+rdft_files = [os.path.join(fftw_base, 'rdft', f) for f in [
+    'buffered.c', 'buffered2.c', 'conf.c', 'ct-hc2c-direct.c', 'ct-hc2c.c', 'dft-r2hc.c',
+    'dht-r2hc.c', 'dht-rader.c', 'direct-r2c.c', 'direct-r2r.c', 'direct2.c', 'generic.c',
+    'hc2hc-direct.c', 'hc2hc-generic.c', 'hc2hc.c', 'indirect.c', 'khc2c.c', 'khc2hc.c',
+    'kr2c.c', 'kr2r.c', 'nop.c', 'nop2.c', 'plan.c', 'plan2.c', 'problem.c', 'problem2.c',
+    'rank-geq2-rdft2.c', 'rank-geq2.c', 'rank0-rdft2.c', 'rank0.c', 'rdft-dht.c',
+    'rdft2-inplace-strides.c', 'rdft2-rdft.c', 'rdft2-strides.c', 'rdft2-tensor-max-index.c',
+    'solve.c', 'solve2.c', 'vrank-geq1-rdft2.c', 'vrank-geq1.c', 'vrank3-transpose.c'
+]]
+
+rdft_scalar_files = [os.path.join(fftw_base, 'rdft/scalar', f) for f in [
+    'hc2c.c', 'hfb.c', 'r2c.c', 'r2r.c'
+]]
+
+# RDFT scalar codelets (r2cf)
+rdft_r2cf_files = [os.path.join(fftw_base, 'rdft/scalar/r2cf', f) for f in [
+    'codlist.c',
+    'hc2cf_2.c', 'hc2cf_4.c', 'hc2cf_6.c', 'hc2cf_8.c', 'hc2cf_10.c', 'hc2cf_12.c',
+    'hc2cf_16.c', 'hc2cf_20.c', 'hc2cf_32.c',
+    'hc2cf2_4.c', 'hc2cf2_8.c', 'hc2cf2_16.c', 'hc2cf2_20.c', 'hc2cf2_32.c',
+    'hc2cfdft_2.c', 'hc2cfdft_4.c', 'hc2cfdft_6.c', 'hc2cfdft_8.c', 'hc2cfdft_10.c',
+    'hc2cfdft_12.c', 'hc2cfdft_16.c', 'hc2cfdft_20.c', 'hc2cfdft_32.c',
+    'hc2cfdft2_4.c', 'hc2cfdft2_8.c', 'hc2cfdft2_16.c', 'hc2cfdft2_20.c', 'hc2cfdft2_32.c',
+    'hf_2.c', 'hf_3.c', 'hf_4.c', 'hf_5.c', 'hf_6.c', 'hf_7.c', 'hf_8.c', 'hf_9.c',
+    'hf_10.c', 'hf_12.c', 'hf_15.c', 'hf_16.c', 'hf_20.c', 'hf_25.c', 'hf_32.c', 'hf_64.c',
+    'hf2_4.c', 'hf2_5.c', 'hf2_8.c', 'hf2_16.c', 'hf2_20.c', 'hf2_25.c', 'hf2_32.c',
+    'r2cf_2.c', 'r2cf_3.c', 'r2cf_4.c', 'r2cf_5.c', 'r2cf_6.c', 'r2cf_7.c', 'r2cf_8.c',
+    'r2cf_9.c', 'r2cf_10.c', 'r2cf_11.c', 'r2cf_12.c', 'r2cf_13.c', 'r2cf_14.c', 'r2cf_15.c',
+    'r2cf_16.c', 'r2cf_20.c', 'r2cf_25.c', 'r2cf_32.c', 'r2cf_64.c', 'r2cf_128.c',
+    'r2cfII_2.c', 'r2cfII_3.c', 'r2cfII_4.c', 'r2cfII_5.c', 'r2cfII_6.c', 'r2cfII_7.c',
+    'r2cfII_8.c', 'r2cfII_9.c', 'r2cfII_10.c', 'r2cfII_12.c', 'r2cfII_15.c', 'r2cfII_16.c',
+    'r2cfII_20.c', 'r2cfII_25.c', 'r2cfII_32.c', 'r2cfII_64.c'
+]]
+
+# RDFT scalar codelets (r2cb)
+rdft_r2cb_files = [os.path.join(fftw_base, 'rdft/scalar/r2cb', f) for f in [
+    'codlist.c',
+    'hb_2.c', 'hb_3.c', 'hb_4.c', 'hb_5.c', 'hb_6.c', 'hb_7.c', 'hb_8.c', 'hb_9.c',
+    'hb_10.c', 'hb_12.c', 'hb_15.c', 'hb_16.c', 'hb_20.c', 'hb_25.c', 'hb_32.c', 'hb_64.c',
+    'hb2_4.c', 'hb2_5.c', 'hb2_8.c', 'hb2_16.c', 'hb2_20.c', 'hb2_25.c', 'hb2_32.c',
+    'hc2cb_2.c', 'hc2cb_4.c', 'hc2cb_6.c', 'hc2cb_8.c', 'hc2cb_10.c', 'hc2cb_12.c',
+    'hc2cb_16.c', 'hc2cb_20.c', 'hc2cb_32.c',
+    'hc2cb2_4.c', 'hc2cb2_8.c', 'hc2cb2_16.c', 'hc2cb2_20.c', 'hc2cb2_32.c',
+    'hc2cbdft_2.c', 'hc2cbdft_4.c', 'hc2cbdft_6.c', 'hc2cbdft_8.c', 'hc2cbdft_10.c',
+    'hc2cbdft_12.c', 'hc2cbdft_16.c', 'hc2cbdft_20.c', 'hc2cbdft_32.c',
+    'hc2cbdft2_4.c', 'hc2cbdft2_8.c', 'hc2cbdft2_16.c', 'hc2cbdft2_20.c', 'hc2cbdft2_32.c',
+    'r2cb_2.c', 'r2cb_3.c', 'r2cb_4.c', 'r2cb_5.c', 'r2cb_6.c', 'r2cb_7.c', 'r2cb_8.c',
+    'r2cb_9.c', 'r2cb_10.c', 'r2cb_11.c', 'r2cb_12.c', 'r2cb_13.c', 'r2cb_14.c', 'r2cb_15.c',
+    'r2cb_16.c', 'r2cb_20.c', 'r2cb_25.c', 'r2cb_32.c', 'r2cb_64.c', 'r2cb_128.c',
+    'r2cbIII_2.c', 'r2cbIII_3.c', 'r2cbIII_4.c', 'r2cbIII_5.c', 'r2cbIII_6.c', 'r2cbIII_7.c',
+    'r2cbIII_8.c', 'r2cbIII_9.c', 'r2cbIII_10.c', 'r2cbIII_12.c', 'r2cbIII_15.c', 'r2cbIII_16.c',
+    'r2cbIII_20.c', 'r2cbIII_25.c', 'r2cbIII_32.c', 'r2cbIII_64.c'
+]]
+
+# RDFT scalar codelets (r2r)
+rdft_r2r_files = [os.path.join(fftw_base, 'rdft/scalar/r2r', f) for f in [
+    'codlist.c', 'e01_8.c', 'e10_8.c'
+]]
+
+reodft_files = [os.path.join(fftw_base, 'reodft', f) for f in [
+    'conf.c', 'redft00e-r2hc-pad.c', 'redft00e-r2hc.c', 'reodft00e-splitradix.c',
+    'reodft010e-r2hc.c', 'reodft11e-r2hc-odd.c', 'reodft11e-r2hc.c', 'reodft11e-radix2.c',
+    'rodft00e-r2hc-pad.c', 'rodft00e-r2hc.c'
+]]
+
+api_files = [os.path.join(fftw_base, 'api', f) for f in [
+    'apiplan.c', 'configure.c', 'execute-dft-c2r.c', 'execute-dft-r2c.c', 'execute-dft.c',
+    'execute-r2r.c', 'execute-split-dft-c2r.c', 'execute-split-dft-r2c.c', 'execute-split-dft.c',
+    'execute.c', 'export-wisdom-to-file.c', 'export-wisdom-to-string.c', 'export-wisdom.c',
+    'f77api.c', 'flops.c', 'forget-wisdom.c', 'import-system-wisdom.c',
+    'import-wisdom-from-file.c', 'import-wisdom-from-string.c', 'import-wisdom.c',
+    'malloc.c', 'map-r2r-kind.c', 'mapflags.c', 'mkprinter-file.c', 'mkprinter-str.c', 'mktensor-iodims.c',
+    'mktensor-iodims64.c', 'mktensor-rowmajor.c', 'plan-dft-1d.c', 'plan-dft-2d.c',
+    'plan-dft-3d.c', 'plan-dft-c2r-1d.c', 'plan-dft-c2r-2d.c', 'plan-dft-c2r-3d.c',
+    'plan-dft-c2r.c', 'plan-dft-r2c-1d.c', 'plan-dft-r2c-2d.c', 'plan-dft-r2c-3d.c',
+    'plan-dft-r2c.c', 'plan-dft.c', 'plan-guru-dft-c2r.c', 'plan-guru-dft-r2c.c',
+    'plan-guru-dft.c', 'plan-guru-r2r.c', 'plan-guru-split-dft-c2r.c',
+    'plan-guru-split-dft-r2c.c', 'plan-guru-split-dft.c', 'plan-guru64-dft-c2r.c',
+    'plan-guru64-dft-r2c.c', 'plan-guru64-dft.c', 'plan-guru64-r2r.c',
+    'plan-guru64-split-dft-c2r.c', 'plan-guru64-split-dft-r2c.c', 'plan-guru64-split-dft.c',
+    'plan-many-dft-c2r.c', 'plan-many-dft-r2c.c', 'plan-many-dft.c', 'plan-many-r2r.c',
+    'plan-r2r-1d.c', 'plan-r2r-2d.c', 'plan-r2r-3d.c', 'plan-r2r.c', 'print-plan.c',
+    'rdft2-pad.c', 'the-planner.c', 'version.c'
+]]
+
+# Combine all core files
+fftw_files = (kernel_files + dft_files + dft_scalar_files + dft_scalar_codelets + 
+              rdft_files + rdft_scalar_files + rdft_r2cf_files + rdft_r2cb_files + 
+              rdft_r2r_files + reodft_files + api_files)
+
+# Add SIMD support files based on platform
+simd_support_files = [os.path.join(fftw_base, 'simd-support', 'taint.c')]
+
+# Platform-specific SIMD files and compiler flags
 if env['IS_MACOSX']:
-    env.Append(CCFLAGS='-Wno-unused-but-set-variable')
+    # Add appropriate config include path
+    env.Append(CPPDEFINES=[('HAVE_CONFIG_H', '1')])
+    env.Append(CCFLAGS=['-include', config_file])
+    
+    # Check if we're on ARM using platform module
+    is_arm = platform.machine().lower() in ['arm64', 'aarch64']
+    
+    if is_arm:
+        # macOS ARM64 - NEON support
+        fftw_dirs.extend([
+            os.path.join(fftw_base, 'dft/simd'),
+            os.path.join(fftw_base, 'dft/simd/common'),
+            os.path.join(fftw_base, 'dft/simd/neon'),
+            os.path.join(fftw_base, 'rdft/simd'),
+            os.path.join(fftw_base, 'rdft/simd/common'),
+            os.path.join(fftw_base, 'rdft/simd/neon')
+        ])
+        simd_support_files.append(os.path.join(fftw_base, 'simd-support/neon.c'))
+        
+        # Do NOT compile common SIMD codelets directly - they are included by neon versions
+        # (The neon/*.c files include ../common/*.c with proper SIMD_HEADER defines)
+        
+        # Add NEON-specific files (these include common/*.c with proper SIMD_HEADER)
+        neon_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/neon/*.c'))
+        neon_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/neon/*.c'))
+        fftw_files.extend(neon_dft_files)
+        fftw_files.extend(neon_rdft_files)
+    else:
+        # macOS x86_64 - SSE2 support
+        fftw_dirs.extend([
+            os.path.join(fftw_base, 'dft/simd'),
+            os.path.join(fftw_base, 'dft/simd/common'),
+            os.path.join(fftw_base, 'dft/simd/sse2'),
+            os.path.join(fftw_base, 'rdft/simd'),
+            os.path.join(fftw_base, 'rdft/simd/common'),
+            os.path.join(fftw_base, 'rdft/simd/sse2')
+        ])
+        simd_support_files.append(os.path.join(fftw_base, 'simd-support/sse2.c'))
+        
+        # Do NOT compile common SIMD codelets directly - they are included by sse2 versions
+        
+        # Add SSE2-specific files (these include common/*.c with proper SIMD_HEADER)
+        sse2_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/sse2/*.c'))
+        sse2_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/sse2/*.c'))
+        fftw_files.extend(sse2_dft_files)
+        fftw_files.extend(sse2_rdft_files)
+        
+        env.Append(CCFLAGS=['-msse2'])
 
 if env['IS_WINDOWS']:
-    env.Append(CCFLAGS='-DCOMPILING_FFTW -DFFTW_DLL')
+    env.Append(CPPDEFINES=[('HAVE_CONFIG_H', '1'), 'FFTW_DLL'])
+    env.Append(CCFLAGS=['-include', config_file, '/wd4244', '/wd4305'])
+    
+    # Windows x86_64 - SSE2 support
+    fftw_dirs.extend([
+        os.path.join(fftw_base, 'dft/simd'),
+        os.path.join(fftw_base, 'dft/simd/common'),
+        os.path.join(fftw_base, 'dft/simd/sse2'),
+        os.path.join(fftw_base, 'rdft/simd'),
+        os.path.join(fftw_base, 'rdft/simd/common'),
+        os.path.join(fftw_base, 'rdft/simd/sse2')
+    ])
+    simd_support_files.append(os.path.join(fftw_base, 'simd-support/sse2.c'))
+    
+    # Do NOT compile common SIMD codelets directly - they are included by sse2 versions
+    
+    # Add SSE2-specific files (these include common/*.c with proper SIMD_HEADER)
+    sse2_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/sse2/*.c'))
+    sse2_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/sse2/*.c'))
+    fftw_files.extend(sse2_dft_files)
+    fftw_files.extend(sse2_rdft_files)
 
 if env['IS_LINUX']:
-    env.Append(CCFLAGS='-v -march=core2 -Wno-unused-but-set-variable')
+    env.Append(CPPDEFINES=[('HAVE_CONFIG_H', '1')])
+    env.Append(CCFLAGS=['-include', config_file])
+    
+    # Check if we're on ARM using platform module
+    is_arm = platform.machine().lower() in ['arm64', 'aarch64', 'armv8']
+    
+    if is_arm:
+        # Linux ARM64 - NEON support
+        fftw_dirs.extend([
+            os.path.join(fftw_base, 'dft/simd'),
+            os.path.join(fftw_base, 'dft/simd/common'),
+            os.path.join(fftw_base, 'dft/simd/neon'),
+            os.path.join(fftw_base, 'rdft/simd'),
+            os.path.join(fftw_base, 'rdft/simd/common'),
+            os.path.join(fftw_base, 'rdft/simd/neon')
+        ])
+        simd_support_files.append(os.path.join(fftw_base, 'simd-support/neon.c'))
+        
+        # Do NOT compile common SIMD codelets directly - they are included by neon versions
+        
+        # Add NEON-specific files (these include common/*.c with proper SIMD_HEADER)
+        neon_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/neon/*.c'))
+        neon_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/neon/*.c'))
+        fftw_files.extend(neon_dft_files)
+        fftw_files.extend(neon_rdft_files)
+    else:
+        # Linux x86_64 - SSE2 support
+        fftw_dirs.extend([
+            os.path.join(fftw_base, 'dft/simd'),
+            os.path.join(fftw_base, 'dft/simd/common'),
+            os.path.join(fftw_base, 'dft/simd/sse2'),
+            os.path.join(fftw_base, 'rdft/simd'),
+            os.path.join(fftw_base, 'rdft/simd/common'),
+            os.path.join(fftw_base, 'rdft/simd/sse2')
+        ])
+        simd_support_files.append(os.path.join(fftw_base, 'simd-support/sse2.c'))
+        
+        # Do NOT compile common SIMD codelets directly - they are included by sse2 versions
+        
+        # Add SSE2-specific files (these include common/*.c with proper SIMD_HEADER)
+        sse2_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/sse2/*.c'))
+        sse2_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/sse2/*.c'))
+        fftw_files.extend(sse2_dft_files)
+        fftw_files.extend(sse2_rdft_files)
+        
+        env.Append(CCFLAGS=['-msse2'])
 
-# ARMHACK
-# if not env['IS_LINUX_ARMV7L']:
-if not env['IS_ARM']:
-	env.PiSharedLibrary('pifftw3',fftw_files,package='eigend',hidden=False)
+# Add SIMD support files to the list
+fftw_files.extend(simd_support_files)
+
+# Set include paths
+env.Append(CPPPATH=fftw_dirs)
+
+# Platform-specific compiler flags
+if env['IS_MACOSX']:
+    env.Append(CCFLAGS=['-Wno-unused-but-set-variable', '-Wno-unknown-pragmas'])
+
+if env['IS_WINDOWS']:
+    pass  # Already handled above
+
+if env['IS_LINUX']:
+    env.Append(CCFLAGS=['-Wno-unused-but-set-variable'])
+
+# Build the library
+env.PiSharedLibrary('pifftw3', fftw_files, package='eigend', hidden=False)
