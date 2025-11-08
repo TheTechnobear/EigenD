@@ -19,7 +19,10 @@
 #
 
 import post_install_native
-import xmlrpclib
+try:
+    import xmlrpc.client as xmlrpclib
+except ImportError:
+    import xmlrpclib
 
 from pi import resource
 from app_install import version

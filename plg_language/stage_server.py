@@ -24,8 +24,12 @@
 #
 #---------------------------------------------------------------------------
 
-from SimpleXMLRPCServer import SimpleXMLRPCServer
-from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
+try:
+    from xmlrpc.server import SimpleXMLRPCServer
+    from xmlrpc.server import SimpleXMLRPCRequestHandler
+except ImportError:
+    from SimpleXMLRPCServer import SimpleXMLRPCServer
+    from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 import sys
 import xml.dom.pulldom
 import xml.dom.minidom
@@ -36,7 +40,7 @@ from pi import agent,atom,domain,errors,action,bundles,utils,resource,logic,node
 from pi import piasync
 from . import language_native
 import traceback
-import widget
+from . import widget
 import socket
 import re
 
@@ -503,7 +507,7 @@ class StageXMLRPCFuncs:
             #else:
             #    time = self.__last_agent_update_time
 
-            clientTime = long(clientTimeStr)
+            clientTime = int(clientTimeStr)
             #print 'client time str = ',clientTimeStr
 
             changed_agent_ids = self.__database.changed_agents(clientTime)

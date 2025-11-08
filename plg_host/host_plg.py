@@ -25,7 +25,10 @@ from pi.logic.shortcuts import T
 from . import audio_unit_version as version, host_native
 
 import piw
-import urllib
+try:
+    from urllib.parse import unquote, quote
+except ImportError:
+    from urllib import unquote, quote
 import sys
 import os
 import operator
@@ -54,7 +57,7 @@ def plugin_id(plg):
     return os.path.basename(plg.id())
 
 def plugin_id_escaped(plg):
-    return urllib.quote(plugin_id(plg))
+    return quote(plugin_id(plg))
 
 class PluginList:
 
@@ -253,7 +256,7 @@ class PluginState(node.server):
         if self.__state_loaded:
             show = self[1].get_data().as_bool() if self[1].get_data().is_bool() else False
             state = self[2].get_blob()
-            desc = urllib.unquote(self[3].get_data().as_string()) if self[3].get_data().is_string() else ''
+            desc = unquote(self[3].get_data().as_string()) if self[3].get_data().is_string() else ''
             bypassed = self[4].get_data().as_bool() if self[4].get_data().is_bool() else False
             mapping = self[5].get_data().as_string() if self[5].get_data().is_string() else '[]'
             bounds = self[6].get_blob()
@@ -275,7 +278,7 @@ class PluginObserver(host_native.plugin_observer):
         self.__agent.set_light(2,show)
 
     def description_changed(self,desc):
-        self.__state[3].set_data(piw.makestring(urllib.quote(desc),0))
+        self.__state[3].set_data(piw.makestring(quote(desc),0))
 
     def bypassed_changed(self,bypassed):
         self.__state[4].set_data(piw.makebool(bypassed,0))

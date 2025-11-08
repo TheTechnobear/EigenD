@@ -22,7 +22,10 @@ from pi import agent,atom,action,logic,bundles,domain,policy,node,resource,piasy
 from . import scale_manager_version as version
 import piw
 import os
-import ConfigParser
+try:
+    import configparser as ConfigParser
+except ImportError:
+    import ConfigParser
 import shutil
 
 from pi.logic.shortcuts import T

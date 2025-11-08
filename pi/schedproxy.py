@@ -24,7 +24,7 @@ Module for talking to a standard scheduler
 
 import piw
 from pi import const,proxy,node,action,logic
-from logic.shortcuts import *
+from pi.logic.shortcuts import *
 
 class SchedProxy(proxy.AtomProxy):
 

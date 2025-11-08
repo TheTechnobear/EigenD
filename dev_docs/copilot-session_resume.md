@@ -1,52 +1,75 @@
 # EigenD Python 3.14 Migration - Session Resume Context
 
-**Date:** 2025-11-06  
-**Branch:** copilot  
-**Status:** � **ROOT CAUSE IDENTIFIED** - PIW string corruption in Python 3 bindings
+**Date:** 2025-11-07  
+**Branch:** python3  
+**Status:** 🎯 **RECURSION ERRORS FIXED** - EigenD loading successfully
 
-## 🎯 BREAKTHROUGH: Root Cause 100% Confirmed
+## ✅ MAJOR FIX: Node Dictionary Recursion Resolved
 
-### **CRITICAL ISSUE: PyUnicode_AsUTF8 Pointer Corruption**
-**Location:** `agentd.py` line 1035
-**Problem:** `piw.term(string, type_code)` uses wrong constructor
-**Root Cause:** Python 3 binding `fpcvt_str()` creates dangling pointers
+### **FIXED: RecursionError in pi/node.py keys(), values(), items() methods**
+**Location:** `pi/node.py` lines 287, 290, 293
+**Problem:** Python 2→3 dictionary iteration behavior causing infinite recursion
+**Solution:** 3-line minimal fix to call iter* methods
 
-#### **Exact Technical Details:**
-```cpp
-// In tmp/obj/piw/src/piw_native_python.cpp (generated binding):
-int fpcvt_str(PyObject *o, void *a) {
-    const char *s = PyUnicode_AsUTF8(o);  // ← DANGEROUS
-    if(s) { *((const char **)a) = s; return 1; }  // ← STORES INTERNAL BUFFER POINTER
-    return 0;
-}
+#### **Root Cause - Python 2 vs 3 Dictionary Behavior:**
+- **Python 2.7:** `dict.keys()` returned lists, `dict.iterkeys()` returned iterators
+- **Python 3:** `dict.keys()` returns views (iterator-like), `iter*` methods removed
+- **Migration Issue:** Code had `return list(self.keys())` calling itself infinitely
 
-// Called by: piw.term(string, type_code) 
-// → PyArg_ParseTuple(args,"O&O&", fpcvt_str, &a0, fpcvt_ui, &a1)
-// → term_wrapper_(..., const char *a0, unsigned int a1)
-// → term_type_(a0, a1)  // PREDICATE constructor, NOT data constructor!
-```
-
-#### **Why This Fails:**
-1. **Wrong Constructor:** `term_t(const char *, unsigned)` is for **predicates** ("foo(arg1,arg2)"), NOT string data
-2. **Pointer Corruption:** `PyUnicode_AsUTF8()` returns pointer to internal Python Unicode buffer
-3. **Dangling Reference:** When Python string gets garbage collected, pointer becomes invalid  
-4. **Segfault:** Later access to `.pred()` → `PyUnicode_FromString(corrupted_ptr)` → crash
-
-#### **Migration Factor:**
-- **Python 2.7:** Used `PyString_AsString()` with different lifetime semantics
-- **Python 3.x:** Uses `PyUnicode_AsUTF8()` with internal buffer tied to object lifetime
-- **Impact:** Same semantic bug now causes corruption instead of working by accident
-
-#### **Evidence - Stack Trace from Segfault:**
-```
-PyUnicode_FromString+0x14 [corrupted pointer]
-term_wrapper_::pred_method_ [calling .pred() on corrupted term]
-```
-
-#### **SOLUTION:**
+#### **Exact Technical Fix:**
 ```python
-# WRONG (current agentd.py line 1035):
-term = piw.term(string, type_code)  # Creates predicate term with dangling pointer
+# BEFORE (recursive calls):
+def values(self): return list(self.values())
+def items(self):  return list(self.items()) 
+def keys(self):   return list(self.keys())
+
+# AFTER (calls iterator methods):
+def values(self): return list(self.itervalues())
+def items(self):  return list(self.iteritems())
+def keys(self):   return list(self.iterkeys())
+```
+
+#### **Impact:**
+- **Before:** RecursionError crashed all plugin loading
+- **After:** EigenD loads plugins successfully (cycler, sampler_oscillator, ahdsr, audio_unit, etc.)
+- **Lesson:** Always try minimal fix first, then build/recompile Python changes
+
+## 🎯 PREVIOUS FIX: PIP Binding Generation Restored
+
+### **FIXED: AttributeError 'piw_native.data' object has no attribute 'as_dict_lookup'**
+**Location:** `tools/pip_cmd/process.py` lines 84, 94
+**Problem:** Python 3 `dict.values()` returns view object, not list
+**Solution:** Wrap with `list()` conversion
+
+#### **Exact Technical Fix:**
+```python
+# BEFORE (Python 2 compatible):
+k['handlers'] = kh.values()
+k['methods'] = km.values()
+
+# AFTER (Python 3 compatible):
+k['handlers'] = list(kh.values())
+k['methods'] = list(km.values())
+```
+
+#### **Why This Failed:**
+1. **Python 2→3 Change:** `dict.values()` returns `dict_values` view, not list
+2. **PIP Template Expectation:** Code generation expects list for iteration
+3. **Missing Methods:** `as_dict_lookup`, `as_dict_value` methods not generated
+4. **Inheritance Issue:** Only base class methods generated, derived class methods lost
+
+#### **Impact:**
+- **Before:** `piw_native.data` missing critical dictionary access methods
+- **After:** Full method set available including `as_dict_lookup`, `as_dict_value`
+- **Root Issue:** upgrade_tools_v1.py couldn't access dictionary metadata
+- **Result:** Setup file processing restored
+
+#### **Validation:**
+```bash
+# Test confirms fix:
+python3 -c "import piw_native; print('as_dict_lookup' in dir(piw_native.data()))"
+# Returns: True ✅
+```
 
 # CORRECT:  
 term = piw.term(piw.makestring(string, 0))  # Creates data term properly
@@ -349,3 +372,4 @@ Based on patterns so far, expect:
 
 ---
 **2025-11-07:** Split `.github/chatmodes/Testing.chatmode.md` into a concise chatmode and a detailed prompt file at `dev_docs/prompts/Testing.chatmode.details.md`. The concise file directs agents to respond with three short bullets (Done / Discovered / Next). Changes made by automated assistant during this session.
+nin 

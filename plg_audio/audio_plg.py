@@ -24,16 +24,19 @@ from . import audio_version as version, audio_native
 
 import piw
 import picross
-import urllib
+try:
+    from urllib.parse import unquote, quote
+except ImportError:
+    from urllib import unquote, quote
 import os
 
 MAX_CHANNEL = 64
 
 def escape(s):
-    return urllib.quote(s)
+    return quote(s)
 
 def unescape(s):
-    return urllib.unquote(s)
+    return unquote(s)
 
 class Port(atom.Atom):
     def __init__(self,agent):

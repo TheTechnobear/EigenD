@@ -1,0 +1,1711 @@
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpic.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpia.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpiw.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpie.dylib
+open lock file /Users/kodiak/Library/Eigenlabs/Lock/EigenD.lck 3
+locked lock file
+log:using portbase 55555
+eigend: latest version: 
+eigend-backend: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend-backend: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend-backend: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend-backend: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend-backend: plugin audio:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_audio/audio_plg 
+eigend-backend: plugin pico_manager:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_pkbd/pico_manager_plg 
+eigend-backend: plugin midi_output:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_output_plg 
+eigend-backend: plugin midi_converter:2.3.0-community:1.0.5 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_converter_plg 
+eigend-backend: plugin midi_clock:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_clock_plg 
+eigend-backend: plugin midi_input:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_input_plg 
+eigend-backend: plugin midi_processor:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_processor_plg 
+eigend-backend: plugin midi_program_chooser:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_pgm_chooser_plg 
+eigend-backend: plugin conductor:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_conductor/conductor_plg 
+eigend-backend: plugin clip_manager:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_conductor/clip_manager_plg 
+eigend-backend: plugin t3d_output:2.3.0-community:0.0.7 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_t3d/t3d_output_plg 
+eigend-backend: plugin t3d_device:2.3.0-community:0.0.3 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_t3d/t3d_device_plg 
+eigend-backend: plugin soundplane:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_t3d/soundplane_plg 
+eigend-backend: plugin scale_illuminator:2.3.0-community:0.1.7 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_scale_illuminator/scale_illuminator_plg 
+eigend-backend: plugin metronome:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_loop/metronome_plg 
+eigend-backend: plugin drummer:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_loop/drummer_plg 
+eigend-backend: plugin clicker:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_loop/clicker_plg 
+eigend-backend: plugin midi_device:2.3.0-community:0.0.7 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_device/midi_device_plg 
+eigend-backend: plugin ableton_push:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_device/ableton_push_plg 
+eigend-backend: plugin continuum:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_device/continuum_plg 
+eigend-backend: plugin keyboard_controller:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_device/keyboard_controller_plg 
+eigend-backend: plugin interpreter:2.3.0-community:1.0.2 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_language/language_plg 
+eigend-backend: plugin controller:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_language/controller_plg 
+eigend-backend: plugin alpha_manager:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_keyboard/keyboard_plg 
+eigend-backend: plugin ahdsr:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/ahdsr_plg 
+eigend-backend: plugin envelope:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/envelope_plg 
+eigend-backend: plugin gain:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/gain_plg 
+eigend-backend: plugin panner:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/panner_plg 
+eigend-backend: plugin rectangle_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/rectangle_oscillator_plg 
+eigend-backend: plugin sawtooth_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/sawtooth_oscillator_plg 
+eigend-backend: plugin shaper:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/shaper_plg 
+eigend-backend: plugin summer:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/summer_plg 
+eigend-backend: plugin synth_filter:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/synth_filter_plg 
+eigend-backend: plugin ladder_filter:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/ladder_filter_plg 
+eigend-backend: plugin triangle_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/triangle_oscillator_plg 
+eigend-backend: plugin sine_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/sine_oscillator_plg 
+eigend-backend: plugin delay:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/delay_plg 
+eigend-backend: plugin console_mixer:2.3.0-community:1.0.2 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/console_mixer_plg 
+eigend-backend: plugin polyphonic_summer:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/polyphonic_summer_plg 
+eigend-backend: plugin fingerer:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_finger/finger_plg 
+eigend-backend: plugin strummer:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_strummer/strummer_plg 
+eigend-backend: plugin panpipe_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_stk/panpipe_oscillator_plg 
+eigend-backend: plugin clarinet_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_stk/clarinet_oscillator_plg 
+eigend-backend: plugin sax_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_stk/blownstring_oscillator_plg 
+eigend-backend: plugin cello_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_stk/cello_oscillator_plg 
+eigend-backend: plugin micro_manager:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_ukbd/ukbd_plg 
+eigend-backend: plugin osc_output:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_osc/osc_output_plg 
+eigend-backend: plugin illuminator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_illuminator/illuminator_plg 
+eigend-backend: plugin latch:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_primitive/latch_plg 
+eigend-backend: plugin orb:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_primitive/orb_plg 
+eigend-backend: plugin midi_monitor:2.3.0-community:0.0.4 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_monitor/midi_monitor_plg 
+eigend-backend: plugin sampler_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_sampler2/sampler_oscillator_plg 
+eigend-backend: plugin tabulator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_tabulator/tabulator_plg 
+eigend-backend: plugin arranger:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_arranger/arranger_plg 
+eigend-backend: plugin audio_unit:2.3.0-community:1.0.5 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_host/host_plg 
+eigend-backend: plugin rig:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_rig/rig_plg 
+eigend-backend: plugin live_pad:2.3.0-community:0.0.10 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_livepad/live_pad_plg 
+eigend-backend: plugin cycler:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/cycler_plg 
+eigend-backend: plugin scaler:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/scaler_plg 
+eigend-backend: plugin stringer:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/stringer_plg 
+eigend-backend: plugin scheduler:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/scheduler_plg 
+eigend-backend: plugin keygroup:2.3.0-community:1.0.3 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/keygroup_plg 
+eigend-backend: plugin scale_manager:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/scale_manager_plg 
+eigend-backend: plugin talker:2.3.0-community:1.0.2 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/talker_plg 
+eigend-backend: plugin ranger:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/ranger_plg 
+eigend-backend: plugin labeler:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/labeler_plg 
+eigend-backend: plugin recorder:2.3.0-community:1.0.3 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_recorder/recorder_plg 
+eigend-backend: plugin player:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_recorder/player_plg 
+eigend-backend: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: skipped  <eigend1> 
+default setup: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup
+eigend: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup start block: 25 chkpoint: 1591142 blksize: 65536
+eigend-backend: stopping gc 
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_rig/rig_native.so
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_language/libpilanguage.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libmidilib.dylib
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/libpisynth.dylib
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_audio/audio_native.so
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpico.dylib
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_pkbd/libpipkbdplg.dylib
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_loop/libpiloop.dylib
+eigend: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup start block: 25 chkpoint: 1591142 blksize: 65536
+eigend: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup start block: 25 chkpoint: 1591142 blksize: 65536
+eigend: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup0 start block: 0 chkpoint: 0 blksize: 65536
+eigend: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup0 start block: 25 chkpoint: 1589667 blksize: 65536
+eigend: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup  version  1589667 
+eigend: prepare:  2.0.74-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup0 
+eigend: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  0 
+eigend: upgrading host  <audio_unit2> 
+eigend: upgrading host  <audio_unit1> 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  1 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  2 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  3 
+eigend: eigend postupgrade 
+eigend-backend: loading from version  1728363  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup 
+eigend-backend: loaded:  0  60  in  5.888938903808594e-05  s  eigend 1 
+eigend-backend: canonicalised  a('<controller1>',controller,'2.3.0-community','1.0.0',1)  to  a('<controller1>',controller,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<controller8>',controller,'2.3.0-community','1.0.0',8)  to  a('<controller8>',controller,'2.3.0-community','1.0.0',8) 
+eigend-backend: canonicalised  a('<clicker1>',clicker,'2.3.0-community','1.0.0',1)  to  a('<clicker1>',clicker,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<talker20>',talker,'2.3.0-community','1.0.2',20)  to  a('<talker20>',talker,'2.3.0-community','1.0.2',20) 
+eigend-backend: canonicalised  a('<drummer1>',drummer,'2.3.0-community','1.0.1',1)  to  a('<drummer1>',drummer,'2.3.0-community','1.0.1',1) 
+eigend-backend: canonicalised  a('<rig5>',rig,'2.3.0-community','1.0.0',5)  to  a('<rig5>',rig,'2.3.0-community','1.0.0',5) 
+eigend-backend: canonicalised  a('<talker19>',talker,'2.3.0-community','1.0.2',19)  to  a('<talker19>',talker,'2.3.0-community','1.0.2',19) 
+eigend-backend: canonicalised  a('<talker9>',talker,'2.3.0-community','1.0.2',9)  to  a('<talker9>',talker,'2.3.0-community','1.0.2',9) 
+eigend-backend: canonicalised  a('<delay1>',delay,'2.3.0-community','1.0.0',1)  to  a('<delay1>',delay,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<controller12>',controller,'2.3.0-community','1.0.0',12)  to  a('<controller12>',controller,'2.3.0-community','1.0.0',12) 
+eigend-backend: canonicalised  a('<talker15>',talker,'2.3.0-community','1.0.2',15)  to  a('<talker15>',talker,'2.3.0-community','1.0.2',15) 
+eigend-backend: canonicalised  a('<controller10>',controller,'2.3.0-community','1.0.0',10)  to  a('<controller10>',controller,'2.3.0-community','1.0.0',10) 
+eigend-backend: canonicalised  a('<keygroup3>',keygroup,'2.3.0-community','1.0.3',3)  to  a('<keygroup3>',keygroup,'2.3.0-community','1.0.3',3) 
+eigend-backend: canonicalised  a('<interpreter1>',interpreter,'2.3.0-community','1.0.2',1)  to  a('<interpreter1>',interpreter,'2.3.0-community','1.0.2',1) 
+eigend-backend: canonicalised  a('<pico_manager1>',pico_manager,'2.3.0-community','1.0.1',1)  to  a('<pico_manager1>',pico_manager,'2.3.0-community','1.0.1',1) 
+eigend-backend: canonicalised  a('<audio1>',audio,'2.3.0-community','1.0.0',1)  to  a('<audio1>',audio,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<talker21>',talker,'2.3.0-community','1.0.2',21)  to  a('<talker21>',talker,'2.3.0-community','1.0.2',21) 
+eigend-backend: canonicalised  a('<talker10>',talker,'2.3.0-community','1.0.2',10)  to  a('<talker10>',talker,'2.3.0-community','1.0.2',10) 
+eigend-backend: canonicalised  a('<talker12>',talker,'2.3.0-community','1.0.2',12)  to  a('<talker12>',talker,'2.3.0-community','1.0.2',12) 
+eigend-backend: canonicalised  a('<keygroup4>',keygroup,'2.3.0-community','1.0.3',4)  to  a('<keygroup4>',keygroup,'2.3.0-community','1.0.3',4) 
+eigend-backend: canonicalised  a('<controller6>',controller,'2.3.0-community','1.0.0',6)  to  a('<controller6>',controller,'2.3.0-community','1.0.0',6) 
+eigend-backend: canonicalised  a('<rig4>',rig,'2.3.0-community','1.0.0',4)  to  a('<rig4>',rig,'2.3.0-community','1.0.0',4) 
+eigend-backend: canonicalised  a('<talker1>',talker,'2.3.0-community','1.0.2',1)  to  a('<talker1>',talker,'2.3.0-community','1.0.2',1) 
+eigend-backend: canonicalised  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend-backend: canonicalised  a('<rig1>',rig,'2.3.0-community','1.0.0',1)  to  a('<rig1>',rig,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<talker5>',talker,'2.3.0-community','1.0.2',5)  to  a('<talker5>',talker,'2.3.0-community','1.0.2',5) 
+eigend-backend: canonicalised  a('<talker7>',talker,'2.3.0-community','1.0.2',7)  to  a('<talker7>',talker,'2.3.0-community','1.0.2',7) 
+eigend-backend: canonicalised  a('<controller9>',controller,'2.3.0-community','1.0.0',9)  to  a('<controller9>',controller,'2.3.0-community','1.0.0',9) 
+eigend-backend: canonicalised  a('<talker11>',talker,'2.3.0-community','1.0.2',11)  to  a('<talker11>',talker,'2.3.0-community','1.0.2',11) 
+eigend-backend: canonicalised  a('<talker16>',talker,'2.3.0-community','1.0.2',16)  to  a('<talker16>',talker,'2.3.0-community','1.0.2',16) 
+eigend-backend: canonicalised  a('<rig7>',rig,'2.3.0-community','1.0.0',7)  to  a('<rig7>',rig,'2.3.0-community','1.0.0',7) 
+eigend-backend: canonicalised  a('<rig2>',rig,'2.3.0-community','1.0.0',2)  to  a('<rig2>',rig,'2.3.0-community','1.0.0',2) 
+eigend-backend: canonicalised  a('<rig8>',rig,'2.3.0-community','1.0.0',8)  to  a('<rig8>',rig,'2.3.0-community','1.0.0',8) 
+eigend-backend: canonicalised  a('<talker8>',talker,'2.3.0-community','1.0.2',8)  to  a('<talker8>',talker,'2.3.0-community','1.0.2',8) 
+eigend-backend: canonicalised  a('<controller3>',controller,'2.3.0-community','1.0.0',3)  to  a('<controller3>',controller,'2.3.0-community','1.0.0',3) 
+eigend-backend: canonicalised  a('<talker18>',talker,'2.3.0-community','1.0.2',18)  to  a('<talker18>',talker,'2.3.0-community','1.0.2',18) 
+eigend-backend: canonicalised  a('<talker2>',talker,'2.3.0-community','1.0.2',2)  to  a('<talker2>',talker,'2.3.0-community','1.0.2',2) 
+eigend-backend: canonicalised  a('<talker3>',talker,'2.3.0-community','1.0.2',3)  to  a('<talker3>',talker,'2.3.0-community','1.0.2',3) 
+eigend-backend: canonicalised  a('<keygroup2>',keygroup,'2.3.0-community','1.0.3',2)  to  a('<keygroup2>',keygroup,'2.3.0-community','1.0.3',2) 
+eigend-backend: canonicalised  a('<talker14>',talker,'2.3.0-community','1.0.2',14)  to  a('<talker14>',talker,'2.3.0-community','1.0.2',14) 
+eigend-backend: canonicalised  a('<controller11>',controller,'2.3.0-community','1.0.0',11)  to  a('<controller11>',controller,'2.3.0-community','1.0.0',11) 
+eigend-backend: canonicalised  a('<metronome1>',metronome,'2.3.0-community','1.0.0',1)  to  a('<metronome1>',metronome,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<scale_manager1>',scale_manager,'2.3.0-community','1.0.0',1)  to  a('<scale_manager1>',scale_manager,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<controller7>',controller,'2.3.0-community','1.0.0',7)  to  a('<controller7>',controller,'2.3.0-community','1.0.0',7) 
+eigend-backend: canonicalised  a('<keygroup1>',keygroup,'2.3.0-community','1.0.3',1)  to  a('<keygroup1>',keygroup,'2.3.0-community','1.0.3',1) 
+eigend-backend: canonicalised  a('<midi_input1>',midi_input,'2.3.0-community','1.0.0',1)  to  a('<midi_input1>',midi_input,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<console_mixer1>',console_mixer,'2.3.0-community','1.0.2',1)  to  a('<console_mixer1>',console_mixer,'2.3.0-community','1.0.2',1) 
+eigend-backend: canonicalised  a('<controller5>',controller,'2.3.0-community','1.0.0',5)  to  a('<controller5>',controller,'2.3.0-community','1.0.0',5) 
+eigend-backend: canonicalised  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  to  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2) 
+eigend-backend: canonicalised  a('<talker13>',talker,'2.3.0-community','1.0.2',13)  to  a('<talker13>',talker,'2.3.0-community','1.0.2',13) 
+eigend-backend: canonicalised  a('<talker6>',talker,'2.3.0-community','1.0.2',6)  to  a('<talker6>',talker,'2.3.0-community','1.0.2',6) 
+eigend-backend: canonicalised  a('<controller2>',controller,'2.3.0-community','1.0.0',2)  to  a('<controller2>',controller,'2.3.0-community','1.0.0',2) 
+eigend-backend: canonicalised  a('<rig6>',rig,'2.3.0-community','1.0.0',6)  to  a('<rig6>',rig,'2.3.0-community','1.0.0',6) 
+eigend-backend: canonicalised  a('<rig3>',rig,'2.3.0-community','1.0.0',3)  to  a('<rig3>',rig,'2.3.0-community','1.0.0',3) 
+eigend-backend: canonicalised  a('<talker4>',talker,'2.3.0-community','1.0.2',4)  to  a('<talker4>',talker,'2.3.0-community','1.0.2',4) 
+eigend-backend: canonicalised  a('<scheduler1>',scheduler,'2.3.0-community','1.0.0',1)  to  a('<scheduler1>',scheduler,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<talker17>',talker,'2.3.0-community','1.0.2',17)  to  a('<talker17>',talker,'2.3.0-community','1.0.2',17) 
+eigend-backend: canonicalised  a('<controller4>',controller,'2.3.0-community','1.0.0',4)  to  a('<controller4>',controller,'2.3.0-community','1.0.0',4) 
+eigend-backend: canonicalised  a('<midi_output1>',midi_output,'2.3.0-community','1.0.0',1)  to  a('<midi_output1>',midi_output,'2.3.0-community','1.0.0',1) 
+eigend-backend: loading  a('<rig4>',rig,'2.3.0-community','1.0.0',4)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig4>"),role(by,[cnc(~a)])) 
+eigend: <rig4>: inner agent  rig 4 
+eigend: <rig4>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig4 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<talker3>',talker,'2.3.0-community','1.0.2',3)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker3>"),role(by,[cnc(~a)])) 
+eigend: <talker3>: ignored: 
+eigend: <talker3>: Traceback (most recent call last):
+eigend: <talker3>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker3>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker3>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker3>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker3>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<rig1>',rig,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig1>"),role(by,[cnc(~a)])) 
+eigend: <rig1>: inner agent  rig 1 
+eigend: <rig1>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig1 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<rig8>',rig,'2.3.0-community','1.0.0',8)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig8>"),role(by,[cnc(~a)])) 
+eigend: <rig8>: inner agent  rig 8 
+eigend: <rig8>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig8 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<scale_manager1>',scale_manager,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<scale_manager1>"),role(by,[cnc(~a)])) 
+eigend: <scale_manager1>: not updating scale  None  None 
+eigend-backend: loading  a('<keygroup3>',keygroup,'2.3.0-community','1.0.3',3)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<keygroup3>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<rig3>',rig,'2.3.0-community','1.0.0',3)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig3>"),role(by,[cnc(~a)])) 
+eigend: <rig3>: inner agent  rig 3 
+eigend: <rig3>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig3 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<rig7>',rig,'2.3.0-community','1.0.0',7)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig7>"),role(by,[cnc(~a)])) 
+eigend: <rig7>: inner agent  rig 7 
+eigend: <rig7>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig7 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<rig6>',rig,'2.3.0-community','1.0.0',6)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig6>"),role(by,[cnc(~a)])) 
+eigend: <rig6>: inner agent  rig 6 
+eigend: <rig6>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig6 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<keygroup4>',keygroup,'2.3.0-community','1.0.3',4)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<keygroup4>"),role(by,[cnc(~a)])) 
+eigend: <rig4>: set owner  '<main:rig4>' 
+eigend: <rig4>: skipped  <eigend1> 
+eigend: <rig1>: set owner  '<main:rig1>' 
+eigend: <rig1>: skipped  <eigend1> 
+eigend: <rig8>: set owner  '<main:rig8>' 
+eigend: <rig8>: skipped  <eigend1> 
+eigend: <rig3>: set owner  '<main:rig3>' 
+eigend: <rig3>: skipped  <eigend1> 
+eigend: <rig7>: set owner  '<main:rig7>' 
+eigend: <rig7>: skipped  <eigend1> 
+eigend: <rig6>: set owner  '<main:rig6>' 
+eigend: <rig6>: skipped  <eigend1> 
+eigend-backend: loading  a('<talker9>',talker,'2.3.0-community','1.0.2',9)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker9>"),role(by,[cnc(~a)])) 
+eigend: <talker9>: ignored: 
+eigend: <talker9>: Traceback (most recent call last):
+eigend: <talker9>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker9>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker9>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker9>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker9>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker20>',talker,'2.3.0-community','1.0.2',20)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker20>"),role(by,[cnc(~a)])) 
+eigend: <talker20>: ignored: 
+eigend: <talker20>: Traceback (most recent call last):
+eigend: <talker20>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker20>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker20>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker20>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker20>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker17>',talker,'2.3.0-community','1.0.2',17)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker17>"),role(by,[cnc(~a)])) 
+eigend: <talker17>: ignored: 
+eigend: <talker17>: Traceback (most recent call last):
+eigend: <talker17>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker17>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker17>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker17>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker17>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<audio_unit1>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker18>',talker,'2.3.0-community','1.0.2',18)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker18>"),role(by,[cnc(~a)])) 
+eigend: <talker18>: ignored: 
+eigend: <talker18>: Traceback (most recent call last):
+eigend: <talker18>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker18>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker18>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker18>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker18>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<metronome1>',metronome,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<metronome1>"),role(by,[cnc(~a)])) 
+eigend: <metronome1>: init tempo=  120 
+eigend: <metronome1>: set tempo 120 from 120
+eigend: <metronome1>: tempo range 30->240
+eigend-backend: loading  a('<interpreter1>',interpreter,'2.3.0-community','1.0.2',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<interpreter1>"),role(by,[cnc(~a)])) 
+eigend: <interpreter1>: ignored: 
+eigend: <interpreter1>: Traceback (most recent call last):
+eigend: <interpreter1>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <interpreter1>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <interpreter1>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <interpreter1>:  File "plg_language/language_plg.py", line 67, in __init__
+    self.database = database.Database(lexicon_changed=self.__lexicon_changed)
+                    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <interpreter1>:  File "plg_language/database.py", line 45, in __init__
+    database.Database.__init__(self,*args,**kwds)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+eigend: <interpreter1>:  File "pi/database.py", line 1273, in __init__
+    self.parse_rules(rules_database)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+eigend: <interpreter1>:  File "pi/logic/engine.py", line 172, in parse_rules
+    self.assert_rules(parse.parse_rulelist(rules))
+                      ~~~~~~~~~~~~~~~~~~~~^^^^^^^
+eigend: <interpreter1>:  File "pi/logic/parse.py", line 118, in parse_rulelist
+    def parse_rulelist(input,subst={},nosubst=False): return _parse('rulelist_opt',input,subst,nosubst)
+                                                             ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <interpreter1>:  File "pi/logic/parse.py", line 110, in _parse
+    p = PrologParser()
+eigend: <interpreter1>:  File "pi/logic/tpg.py", line 902, in __init__
+    self.lexer = self.init_lexer()
+                 ^^^^^^^^^^^^^^^
+eigend: <interpreter1>:  AttributeError: 'PrologParser' object has no attribute 'init_lexer'
+eigend-backend:  loading  a('<controller1>',controller,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller1>"),role(by,[cnc(~a)])) 
+eigend: <controller1>: ignored: 
+eigend: <controller1>: Traceback (most recent call last):
+eigend: <controller1>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller1>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller1>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller1>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller1>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller1>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<pico_manager1>',pico_manager,'2.3.0-community','1.0.1',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<pico_manager1>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker1>',talker,'2.3.0-community','1.0.2',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker1>"),role(by,[cnc(~a)])) 
+eigend: <talker1>: ignored: 
+eigend: <talker1>: Traceback (most recent call last):
+eigend: <talker1>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker1>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker1>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker1>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker1>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker8>',talker,'2.3.0-community','1.0.2',8)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker8>"),role(by,[cnc(~a)])) 
+eigend: <talker8>: ignored: 
+eigend: <talker8>: Traceback (most recent call last):
+eigend: <talker8>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker8>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker8>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker8>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker8>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<controller11>',controller,'2.3.0-community','1.0.0',11)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller11>"),role(by,[cnc(~a)])) 
+eigend: <controller11>: ignored: 
+eigend: <controller11>: Traceback (most recent call last):
+eigend: <controller11>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller11>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller11>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller11>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller11>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller11>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker14>',talker,'2.3.0-community','1.0.2',14)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker14>"),role(by,[cnc(~a)])) 
+eigend: <talker14>: ignored: 
+eigend: <talker14>: Traceback (most recent call last):
+eigend: <talker14>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker14>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker14>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker14>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker14>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<controller8>',controller,'2.3.0-community','1.0.0',8)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller8>"),role(by,[cnc(~a)])) 
+eigend: <controller8>: ignored: 
+eigend: <controller8>: Traceback (most recent call last):
+eigend: <controller8>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller8>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller8>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller8>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller8>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller8>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<clicker1>',clicker,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<clicker1>"),role(by,[cnc(~a)])) 
+eigend: <clicker1>: loading wav resource  accent.wav 
+eigend: <clicker1>: loading samples from  plg_loop/accent.wav 
+eigend: <clicker1>: ignored: 
+eigend: <clicker1>: Traceback (most recent call last):
+eigend: <clicker1>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <clicker1>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <clicker1>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <clicker1>:  File "plg_loop/clicker_plg.py", line 62, in __init__
+    accent = wav_resource('accent.wav')
+eigend: <clicker1>:  File "plg_loop/clicker_plg.py", line 56, in wav_resource
+    return rgetsamples('plg_loop/%s'%name)
+eigend: <clicker1>:  File "plg_loop/clicker_plg.py", line 45, in rgetsamples
+    from cStringIO import StringIO
+eigend: <clicker1>:  ModuleNotFoundError: No module named 'cStringIO'
+eigend-backend:  loading  a('<controller12>',controller,'2.3.0-community','1.0.0',12)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller12>"),role(by,[cnc(~a)])) 
+eigend: <controller12>: ignored: 
+eigend: <controller12>: Traceback (most recent call last):
+eigend: <controller12>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller12>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller12>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller12>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller12>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller12>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker5>',talker,'2.3.0-community','1.0.2',5)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker5>"),role(by,[cnc(~a)])) 
+eigend: <talker5>: ignored: 
+eigend: <talker5>: Traceback (most recent call last):
+eigend: <talker5>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker5>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker5>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker5>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker5>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker11>',talker,'2.3.0-community','1.0.2',11)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker11>"),role(by,[cnc(~a)])) 
+eigend: <talker11>: ignored: 
+eigend: <talker11>: Traceback (most recent call last):
+eigend: <talker11>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker11>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker11>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker11>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker11>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<keygroup2>',keygroup,'2.3.0-community','1.0.3',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<keygroup2>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<controller7>',controller,'2.3.0-community','1.0.0',7)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller7>"),role(by,[cnc(~a)])) 
+eigend: <controller7>: ignored: 
+eigend: <controller7>: Traceback (most recent call last):
+eigend: <controller7>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller7>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller7>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller7>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller7>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller7>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<controller3>',controller,'2.3.0-community','1.0.0',3)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller3>"),role(by,[cnc(~a)])) 
+eigend: <controller3>: ignored: 
+eigend: <controller3>: Traceback (most recent call last):
+eigend: <controller3>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller3>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller3>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller3>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller3>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller3>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<controller5>',controller,'2.3.0-community','1.0.0',5)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller5>"),role(by,[cnc(~a)])) 
+eigend: <controller5>: ignored: 
+eigend: <controller5>: Traceback (most recent call last):
+eigend: <controller5>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller5>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller5>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller5>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller5>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller5>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker2>',talker,'2.3.0-community','1.0.2',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker2>"),role(by,[cnc(~a)])) 
+eigend: <talker2>: ignored: 
+eigend: <talker2>: Traceback (most recent call last):
+eigend: <talker2>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker2>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker2>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker2>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker2>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<midi_output1>',midi_output,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<midi_output1>"),role(by,[cnc(~a)])) 
+eigend: <midi_output1>: midi sink added  79b45f0f  Null Device 
+eigend: <midi_output1>: midi sink added  -47c1f792  IAC Driver Bus 1 
+eigend: <midi_output1>: set source  name 
+eigend-backend: loading  a('<controller2>',controller,'2.3.0-community','1.0.0',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller2>"),role(by,[cnc(~a)])) 
+eigend: <midi_output1>: set source  name Eigenlabs 1
+eigend: <midi_output1>: created output Eigenlabs 1
+eigend: <midi_output1>: OutputMidiPort: set port to   
+eigend: <controller2>: ignored: 
+eigend: <controller2>: Traceback (most recent call last):
+eigend: <controller2>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller2>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller2>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller2>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller2>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller2>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<rig5>',rig,'2.3.0-community','1.0.0',5)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig5>"),role(by,[cnc(~a)])) 
+eigend: <rig5>: inner agent  rig 5 
+eigend: <rig5>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig5 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<talker21>',talker,'2.3.0-community','1.0.2',21)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker21>"),role(by,[cnc(~a)])) 
+eigend: <rig5>: set owner  '<main:rig5>' 
+eigend: <rig5>: skipped  <eigend1> 
+eigend: <talker21>: ignored: 
+eigend: <talker21>: Traceback (most recent call last):
+eigend: <talker21>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker21>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker21>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker21>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker21>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<delay1>',delay,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<delay1>"),role(by,[cnc(~a)])) 
+eigend: <delay1>: Delay Init 
+eigend: <delay1>: create default tap... 
+eigend: <delay1>: Tap, tap init  1 
+eigend: <delay1>: Tap, channel init  left 
+eigend: <delay1>: add tap tn 1 ti 0
+eigend: <delay1>: Channel, verbs done 
+eigend: <delay1>: Tap, channel init  right 
+eigend: <delay1>: Channel, verbs done 
+eigend: <delay1>: done. 
+eigend-backend: loading  a('<console_mixer1>',console_mixer,'2.3.0-community','1.0.2',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<console_mixer1>"),role(by,[cnc(~a)])) 
+eigend: <delay1>: ch 0 tn 1 ti 0 fbk 0.5
+eigend: <delay1>: ch 0 tn 1 ti 0 filter 1
+eigend: <delay1>: ch 0 tn 1 ti 0 cutoff 2000 g 0.230335
+eigend: <delay1>: ch 0 to ch 0 tn 1 ti 0 fbk 1
+eigend: <delay1>: ch 0 to ch 1 tn 1 ti 0 fbk 0
+eigend: <delay1>: ch 0 to ch 0 tn 1 ti 0 fbk 1
+eigend: <delay1>: ch 0 to ch 1 tn 1 ti 0 fbk 0
+eigend: <delay1>: ch 1 tn 1 ti 0 fbk 0.5
+eigend: <delay1>: ch 1 tn 1 ti 0 filter 1
+eigend: <delay1>: ch 1 tn 1 ti 0 cutoff 2000 g 0.230335
+eigend: <delay1>: ch 1 to ch 0 tn 1 ti 0 fbk 0
+eigend: <delay1>: ch 1 to ch 1 tn 1 ti 0 fbk 1
+eigend: <delay1>: ch 1 to ch 0 tn 1 ti 0 fbk 0
+eigend: <delay1>: ch 1 to ch 1 tn 1 ti 0 fbk 1
+eigend-backend: loading  a('<talker13>',talker,'2.3.0-community','1.0.2',13)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker13>"),role(by,[cnc(~a)])) 
+eigend: <talker13>: ignored: 
+eigend: <talker13>: Traceback (most recent call last):
+eigend: <talker13>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker13>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker13>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker13>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker13>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<controller6>',controller,'2.3.0-community','1.0.0',6)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller6>"),role(by,[cnc(~a)])) 
+eigend: <controller6>: ignored: 
+eigend: <controller6>: Traceback (most recent call last):
+eigend: <controller6>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller6>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller6>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller6>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller6>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller6>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker10>',talker,'2.3.0-community','1.0.2',10)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker10>"),role(by,[cnc(~a)])) 
+eigend: <talker10>: ignored: 
+eigend: <talker10>: Traceback (most recent call last):
+eigend: <talker10>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker10>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker10>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker10>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker10>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker7>',talker,'2.3.0-community','1.0.2',7)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker7>"),role(by,[cnc(~a)])) 
+eigend: <talker7>: ignored: 
+eigend: <talker7>: Traceback (most recent call last):
+eigend: <talker7>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker7>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker7>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker7>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker7>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<audio_unit2>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker6>',talker,'2.3.0-community','1.0.2',6)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker6>"),role(by,[cnc(~a)])) 
+eigend: <talker6>: ignored: 
+eigend: <talker6>: Traceback (most recent call last):
+eigend: <talker6>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker6>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker6>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker6>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker6>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<controller9>',controller,'2.3.0-community','1.0.0',9)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller9>"),role(by,[cnc(~a)])) 
+eigend: <controller9>: ignored: 
+eigend: <controller9>: Traceback (most recent call last):
+eigend: <controller9>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller9>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller9>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller9>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller9>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller9>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<rig2>',rig,'2.3.0-community','1.0.0',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig2>"),role(by,[cnc(~a)])) 
+eigend: <rig2>: inner agent  rig 2 
+eigend: <rig2>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig2 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<midi_input1>',midi_input,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<midi_input1>"),role(by,[cnc(~a)])) 
+eigend: <rig2>: set owner  '<main:rig2>' 
+eigend: <rig2>: skipped  <eigend1> 
+eigend-backend: loading  a('<talker12>',talker,'2.3.0-community','1.0.2',12)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker12>"),role(by,[cnc(~a)])) 
+eigend: <midi_input1>: set port to   
+eigend: <talker12>: ignored: 
+eigend: <talker12>: Traceback (most recent call last):
+eigend: <talker12>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker12>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker12>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker12>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker12>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<scheduler1>',scheduler,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<scheduler1>"),role(by,[cnc(~a)])) 
+eigend: <scheduler1>: ignored: 
+eigend: <scheduler1>: Traceback (most recent call last):
+eigend: <scheduler1>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <scheduler1>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <scheduler1>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <scheduler1>:  File "plg_simple/scheduler_plg.py", line 260, in __init__
+    self.controller = piw.controller2(self.light_output.cookie(),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <scheduler1>:  RuntimeError: controller2 invalid arguments
+eigend-backend:  loading  a('<talker16>',talker,'2.3.0-community','1.0.2',16)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker16>"),role(by,[cnc(~a)])) 
+eigend: <talker16>: ignored: 
+eigend: <talker16>: Traceback (most recent call last):
+eigend: <talker16>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker16>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker16>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker16>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker16>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker15>',talker,'2.3.0-community','1.0.2',15)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker15>"),role(by,[cnc(~a)])) 
+eigend: <scheduler1>: scheduler start
+eigend: <talker15>: ignored: 
+eigend: <talker15>: Traceback (most recent call last):
+eigend: <talker15>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker15>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker15>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker15>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker15>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker19>',talker,'2.3.0-community','1.0.2',19)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker19>"),role(by,[cnc(~a)])) 
+eigend: <talker19>: ignored: 
+eigend: <talker19>: Traceback (most recent call last):
+eigend: <talker19>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker19>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker19>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker19>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker19>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<keygroup1>',keygroup,'2.3.0-community','1.0.3',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<keygroup1>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<controller4>',controller,'2.3.0-community','1.0.0',4)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller4>"),role(by,[cnc(~a)])) 
+eigend: <controller4>: ignored: 
+eigend: <controller4>: Traceback (most recent call last):
+eigend: <controller4>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller4>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller4>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller4>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller4>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller4>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<talker4>',talker,'2.3.0-community','1.0.2',4)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker4>"),role(by,[cnc(~a)])) 
+eigend: <talker4>: ignored: 
+eigend: <talker4>: Traceback (most recent call last):
+eigend: <talker4>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <talker4>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <talker4>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <talker4>:  File "plg_simple/talker_plg.py", line 279, in __init__
+    self.controller = piw.controller(self.light_aggregator.get_output(1),utils.pack_str(1,2))
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <talker4>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<drummer1>',drummer,'2.3.0-community','1.0.1',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<drummer1>"),role(by,[cnc(~a)])) 
+eigend: <drummer1>: set loop  None  None 
+eigend-backend: loading  a('<controller10>',controller,'2.3.0-community','1.0.0',10)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller10>"),role(by,[cnc(~a)])) 
+eigend: <controller10>: ignored: 
+eigend: <controller10>: Traceback (most recent call last):
+eigend: <controller10>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <controller10>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <controller10>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <controller10>:  File "plg_language/controller_plg.py", line 323, in __init__
+    self.controller = Controller0(self,self.lightconvertor.cookie(),utils.pack_str(1,2,3,4,5,6))
+                      ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <controller10>:  File "plg_language/controller_plg.py", line 298, in __init__
+    piw.controller.__init__(self,cookie,sigmap)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <controller10>:  RuntimeError: controller invalid arguments
+eigend-backend:  loading  a('<audio1>',audio,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<audio1>"),role(by,[cnc(~a)])) 
+eigend: <audio1>: ** type Core Audio dev MacBook Air Speakers
+eigend: <audio1>: ** type Core Audio dev eqMac
+eigend: <audio1>: ** type Core Audio dev Steam Streaming Microphone
+eigend: <audio1>: ** type Core Audio dev Steam Streaming Speakers
+eigend: <audio1>: ignored: 
+eigend: <audio1>: Traceback (most recent call last):
+eigend: <audio1>:  File "pi/utils.py", line 84, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <audio1>:  File "pisession/workspace.py", line 190, in __load
+    a = module.main(context.getenv(),name,ordinal,enclosure,mordinal)
+eigend: <audio1>:  File "pi/agent.py", line 68, in __main
+    root = klass(name,ordinal)
+eigend: <audio1>:  File "plg_audio/audio_plg.py", line 277, in __init__
+    self[1].create_channel(1)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^
+eigend: <audio1>:  File "plg_audio/audio_plg.py", line 192, in create_channel
+    self.agent.update()
+    ~~~~~~~~~~~~~~~~~^^
+eigend: <audio1>:  File "plg_audio/audio_plg.py", line 345, in update
+    if 1 in self: self[1].update()
+       ^^^^^^^^^
+eigend: <audio1>:  TypeError: argument of type 'Agent' is not a container or iterable
+eigend-backend:  loaded:  1  60  in  0.37703490257263184  s  eigend 1 
+eigend-backend: loaded:  1  60  in  0.37886786460876465  s  midi output 1 
+eigend: <midi_output1>: set source  name Eigenlabs 1
+eigend-backend: loaded:  2  60  in  0.3871169090270996  s  midi output 1 
+eigend-backend: loaded:  2  60  in  0.38724780082702637  s  audio unit rig 1 
+eigend: <rig4>: inner agent description now  rig 1 
+eigend: <rig4>: inner agent description now  audio unit rig 1 
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_recorder/libpirecorder.dylib
+eigend: <rig4>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig4 
+eigend: <rig4>: loading rig  main.rig4  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig4 
+eigend: <rig4>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig4 start block: 2 chkpoint: 86532 blksize: 65536
+eigend: <rig4>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup1 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig4>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup1 start block: 2 chkpoint: 86734 blksize: 65536
+eigend: <rig4>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig4  version  86734 
+eigend: <rig4>: prepare:  2.0.74-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup1 
+eigend: <rig4>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig4>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig4>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig4>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig4>: upgrading host  <audio_unit2> 
+eigend: <rig4>: upgrading host  <audio_unit1> 
+eigend: <rig4>: loading from version  141480  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig4 
+eigend: <rig4>: enclosure set to  rig 1 
+eigend: <rig4>: enclosure set to  audio unit rig 1 
+eigend: <rig4>: loaded:  0  6  in  2.4080276489257812e-05  s  gateway 1 
+eigend: <rig4>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig4>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig4>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig4>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig4>: canonicalised  a('<audio_unit2>',audio_unit,'2.0.36-experimental','1.0.3',2)  to  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2) 
+eigend: <rig4>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  audio unit rig 1 
+eigend: <rig4>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <summer1>: enclosure set to  audio unit rig 1 
+eigend: <rig4>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  audio unit rig 1 
+eigend: <rig4>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <scaler1>: enclosure set to  audio unit rig 1 
+eigend: <rig4>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  audio unit rig 1 
+eigend: <rig4>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <recorder1>: allocated new take 0x120029120
+eigend: <recorder1>: allocated new take 0x120035a20
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  audio unit rig 1 
+eigend: <rig4>: loading  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  into enclosure  audio unit rig 1 
+eigend: <rig4>: relation:  create(cnc("<audio_unit2>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <recorder1>: setup  main.rig4_recorder1 
+eigend: <audio_unit2>: enclosure set to  audio unit rig 1 
+eigend: <rig4>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  audio unit rig 1 
+eigend: <rig4>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <audio_unit1>: enclosure set to  audio unit rig 1 
+eigend: <rig4>: loaded:  1  6  in  0.0422971248626709  s  gateway 1 
+eigend: <rig4>: loaded:  1  6  in  0.04351997375488281  s  summer 1 
+eigend: <rig4>: loaded:  2  6  in  0.048902273178100586  s  summer 1 
+eigend: <rig4>: loaded:  2  6  in  0.04897904396057129  s  recorder 1 
+eigend: <rig4>: loaded:  3  6  in  0.056318044662475586  s  recorder 1 
+eigend: <rig4>: loaded:  3  6  in  0.05639505386352539  s  scaler 1 
+eigend: <rig4>: loaded:  4  6  in  0.0634000301361084  s  scaler 1 
+eigend: <rig4>: loaded:  4  6  in  0.06343603134155273  s  instrument audio unit 1 
+eigend: <rig4>: loaded:  5  6  in  0.07808995246887207  s  instrument audio unit 1 
+eigend: <rig4>: loaded:  5  6  in  0.07812094688415527  s  effect audio unit 1 
+eigend: <rig4>: loaded:  6  6  in  0.08351898193359375  s  effect audio unit 1 
+eigend: <rig4>: rig load errors  [] 
+eigend-backend: loaded:  3  60  in  1.4871747493743896  s  audio unit rig 1 
+eigend-backend: loaded:  3  60  in  1.4875588417053223  s  sampler rig 1 
+eigend: <rig1>: inner agent description now  sampler rig 1 
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_sampler2/libpisampler2.dylib
+eigend: <rig1>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig1 
+eigend: <rig1>: loading rig  main.rig1  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig1 
+eigend: <rig1>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig1 start block: 2 chkpoint: 87519 blksize: 65536
+eigend: <rig1>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup2 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig1>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup2 start block: 2 chkpoint: 87460 blksize: 65536
+eigend: <rig1>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig1  version  87460 
+eigend: <rig1>: prepare:  2.0.74-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup2 
+eigend: <rig1>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig1>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig1>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig1>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig1>: upgrading host  <audio_unit1> 
+eigend: <rig1>: loading from version  143602  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig1 
+eigend: <rig1>: enclosure set to  sampler rig 1 
+eigend: <rig1>: loaded:  0  9  in  4.8160552978515625e-05  s  gateway 1 
+eigend: <rig1>: canonicalised  a('<gain1>',gain,'2.0.36-experimental','1.0.0',1)  to  a('<gain1>',gain,'2.3.0-community','1.0.0',1) 
+eigend: <rig1>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig1>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig1>: canonicalised  a('<sampler_oscillator1>',sampler_oscillator,'2.0.36-experimental','1.0.0',1)  to  a('<sampler_oscillator1>',sampler_oscillator,'2.3.0-community','1.0.0',1) 
+eigend: <rig1>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig1>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig1>: canonicalised  a('<cycler1>',cycler,'2.0.36-experimental','1.0.0',1)  to  a('<cycler1>',cycler,'2.3.0-community','1.0.0',1) 
+eigend: <rig1>: canonicalised  a('<ahdsr1>',ahdsr,'2.0.36-experimental','1.0.0',1)  to  a('<ahdsr1>',ahdsr,'2.3.0-community','1.0.0',1) 
+eigend: <rig1>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 1 
+eigend: <rig1>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <summer1>: enclosure set to  sampler rig 1 
+eigend: <rig1>: loading  a('<gain1>',gain,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 1 
+eigend: <rig1>: relation:  create(cnc("<gain1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <gain1>: enclosure set to  sampler rig 1 
+eigend: <rig1>: loading  a('<ahdsr1>',ahdsr,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 1 
+eigend: <rig1>: relation:  create(cnc("<ahdsr1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <ahdsr1>: enclosure set to  sampler rig 1 
+eigend: <rig1>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  sampler rig 1 
+eigend: <rig1>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <scaler1>: enclosure set to  sampler rig 1 
+eigend: <rig1>: loading  a('<sampler_oscillator1>',sampler_oscillator,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 1 
+eigend: <rig1>: relation:  create(cnc("<sampler_oscillator1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <sampler_oscillator1>: enclosure set to  sampler rig 1 
+eigend: <rig1>: loading  a('<cycler1>',cycler,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 1 
+eigend: <rig1>: relation:  create(cnc("<cycler1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <cycler1>: enclosure set to  sampler rig 1 
+eigend: <rig1>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  sampler rig 1 
+eigend: <rig1>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <recorder1>: allocated new take 0x1181df920
+eigend: <recorder1>: allocated new take 0x1181ec220
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  sampler rig 1 
+eigend: <rig1>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  sampler rig 1 
+eigend: <rig1>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <recorder1>: setup  main.rig1_recorder1 
+eigend: <audio_unit1>: enclosure set to  sampler rig 1 
+eigend: <rig1>: loaded:  1  9  in  0.05818605422973633  s  gateway 1 
+eigend: <rig1>: loaded:  1  9  in  0.059731245040893555  s  summer 1 
+eigend: <rig1>: loaded:  2  9  in  0.06503701210021973  s  summer 1 
+eigend: <rig1>: loaded:  2  9  in  0.06508517265319824  s  recorder 1 
+eigend: <rig1>: loaded:  3  9  in  0.07008814811706543  s  recorder 1 
+eigend: <rig1>: loaded:  3  9  in  0.07012701034545898  s  sampler oscillator 1 
+eigend: <rig1>: loaded:  4  9  in  0.07489204406738281  s  sampler oscillator 1 
+eigend: <rig1>: loaded:  4  9  in  0.07498002052307129  s  cycler 1 
+eigend: <rig1>: loaded:  5  9  in  0.09994220733642578  s  cycler 1 
+eigend: <rig1>: loaded:  5  9  in  0.10003304481506348  s  gain 1 
+eigend: <rig1>: loaded:  6  9  in  0.10944318771362305  s  gain 1 
+eigend: <rig1>: loaded:  6  9  in  0.10950803756713867  s  scaler 1 
+eigend: <rig1>: loaded:  7  9  in  0.11473822593688965  s  scaler 1 
+eigend: <rig1>: loaded:  7  9  in  0.11481499671936035  s  ahdsr 1 
+eigend: <rig1>: loaded:  8  9  in  0.12747406959533691  s  ahdsr 1 
+eigend: <rig1>: loaded:  8  9  in  0.1275320053100586  s  effect audio unit 1 
+eigend: <rig1>: loaded:  9  9  in  0.1379401683807373  s  effect audio unit 1 
+eigend: <midi_input1>: midi source added  79b45f0f  Null Device 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: midi source added  -47c1f792  IAC Driver Bus 1 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: created input Eigenlabs 1
+eigend: <rig1>: rig load errors  ['Soundfont file Synth Pad not found'] 
+eigend-backend: loaded:  4  60  in  2.6651878356933594  s  sampler rig 1 
+eigend-backend: loaded:  4  60  in  2.665710687637329  s  midi rig 1 
+eigend: <rig8>: inner agent description now  rig 1 
+eigend: <rig8>: inner agent description now  midi rig 1 
+eigend: <rig8>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig8 
+eigend: <rig8>: loading rig  main.rig8  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig8 
+eigend: <rig8>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig8 start block: 1 chkpoint: 54856 blksize: 65536
+eigend: <rig8>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup3 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig8>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup3 start block: 1 chkpoint: 54856 blksize: 65536
+eigend: <rig8>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig8  version  54856 
+eigend: <rig8>: prepare:  2.0.74-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup3 
+eigend: <rig8>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig8>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig8>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig8>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig8>: upgrading midi converter  <midi_converter1> 
+eigend: <rig8>: loading from version  74140  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig8 
+eigend: <rig8>: enclosure set to  rig 1 
+eigend: <rig8>: enclosure set to  midi rig 1 
+eigend: <rig8>: loaded:  0  5  in  5.2928924560546875e-05  s  gateway 1 
+eigend: <rig8>: canonicalised  a('<midi_clock1>',midi_clock,'2.0.36-experimental','1.0.0',1)  to  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1) 
+eigend: <rig8>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig8>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig8>: canonicalised  a('<midi_converter1>',midi_converter,'2.0.36-experimental','1.0.3',1)  to  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1) 
+eigend: <rig8>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  midi rig 1 
+eigend: <rig8>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig8>')])) 
+eigend: <recorder1>: allocated new take 0x11848cc20
+eigend: <recorder1>: allocated new take 0x118499520
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  midi rig 1 
+eigend: <rig8>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  midi rig 1 
+eigend: <rig8>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig8>')])) 
+eigend: <recorder1>: setup  main.rig8_recorder1 
+eigend: <scaler1>: enclosure set to  midi rig 1 
+eigend: <rig8>: loading  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1)  into enclosure  midi rig 1 
+eigend: <rig8>: relation:  create(cnc("<midi_clock1>"),role(by,[cnc('<main:rig8>')])) 
+eigend: <midi_clock1>: enclosure set to  midi rig 1 
+eigend: <rig8>: loading  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1)  into enclosure  midi rig 1 
+eigend: <rig8>: relation:  create(cnc("<midi_converter1>"),role(by,[cnc('<main:rig8>')])) 
+eigend: <midi_converter1>: enclosure set to  midi rig 1 
+eigend: <rig8>: loaded:  1  5  in  0.04810976982116699  s  gateway 1 
+eigend: <rig8>: loaded:  1  5  in  0.049546003341674805  s  recorder 1 
+eigend: <rig8>: loaded:  2  5  in  0.05956578254699707  s  recorder 1 
+eigend: <rig8>: loaded:  2  5  in  0.059610843658447266  s  midi clock 1 
+eigend: <rig8>: loaded:  3  5  in  0.06366372108459473  s  midi clock 1 
+eigend: <rig8>: loaded:  3  5  in  0.06373286247253418  s  scaler 1 
+eigend: <rig8>: loaded:  4  5  in  0.06966781616210938  s  scaler 1 
+eigend: <rig8>: loaded:  4  5  in  0.06972599029541016  s  midi converter 1 
+eigend: <rig8>: loaded:  5  5  in  0.08107805252075195  s  midi converter 1 
+eigend: <rig8>: rig load errors  [] 
+eigend-backend: loaded:  5  60  in  3.7765660285949707  s  midi rig 1 
+eigend-backend: loaded:  5  60  in  3.776865005493164  s  sampler rig 3 
+eigend: <rig3>: inner agent description now  sampler rig 3 
+eigend: <rig3>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig3 
+eigend: <rig3>: loading rig  main.rig3  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig3 
+eigend: <rig3>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig3 start block: 2 chkpoint: 87469 blksize: 65536
+eigend: <rig3>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup4 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig3>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup4 start block: 2 chkpoint: 87278 blksize: 65536
+eigend: <rig3>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig3  version  87278 
+eigend: <rig3>: prepare:  2.0.74-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup4 
+eigend: <rig3>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig3>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig3>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig3>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig3>: upgrading host  <audio_unit1> 
+eigend: <rig3>: loading from version  143602  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig3 
+eigend: <rig3>: enclosure set to  sampler rig 3 
+eigend: <rig3>: loaded:  0  9  in  4.1961669921875e-05  s  gateway 1 
+eigend: <rig3>: canonicalised  a('<gain1>',gain,'2.0.36-experimental','1.0.0',1)  to  a('<gain1>',gain,'2.3.0-community','1.0.0',1) 
+eigend: <rig3>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig3>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig3>: canonicalised  a('<sampler_oscillator1>',sampler_oscillator,'2.0.36-experimental','1.0.0',1)  to  a('<sampler_oscillator1>',sampler_oscillator,'2.3.0-community','1.0.0',1) 
+eigend: <rig3>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig3>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig3>: canonicalised  a('<cycler1>',cycler,'2.0.36-experimental','1.0.0',1)  to  a('<cycler1>',cycler,'2.3.0-community','1.0.0',1) 
+eigend: <rig3>: canonicalised  a('<ahdsr1>',ahdsr,'2.0.36-experimental','1.0.0',1)  to  a('<ahdsr1>',ahdsr,'2.3.0-community','1.0.0',1) 
+eigend: <rig3>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 3 
+eigend: <rig3>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <summer1>: enclosure set to  sampler rig 3 
+eigend: <rig3>: loading  a('<gain1>',gain,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 3 
+eigend: <rig3>: relation:  create(cnc("<gain1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <gain1>: enclosure set to  sampler rig 3 
+eigend: <rig3>: loading  a('<ahdsr1>',ahdsr,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 3 
+eigend: <rig3>: relation:  create(cnc("<ahdsr1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <ahdsr1>: enclosure set to  sampler rig 3 
+eigend: <rig3>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  sampler rig 3 
+eigend: <rig3>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <scaler1>: enclosure set to  sampler rig 3 
+eigend: <rig3>: loading  a('<sampler_oscillator1>',sampler_oscillator,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 3 
+eigend: <rig3>: relation:  create(cnc("<sampler_oscillator1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <sampler_oscillator1>: enclosure set to  sampler rig 3 
+eigend: <rig3>: loading  a('<cycler1>',cycler,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 3 
+eigend: <rig3>: relation:  create(cnc("<cycler1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <cycler1>: enclosure set to  sampler rig 3 
+eigend: <rig3>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  sampler rig 3 
+eigend: <rig3>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <recorder1>: allocated new take 0x131ae2520
+eigend: <recorder1>: allocated new take 0x131aeef20
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  sampler rig 3 
+eigend: <rig3>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  sampler rig 3 
+eigend: <rig3>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <recorder1>: setup  main.rig3_recorder1 
+eigend: <audio_unit1>: enclosure set to  sampler rig 3 
+eigend: <rig3>: loaded:  1  9  in  0.059942007064819336  s  gateway 1 
+eigend: <rig3>: loaded:  1  9  in  0.06168484687805176  s  summer 1 
+eigend: <rig3>: loaded:  2  9  in  0.06603097915649414  s  summer 1 
+eigend: <rig3>: loaded:  2  9  in  0.06610989570617676  s  recorder 1 
+eigend: <rig3>: loaded:  3  9  in  0.07126903533935547  s  recorder 1 
+eigend: <rig3>: loaded:  3  9  in  0.0713200569152832  s  sampler oscillator 1 
+eigend: <rig3>: loaded:  4  9  in  0.07629680633544922  s  sampler oscillator 1 
+eigend: <rig3>: loaded:  4  9  in  0.07642197608947754  s  cycler 1 
+eigend: <rig3>: loaded:  5  9  in  0.10068297386169434  s  cycler 1 
+eigend: <rig3>: loaded:  5  9  in  0.10078692436218262  s  gain 1 
+eigend: <rig3>: loaded:  6  9  in  0.10999178886413574  s  gain 1 
+eigend: <rig3>: loaded:  6  9  in  0.1100311279296875  s  scaler 1 
+eigend: <rig3>: loaded:  7  9  in  0.11478495597839355  s  scaler 1 
+eigend: <rig3>: loaded:  7  9  in  0.1148688793182373  s  ahdsr 1 
+eigend: <rig3>: loaded:  8  9  in  0.12787985801696777  s  ahdsr 1 
+eigend: <rig3>: loaded:  8  9  in  0.1279740333557129  s  effect audio unit 1 
+eigend: <rig3>: loaded:  9  9  in  0.13911104202270508  s  effect audio unit 1 
+eigend: <rig3>: rig load errors  ['Soundfont file Black Grand Medium not found'] 
+eigend-backend: loaded:  6  60  in  4.943837881088257  s  sampler rig 3 
+eigend-backend: loaded:  6  60  in  4.94415283203125  s  effect audio unit 2 
+eigend-backend: loaded:  7  60  in  4.961677074432373  s  effect audio unit 2 
+eigend-backend: loaded:  7  60  in  4.962122917175293  s  cello rig 1 
+eigend: <rig7>: inner agent description now  rig 1 
+eigend: <rig7>: inner agent description now  cello rig 1 
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_stk/stk_native.so
+eigend: <rig7>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig7 
+eigend: <rig7>: loading rig  main.rig7  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig7 
+eigend: <rig7>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig7 start block: 2 chkpoint: 83511 blksize: 65536
+eigend: <rig7>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup5 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig7>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup5 start block: 2 chkpoint: 82804 blksize: 65536
+eigend: <rig7>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig7  version  82804 
+eigend: <rig7>: prepare:  2.0.74-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup5 
+eigend: <rig7>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig7>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig7>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig7>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig7>: upgrading host  <audio_unit1> 
+eigend: <rig7>: loading from version  143342  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig7 
+eigend: <rig7>: enclosure set to  rig 1 
+eigend: <rig7>: enclosure set to  cello rig 1 
+eigend: <rig7>: loaded:  0  10  in  6.079673767089844e-05  s  gateway 1 
+eigend: <rig7>: canonicalised  a('<gain1>',gain,'2.0.36-experimental','1.0.0',1)  to  a('<gain1>',gain,'2.3.0-community','1.0.0',1) 
+eigend: <rig7>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig7>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig7>: canonicalised  a('<stringer1>',stringer,'2.0.36-experimental','1.0.1',1)  to  a('<stringer1>',stringer,'2.3.0-community','1.0.1',1) 
+eigend: <rig7>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig7>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig7>: start traceback: 
+eigend: <rig7>: Traceback (most recent call last):
+eigend: <rig7>:  File "pi/utils.py", line 36, in __call__
+    return self.callback(*args,**kwds)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+eigend: <rig7>:  File "pisession/workspace.py", line 712, in __canonicalise
+    new_signature = logic.make_term('a',address,module.name,module.version,module.cversion,ordinal)
+                                                ^^^^^^^^^^^
+eigend: <rig7>:  AttributeError: 'NoneType' object has no attribute 'name'
+eigend: <rig7>:  end traceback: 
+eigend: <rig7>: Traceback (most recent call last):
+eigend: <rig7>:  File "pi/utils.py", line 36, in __call__
+    return self.callback(*args,**kwds)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+eigend: <rig7>:  File "pisession/workspace.py", line 712, in __canonicalise
+    new_signature = logic.make_term('a',address,module.name,module.version,module.cversion,ordinal)
+                                                ^^^^^^^^^^^
+eigend: <rig7>:  AttributeError: 'NoneType' object has no attribute 'name'
+eigend: <rig7>:  During handling of the above exception, another exception occurred:
+eigend: <rig7>:  Traceback (most recent call last):
+eigend: <rig7>:  File "pi/piasync.py", line 273, in __doit
+    result = self.__generator.send(result)
+eigend: <rig7>:  File "pi/node.py", line 77, in load_state
+    self.load_value(delegate,d)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+eigend: <rig7>:  File "pi/atom.py", line 144, in load_value
+    self.__server_change(value,delegate)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+eigend: <rig7>:  File "pi/atom.py", line 183, in __server_change
+    self.set_property(k,v,allow_veto=True,delegate=delegate)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <rig7>:  File "pi/atom.py", line 256, in set_property
+    l.property_change(key,value,delegate)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <rig7>:  File "pi/container.py", line 70, in property_change
+    new_terms = set([ self.__canonicalise(v) for v in new_terms])
+                      ~~~~~~~~~~~~~~~~~~~^^^
+eigend: <rig7>:  File "pi/utils.py", line 39, in __call__
+    return self.default
+           ^^^^^^^^^^^^
+eigend: <rig7>:  AttributeError: 'WeakFunctionCallback' object has no attribute 'default'
+eigend: <rig7>:  Traceback (most recent call last):
+eigend: <rig7>:  File "pi/utils.py", line 36, in __call__
+    return self.callback(*args,**kwds)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^
+eigend: <rig7>:  File "pisession/workspace.py", line 712, in __canonicalise
+    new_signature = logic.make_term('a',address,module.name,module.version,module.cversion,ordinal)
+                                                ^^^^^^^^^^^
+eigend: <rig7>:  AttributeError: 'NoneType' object has no attribute 'name'
+eigend: <rig7>:  During handling of the above exception, another exception occurred:
+eigend: <rig7>:  Traceback (most recent call last):
+eigend: <rig7>:  File "pi/piasync.py", line 273, in __doit
+    result = self.__generator.send(result)
+eigend: <rig7>:  File "pi/node.py", line 77, in load_state
+    self.load_value(delegate,d)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^
+eigend: <rig7>:  File "pi/atom.py", line 144, in load_value
+    self.__server_change(value,delegate)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+eigend: <rig7>:  File "pi/atom.py", line 183, in __server_change
+    self.set_property(k,v,allow_veto=True,delegate=delegate)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+eigend: <rig7>:  File "pi/atom.py", line 256, in set_property
+    l.property_change(key,value,delegate)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+eigend: <rig7>:  File "pi/container.py", line 70, in property_change
+    new_terms = set([ self.__canonicalise(v) for v in new_terms])
+                      ~~~~~~~~~~~~~~~~~~~^^^
+eigend: <rig7>:  File "pi/utils.py", line 39, in __call__
+    return self.default
+           ^^^^^^^^^^^^
+eigend: <rig7>:  AttributeError: 'WeakFunctionCallback' object has no attribute 'default'
+eigend: <rig7>:  loaded:  1  10  in  0.006922006607055664  s  gateway 1 
+eigend: <midi_output1>: midi sink added  6fe0f223  Eigenlabs 1 
+eigend: <midi_output1>: created output Eigenlabs 1
+eigend: <midi_output1>: OutputMidiPort: set port to   
+eigend: <midi_input1>: midi source added  6fe0f223  Eigenlabs 1 
+eigend: <midi_input1>: set port to   
+eigend: <rig7>: watchdog fired; load failed 
+eigend: <rig7>: {'<summer1>', '<cello_oscillator1>', '<recorder1>', '<shaper1>', '<gain1>', '<audio_unit1>', '<scaler1>', '<convolver1>', '<stringer1>'} 
+eigend: <rig7>: rig load errors  [] 
+eigend-backend: loaded:  8  60  in  10.99508285522461  s  cello rig 1 
+eigend-backend: loaded:  8  60  in  10.995323896408081  s  clarinet rig 1 
+eigend: <rig6>: inner agent description now  rig 1 
+eigend: <rig6>: inner agent description now  clarinet rig 1 
+eigend: <rig6>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig6 
+eigend: <rig6>: loading rig  main.rig6  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig6 
+eigend: <rig6>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig6 start block: 2 chkpoint: 71789 blksize: 65536
+eigend: <rig6>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup6 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig6>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup6 start block: 2 chkpoint: 72036 blksize: 65536
+eigend: <rig6>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig6  version  72036 
+eigend: <rig6>: prepare:  2.0.74-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup6 
+eigend: <rig6>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig6>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig6>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig6>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig6>: upgrading host  <audio_unit1> 
+eigend: <rig6>: loading from version  142448  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig6 
+eigend: <rig6>: enclosure set to  rig 1 
+eigend: <rig6>: enclosure set to  clarinet rig 1 
+eigend: <rig6>: loaded:  0  8  in  5.7220458984375e-05  s  gateway 1 
+eigend: <rig6>: canonicalised  a('<stringer1>',stringer,'2.0.36-experimental','1.0.1',1)  to  a('<stringer1>',stringer,'2.3.0-community','1.0.1',1) 
+eigend: <rig6>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig6>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig6>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig6>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig6>: canonicalised  a('<shaper1>',shaper,'2.0.36-experimental','1.0.0',1)  to  a('<shaper1>',shaper,'2.3.0-community','1.0.0',1) 
+eigend: <rig6>: canonicalised  a('<clarinet_oscillator1>',clarinet_oscillator,'2.0.36-experimental','1.0.0',1)  to  a('<clarinet_oscillator1>',clarinet_oscillator,'2.3.0-community','1.0.0',1) 
+eigend: <rig6>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  clarinet rig 1 
+eigend: <rig6>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <summer1>: enclosure set to  clarinet rig 1 
+eigend: <rig6>: loading  a('<clarinet_oscillator1>',clarinet_oscillator,'2.3.0-community','1.0.0',1)  into enclosure  clarinet rig 1 
+eigend: <rig6>: relation:  create(cnc("<clarinet_oscillator1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <clarinet_oscillator1>: enclosure set to  clarinet rig 1 
+eigend: <rig6>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  clarinet rig 1 
+eigend: <rig6>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <scaler1>: enclosure set to  clarinet rig 1 
+eigend: <rig6>: loading  a('<stringer1>',stringer,'2.3.0-community','1.0.1',1)  into enclosure  clarinet rig 1 
+eigend: <rig6>: relation:  create(cnc("<stringer1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <stringer1>: enclosure set to  clarinet rig 1 
+eigend: <rig6>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  clarinet rig 1 
+eigend: <rig6>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <recorder1>: allocated new take 0x1206d7320
+eigend: <recorder1>: allocated new take 0x1206e3c20
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  clarinet rig 1 
+eigend: <rig6>: loading  a('<shaper1>',shaper,'2.3.0-community','1.0.0',1)  into enclosure  clarinet rig 1 
+eigend: <rig6>: relation:  create(cnc("<shaper1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <recorder1>: setup  main.rig6_recorder1 
+eigend: <shaper1>: enclosure set to  clarinet rig 1 
+eigend: <rig6>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  clarinet rig 1 
+eigend: <rig6>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <audio_unit1>: enclosure set to  clarinet rig 1 
+eigend: <rig6>: loaded:  1  8  in  0.05584526062011719  s  gateway 1 
+eigend: <rig6>: loaded:  1  8  in  0.05743217468261719  s  summer 1 
+eigend: <rig6>: loaded:  2  8  in  0.06170296669006348  s  summer 1 
+eigend: <rig6>: loaded:  2  8  in  0.06175708770751953  s  recorder 1 
+eigend: <main:talker21> proxy closing down
+eigend: <main:scheduler1> proxy closing down
+eigend: <main:talker18> proxy closing down
+eigend: <main:talker14> proxy closing down
+eigend: <main:interpreter1> proxy closing down
+eigend: <main:talker10> proxy closing down
+eigend: <main:talker15> proxy closing down
+eigend: <rig6>: loaded:  3  8  in  0.06829595565795898  s  recorder 1 
+eigend: <rig6>: loaded:  3  8  in  0.0683588981628418  s  shaper 1 
+eigend: <rig6>: loaded:  4  8  in  0.07197999954223633  s  shaper 1 
+eigend: <rig6>: loaded:  4  8  in  0.07201099395751953  s  clarinet oscillator 1 
+eigend: <rig6>: loaded:  5  8  in  0.07472896575927734  s  clarinet oscillator 1 
+eigend: <rig6>: loaded:  5  8  in  0.07477092742919922  s  scaler 1 
+eigend: <rig6>: loaded:  6  8  in  0.0804300308227539  s  scaler 1 
+eigend: <rig6>: loaded:  6  8  in  0.08053398132324219  s  stringer 1 
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <clarinet_oscillator1>: sample rate = 44100
+eigend: <rig6>: loaded:  7  8  in  0.09649300575256348  s  stringer 1 
+eigend: <rig6>: loaded:  7  8  in  0.09658193588256836  s  effect audio unit 1 
+eigend: <rig6>: loaded:  8  8  in  0.10307502746582031  s  effect audio unit 1 
+eigend: <rig6>: rig load errors  [] 
+eigend-backend: loaded:  9  60  in  12.129077911376953  s  clarinet rig 1 
+eigend-backend: loaded:  9  60  in  12.129328727722168  s  midi input 1 
+eigend-backend: loaded:  10  60  in  12.13565182685852  s  midi input 1 
+eigend-backend: loaded:  10  60  in  12.136060953140259  s  sampler rig 2 
+eigend: <rig2>: inner agent description now  sampler rig 2 
+eigend: <rig2>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig2 
+eigend: <rig2>: loading rig  main.rig2  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig2 
+eigend: <rig2>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig2 start block: 2 chkpoint: 87427 blksize: 65536
+eigend: <rig2>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup7 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig2>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup7 start block: 2 chkpoint: 87339 blksize: 65536
+eigend: <rig2>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig2  version  87339 
+eigend: <rig2>: prepare:  2.0.74-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup7 
+eigend: <rig2>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig2>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig2>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig2>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig2>: upgrading host  <audio_unit1> 
+eigend: <rig2>: loading from version  143602  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig2 
+eigend: <rig2>: enclosure set to  sampler rig 2 
+eigend: <rig2>: loaded:  0  9  in  4.291534423828125e-05  s  gateway 1 
+eigend: <rig2>: canonicalised  a('<gain1>',gain,'2.0.36-experimental','1.0.0',1)  to  a('<gain1>',gain,'2.3.0-community','1.0.0',1) 
+eigend: <rig2>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig2>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig2>: canonicalised  a('<sampler_oscillator1>',sampler_oscillator,'2.0.36-experimental','1.0.0',1)  to  a('<sampler_oscillator1>',sampler_oscillator,'2.3.0-community','1.0.0',1) 
+eigend: <rig2>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig2>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig2>: canonicalised  a('<cycler1>',cycler,'2.0.36-experimental','1.0.0',1)  to  a('<cycler1>',cycler,'2.3.0-community','1.0.0',1) 
+eigend: <rig2>: canonicalised  a('<ahdsr1>',ahdsr,'2.0.36-experimental','1.0.0',1)  to  a('<ahdsr1>',ahdsr,'2.3.0-community','1.0.0',1) 
+eigend: <rig2>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 2 
+eigend: <rig2>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <summer1>: enclosure set to  sampler rig 2 
+eigend: <rig2>: loading  a('<gain1>',gain,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 2 
+eigend: <rig2>: relation:  create(cnc("<gain1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <gain1>: enclosure set to  sampler rig 2 
+eigend: <rig2>: loading  a('<ahdsr1>',ahdsr,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 2 
+eigend: <rig2>: relation:  create(cnc("<ahdsr1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <ahdsr1>: enclosure set to  sampler rig 2 
+eigend: <rig2>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  sampler rig 2 
+eigend: <rig2>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <scaler1>: enclosure set to  sampler rig 2 
+eigend: <rig2>: loading  a('<sampler_oscillator1>',sampler_oscillator,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 2 
+eigend: <rig2>: relation:  create(cnc("<sampler_oscillator1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <sampler_oscillator1>: enclosure set to  sampler rig 2 
+eigend: <rig2>: loading  a('<cycler1>',cycler,'2.3.0-community','1.0.0',1)  into enclosure  sampler rig 2 
+eigend: <rig2>: relation:  create(cnc("<cycler1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <cycler1>: enclosure set to  sampler rig 2 
+eigend: <rig2>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  sampler rig 2 
+eigend: <rig2>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <recorder1>: allocated new take 0x132431c20
+eigend: <recorder1>: allocated new take 0x13243e520
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  sampler rig 2 
+eigend: <rig2>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  sampler rig 2 
+eigend: <rig2>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <recorder1>: setup  main.rig2_recorder1 
+eigend: <audio_unit1>: enclosure set to  sampler rig 2 
+eigend: <rig2>: loaded:  1  9  in  0.06288504600524902  s  gateway 1 
+eigend: <rig2>: loaded:  1  9  in  0.06482100486755371  s  summer 1 
+eigend: <rig2>: loaded:  2  9  in  0.06981205940246582  s  summer 1 
+eigend: <rig2>: loaded:  2  9  in  0.06986308097839355  s  recorder 1 
+eigend: <rig2>: loaded:  3  9  in  0.07621502876281738  s  recorder 1 
+eigend: <rig2>: loaded:  3  9  in  0.07625699043273926  s  sampler oscillator 1 
+eigend: <rig2>: loaded:  4  9  in  0.08096718788146973  s  sampler oscillator 1 
+eigend: <rig2>: loaded:  4  9  in  0.08102893829345703  s  cycler 1 
+eigend: <rig2>: loaded:  5  9  in  0.10568690299987793  s  cycler 1 
+eigend: <rig2>: loaded:  5  9  in  0.10576987266540527  s  gain 1 
+eigend: <rig2>: loaded:  6  9  in  0.11502814292907715  s  gain 1 
+eigend: <rig2>: loaded:  6  9  in  0.11508393287658691  s  scaler 1 
+eigend: <rig2>: loaded:  7  9  in  0.11978602409362793  s  scaler 1 
+eigend: <rig2>: loaded:  7  9  in  0.11981606483459473  s  ahdsr 1 
+eigend: <rig2>: loaded:  8  9  in  0.13296914100646973  s  ahdsr 1 
+eigend: <rig2>: loaded:  8  9  in  0.13310718536376953  s  effect audio unit 1 
+eigend: <midi_input1>: created input Eigenlabs 1
+eigend: <rig2>: loaded:  9  9  in  0.14520907402038574  s  effect audio unit 1 
+eigend: <rig2>: rig load errors  ['Soundfont file Electric Bass not found'] 
+eigend-backend: loaded:  11  60  in  13.304257869720459  s  sampler rig 2 
+eigend-backend: loaded:  11  60  in  13.304602861404419  s  audio unit rig 2 
+eigend: <rig5>: inner agent description now  rig 2 
+eigend: <rig5>: inner agent description now  audio unit rig 2 
+eigend: <rig5>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig5 
+eigend: <rig5>: loading rig  main.rig5  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig5 
+eigend: <rig5>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig5 start block: 2 chkpoint: 85340 blksize: 65536
+eigend: <rig5>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup8 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig5>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup8 start block: 2 chkpoint: 85476 blksize: 65536
+eigend: <rig5>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig5  version  85476 
+eigend: <rig5>: prepare:  2.0.74-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup8 
+eigend: <rig5>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig5>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig5>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig5>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig5>: upgrading host  <audio_unit1> 
+eigend: <rig5>: upgrading host  <audio_unit2> 
+eigend: <rig5>: loading from version  141171  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 1 ~ Standard Setup#rig5 
+eigend: <rig5>: enclosure set to  rig 2 
+eigend: <rig5>: enclosure set to  audio unit rig 2 
+eigend: <rig5>: loaded:  0  6  in  4.6253204345703125e-05  s  gateway 1 
+eigend: <rig5>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig5>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig5>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig5>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig5>: canonicalised  a('<audio_unit2>',audio_unit,'2.0.36-experimental','1.0.3',2)  to  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2) 
+eigend: <rig5>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  audio unit rig 2 
+eigend: <rig5>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig5>')])) 
+eigend: <summer1>: enclosure set to  audio unit rig 2 
+eigend: <rig5>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  audio unit rig 2 
+eigend: <rig5>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig5>')])) 
+eigend: <scaler1>: enclosure set to  audio unit rig 2 
+eigend: <rig5>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  audio unit rig 2 
+eigend: <rig5>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig5>')])) 
+eigend: <recorder1>: allocated new take 0x132adb920
+eigend: <recorder1>: allocated new take 0x132ae8220
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  audio unit rig 2 
+eigend: <rig5>: loading  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  into enclosure  audio unit rig 2 
+eigend: <rig5>: relation:  create(cnc("<audio_unit2>"),role(by,[cnc('<main:rig5>')])) 
+eigend: <recorder1>: setup  main.rig5_recorder1 
+eigend: <audio_unit2>: enclosure set to  audio unit rig 2 
+eigend: <rig5>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  audio unit rig 2 
+eigend: <rig5>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig5>')])) 
+eigend: <audio_unit1>: enclosure set to  audio unit rig 2 
+eigend: <rig5>: loaded:  1  6  in  0.0661313533782959  s  gateway 1 
+eigend: <rig5>: loaded:  1  6  in  0.06770110130310059  s  summer 1 
+eigend: <rig5>: loaded:  2  6  in  0.07290816307067871  s  summer 1 
+eigend: <rig5>: loaded:  2  6  in  0.07296943664550781  s  recorder 1 
+eigend: <rig5>: loaded:  3  6  in  0.08005523681640625  s  recorder 1 
+eigend: <rig5>: loaded:  3  6  in  0.08012914657592773  s  scaler 1 
+eigend: <rig5>: loaded:  4  6  in  0.08802127838134766  s  scaler 1 
+eigend: <rig5>: loaded:  4  6  in  0.08810544013977051  s  effect audio unit 1 
+eigend: <rig5>: loaded:  5  6  in  0.09787917137145996  s  effect audio unit 1 
+eigend: <rig5>: loaded:  5  6  in  0.09792423248291016  s  instrument audio unit 1 
+eigend: <rig5>: loaded:  6  6  in  0.11025619506835938  s  instrument audio unit 1 
+eigend: <rig5>: rig load errors  [] 
+eigend-backend: loaded:  12  60  in  14.440855979919434  s  audio unit rig 2 
+eigend-backend: loaded:  12  60  in  14.441375970840454  s  effect audio unit 1 
+eigend-backend: loaded:  13  60  in  14.458096742630005  s  effect audio unit 1 
+eigend-backend: loaded:  13  60  in  14.458532810211182  s  scale manager 1 
+eigend-backend: loaded:  14  60  in  14.460216760635376  s  scale manager 1 
+eigend-backend: loaded:  14  60  in  14.46032190322876  s  instrument effect keygroup 
+eigend-backend: loaded:  15  60  in  14.49878978729248  s  instrument effect keygroup 
+eigend-backend: loaded:  15  60  in  14.498872756958008  s  scheduler keygroup 
+eigend-backend: loaded:  16  60  in  14.506141901016235  s  scheduler keygroup 
+eigend-backend: loaded:  16  60  in  14.506225824356079  s  metronome 1 
+eigend: <metronome1>: tempo range 30->500
+eigend-backend: loaded:  17  60  in  14.516788005828857  s  metronome 1 
+eigend-backend: loaded:  17  60  in  14.51685094833374  s  pico manager 1 
+eigend-backend: loaded:  18  60  in  14.51751708984375  s  pico manager 1 
+eigend-backend: loaded:  18  60  in  14.517580032348633  s  keygroup 2 
+eigend-backend: loaded:  19  60  in  14.544164896011353  s  keygroup 2 
+eigend-backend: loaded:  19  60  in  14.544256925582886  s  delay 1 
+eigend-backend: loaded:  20  60  in  14.547524690628052  s  delay 1 
+eigend-backend: loaded:  20  60  in  14.547590732574463  s  console mixer 1 
+eigend-backend: loaded:  21  60  in  14.620337963104248  s  console mixer 1 
+eigend-backend: loaded:  21  60  in  14.620422840118408  s  main keygroup 
+eigend-backend: loaded:  22  60  in  14.802166938781738  s  main keygroup 
+eigend-backend: loaded:  22  60  in  14.802674770355225  s  drummer 1 
+eigend: <drummer1>: set loop  None  None 
+eigend: <drummer1>: set loop  None  None 
+eigend: <drummer1>: set loop  None  None 
+eigend: <drummer1>: set loop  None  None 
+eigend: <drummer1>: set loop  None  None 
+eigend: <drummer1>: set loop  /usr/pi/loop/Acoustic/Session Drums/SD_120_Lp02.aiff  None 
+eigend: <drummer1>: set loop  /usr/pi/loop/Acoustic/Percussionism/Set 13 120 Bpm /Pc_120_KickBeater.aiff  None 
+eigend: <drummer1>: set loop  /usr/pi/loop/Acoustic/Session Drums/SD_120_Lp17.aiff  None 
+eigend: <drummer1>: set loop  /usr/pi/loop/Acoustic/Session Drums/SD_120_Lp18.aiff  None 
+eigend: <drummer1>: set loop  /usr/pi/loop/Acoustic/Percussionism/Shakers and Tambourines/Pc_120_EggShaker6.aiff  None 
+eigend: <drummer1>: set loop  /usr/pi/loop/Acoustic/Percussionism/Set 14 120 Bpm /Pc_120_FullMix.aiff  None 
+eigend: <drummer1>: loop  1  status changed to  True 
+eigend-backend: loaded:  23  60  in  14.823641777038574  s  drummer 1 
+eigend: <main:talker6> proxy closing down
+eigend: <main.rig7:audio_unit1> proxy closing down
+eigend: <main.rig7:recorder1> proxy closing down
+eigend: <main.rig7:stringer1> proxy closing down
+eigend-backend: watchdog fired; load failed 
+eigend-backend: {'<talker12>', '<controller5>', '<controller3>', '<talker19>', '<talker6>', '<controller6>', '<talker15>', '<talker4>', '<talker16>', '<controller2>', '<controller9>', '<clicker1>', '<talker21>', '<talker2>', '<scheduler1>', '<interpreter1>', '<controller4>', '<talker13>', '<talker10>', '<controller10>', '<talker7>', '<talker8>', '<talker14>', '<talker1>', '<talker11>', '<talker5>', '<talker18>', '<talker20>', '<controller11>', '<talker17>', '<talker3>', '<controller1>', '<controller8>', '<audio1>', '<controller7>', '<controller12>', '<talker9>'} 
+eigend: <audio_unit2>: start traceback: 
+eigend: <audio_unit2>: Traceback (most recent call last):
+eigend: <audio_unit2>:  File "pi/agent.py", line 146, in rpcserver_invoke
+    r = func(arg)
+eigend: <audio_unit2>:  File "pi/agent.py", line 318, in rpc_postload
+    return self.agent_postload(arg)
+           ~~~~~~~~~~~~~~~~~~~^^^^^
+eigend: <audio_unit2>:  File "plg_host/host_plg.py", line 637, in agent_postload
+    self.__state.apply_state()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+eigend: <audio_unit2>:  File "plg_host/host_plg.py", line 258, in apply_state
+    state = self[2].get_blob()
+eigend: <audio_unit2>:  File "plg_host/host_plg.py", line 234, in get_blob
+    z = ''.join([ n.get_data().as_blob2() for n in self.values() ])
+                  ~~~~~~~~~~~~~~~~~~~~~^^
+eigend: <audio_unit2>:  UnicodeDecodeError: 'utf-8' codec can't decode byte 0x9c in position 1: invalid start byte
+eigend: <audio_unit2>:  end traceback: 
+eigend: <audio_unit2>: start traceback: 
+eigend: <audio_unit2>: Traceback (most recent call last):
+eigend: <audio_unit2>:  File "pi/agent.py", line 146, in rpcserver_invoke
+    r = func(arg)
+eigend: <audio_unit2>:  File "pi/agent.py", line 318, in rpc_postload
+    return self.agent_postload(arg)
+           ~~~~~~~~~~~~~~~~~~~^^^^^
+eigend: <audio_unit2>:  File "plg_host/host_plg.py", line 637, in agent_postload
+    self.__state.apply_state()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+eigend: <audio_unit2>:  File "plg_host/host_plg.py", line 258, in apply_state
+    state = self[2].get_blob()
+eigend: <audio_unit2>:  File "plg_host/host_plg.py", line 234, in get_blob
+    z = ''.join([ n.get_data().as_blob2() for n in self.values() ])
+                  ~~~~~~~~~~~~~~~~~~~~~^^
+eigend: <audio_unit2>:  UnicodeDecodeError: 'utf-8' codec can't decode byte 0x9c in position 1: invalid start byte
+eigend: <audio_unit2>:  end traceback: 
+eigend: <audio_unit1>: start traceback: 
+eigend: <audio_unit1>: Traceback (most recent call last):
+eigend: <audio_unit1>:  File "pi/agent.py", line 146, in rpcserver_invoke
+    r = func(arg)
+eigend: <audio_unit1>:  File "pi/agent.py", line 318, in rpc_postload
+    return self.agent_postload(arg)
+           ~~~~~~~~~~~~~~~~~~~^^^^^
+eigend: <audio_unit1>:  File "plg_host/host_plg.py", line 637, in agent_postload
+    self.__state.apply_state()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+eigend: <audio_unit1>:  File "plg_host/host_plg.py", line 258, in apply_state
+    state = self[2].get_blob()
+eigend: <audio_unit1>:  File "plg_host/host_plg.py", line 234, in get_blob
+    z = ''.join([ n.get_data().as_blob2() for n in self.values() ])
+                  ~~~~~~~~~~~~~~~~~~~~~^^
+eigend: <audio_unit1>:  UnicodeDecodeError: 'utf-8' codec can't decode byte 0x9c in position 1: invalid start byte
+eigend: <audio_unit1>:  end traceback: 
+eigend: <audio_unit2>: deallocating buffer for 0 channels of 4096 samples
+eigend: <audio_unit1>: start traceback: 
+eigend: <audio_unit1>: Traceback (most recent call last):
+eigend: <audio_unit1>:  File "pi/agent.py", line 146, in rpcserver_invoke
+    r = func(arg)
+eigend: <audio_unit1>:  File "pi/agent.py", line 318, in rpc_postload
+    return self.agent_postload(arg)
+           ~~~~~~~~~~~~~~~~~~~^^^^^
+eigend: <audio_unit1>:  File "plg_host/host_plg.py", line 637, in agent_postload
+    self.__state.apply_state()
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^
+eigend: <audio_unit1>:  File "plg_host/host_plg.py", line 258, in apply_state
+    state = self[2].get_blob()
+eigend: <audio_unit1>:  File "plg_host/host_plg.py", line 234, in get_blob
+    z = ''.join([ n.get_data().as_blob2() for n in self.values() ])
+                  ~~~~~~~~~~~~~~~~~~~~~^^
+eigend: <audio_unit1>:  UnicodeDecodeError: 'utf-8' codec can't decode byte 0x9c in position 1: invalid start byte
+eigend: <audio_unit1>:  end traceback: 
+eigend-backend: restarting gc 
+eigend: <main:scheduler1> proxy closing down
+eigend: <main:interpreter1> proxy closing down
+eigend: <main:talker10> proxy closing down
+eigend: <main:talker15> proxy closing down
+eigend: <main:talker18> proxy closing down
+eigend: <main:talker14> proxy closing down
+eigend: <main:talker21> proxy closing down
+eigend: <main:talker13> proxy closing down
+eigend: <main:talker11> proxy closing down
+eigend: <main:controller4> proxy closing down
+eigend: <main:talker7> proxy closing down
+eigend: <main:talker8> proxy closing down
+eigend: <main:controller5> proxy closing down
+eigend: <main:controller6> proxy closing down
+eigend: <main:talker9> proxy closing down
+eigend: <main:controller7> proxy closing down
+eigend: <main:controller8> proxy closing down
+eigend: <main:talker12> proxy closing down
+eigend: <main:controller9> proxy closing down
+eigend: <main:controller10> proxy closing down
+eigend: <main:controller11> proxy closing down
+eigend: <main:controller1> proxy closing down
+eigend: <main:talker1> proxy closing down
+eigend: <main:talker2> proxy closing down
+eigend: <main:pico_manager1/1> proxy closing down
+eigend: <main:controller3> proxy closing down
+eigend: <main:controller2> proxy closing down
+eigend: <main:clicker1> proxy closing down
+eigend: <main:talker3> proxy closing down
+eigend: <main:talker5> proxy closing down
+eigend: <main:talker20> proxy closing down
+eigend: <main:talker19> proxy closing down
+eigend: <main:talker17> proxy closing down
+eigend: <main:talker16> proxy closing down
+eigend: <main:talker4> proxy closing down
+eigend: <main:talker6> proxy closing down
+eigend: <main.rig7:audio_unit1> proxy closing down
+eigend: <main.rig7:recorder1> proxy closing down
+eigend: <main.rig7:stringer1> proxy closing down
+eigend-garbage: starting gc pass  0 
+eigend-garbage: suppress failed
+eigend-garbage: suppress failed from piw/src/piw_clock.cpp:361 () caught at piw/src/piw_tsd.cpp:325
+eigend-garbage: window state: 0 0x0
+eigend-garbage: gc collected  23938 
+eigend-garbage: finished gc pass  0 
+eigend: <main:interpreter1> proxy closing down
+eigend: <main:talker15> proxy closing down
+eigend: <main:talker18> proxy closing down
+eigend: <main:talker14> proxy closing down
+eigend: <main:talker10> proxy closing down
+eigend: <main:scheduler1> proxy closing down
+eigend: <main:talker13> proxy closing down
+eigend: <main:talker21> proxy closing down
+eigend: <main:talker11> proxy closing down
+eigend: <main:talker1> proxy closing down
+eigend: <main:talker2> proxy closing down
+eigend: <main:pico_manager1/1> proxy closing down
+eigend: <main:controller1> proxy closing down
+eigend: <main:controller3> proxy closing down
+eigend: <main:controller2> proxy closing down
+eigend: <main:talker3> proxy closing down
+eigend: <main:talker5> proxy closing down
+eigend: <main:talker20> proxy closing down
+eigend: <main:talker19> proxy closing down
+eigend: <main:talker17> proxy closing down
+eigend: <main:talker16> proxy closing down
+eigend: <main:talker4> proxy closing down
+eigend: <main:controller11> proxy closing down
+eigend: <main:controller4> proxy closing down
+eigend: <main:talker7> proxy closing down
+eigend: <main:talker8> proxy closing down
+eigend: <main:controller5> proxy closing down
+eigend: <main:controller6> proxy closing down
+eigend: <main:talker9> proxy closing down
+eigend: <main:controller7> proxy closing down
+eigend: <main:controller8> proxy closing down
+eigend: <main:talker12> proxy closing down
+eigend: <main:controller9> proxy closing down
+eigend: <main:controller10> proxy closing down
+eigend: <main:clicker1> proxy closing down
+eigend: <main:talker6> proxy closing down
+eigend: <main.rig7:audio_unit1> proxy closing down
+eigend: <main.rig7:recorder1> proxy closing down
+eigend: <main.rig7:stringer1> proxy closing down
+eigend-garbage: starting gc pass  0 
+eigend-garbage: finished gc pass  0 
+eigend: <main:talker15> proxy closing down
+eigend: <main:talker18> proxy closing down
+eigend: <main:talker14> proxy closing down
+eigend: <main:interpreter1> proxy closing down
+eigend: <main:talker10> proxy closing down
+eigend: <main:scheduler1> proxy closing down
+eigend: <main:talker13> proxy closing down
+eigend: <main:talker21> proxy closing down
+eigend: <main:talker11> proxy closing down
+eigend: <main:talker1> proxy closing down
+eigend: <main:talker2> proxy closing down
+eigend: <main:pico_manager1/1> proxy closing down
+eigend: <main:controller1> proxy closing down
+eigend: <main:controller11> proxy closing down
+eigend: <main:controller3> proxy closing down
+eigend: <main:controller2> proxy closing down
+eigend: <main:talker3> proxy closing down
+eigend: <main:talker5> proxy closing down
+eigend: <main:talker20> proxy closing down
+eigend: <main:talker19> proxy closing down
+eigend: <main:talker17> proxy closing down
+eigend: <main:talker16> proxy closing down
+eigend: <main:talker4> proxy closing down
+eigend: <main:controller4> proxy closing down
+eigend: <main:talker7> proxy closing down
+eigend: <main:talker8> proxy closing down
+eigend: <main:controller5> proxy closing down
+eigend: <main:controller6> proxy closing down
+eigend: <main:talker9> proxy closing down
+eigend: <main:controller7> proxy closing down
+eigend: <main:controller8> proxy closing down
+eigend: <main:talker12> proxy closing down
+eigend: <main:controller9> proxy closing down
+eigend: <main:controller10> proxy closing down
+eigend: <main:clicker1> proxy closing down
+eigend: <main:talker6> proxy closing down
+eigend: <main.rig7:audio_unit1> proxy closing down
+eigend: <main.rig7:recorder1> proxy closing down
+eigend: <main.rig7:stringer1> proxy closing down
+eigend-garbage: starting gc pass  0 
+eigend-garbage: finished gc pass  0 
+eigend: <main:talker15> proxy closing down
+eigend: <main:interpreter1> proxy closing down
+eigend: <main:talker10> proxy closing down
+eigend: <main:talker18> proxy closing down
+eigend: <main:scheduler1> proxy closing down
+eigend: <main:talker14> proxy closing down
+eigend: <main:talker13> proxy closing down
+eigend: <main:talker21> proxy closing down

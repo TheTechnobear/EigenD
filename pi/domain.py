@@ -51,9 +51,9 @@ class Domain:
         if self is other:
             return 0
         if isinstance(other,str):
-            return cmp(self.canonical(),other)
+            return (self.canonical() > other) - (self.canonical() < other)
         if isinstance(other,Domain):
-            return cmp(self.canonical(),other.canonical())
+            return (self.canonical() > other.canonical()) - (self.canonical() < other.canonical())
         return -1
 
     def __hash__(self):
@@ -416,7 +416,7 @@ class Trigger(Domain):
             return 0
         return d.as_long()
     def value2data(self,v,t=0):
-        v=long(v)
+        v=int(v)
         return piw.makelong(v,t)
     def canonical(self):
         return 'trigger(%s)' % logic.render_term(self.hints)

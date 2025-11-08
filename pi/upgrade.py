@@ -22,9 +22,9 @@ import re,heapq,collections
 import picross
 
 def compare_version(a,b):
-    a=map(int,a.split('.'))
-    b=map(int,b.split('.'))
-    return cmp(a,b)
+    a=list(map(int,a.split('.')))
+    b=list(map(int,b.split('.')))
+    return (a > b) - (a < b)
 
 class Graph:
     def __init__(self):
@@ -39,7 +39,7 @@ class Graph:
 
     def get_edges(self, path):
         edges = []
-        for ix in xrange(len(path) - 1):
+        for ix in range(len(path) - 1):
             edges.append(self.G[path[ix]][path[ix + 1]])
         return edges
 

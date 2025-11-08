@@ -48,7 +48,7 @@ def main(manager):
     db = state.open_database(dbfile,False)
 
     if opts.version:
-        snap = db.get_version(long(opts.version))
+        snap = db.get_version(int(opts.version))
     else:
         snap = db.get_trunk()
 

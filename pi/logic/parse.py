@@ -21,7 +21,10 @@
 from pi import resource
 from pi.logic import terms
 from pi.logic import tpg
-import urllib
+try:
+    from urllib.parse import unquote
+except ImportError:
+    from urllib import unquote
 import threading
 from pi.logic import parse_new
 
@@ -30,8 +33,8 @@ class PrologParser(tpg.Parser):
         separator space '\s+' ;
         separator comment '#.*\n' ;
 
-        token SQSTRING    '"[^"]*"'                                 {{ lambda x: urllib.unquote(x[1:-1]) }}
-        token DQSTRING    "'[^']*'"                                 {{ lambda x: urllib.unquote(x[1:-1]) }}
+        token SQSTRING    '"[^"]*"'                                 {{ lambda x: unquote(x[1:-1]) }}
+        token DQSTRING    "'[^']*'"                                 {{ lambda x: unquote(x[1:-1]) }}
         token WORD        '[\!\$@a-z#<>][A-Za-z0-9#<>_\.]*';
         token VARIABLE    '[A-Z_][A-Za-z0-9_]*';
         token NUMBER      '[+\-0-9\.][+\-eE0-9\.]*';

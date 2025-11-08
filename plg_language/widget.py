@@ -21,7 +21,10 @@
 from pi import atom,policy,utils,proxy,const,domain,logic,rpc,paths
 from . import language_native
 import piw
-import xmlrpclib
+try:
+    import xmlrpc.client as xmlrpclib
+except ImportError:
+    import xmlrpclib
 
 server_port = "55551"
 

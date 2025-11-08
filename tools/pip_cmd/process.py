@@ -80,7 +80,8 @@ def process_inheritance(klasses, name):
                     if not h['name'] in kh:
                         kh[h['name']]=h
 
-                k['handlers']=kh.values()
+                if kh:
+                    k['handlers']=list(kh.values())
 
                 km={}
                 for m in k['methods']:
@@ -90,7 +91,7 @@ def process_inheritance(klasses, name):
                     if m['isvirtual'] and not m['name'] in km:
                         km[m['name']]=m
 
-                k['methods']=km.values()
+                k['methods']=list(km.values())
 
             return k
 

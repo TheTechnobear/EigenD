@@ -284,13 +284,13 @@ class server(piw.server):
         self.del_internal(key)
 
     def values(self):
-        return list(self.values())
+        return list(self.itervalues())
 
     def items(self):
-        return list(self.items())
+        return list(self.iteritems())
 
     def keys(self):
-        return list(self.keys())
+        return list(self.iterkeys())
 
     def __iter__(self):
         return self.keys()

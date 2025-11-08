@@ -19,7 +19,10 @@
 #
 
 import piw
-import urllib
+try:
+    from urllib.parse import unquote
+except ImportError:
+    from urllib import unquote
 from pi.logic import terms, tpg
 
 class Delegate(piw.python_delegate):
@@ -64,7 +67,7 @@ class Delegate(piw.python_delegate):
         return None
 
     def py_make_string(self, obj):
-        return urllib.unquote(obj)
+        return unquote(obj)
 
     def py_make_variable(self, obj):
         return terms.make_variable(obj)
