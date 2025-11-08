@@ -940,16 +940,15 @@ class StageXMLRPCFuncs:
                     widgetAddress = widgetNode.getAttribute('address')
                     widgetPath = widgetNode.getAttribute('path')
 
-                    if widgetAddress in changedNodes:
-                        # update the widget xml with the new osc path
-                        newOSCPath = changedNodes[widgetAddress]
-                        print('    updated widget path',newOSCPath,'from',widgetPath)
-                        widgetNode.setAttribute('path', newOSCPath)
-                        widgetDoc.documentElement = widgetNode
-                        widgetXML = widgetDoc.documentElement.toxml()
-                        widgets.get_widget(widgetIndex).setXML(widgetXML)
+                if widgetAddress in changedNodes:
+                    # update the widget xml with the new osc path
+                    newOSCPath = changedNodes[widgetAddress]
+                    print('    updated widget path',newOSCPath,'from',widgetPath)
+                    widgetNode.setAttribute('path', newOSCPath)
+                    widgetXML = widgetDoc.documentElement.toxml()
+                    widgets.get_widget(widgetIndex).setXML(widgetXML)
 
-                    widgetNode.unlink()
+                widgetNode.unlink()
         except:
             traceback.print_exc(limit=None)
             return False

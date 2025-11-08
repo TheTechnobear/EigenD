@@ -30,6 +30,7 @@ import sys
 class WeakFunctionCallback:
     def __init__(self,callback,default):
         self.callback = callback
+        self.default = default
 
     def __call__(self,*args,**kwds):
         try:

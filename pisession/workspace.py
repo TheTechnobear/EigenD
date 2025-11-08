@@ -748,7 +748,8 @@ class Workspace(atom.Atom):
     def __retracted(self,signature,plugin,destroy):
         print('unloading',signature,'destroy=',destroy)
         self.del_frelation(self.__relation(signature.args[0]))
-        plugin.unload(destroy)
+        if plugin is not None:
+            plugin.unload(destroy)
         return True
 
     def unload(self,address,destroy=False):

@@ -171,6 +171,48 @@
 - Check for GIL/threading issues (deadlocks, hangs)
 - Monitor for audio thread priority issues
 
+### 🔍 THREADING ISSUE - Dictionary Iteration During Modification (2025-11-08)
+**Status**: Investigation needed - NOT a Python 3 migration bug, architectural issue
+
+**Issue**: `RuntimeError: dictionary changed size during iteration` in `pi/agent.py:497`
+- Location: `Agent.close_server()` iterating `self.__subsystems.items()`
+- Context: Occurred during `<pico_manager1>: detaching client` while loading new setup
+- Impact: Plugin unload crashes when subsystems dictionary modified during iteration
+
+**Call Stack**:
+```
+pisession/workspace.py:201 __unload()
+  → pi/agent.py:79 __unload() 
+    → pi/agent.py:506 unload()
+      → pi/agent.py:497 close_server() [RuntimeError HERE]
+```
+
+**Architecture Context**:
+- EigenD uses slow/fast thread separation (UI vs audio)
+- Slow thread: UI operations, plugin management
+- Fast thread: Real-time audio processing
+- Design principle: Thread ownership prevents this type of race condition
+
+**Root Cause Hypothesis**:
+- Subsystems being modified by one thread while `close_server()` iterates on another
+- Violation of thread ownership model - likely operation deferred to wrong thread
+- May indicate improper cross-thread plugin lifecycle management
+
+**NOT a Python 3 migration issue**:
+- This is architectural/threading bug in original code
+- Python 3 just exposes it by being stricter about dict iteration
+- Python 2 was more lenient but race condition existed there too
+
+**Investigation Needed**:
+1. Which thread calls `close_server()` during plugin unload?
+2. Which thread modifies `__subsystems` during setup loading?
+3. Is plugin unload properly synchronized with setup loading?
+4. Should `close_server()` be deferred to owning thread?
+
+**Temporary Workaround** (REJECTED):
+- `list(self.__subsystems.items())` would mask the real bug
+- Better to understand threading model violation first
+
 ## Medium Priority - Full System
 - Test with Eigenharp connected (Alpha/Tau/Pico)
 - Test audio output plugins

@@ -23,7 +23,10 @@ from . import illuminator_version as version
 
 import piw
 import threading,sys,socket,fileinput,re
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+try:
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+except ImportError:
+    from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
 MATCH_PHYSICAL = re.compile('^/column/(\d+)/row/(\d+)$',re.IGNORECASE)
 MATCH_MUSICAL = re.compile('^/course/(\d+)/key/(\d+)$',re.IGNORECASE)

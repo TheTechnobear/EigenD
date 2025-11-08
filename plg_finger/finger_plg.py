@@ -22,7 +22,7 @@ from pi import agent,bundles,atom,action,domain,paths,upgrade,const,policy,node,
 from plg_finger import fingerer_version as version
 
 import piw
-import finger_native
+from . import finger_native
 import configparser
 import os
 import shutil
@@ -190,6 +190,10 @@ class Fingering(atom.Atom):
         if not fingering:
             piw.tsd_alert('BAD_FINGERING', 'Fingering Set Error', ('Trying to set a non existent fingering: %s' % fingering))
             return False
+
+        # If fingering is a callable (function), call it to get the data
+        if callable(fingering):
+            fingering = fingering()
 
         if self.__callback(fingering):
             self.set_value(fingering_name)
@@ -372,6 +376,10 @@ class Agent(agent.Agent):
     def __set_fingering(self, f, current_fingering):
 
         print('setting fingering to',f)
+
+        # If fingering is a callable (function), call it to get the data
+        if callable(f):
+            f = f()
 
         current_fingering.clear_table()
         needed_polyphony = 1;

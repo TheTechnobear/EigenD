@@ -19,6 +19,7 @@
 #
 
 from pi import agent
+from . import keyboard_X
 from keyboard_X import *
 import os
 

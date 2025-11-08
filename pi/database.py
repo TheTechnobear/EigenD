@@ -301,7 +301,7 @@ class RelationCache:
 
         if x:
             d[k]=x
-        else:
+        elif k in d:
             del d[k]
 
     def iterrules(self, filter=''):

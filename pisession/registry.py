@@ -123,8 +123,7 @@ class Registry:
         if not versions:
             return None
         else:
-            vkeys = versions.keys()
-            vkeys.sort(reverse=True)
+            vkeys = sorted(versions.keys(), reverse=True)
             return versions[vkeys[0]]
 
     def get_module(self,name):
@@ -136,8 +135,7 @@ class Registry:
             if not versions:
                 return None
 
-        vkeys = versions.keys()
-        vkeys.sort(reverse=True)
+        vkeys = sorted(versions.keys(), reverse=True)
         (cversion,module) = versions[vkeys[0]]
         return module
 
