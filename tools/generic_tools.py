@@ -412,9 +412,16 @@ class PiGenericEnvironment(SCons.Environment.Environment):
             if f.endswith('_test.py') or not f.endswith('.py'):
                 continue
 
-            pyc_node=self.Command(join(root1,fqd+'c'),fqs,'"$PI_PYTHON" "$PI_COMPILER" $TARGET $SOURCE')
+            # Skip dynamically generated files that are handled by PiDynamicPython/PiLexicon
+            if f in ('version.py', 'lexicon.py', 'alpha_manager_version.py'):
+                continue
+
+            # Python 3 note: We no longer pre-compile to .pyc as Python 3 handles
+            # bytecode caching automatically in __pycache__/ directories.
+            # Just install the source .py file.
+            self.InstallAs(join(root1,fqd),fqs)
             if root2:
-                self.InstallAs(self.File(join(root2,fqd+'c')),pyc_node)
+                self.InstallAs(join(root2,fqd),fqs)
 
     @staticmethod
     def read_lexicon(source,e2m):

@@ -159,7 +159,7 @@ class BoundedInt(Domain):
 class Enum(Domain):
     def __init__(self,*values):
         Domain.__init__(self)
-        self.values = map(int,values)
+        self.values = list(map(int,values))
         self.values.sort()
         self.min = self.values[0]
         self.max = self.values[-1]

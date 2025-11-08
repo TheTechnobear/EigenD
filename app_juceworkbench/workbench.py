@@ -181,6 +181,9 @@ class WorkbenchState(node.server):
     preset_chunk_size = 8000
 
     def chunker(self,s):
+        # Ensure s is bytes for Python 3 compatibility
+        if isinstance(s, str):
+            s = s.encode('latin-1')
         z = zlib.compress(s)
         zl = len(z)
         chunk = 1
@@ -188,7 +191,10 @@ class WorkbenchState(node.server):
         remain = zl
         while remain>0:
             l = min(self.preset_chunk_size,remain)
-            yield chunk,piw.makeblob2(z[index:index+l],0)
+            # piw.makeblob2 expects str in Python 3, decode compressed bytes using latin-1
+            # latin-1 is used as it's a 1-to-1 mapping for bytes (preserves binary data)
+            chunk_data = z[index:index+l].decode('latin-1')
+            yield chunk,piw.makeblob2(chunk_data,0)
             chunk += 1
             index += l
             remain -= l
@@ -206,8 +212,12 @@ class WorkbenchState(node.server):
             self[i].set_data(c)
 
     def get_state(self):
-        z = ''.join([ n.get_data().as_blob2() for n in self.values() ])
-        return zlib.decompress(z) if z else ''
+        # In Python 3, as_blob2() returns bytes, but makeblob2 expects str (latin-1 encoded)
+        # Join the binary chunks and decompress
+        z = b''.join([ n.get_data().as_blob2().encode('latin-1') if isinstance(n.get_data().as_blob2(), str) else n.get_data().as_blob2() for n in self.values() ])
+        result = zlib.decompress(z) if z else b''
+        # Decode back to str using latin-1 for consistency
+        return result.decode('latin-1') if isinstance(result, bytes) else result
 
 class Index(piw.index):
     def __init__(self):
@@ -252,7 +262,7 @@ class Agent(agent.Agent):
 
     def set_state(self,state):
         self.__current_state = state
-        print('saving setup')
+        print('saving setup, state type:', type(state), 'len:', len(state) if state else 0)
 #        print state
         self.__state.set_state(self.__current_state)
 

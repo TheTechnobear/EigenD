@@ -64,17 +64,22 @@ def fgetsamples(filename):
     chans = r['fmt '][1]
     rate = r['fmt '][2]
     bps = r['fmt '][5]
-    return convolver_native.canonicalise_samples(r['data'],rate,chans,bps)
+    data = r['data']
+    if isinstance(data, bytes):
+        data = data.decode('latin-1')
+    return convolver_native.canonicalise_samples(data,rate,chans,bps)
 
 def rgetsamples(res):
-    from cStringIO import StringIO
+    from io import BytesIO
     r = files.PkgResourceFile(res)
-    r2 = wav_reader.read(StringIO(r.data(0,r.size())))
+    r2 = wav_reader.read(BytesIO(r.data(0,r.size())))
     chans = r2['fmt '][1]
     rate = r2['fmt '][2]
-
     bps = r2['fmt '][5]
-    return convolver_native.canonicalise_samples(r2['data'],rate,chans,bps)
+    data = r2['data']
+    if isinstance(data, bytes):
+        data = data.decode('latin-1')
+    return convolver_native.canonicalise_samples(data,rate,chans,bps)
 
 def wav_resource(name):
     # this is the impulse response directory

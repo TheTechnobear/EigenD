@@ -34,8 +34,12 @@ class Chunk:
             self.remain = 0
         else:
             self.remain = struct.unpack('<L',self.file.read(4))[0]
+            # Convert bytes to string for comparison
+            if isinstance(self.id, bytes):
+                self.id = self.id.decode('latin-1')
             if self.id in ('RIFF','LIST'):
-                self.id = self.read(4)
+                chunk_data = self.read(4)
+                self.id = chunk_data.decode('latin-1') if isinstance(chunk_data, bytes) else chunk_data
 
     def read(self,n):
         if self.remain<n:
@@ -58,9 +62,15 @@ class Chunk:
         value = ''
         for i in range(0,len):
             ch = self.read(1)
-            if ord(ch)==0:
-                return value
-            value += ch
+            # Handle both bytes and strings
+            if isinstance(ch, bytes):
+                if ch[0] == 0:
+                    return value
+                value += chr(ch[0])
+            else:
+                if ord(ch)==0:
+                    return value
+                value += ch
         raise RiffError()
 
     def read_chunk(self):

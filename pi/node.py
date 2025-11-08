@@ -374,7 +374,7 @@ class server(piw.server):
 
     def popitem(self):
         try:
-            k, v = self.items().next()
+            k, v = next(iter(self.items()))
         except StopIteration:
             raise KeyError('container is empty')
         del self[k]
@@ -396,8 +396,20 @@ class server(piw.server):
         if kwargs:
             self.update(kwargs)
 
-    def __contains(self,k):
-        return k in self
+    def __contains__(self,key):
+        if self.isinternal(key):
+            return False
+
+        if self.__children is not None and key in self.__children:
+            return True
+
+        ex = self.__extension
+        if ex:
+            en = self.get_internal(ex)
+            if en:
+                return (key-ex+1) in en
+
+        return False
 
     def get(self, key, default=None):
         try:
@@ -856,7 +868,7 @@ class client(piw.client):
 
     def popitem(self):
         try:
-            k, v = self.items().next()
+            k, v = next(iter(self.items()))
         except StopIteration:
             raise KeyError('container is empty')
         del self[k]

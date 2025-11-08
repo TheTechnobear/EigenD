@@ -871,7 +871,7 @@ class ParserMetaClass(type):
             for attribute, source, code in parser(grammar):
                 setattr(cls, attribute, code)
 
-class Parser:
+class Parser(metaclass=ParserMetaClass):
     # Parser is the base class for parsers.
     #
     # This class can not have a doc string otherwise it would be considered as a grammar.
@@ -883,8 +883,6 @@ class Parser:
     # Methods added to the generated parsers:
     #   init_lexer(self) : return a lexer object to scan the tokens defined by the grammar
     #   <rule>           : each rule is translated into a method with the same name
-
-    __metaclass__ = ParserMetaClass
 
     def __init__(self):
         """ Parser is the base class for parsers.
@@ -1133,8 +1131,8 @@ class VerboseParser(Parser):
         found = "(%d,%d) %s %s"%(token.line, token.row, token.name, token.text)
         return "[%3d][%2d]%s: %s %s %s"%(eatcnt, stackdepth, callernames, found, op, expected)
 
-blank_line_re = re.compile("^\s*$")
-indent_re = re.compile("^\s*")
+blank_line_re = re.compile(r"^\s*$")
+indent_re = re.compile(r"^\s*")
 
 class tpg:
     """ This class contains some TPG classes to make the parsers usable inside and outside the tpg module

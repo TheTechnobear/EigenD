@@ -1,12 +1,96 @@
 # EigenD Python 3.14 Migration - Session Resume Context
 
-**Date:** 2025-11-07  
+**Date:** 2025-11-08  
 **Branch:** python3  
-**Status:** 🎯 **RECURSION ERRORS FIXED** - EigenD loading successfully
+**Status:** 🎯 **PYTHON SOURCE FILES NOW INSTALLED** - Module imports working
+
+## ✅ LATEST FIX: Python Source File Installation for Python 3
+
+### **FIXED: ModuleNotFoundError for keyboard_X and other plugin modules**
+**Date:** 2025-11-08  
+**Location:** `tools/generic_tools.py` line 412-421
+**Error:** `ModuleNotFoundError: No module named 'keyboard_X'`
+**Problem:** Build system only installed `.pyc` bytecode, not `.py` source files
+**Solution:** Modified `__installpy()` to install source `.py` files instead of pre-compiled `.pyc`
+
+#### **Root Cause - Python 2 vs 3 Bytecode and Import System:**
+- **Python 2:** Could import from `.pyc` files alone, bytecode format was stable
+- **Python 3:** Changed bytecode format, stricter import system, prefers source files
+- **Old build system:** Pre-compiled to `.pyc` and only installed bytecode
+- **Migration Issue:** Python 3 couldn't use old `.pyc` format, needed source files
+
+#### **Exact Technical Fix:**
+```python
+# BEFORE (Python 2 style - only .pyc bytecode):
+def __installpy(self,root1,root2,src,subdirs,dest=None):
+    ...
+    pyc_node=self.Command(join(root1,fqd+'c'),fqs,'"$PI_PYTHON" "$PI_COMPILER" $TARGET $SOURCE')
+    if root2:
+        self.InstallAs(self.File(join(root2,fqd+'c')),pyc_node)
+
+# AFTER (Python 3 style - source .py files):
+def __installpy(self,root1,root2,src,subdirs,dest=None):
+    ...
+    # Skip dynamically generated files
+    if f in ('version.py', 'lexicon.py', 'alpha_manager_version.py'):
+        continue
+    
+    # Install source .py file (Python 3 handles __pycache__ automatically)
+    self.InstallAs(join(root1,fqd),fqs)
+    if root2:
+        self.InstallAs(join(root2,fqd),fqs)
+```
+
+#### **Impact:**
+- **Before:** Plugins couldn't import their own modules (keyboard_X, etc.)
+- **After:** All plugin Python files available for import
+- **Lesson:** Python 3 prefers source files; uses __pycache__/ for automatic bytecode caching
+
+---
+
+## ✅ PREVIOUS FIX: Binary Data Handling in Plugin State
+
+### **FIXED: UnicodeDecodeError in audio_unit blob handling**
+**Date:** 2025-11-08  
+**Location:** `plg_host/host_plg.py` line 234, `app_juceworkbench/workbench.py` line 209
+**Error:** `'utf-8' codec can't decode byte 0x9c in position 1: invalid start byte`
+**Problem:** Python 3 string operations on binary data from C++ `as_blob2()`
+**Solution:** Use `b''.join()` for bytes instead of `''.join()` for strings
+
+#### **Root Cause - Python 2 vs 3 String/Bytes Distinction:**
+- **Python 2:** Strings were bytes by default, no strict unicode enforcement
+- **Python 3:** Strings are unicode, bytes are separate type
+- **C++ SWIG binding:** `as_blob2()` returns binary data (compressed zlib)
+- **Migration Issue:** Joining binary chunks with `''.join()` tried UTF-8 decode
+
+#### **Exact Technical Fix:**
+```python
+# BEFORE (crashes on binary data):
+def get_blob(self):
+    z = ''.join([ n.get_data().as_blob2() for n in self.values() ])
+    return piw.makeblob2(zlib.decompress(z) if z else '',0)
+
+# AFTER (handles bytes correctly):
+def get_blob(self):
+    z = b''.join([ n.get_data().as_blob2() for n in self.values() ])
+    return piw.makeblob2(zlib.decompress(z) if z else b'',0)
+```
+
+#### **Files Changed:**
+- `plg_host/host_plg.py`: Fixed `PluginStateBlob.get_blob()`
+- `app_juceworkbench/workbench.py`: Fixed `WorkbenchStateBlob.get_state()`
+
+#### **Impact:**
+- **Before:** audio_unit plugin crashed during postload with UTF-8 decode error
+- **After:** Binary state data handled correctly as bytes
+- **Lesson:** C++ SWIG bindings return bytes in Python 3, must use bytes operations
+
+---
 
 ## ✅ MAJOR FIX: Node Dictionary Recursion Resolved
 
 ### **FIXED: RecursionError in pi/node.py keys(), values(), items() methods**
+**Date:** 2025-11-07  
 **Location:** `pi/node.py` lines 287, 290, 293
 **Problem:** Python 2→3 dictionary iteration behavior causing infinite recursion
 **Solution:** 3-line minimal fix to call iter* methods

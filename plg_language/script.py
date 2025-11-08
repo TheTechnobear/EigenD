@@ -60,28 +60,28 @@ class ScriptManager(atom.Atom):
         self.set_property_string('timestamp',str(self.__timestamp))
 
     def __build_cache(self):
+        def process_directory(top_dir):
+            for dir_name, subdirs, fnames in os.walk(top_dir):
+                dir_name = resource.MB(dir_name)
+                for fname in fnames:
+                    fname = resource.MB(fname)
+                    full_name = os.path.join(dir_name,fname)
+                    x = self.read_script(full_name)
 
-        def walker(top_dir,dir_name,fnames):
-            dir_name = resource.MB(dir_name)
-            for fname in fnames:
-                fname = resource.MB(fname)
-                full_name = os.path.join(dir_name,fname)
-                x = self.read_script(full_name)
+                    if not x:
+                        continue
 
-                if not x:
-                    continue
+                    (sn,sd,ss,rn) = x
 
-                (sn,sd,ss,rn) = x
+                    if not rn:
+                        continue
 
-                if not rn:
-                    continue
-
-                self.__cache[rn] = (full_name,resource.os_path_getmtime(full_name))
+                    self.__cache[rn] = (full_name,resource.os_path_getmtime(full_name))
 
 
         self.__cache = {}
-        os.path.walk(resource.WC(self.__factorydir),walker,resource.WC(self.__factorydir))
-        os.path.walk(resource.WC(self.__userdir),walker,resource.WC(self.__userdir))
+        process_directory(resource.WC(self.__factorydir))
+        process_directory(resource.WC(self.__userdir))
         print('rebuilt cache:',len(self.__cache),'named scripts')
 
 

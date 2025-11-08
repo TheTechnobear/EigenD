@@ -913,7 +913,7 @@ class PropertyCache:
 
         if values:
             if 1 == len(values):
-                self.__id2value[id]=iter(values).next()
+                self.__id2value[id]=next(iter(values))
             else:
                 self.__id2value[id]=frozenset(values)
             vs = frozenset((id,))
@@ -969,7 +969,7 @@ class PropertyCache:
 
         if n:
             if 1 == len(n):
-                self.__id2value[id]=iter(n).next()
+                self.__id2value[id]=next(iter(n))
             else:
                 self.__id2value[id]=n
         else:

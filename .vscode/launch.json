@@ -25,6 +25,31 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb"
+        },
+        {
+            "name": "Run Workbench (Check Build)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/tmp/app/Workbench.app/Contents/MacOS/Workbench",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "CMake: Build Parallel"
+        },
+        {
+            "name": "Run Workbench (No Build Check)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/tmp/app/Workbench.app/Contents/MacOS/Workbench",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
         }
     ]
 }

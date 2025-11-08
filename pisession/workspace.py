@@ -709,6 +709,9 @@ class Workspace(atom.Atom):
     def __canonicalise(self,signature):
         (address,plugin,version,cversion,ordinal) = signature.args
         module = self.__registry.get_compatible_module(plugin,cversion)
+        if module is None:
+            print('warning: no compatible module found for',plugin,'cversion',cversion,', using original signature')
+            return signature
         new_signature = logic.make_term('a',address,module.name,module.version,module.cversion,ordinal)
         print('canonicalised ',signature,' to ',new_signature)
         return new_signature

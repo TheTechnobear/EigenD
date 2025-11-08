@@ -211,7 +211,9 @@ def make_locked_callable(callable):
 
 def pack_str(*l):
     ll=len(l)
-    return struct.pack('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'[0:ll],*l)
+    # In Python 3, struct.pack returns bytes, but C++ needs a string.
+    # Decode using Latin-1 to preserve byte values as character codes.
+    return struct.pack('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB'[0:ll],*l).decode('latin-1')
 
 def makedict(items,ts):
     d = piw.dictnull(ts)

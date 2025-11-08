@@ -38,15 +38,21 @@ def fgetsamples(filename):
     f = resource.file_open(filename,'rb',0)
     r = wav_reader.read(f)
     print('sample rate is',r['fmt '][2])
-    return loop_native.canonicalise_samples(r['data'],float(r['fmt '][2]))
+    data = r['data']
+    if isinstance(data, bytes):
+        data = data.decode('latin-1')
+    return loop_native.canonicalise_samples(data,float(r['fmt '][2]))
 
 def rgetsamples(res):
     print('loading samples from ',res)
-    from cStringIO import StringIO
+    from io import BytesIO
     r = files.PkgResourceFile(res)
-    r2 = wav_reader.read(StringIO(r.data(0,r.size())))
+    r2 = wav_reader.read(BytesIO(r.data(0,r.size())))
     print('sample rate is',r2['fmt '][2])
-    return loop_native.canonicalise_samples(r2['data'],float(r2['fmt '][2]))
+    data = r2['data']
+    if isinstance(data, bytes):
+        data = data.decode('latin-1')
+    return loop_native.canonicalise_samples(data,float(r2['fmt '][2]))
 
 def wav_resource(name):
     print('loading wav resource',name)
