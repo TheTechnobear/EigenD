@@ -231,8 +231,20 @@ class PluginStateBlob(node.server):
                 self[i].set_data(c)
 
     def get_blob(self):
-        z = ''.join([ n.get_data().as_blob2() for n in self.values() ])
-        return piw.makeblob2(zlib.decompress(z) if z else '',0)
+        # as_blob2() may return str or bytes depending on the C++ binding
+        chunks = []
+        for n in self.values():
+            blob = n.get_data().as_blob2()
+            # Ensure we have bytes for zlib
+            if isinstance(blob, str):
+                blob = blob.encode('latin-1')
+            chunks.append(blob)
+        z = b''.join(chunks)
+        # Decompress and convert back to str for piw.makeblob2
+        decompressed = zlib.decompress(z) if z else b''
+        if isinstance(decompressed, bytes):
+            decompressed = decompressed.decode('latin-1')
+        return piw.makeblob2(decompressed, 0)
 
 
 class PluginState(node.server):
