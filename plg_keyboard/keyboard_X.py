@@ -22,7 +22,6 @@ import os
 import itertools
 import picross
 import piw
-import keyboard_native
 
 from lib_alpha2 import ezload
 
