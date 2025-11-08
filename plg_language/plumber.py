@@ -89,7 +89,7 @@ class Plumber:
 
         if src_chan is not None:
             src_chan = action.abstract_string(src_chan)
-            src_match = re.match('^channel\s+([\d\.]+)$',src_chan,re.IGNORECASE)
+            src_match = re.match(r'^channel\s+([\d\.]+)$',src_chan,re.IGNORECASE)
             if src_match:
                 src_chan = src_match.group(1)
             else:

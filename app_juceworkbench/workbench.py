@@ -212,9 +212,17 @@ class WorkbenchState(node.server):
             self[i].set_data(c)
 
     def get_state(self):
-        # In Python 3, as_blob2() returns bytes, but makeblob2 expects str (latin-1 encoded)
+        # In Python 3, as_blob2() returns bytes directly
         # Join the binary chunks and decompress
-        z = b''.join([ n.get_data().as_blob2().encode('latin-1') if isinstance(n.get_data().as_blob2(), str) else n.get_data().as_blob2() for n in self.values() ])
+        chunks = []
+        for n in self.values():
+            blob = n.get_data().as_blob2()
+            # as_blob2() should return bytes, but handle both cases
+            if isinstance(blob, str):
+                chunks.append(blob.encode('latin-1'))
+            else:
+                chunks.append(blob)
+        z = b''.join(chunks)
         result = zlib.decompress(z) if z else b''
         # Decode back to str using latin-1 for consistency
         return result.decode('latin-1') if isinstance(result, bytes) else result

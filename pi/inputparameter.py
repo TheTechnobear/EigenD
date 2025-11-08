@@ -215,7 +215,7 @@ class List(atom.Atom):
         elif to_str == 'global':
             to_val = const.scope_global;
         else:
-            to_match = re.match('^channel\s(\d+)$',to_str,re.IGNORECASE)
+            to_match = re.match(r'^channel\s(\d+)$',to_str,re.IGNORECASE)
             if to_match:
                 to_val = int(to_match.group(1))
                 if to_val < 1 or to_val > 16:
@@ -321,7 +321,7 @@ class List(atom.Atom):
         midi_number = -1
 
         # determine the input parameter number
-        from_match = re.match('^parameter\s+(\d+)$',from_str,re.IGNORECASE)
+        from_match = re.match(r'^parameter\s+(\d+)$',from_str,re.IGNORECASE)
         if not from_match:
             for i in range(1,33):
                 param_name = self[i].get_property_string('name')
@@ -338,8 +338,8 @@ class List(atom.Atom):
             raise RuntimeError(errors.invalid_thing(from_str, 'map'))
 
         # determine the output parameter or midi mapping
-        oparam_match = re.match('^\d+$',for_str,re.IGNORECASE)
-        midi_match = re.match('^midi\s(\d+)$',for_str,re.IGNORECASE)
+        oparam_match = re.match(r'^\d+$',for_str,re.IGNORECASE)
+        midi_match = re.match(r'^midi\s(\d+)$',for_str,re.IGNORECASE)
         if oparam_match:
             oparam_number = int(oparam_match.group(0))
         elif midi_match:
