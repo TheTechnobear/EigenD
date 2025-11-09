@@ -1,0 +1,1245 @@
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpic.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpia.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpiw.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpie.dylib
+open lock file /Users/kodiak/Library/Eigenlabs/Lock/EigenD.lck 3
+locked lock file
+log:using portbase 55555
+eigend: latest version: 
+eigend-backend: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend-backend: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend-backend: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend-backend: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend-backend: plugin audio:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_audio/audio_plg 
+eigend-backend: plugin convolver:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_convolver/convolver_plg 
+eigend-backend: plugin alpha_manager:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_keyboard/keyboard_plg 
+eigend-backend: plugin ahdsr:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/ahdsr_plg 
+eigend-backend: plugin envelope:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/envelope_plg 
+eigend-backend: plugin gain:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/gain_plg 
+eigend-backend: plugin panner:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/panner_plg 
+eigend-backend: plugin rectangle_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/rectangle_oscillator_plg 
+eigend-backend: plugin sawtooth_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/sawtooth_oscillator_plg 
+eigend-backend: plugin shaper:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/shaper_plg 
+eigend-backend: plugin summer:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/summer_plg 
+eigend-backend: plugin synth_filter:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/synth_filter_plg 
+eigend-backend: plugin ladder_filter:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/ladder_filter_plg 
+eigend-backend: plugin triangle_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/triangle_oscillator_plg 
+eigend-backend: plugin sine_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/sine_oscillator_plg 
+eigend-backend: plugin delay:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/delay_plg 
+eigend-backend: plugin console_mixer:2.3.0-community:1.0.2 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/console_mixer_plg 
+eigend-backend: plugin polyphonic_summer:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/polyphonic_summer_plg 
+eigend-backend: plugin metronome:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_loop/metronome_plg 
+eigend-backend: plugin drummer:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_loop/drummer_plg 
+eigend-backend: plugin clicker:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_loop/clicker_plg 
+eigend-backend: plugin t3d_output:2.3.0-community:0.0.7 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_t3d/t3d_output_plg 
+eigend-backend: plugin t3d_device:2.3.0-community:0.0.3 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_t3d/t3d_device_plg 
+eigend-backend: plugin soundplane:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_t3d/soundplane_plg 
+eigend-backend: plugin interpreter:2.3.0-community:1.0.2 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_language/language_plg 
+eigend-backend: plugin controller:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_language/controller_plg 
+eigend-backend: plugin rig:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_rig/rig_plg 
+eigend-backend: plugin live_pad:2.3.0-community:0.0.10 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_livepad/live_pad_plg 
+eigend-backend: plugin panpipe_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_stk/panpipe_oscillator_plg 
+eigend-backend: plugin clarinet_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_stk/clarinet_oscillator_plg 
+eigend-backend: plugin sax_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_stk/blownstring_oscillator_plg 
+eigend-backend: plugin cello_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_stk/cello_oscillator_plg 
+eigend-backend: plugin illuminator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_illuminator/illuminator_plg 
+eigend-backend: plugin scale_illuminator:2.3.0-community:0.1.7 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_scale_illuminator/scale_illuminator_plg 
+eigend-backend: plugin tabulator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_tabulator/tabulator_plg 
+eigend-backend: plugin micro_manager:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_ukbd/ukbd_plg 
+eigend-backend: plugin midi_output:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_output_plg 
+eigend-backend: plugin midi_converter:2.3.0-community:1.0.5 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_converter_plg 
+eigend-backend: plugin midi_clock:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_clock_plg 
+eigend-backend: plugin midi_input:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_input_plg 
+eigend-backend: plugin midi_processor:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_processor_plg 
+eigend-backend: plugin midi_program_chooser:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi/midi_pgm_chooser_plg 
+eigend-backend: plugin sampler_oscillator:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_sampler2/sampler_oscillator_plg 
+eigend-backend: plugin latch:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_primitive/latch_plg 
+eigend-backend: plugin orb:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_primitive/orb_plg 
+eigend-backend: plugin midi_monitor:2.3.0-community:0.0.4 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_monitor/midi_monitor_plg 
+eigend-backend: plugin midi_device:2.3.0-community:0.0.7 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_device/midi_device_plg 
+eigend-backend: plugin ableton_push:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_device/ableton_push_plg 
+eigend-backend: plugin continuum:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_device/continuum_plg 
+eigend-backend: plugin keyboard_controller:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_midi_device/keyboard_controller_plg 
+eigend-backend: plugin recorder:2.3.0-community:1.0.3 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_recorder/recorder_plg 
+eigend-backend: plugin player:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_recorder/player_plg 
+eigend-backend: plugin osc_output:2.3.0-community:0.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_osc/osc_output_plg 
+eigend-backend: plugin fingerer:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_finger/finger_plg 
+eigend-backend: plugin arranger:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_arranger/arranger_plg 
+eigend-backend: plugin pico_manager:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_pkbd/pico_manager_plg 
+eigend-backend: plugin audio_unit:2.3.0-community:1.0.5 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_host/host_plg 
+eigend-backend: plugin cycler:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/cycler_plg 
+eigend-backend: plugin scaler:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/scaler_plg 
+eigend-backend: plugin stringer:2.3.0-community:1.0.1 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/stringer_plg 
+eigend-backend: plugin scheduler:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/scheduler_plg 
+eigend-backend: plugin keygroup:2.3.0-community:1.0.3 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/keygroup_plg 
+eigend-backend: plugin scale_manager:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/scale_manager_plg 
+eigend-backend: plugin talker:2.3.0-community:1.0.2 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/talker_plg 
+eigend-backend: plugin ranger:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/ranger_plg 
+eigend-backend: plugin labeler:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_simple/labeler_plg 
+eigend-backend: plugin strummer:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_strummer/strummer_plg 
+eigend-backend: plugin conductor:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_conductor/conductor_plg 
+eigend-backend: plugin clip_manager:2.3.0-community:1.0.0 /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_conductor/clip_manager_plg 
+eigend-backend: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main start block: 0 chkpoint: 0 blksize: 65536
+default setup: /Users/kodiak/projects/EigenD/tmp/resources/state/blank
+eigend: opened /Users/kodiak/projects/EigenD/tmp/resources/state/blank start block: 1 chkpoint: 12842 blksize: 65536
+eigend-backend: stopping gc 
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_language/libpilanguage.dylib
+eigend: opened /Users/kodiak/projects/EigenD/tmp/resources/state/blank start block: 1 chkpoint: 12842 blksize: 65536
+eigend: opened /Users/kodiak/projects/EigenD/tmp/resources/state/blank start block: 1 chkpoint: 12842 blksize: 65536
+eigend: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup0 start block: 0 chkpoint: 0 blksize: 65536
+eigend: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup0 start block: 1 chkpoint: 12842 blksize: 65536
+eigend: /Users/kodiak/projects/EigenD/tmp/resources/state/blank  version  12842 
+eigend: prepare:  2.0.62-testing  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup0 
+eigend: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  0 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  1 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  2 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  3 
+eigend: eigend postupgrade 
+eigend-backend: loading from version  73563  in  /Users/kodiak/projects/EigenD/tmp/resources/state/blank 
+eigend-backend: loaded:  0  2  in  0.0003299713134765625  s  eigend 1 
+eigend-backend: canonicalised  a('<interpreter1>',interpreter,'2.3.0-community','1.0.2',1)  to  a('<interpreter1>',interpreter,'2.3.0-community','1.0.2',1) 
+eigend-backend: loading  a('<interpreter1>',interpreter,'2.3.0-community','1.0.2',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<interpreter1>"),role(by,[cnc(~a)])) 
+eigend: <interpreter1>: loading  /Users/kodiak/projects/EigenD/tmp/resources/Help/documentation.xml 
+eigend: <interpreter1>: rebuilt cache:  0  named scripts 
+eigend: <interpreter1>: register interpreter  4704628624 
+eigend: <interpreter1>: start service broadcast server
+eigend: <interpreter1>: service broadcast server started
+eigend-backend: loaded:  1  2  in  0.01810169219970703  s  eigend 1 
+eigend: <interpreter1>: starting up stage server 
+eigend: <interpreter1>: stage __init__ 
+eigend: <interpreter1>: running stage xmlrpc server 
+eigend: <interpreter1>: starting database 
+eigend-backend: loaded:  1  2  in  0.02908182144165039  s  interpreter 1 
+eigend-backend: loaded:  2  2  in  0.030673742294311523  s  interpreter 1 
+eigend-backend: restarting gc 
+eigend-garbage: starting gc pass  0 
+eigend-garbage: gc collected  315 
+eigend-garbage: finished gc pass  0 
+eigend: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out start block: 23 chkpoint: 1464514 blksize: 65536
+eigend-backend: stopping gc 
+locking /Users/kodiak/projects/EigenD/tmp/bin/libmidilib.dylib
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_loop/libpiloop.dylib
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_audio/audio_native.so
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_rig/rig_native.so
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_synth/libpisynth.dylib
+locking /Users/kodiak/projects/EigenD/tmp/bin/libpico.dylib
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_pkbd/libpipkbdplg.dylib
+eigend: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out start block: 23 chkpoint: 1464514 blksize: 65536
+eigend: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out start block: 23 chkpoint: 1464514 blksize: 65536
+eigend: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup1 start block: 0 chkpoint: 0 blksize: 65536
+eigend: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup1 start block: 23 chkpoint: 1466558 blksize: 65536
+eigend: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out  version  1466558 
+eigend: prepare:  2.0.72-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup1 
+eigend: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  0 
+eigend: upgrading host  <audio_unit2> 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  1 
+eigend: upgrading host  <audio_unit1> 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  2 
+eigend: upgrade  <eigend1>  1.0.2  1.0.2  3 
+eigend: eigend postupgrade 
+eigend-backend: loading from version  1596118  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out 
+eigend: <interpreter1>: stopping database 
+eigend-backend: loaded:  0  60  in  4.601478576660156e-05  s  eigend 1 
+eigend-backend: canonicalised  a('<talker23>',talker,'2.3.0-community','1.0.2',23)  to  a('<talker23>',talker,'2.3.0-community','1.0.2',23) 
+eigend-backend: canonicalised  a('<talker5>',talker,'2.3.0-community','1.0.2',5)  to  a('<talker5>',talker,'2.3.0-community','1.0.2',5) 
+eigend-backend: canonicalised  a('<controller2>',controller,'2.3.0-community','1.0.0',2)  to  a('<controller2>',controller,'2.3.0-community','1.0.0',2) 
+eigend-backend: canonicalised  a('<midi_output2>',midi_output,'2.3.0-community','1.0.0',2)  to  a('<midi_output2>',midi_output,'2.3.0-community','1.0.0',2) 
+eigend-backend: canonicalised  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend-backend: canonicalised  a('<talker1>',talker,'2.3.0-community','1.0.2',1)  to  a('<talker1>',talker,'2.3.0-community','1.0.2',1) 
+eigend-backend: canonicalised  a('<rig1>',rig,'2.3.0-community','1.0.0',1)  to  a('<rig1>',rig,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<scheduler1>',scheduler,'2.3.0-community','1.0.0',1)  to  a('<scheduler1>',scheduler,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<keygroup4>',keygroup,'2.3.0-community','1.0.3',4)  to  a('<keygroup4>',keygroup,'2.3.0-community','1.0.3',4) 
+eigend-backend: canonicalised  a('<delay1>',delay,'2.3.0-community','1.0.0',1)  to  a('<delay1>',delay,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<talker10>',talker,'2.3.0-community','1.0.2',10)  to  a('<talker10>',talker,'2.3.0-community','1.0.2',10) 
+eigend-backend: canonicalised  a('<talker2>',talker,'2.3.0-community','1.0.2',2)  to  a('<talker2>',talker,'2.3.0-community','1.0.2',2) 
+eigend-backend: canonicalised  a('<talker17>',talker,'2.3.0-community','1.0.2',17)  to  a('<talker17>',talker,'2.3.0-community','1.0.2',17) 
+eigend-backend: canonicalised  a('<talker15>',talker,'2.3.0-community','1.0.2',15)  to  a('<talker15>',talker,'2.3.0-community','1.0.2',15) 
+eigend-backend: canonicalised  a('<keygroup3>',keygroup,'2.3.0-community','1.0.3',3)  to  a('<keygroup3>',keygroup,'2.3.0-community','1.0.3',3) 
+eigend-backend: canonicalised  a('<pico_manager1>',pico_manager,'2.3.0-community','1.0.1',1)  to  a('<pico_manager1>',pico_manager,'2.3.0-community','1.0.1',1) 
+eigend-backend: canonicalised  a('<interpreter1>',interpreter,'2.3.0-community','1.0.2',1)  to  a('<interpreter1>',interpreter,'2.3.0-community','1.0.2',1) 
+eigend-backend: canonicalised  a('<audio1>',audio,'2.3.0-community','1.0.0',1)  to  a('<audio1>',audio,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<talker19>',talker,'2.3.0-community','1.0.2',19)  to  a('<talker19>',talker,'2.3.0-community','1.0.2',19) 
+eigend-backend: canonicalised  a('<rig3>',rig,'2.3.0-community','1.0.0',3)  to  a('<rig3>',rig,'2.3.0-community','1.0.0',3) 
+eigend-backend: canonicalised  a('<controller12>',controller,'2.3.0-community','1.0.0',12)  to  a('<controller12>',controller,'2.3.0-community','1.0.0',12) 
+eigend-backend: canonicalised  a('<drummer1>',drummer,'2.3.0-community','1.0.1',1)  to  a('<drummer1>',drummer,'2.3.0-community','1.0.1',1) 
+eigend-backend: canonicalised  a('<talker26>',talker,'2.3.0-community','1.0.2',26)  to  a('<talker26>',talker,'2.3.0-community','1.0.2',26) 
+eigend-backend: canonicalised  a('<midi_output4>',midi_output,'2.3.0-community','1.0.0',4)  to  a('<midi_output4>',midi_output,'2.3.0-community','1.0.0',4) 
+eigend-backend: canonicalised  a('<controller7>',controller,'2.3.0-community','1.0.0',7)  to  a('<controller7>',controller,'2.3.0-community','1.0.0',7) 
+eigend-backend: canonicalised  a('<controller8>',controller,'2.3.0-community','1.0.0',8)  to  a('<controller8>',controller,'2.3.0-community','1.0.0',8) 
+eigend-backend: canonicalised  a('<talker20>',talker,'2.3.0-community','1.0.2',20)  to  a('<talker20>',talker,'2.3.0-community','1.0.2',20) 
+eigend-backend: canonicalised  a('<clicker1>',clicker,'2.3.0-community','1.0.0',1)  to  a('<clicker1>',clicker,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<talker4>',talker,'2.3.0-community','1.0.2',4)  to  a('<talker4>',talker,'2.3.0-community','1.0.2',4) 
+eigend-backend: canonicalised  a('<metronome1>',metronome,'2.3.0-community','1.0.0',1)  to  a('<metronome1>',metronome,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<rig2>',rig,'2.3.0-community','1.0.0',2)  to  a('<rig2>',rig,'2.3.0-community','1.0.0',2) 
+eigend-backend: canonicalised  a('<talker22>',talker,'2.3.0-community','1.0.2',22)  to  a('<talker22>',talker,'2.3.0-community','1.0.2',22) 
+eigend-backend: canonicalised  a('<midi_output1>',midi_output,'2.3.0-community','1.0.0',1)  to  a('<midi_output1>',midi_output,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<talker6>',talker,'2.3.0-community','1.0.2',6)  to  a('<talker6>',talker,'2.3.0-community','1.0.2',6) 
+eigend-backend: canonicalised  a('<talker3>',talker,'2.3.0-community','1.0.2',3)  to  a('<talker3>',talker,'2.3.0-community','1.0.2',3) 
+eigend-backend: canonicalised  a('<rig6>',rig,'2.3.0-community','1.0.0',6)  to  a('<rig6>',rig,'2.3.0-community','1.0.0',6) 
+eigend-backend: canonicalised  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  to  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2) 
+eigend-backend: canonicalised  a('<talker11>',talker,'2.3.0-community','1.0.2',11)  to  a('<talker11>',talker,'2.3.0-community','1.0.2',11) 
+eigend-backend: canonicalised  a('<controller11>',controller,'2.3.0-community','1.0.0',11)  to  a('<controller11>',controller,'2.3.0-community','1.0.0',11) 
+eigend-backend: canonicalised  a('<controller1>',controller,'2.3.0-community','1.0.0',1)  to  a('<controller1>',controller,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<keygroup1>',keygroup,'2.3.0-community','1.0.3',1)  to  a('<keygroup1>',keygroup,'2.3.0-community','1.0.3',1) 
+eigend-backend: canonicalised  a('<rig7>',rig,'2.3.0-community','1.0.0',7)  to  a('<rig7>',rig,'2.3.0-community','1.0.0',7) 
+eigend-backend: canonicalised  a('<midi_input1>',midi_input,'2.3.0-community','1.0.0',1)  to  a('<midi_input1>',midi_input,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<console_mixer1>',console_mixer,'2.3.0-community','1.0.2',1)  to  a('<console_mixer1>',console_mixer,'2.3.0-community','1.0.2',1) 
+eigend-backend: canonicalised  a('<midi_output3>',midi_output,'2.3.0-community','1.0.0',3)  to  a('<midi_output3>',midi_output,'2.3.0-community','1.0.0',3) 
+eigend-backend: canonicalised  a('<keygroup2>',keygroup,'2.3.0-community','1.0.3',2)  to  a('<keygroup2>',keygroup,'2.3.0-community','1.0.3',2) 
+eigend-backend: canonicalised  a('<controller3>',controller,'2.3.0-community','1.0.0',3)  to  a('<controller3>',controller,'2.3.0-community','1.0.0',3) 
+eigend-backend: canonicalised  a('<talker14>',talker,'2.3.0-community','1.0.2',14)  to  a('<talker14>',talker,'2.3.0-community','1.0.2',14) 
+eigend-backend: canonicalised  a('<rig5>',rig,'2.3.0-community','1.0.0',5)  to  a('<rig5>',rig,'2.3.0-community','1.0.0',5) 
+eigend-backend: canonicalised  a('<scale_manager1>',scale_manager,'2.3.0-community','1.0.0',1)  to  a('<scale_manager1>',scale_manager,'2.3.0-community','1.0.0',1) 
+eigend-backend: canonicalised  a('<talker21>',talker,'2.3.0-community','1.0.2',21)  to  a('<talker21>',talker,'2.3.0-community','1.0.2',21) 
+eigend-backend: canonicalised  a('<talker18>',talker,'2.3.0-community','1.0.2',18)  to  a('<talker18>',talker,'2.3.0-community','1.0.2',18) 
+eigend-backend: canonicalised  a('<controller13>',controller,'2.3.0-community','1.0.0',13)  to  a('<controller13>',controller,'2.3.0-community','1.0.0',13) 
+eigend-backend: canonicalised  a('<controller14>',controller,'2.3.0-community','1.0.0',14)  to  a('<controller14>',controller,'2.3.0-community','1.0.0',14) 
+eigend-backend: canonicalised  a('<rig4>',rig,'2.3.0-community','1.0.0',4)  to  a('<rig4>',rig,'2.3.0-community','1.0.0',4) 
+eigend-backend: canonicalised  a('<talker24>',talker,'2.3.0-community','1.0.2',24)  to  a('<talker24>',talker,'2.3.0-community','1.0.2',24) 
+eigend-backend: canonicalised  a('<talker16>',talker,'2.3.0-community','1.0.2',16)  to  a('<talker16>',talker,'2.3.0-community','1.0.2',16) 
+eigend-backend: canonicalised  a('<talker25>',talker,'2.3.0-community','1.0.2',25)  to  a('<talker25>',talker,'2.3.0-community','1.0.2',25) 
+eigend-backend: canonicalised  a('<rig8>',rig,'2.3.0-community','1.0.0',8)  to  a('<rig8>',rig,'2.3.0-community','1.0.0',8) 
+eigend-backend: loading  a('<controller12>',controller,'2.3.0-community','1.0.0',12)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller12>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker11>',talker,'2.3.0-community','1.0.2',11)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker11>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<midi_input1>',midi_input,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<midi_input1>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<rig2>',rig,'2.3.0-community','1.0.0',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig2>"),role(by,[cnc(~a)])) 
+eigend: <rig2>: inner agent  rig 2 
+eigend: <rig2>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig2 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <midi_input1>: set port to   
+eigend-backend: loading  a('<talker16>',talker,'2.3.0-community','1.0.2',16)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker16>"),role(by,[cnc(~a)])) 
+eigend: <rig2>: set owner  '<main:rig2>' 
+eigend: <rig2>: skipped  <eigend1> 
+eigend-backend: loading  a('<rig8>',rig,'2.3.0-community','1.0.0',8)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig8>"),role(by,[cnc(~a)])) 
+eigend: <rig8>: inner agent  rig 8 
+eigend: <rig8>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig8 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<keygroup1>',keygroup,'2.3.0-community','1.0.3',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<keygroup1>"),role(by,[cnc(~a)])) 
+eigend: <rig8>: set owner  '<main:rig8>' 
+eigend: <rig8>: skipped  <eigend1> 
+eigend-backend: loading  a('<keygroup4>',keygroup,'2.3.0-community','1.0.3',4)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<keygroup4>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker4>',talker,'2.3.0-community','1.0.2',4)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker4>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker2>',talker,'2.3.0-community','1.0.2',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker2>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<delay1>',delay,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<delay1>"),role(by,[cnc(~a)])) 
+eigend: <delay1>: Delay Init 
+eigend: <delay1>: create default tap... 
+eigend: <delay1>: Tap, tap init  1 
+eigend: <delay1>: Tap, channel init  left 
+eigend: <delay1>: add tap tn 1 ti 0
+eigend: <delay1>: Channel, verbs done 
+eigend: <delay1>: Tap, channel init  right 
+eigend: <delay1>: Channel, verbs done 
+eigend: <delay1>: done. 
+eigend-backend: loading  a('<controller3>',controller,'2.3.0-community','1.0.0',3)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller3>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker26>',talker,'2.3.0-community','1.0.2',26)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker26>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<drummer1>',drummer,'2.3.0-community','1.0.1',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<drummer1>"),role(by,[cnc(~a)])) 
+eigend: <delay1>: ch 0 tn 1 ti 0 fbk 0.5
+eigend: <delay1>: ch 0 tn 1 ti 0 filter 1
+eigend: <delay1>: ch 0 tn 1 ti 0 cutoff 2000 g 0.230335
+eigend: <delay1>: ch 0 to ch 0 tn 1 ti 0 fbk 1
+eigend: <delay1>: ch 0 to ch 1 tn 1 ti 0 fbk 0
+eigend: <delay1>: ch 0 to ch 0 tn 1 ti 0 fbk 1
+eigend: <delay1>: ch 0 to ch 1 tn 1 ti 0 fbk 0
+eigend: <delay1>: ch 1 tn 1 ti 0 fbk 0.5
+eigend: <delay1>: ch 1 tn 1 ti 0 filter 1
+eigend: <delay1>: ch 1 tn 1 ti 0 cutoff 2000 g 0.230335
+eigend: <delay1>: ch 1 to ch 0 tn 1 ti 0 fbk 0
+eigend: <delay1>: ch 1 to ch 1 tn 1 ti 0 fbk 1
+eigend: <delay1>: ch 1 to ch 0 tn 1 ti 0 fbk 0
+eigend: <delay1>: ch 1 to ch 1 tn 1 ti 0 fbk 1
+eigend: <drummer1>: set loop  None  None 
+eigend-backend: loading  a('<console_mixer1>',console_mixer,'2.3.0-community','1.0.2',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<console_mixer1>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<audio1>',audio,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<audio1>"),role(by,[cnc(~a)])) 
+eigend: <audio1>: ** type Core Audio dev MacBook Air Speakers
+eigend: <audio1>: ** type Core Audio dev eqMac
+eigend: <audio1>: ** type Core Audio dev Steam Streaming Microphone
+eigend: <audio1>: ** type Core Audio dev Steam Streaming Speakers
+eigend: <audio1>: mapping:  [('Core Audio/MacBook Air Speakers', 'MacBook Air Speakers (Core Audio)'), ('Core Audio/eqMac', 'eqMac (Core Audio)'), ('Core Audio/Steam Streaming Microphone', 'Steam Streaming Microphone (Core Audio)'), ('Core Audio/Steam Streaming Speakers', 'Steam Streaming Speakers (Core Audio)')] 
+eigend-backend: loading  a('<pico_manager1>',pico_manager,'2.3.0-community','1.0.1',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<pico_manager1>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<scale_manager1>',scale_manager,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<scale_manager1>"),role(by,[cnc(~a)])) 
+eigend: <scale_manager1>: not updating scale  None  None 
+eigend-backend: loading  a('<rig4>',rig,'2.3.0-community','1.0.0',4)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig4>"),role(by,[cnc(~a)])) 
+eigend: <rig4>: inner agent  rig 4 
+eigend: <audio1>: ** type Core Audio dev MacBook Air Speakers
+eigend: <audio1>: ** type Core Audio dev eqMac
+eigend: <audio1>: ** type Core Audio dev Steam Streaming Microphone
+eigend: <audio1>: ** type Core Audio dev Steam Streaming Speakers
+eigend: <audio1>: device list changed 
+eigend: <audio1>: mapping:  [('Core Audio/MacBook Air Speakers', 'MacBook Air Speakers (Core Audio)'), ('Core Audio/eqMac', 'eqMac (Core Audio)'), ('Core Audio/Steam Streaming Microphone', 'Steam Streaming Microphone (Core Audio)'), ('Core Audio/Steam Streaming Speakers', 'Steam Streaming Speakers (Core Audio)')] 
+eigend: <rig4>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig4 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<audio_unit1>"),role(by,[cnc(~a)])) 
+eigend: <rig4>: set owner  '<main:rig4>' 
+eigend: <rig4>: skipped  <eigend1> 
+eigend-backend: loading  a('<controller13>',controller,'2.3.0-community','1.0.0',13)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller13>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<controller8>',controller,'2.3.0-community','1.0.0',8)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller8>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker5>',talker,'2.3.0-community','1.0.2',5)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker5>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<midi_output4>',midi_output,'2.3.0-community','1.0.0',4)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<midi_output4>"),role(by,[cnc(~a)])) 
+eigend: <midi_output4>: midi sink added  79b45f0f  Null Device 
+eigend: <midi_output4>: midi sink added  -47c1f792  IAC Driver Bus 1 
+eigend: <midi_output4>: set source  name 
+eigend-backend: loading  a('<midi_output3>',midi_output,'2.3.0-community','1.0.0',3)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<midi_output3>"),role(by,[cnc(~a)])) 
+eigend: <midi_output4>: set source  name Eigenlabs 4
+eigend: <midi_output3>: midi sink added  79b45f0f  Null Device 
+eigend: <midi_output3>: midi sink added  -47c1f792  IAC Driver Bus 1 
+eigend: <midi_output3>: set source  name 
+eigend-backend: loading  a('<talker20>',talker,'2.3.0-community','1.0.2',20)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker20>"),role(by,[cnc(~a)])) 
+eigend: <midi_output4>: created output Eigenlabs 4
+eigend: <midi_output4>: OutputMidiPort: set port to   
+eigend: <midi_output3>: set source  name Eigenlabs 3
+eigend: <midi_output3>: created output Eigenlabs 3
+eigend: <midi_output3>: OutputMidiPort: set port to   
+eigend-backend: loading  a('<talker25>',talker,'2.3.0-community','1.0.2',25)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker25>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<rig5>',rig,'2.3.0-community','1.0.0',5)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig5>"),role(by,[cnc(~a)])) 
+eigend: <rig5>: inner agent  rig 5 
+eigend: <rig5>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig5 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<talker19>',talker,'2.3.0-community','1.0.2',19)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker19>"),role(by,[cnc(~a)])) 
+eigend: <rig5>: set owner  '<main:rig5>' 
+eigend: <rig5>: skipped  <eigend1> 
+eigend-backend: loading  a('<talker10>',talker,'2.3.0-community','1.0.2',10)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker10>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<audio_unit2>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker22>',talker,'2.3.0-community','1.0.2',22)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker22>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker24>',talker,'2.3.0-community','1.0.2',24)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker24>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<metronome1>',metronome,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<metronome1>"),role(by,[cnc(~a)])) 
+eigend: <metronome1>: init tempo=  120 
+eigend: <metronome1>: set tempo 120 from 120
+eigend: <metronome1>: tempo range 30->240
+eigend-backend: loading  a('<rig7>',rig,'2.3.0-community','1.0.0',7)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig7>"),role(by,[cnc(~a)])) 
+eigend: <rig7>: inner agent  rig 7 
+eigend: <rig7>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig7 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<talker1>',talker,'2.3.0-community','1.0.2',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker1>"),role(by,[cnc(~a)])) 
+eigend: <rig7>: set owner  '<main:rig7>' 
+eigend: <rig7>: skipped  <eigend1> 
+eigend-backend: loading  a('<rig3>',rig,'2.3.0-community','1.0.0',3)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig3>"),role(by,[cnc(~a)])) 
+eigend: <rig3>: inner agent  rig 3 
+eigend: <rig3>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig3 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<clicker1>',clicker,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<clicker1>"),role(by,[cnc(~a)])) 
+eigend: <rig3>: set owner  '<main:rig3>' 
+eigend: <clicker1>: loading wav resource  accent.wav 
+eigend: <clicker1>: loading samples from  plg_loop/accent.wav 
+eigend: <clicker1>: sample rate is  44100 
+eigend: <rig3>: skipped  <eigend1> 
+eigend: <clicker1>: loading wav resource  beat.wav 
+eigend: <clicker1>: loading samples from  plg_loop/beat.wav 
+eigend: <clicker1>: sample rate is  44100 
+eigend-backend: loading  a('<talker15>',talker,'2.3.0-community','1.0.2',15)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker15>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<controller7>',controller,'2.3.0-community','1.0.0',7)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller7>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<midi_output2>',midi_output,'2.3.0-community','1.0.0',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<midi_output2>"),role(by,[cnc(~a)])) 
+eigend: <midi_output2>: midi sink added  79b45f0f  Null Device 
+eigend: <midi_output2>: midi sink added  -47c1f792  IAC Driver Bus 1 
+eigend: <midi_output2>: set source  name 
+eigend-backend: loading  a('<keygroup2>',keygroup,'2.3.0-community','1.0.3',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<keygroup2>"),role(by,[cnc(~a)])) 
+eigend: <midi_output2>: set source  name Eigenlabs 2
+eigend: <midi_output2>: created output Eigenlabs 2
+eigend: <midi_output2>: OutputMidiPort: set port to   
+eigend-backend: loading  a('<rig1>',rig,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig1>"),role(by,[cnc(~a)])) 
+eigend: <rig1>: inner agent  rig 1 
+eigend: <rig1>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig1 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<talker23>',talker,'2.3.0-community','1.0.2',23)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker23>"),role(by,[cnc(~a)])) 
+eigend: <rig1>: set owner  '<main:rig1>' 
+eigend: <rig1>: skipped  <eigend1> 
+eigend-backend: loading  a('<talker14>',talker,'2.3.0-community','1.0.2',14)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker14>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<rig6>',rig,'2.3.0-community','1.0.0',6)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<rig6>"),role(by,[cnc(~a)])) 
+eigend: <rig6>: inner agent  rig 6 
+eigend: <rig6>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Global/current_setup-main.rig6 start block: 0 chkpoint: 0 blksize: 65536
+eigend-backend: loading  a('<controller11>',controller,'2.3.0-community','1.0.0',11)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller11>"),role(by,[cnc(~a)])) 
+eigend: <rig6>: set owner  '<main:rig6>' 
+eigend: <rig6>: skipped  <eigend1> 
+eigend-backend: loading  a('<talker21>',talker,'2.3.0-community','1.0.2',21)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker21>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker18>',talker,'2.3.0-community','1.0.2',18)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker18>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker17>',talker,'2.3.0-community','1.0.2',17)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker17>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker6>',talker,'2.3.0-community','1.0.2',6)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker6>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<controller2>',controller,'2.3.0-community','1.0.0',2)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller2>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<controller1>',controller,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller1>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<controller14>',controller,'2.3.0-community','1.0.0',14)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<controller14>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<talker3>',talker,'2.3.0-community','1.0.2',3)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<talker3>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<scheduler1>',scheduler,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<scheduler1>"),role(by,[cnc(~a)])) 
+eigend: <scheduler1>: scheduler start
+eigend-backend: loading  a('<keygroup3>',keygroup,'2.3.0-community','1.0.3',3)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<keygroup3>"),role(by,[cnc(~a)])) 
+eigend-backend: loading  a('<midi_output1>',midi_output,'2.3.0-community','1.0.0',1)  into enclosure  None 
+eigend-backend: relation:  create(cnc("<midi_output1>"),role(by,[cnc(~a)])) 
+eigend: <midi_output1>: midi sink added  79b45f0f  Null Device 
+eigend: <midi_output1>: midi sink added  -47c1f792  IAC Driver Bus 1 
+eigend: <midi_output1>: set source  name 
+eigend: <midi_output1>: set source  name Eigenlabs 1
+eigend: <midi_output1>: created output Eigenlabs 1
+eigend: <midi_output1>: OutputMidiPort: set port to   
+eigend-backend: loaded:  1  60  in  0.39987897872924805  s  eigend 1 
+eigend-backend: loaded:  1  60  in  0.39997410774230957  s  interpreter 1 
+eigend-backend: loaded:  2  60  in  0.501230001449585  s  interpreter 1 
+eigend-backend: loaded:  2  60  in  0.5013382434844971  s  effect audio unit 1 
+eigend: <interpreter1>: send any  /metronome_1/tempo_input4
+eigend: <interpreter1>: sending /metronome_1/tempo_input 120.0
+eigend: <interpreter1>: send any  /metronome_1/midi_clock_latency4
+eigend: <interpreter1>: sending /metronome_1/midi_clock_latency 0.0
+eigend: <interpreter1>: send any  /metronome_1/beat_input4
+eigend: <interpreter1>: sending /metronome_1/beat_input 4.0
+eigend: <interpreter1>: send any  /console_mixer_1/master/master_pan4
+eigend: <interpreter1>: sending /console_mixer_1/master/master_pan 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/master/master_volume4
+eigend: <interpreter1>: sending /console_mixer_1/master/master_volume 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_1/controls/volume4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_1/controls/volume 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_1/controls/pan4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_1/controls/pan 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_2/controls/volume4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_2/controls/volume 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_2/controls/pan4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_2/controls/pan 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_3/controls/pan4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_3/controls/pan 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_3/controls/volume4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_3/controls/volume 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_4/controls/volume4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_4/controls/volume 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_4/controls/pan4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_4/controls/pan 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_8/controls/pan4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_8/controls/pan 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_8/controls/volume4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_8/controls/volume 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_24/controls/volume4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_24/controls/volume 0.0
+eigend: <interpreter1>: send any  /console_mixer_1/channels/mixer_channel_24/controls/pan4
+eigend: <interpreter1>: sending /console_mixer_1/channels/mixer_channel_24/controls/pan 0.0
+eigend: <interpreter1>: send any  /drummer_1/voice_list/voice_1/volume4
+eigend: <interpreter1>: sending /drummer_1/voice_list/voice_1/volume 100.0
+eigend-backend: loaded:  3  60  in  0.510385274887085  s  effect audio unit 1 
+eigend-backend: loaded:  3  60  in  0.5105350017547607  s  audio unit rig 2 
+eigend: <rig2>: inner agent description now  audio unit rig 2 
+locking /Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_recorder/libpirecorder.dylib
+eigend: <rig2>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig2 
+eigend: <rig2>: loading rig  main.rig2  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig2 
+eigend: <rig2>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig2 start block: 2 chkpoint: 86012 blksize: 65536
+eigend: <rig2>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup2 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig2>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup2 start block: 2 chkpoint: 86012 blksize: 65536
+eigend: <rig2>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig2  version  86012 
+eigend: <rig2>: prepare:  2.0.72-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup2 
+eigend: <rig2>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig2>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig2>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig2>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig2>: upgrading host  <audio_unit1> 
+eigend: <rig2>: upgrading host  <audio_unit2> 
+eigend: <rig2>: loading from version  141480  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig2 
+eigend: <rig2>: enclosure set to  audio unit rig 2 
+eigend: <rig2>: loaded:  0  6  in  3.314018249511719e-05  s  gateway 1 
+eigend: <rig2>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig2>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig2>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig2>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig2>: canonicalised  a('<audio_unit2>',audio_unit,'2.0.36-experimental','1.0.3',2)  to  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2) 
+eigend: <rig2>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  audio unit rig 2 
+eigend: <rig2>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <summer1>: enclosure set to  audio unit rig 2 
+eigend: <rig2>: loading  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  into enclosure  audio unit rig 2 
+eigend: <rig2>: relation:  create(cnc("<audio_unit2>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <audio_unit2>: enclosure set to  audio unit rig 2 
+eigend: <rig2>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  audio unit rig 2 
+eigend: <rig2>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <audio_unit1>: enclosure set to  audio unit rig 2 
+eigend: <rig2>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  audio unit rig 2 
+eigend: <rig2>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <recorder1>: allocated new take 0x15808c220
+eigend: <recorder1>: allocated new take 0x158098b20
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  audio unit rig 2 
+eigend: <rig2>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  audio unit rig 2 
+eigend: <rig2>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig2>')])) 
+eigend: <recorder1>: setup  main.rig2_recorder1 
+eigend: <scaler1>: enclosure set to  audio unit rig 2 
+eigend: <rig2>: loaded:  1  6  in  0.04897308349609375  s  gateway 1 
+eigend: <interpreter1>: send any  /audio_unit_rig_2/scaler_1/inputs/base_note_input4
+eigend: <interpreter1>: sending /audio_unit_rig_2/scaler_1/inputs/base_note_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_2/scaler_1/inputs/relative_octave_input4
+eigend: <interpreter1>: sending /audio_unit_rig_2/scaler_1/inputs/relative_octave_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_2/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /audio_unit_rig_2/scaler_1/inputs/key_bend_range_input 1.0
+eigend: <interpreter1>: send any  /audio_unit_rig_2/scaler_1/inputs/curve5
+eigend: <interpreter1>: sending /audio_unit_rig_2/scaler_1/inputs/curve 2
+eigend: <interpreter1>: send any  /audio_unit_rig_2/scaler_1/inputs/override6
+eigend: <interpreter1>: sending /audio_unit_rig_2/scaler_1/inputs/override n
+eigend: <interpreter1>: send any  /audio_unit_rig_2/scaler_1/inputs/octave_input4
+eigend: <interpreter1>: sending /audio_unit_rig_2/scaler_1/inputs/octave_input 3.0
+eigend: <interpreter1>: send any  /audio_unit_rig_2/scaler_1/inputs/tonic_input4
+eigend: <interpreter1>: sending /audio_unit_rig_2/scaler_1/inputs/tonic_input 0.0
+eigend: <rig2>: loaded:  1  6  in  0.0507199764251709  s  summer 1 
+eigend: <rig2>: loaded:  2  6  in  0.055954933166503906  s  summer 1 
+eigend: <rig2>: loaded:  2  6  in  0.05600595474243164  s  recorder 1 
+eigend: <rig2>: loaded:  3  6  in  0.060502052307128906  s  recorder 1 
+eigend: <rig2>: loaded:  3  6  in  0.060582876205444336  s  scaler 1 
+eigend: <rig2>: loaded:  4  6  in  0.06712508201599121  s  scaler 1 
+eigend: <rig2>: loaded:  4  6  in  0.06720805168151855  s  instrument audio unit 1 
+eigend: <interpreter1>: send any  /audio_unit_rig_2/instrument_audio_unit_1/maximum_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_2/instrument_audio_unit_1/maximum_channel 16
+eigend: <interpreter1>: send any  /audio_unit_rig_2/instrument_audio_unit_1/minimum_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_2/instrument_audio_unit_1/minimum_channel 1
+eigend: <interpreter1>: send any  /audio_unit_rig_2/instrument_audio_unit_1/midi_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_2/instrument_audio_unit_1/midi_channel 0
+eigend: <interpreter1>: send any  /audio_unit_rig_2/instrument_audio_unit_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /audio_unit_rig_2/instrument_audio_unit_1/velocity_curve_controls/velocity_curve 4.0
+eigend: <interpreter1>: send any  /audio_unit_rig_2/instrument_audio_unit_1/velocity_curve_controls/velocity_sample5
+eigend: <interpreter1>: sending /audio_unit_rig_2/instrument_audio_unit_1/velocity_curve_controls/velocity_sample 4
+eigend: <recorder1>: attached to scheduler 
+eigend: <rig2>: loaded:  5  6  in  0.08757519721984863  s  instrument audio unit 1 
+eigend: <rig2>: loaded:  5  6  in  0.08760404586791992  s  effect audio unit 1 
+eigend: <rig2>: loaded:  6  6  in  0.09286904335021973  s  effect audio unit 1 
+eigend: <interpreter1>: send any  /audio_unit_rig_2/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /audio_unit_rig_2/scaler_1/inputs/key_bend_range_input 2.0
+eigend: <interpreter1>: send any  /audio_unit_rig_2/instrument_audio_unit_1/midi_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_2/instrument_audio_unit_1/midi_channel 1
+eigend: <interpreter1>: send any  /audio_unit_rig_2/instrument_audio_unit_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /audio_unit_rig_2/instrument_audio_unit_1/velocity_curve_controls/velocity_curve 4.099999904632568359375
+eigend: <rig2>: rig load errors  [] 
+eigend-backend: loaded:  4  60  in  1.6172950267791748  s  audio unit rig 2 
+eigend-backend: loaded:  4  60  in  1.6177029609680176  s  midi rig 4 
+eigend: <rig8>: inner agent description now  rig 4 
+eigend: <rig8>: inner agent description now  midi rig 4 
+eigend: <rig8>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig8 
+eigend: <rig8>: loading rig  main.rig8  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig8 
+eigend: <rig8>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig8 start block: 1 chkpoint: 54870 blksize: 65536
+eigend: <rig8>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup3 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig8>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup3 start block: 1 chkpoint: 54870 blksize: 65536
+eigend: <rig8>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig8  version  54870 
+eigend: <rig8>: prepare:  2.0.72-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup3 
+eigend: <rig8>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig8>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig8>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig8>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig8>: upgrading midi converter  <midi_converter1> 
+eigend: <rig8>: loading from version  74140  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig8 
+eigend: <rig8>: enclosure set to  rig 4 
+eigend: <rig8>: enclosure set to  midi rig 4 
+eigend: <rig8>: loaded:  0  5  in  6.413459777832031e-05  s  gateway 1 
+eigend: <rig8>: canonicalised  a('<midi_clock1>',midi_clock,'2.0.36-experimental','1.0.0',1)  to  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1) 
+eigend: <rig8>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig8>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig8>: canonicalised  a('<midi_converter1>',midi_converter,'2.0.36-experimental','1.0.3',1)  to  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1) 
+eigend: <rig8>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  midi rig 4 
+eigend: <rig8>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig8>')])) 
+eigend: <recorder1>: allocated new take 0x1503d8620
+eigend: <recorder1>: allocated new take 0x1503e4f20
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  midi rig 4 
+eigend: <rig8>: loading  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1)  into enclosure  midi rig 4 
+eigend: <rig8>: relation:  create(cnc("<midi_converter1>"),role(by,[cnc('<main:rig8>')])) 
+eigend: <recorder1>: setup  main.rig8_recorder1 
+eigend: <midi_converter1>: enclosure set to  midi rig 4 
+eigend: <rig8>: loading  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1)  into enclosure  midi rig 4 
+eigend: <rig8>: relation:  create(cnc("<midi_clock1>"),role(by,[cnc('<main:rig8>')])) 
+eigend: <midi_clock1>: enclosure set to  midi rig 4 
+eigend: <rig8>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  midi rig 4 
+eigend: <rig8>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig8>')])) 
+eigend: <scaler1>: enclosure set to  midi rig 4 
+eigend: <rig8>: loaded:  1  5  in  0.0507352352142334  s  gateway 1 
+eigend: <interpreter1>: send any  /midi_rig_4/scaler_1/inputs/base_note_input4
+eigend: <interpreter1>: sending /midi_rig_4/scaler_1/inputs/base_note_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_4/scaler_1/inputs/relative_octave_input4
+eigend: <interpreter1>: sending /midi_rig_4/scaler_1/inputs/relative_octave_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_4/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /midi_rig_4/scaler_1/inputs/key_bend_range_input 1.0
+eigend: <interpreter1>: send any  /midi_rig_4/scaler_1/inputs/curve5
+eigend: <interpreter1>: sending /midi_rig_4/scaler_1/inputs/curve 2
+eigend: <interpreter1>: send any  /midi_rig_4/scaler_1/inputs/override6
+eigend: <interpreter1>: sending /midi_rig_4/scaler_1/inputs/override n
+eigend: <interpreter1>: send any  /midi_rig_4/scaler_1/inputs/octave_input4
+eigend: <interpreter1>: sending /midi_rig_4/scaler_1/inputs/octave_input 3.0
+eigend: <interpreter1>: send any  /midi_rig_4/scaler_1/inputs/tonic_input4
+eigend: <interpreter1>: sending /midi_rig_4/scaler_1/inputs/tonic_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_4/scaler_1/inputs/global_bend_range_input4
+eigend: <interpreter1>: sending /midi_rig_4/scaler_1/inputs/global_bend_range_input 12.0
+eigend: <rig8>: loaded:  1  5  in  0.05260014533996582  s  midi clock 1 
+eigend: <rig8>: loaded:  2  5  in  0.05718111991882324  s  midi clock 1 
+eigend: <rig8>: loaded:  2  5  in  0.05722808837890625  s  recorder 1 
+eigend: <rig8>: loaded:  3  5  in  0.06273198127746582  s  recorder 1 
+eigend: <rig8>: loaded:  3  5  in  0.06277918815612793  s  scaler 1 
+eigend: <rig8>: loaded:  4  5  in  0.0696561336517334  s  scaler 1 
+eigend: <rig8>: loaded:  4  5  in  0.06970429420471191  s  midi converter 1 
+eigend: <interpreter1>: send any  /midi_rig_4/midi_converter_1/maximum_channel5
+eigend: <interpreter1>: sending /midi_rig_4/midi_converter_1/maximum_channel 16
+eigend: <interpreter1>: send any  /midi_rig_4/midi_converter_1/midi_channel5
+eigend: <interpreter1>: sending /midi_rig_4/midi_converter_1/midi_channel 0
+eigend: <interpreter1>: send any  /midi_rig_4/midi_converter_1/minimum_channel5
+eigend: <interpreter1>: sending /midi_rig_4/midi_converter_1/minimum_channel 1
+eigend: <interpreter1>: send any  /midi_rig_4/midi_converter_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /midi_rig_4/midi_converter_1/velocity_curve_controls/velocity_curve 4.0
+eigend: <interpreter1>: send any  /midi_rig_4/midi_converter_1/velocity_curve_controls/velocity_sample5
+eigend: <interpreter1>: sending /midi_rig_4/midi_converter_1/velocity_curve_controls/velocity_sample 4
+eigend: <interpreter1>: send any  /midi_rig_4/midi_converter_1/velocity_curve_controls/velocity_scale4
+eigend: <interpreter1>: sending /midi_rig_4/midi_converter_1/velocity_curve_controls/velocity_scale 4.0
+eigend: <recorder1>: attached to scheduler 
+eigend: <rig8>: loaded:  5  5  in  0.08527898788452148  s  midi converter 1 
+eigend: <interpreter1>: send any  /midi_rig_4/midi_converter_1/midi_channel5
+eigend: <interpreter1>: sending /midi_rig_4/midi_converter_1/midi_channel 1
+eigend: <interpreter1>: send any  /midi_rig_4/midi_converter_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /midi_rig_4/midi_converter_1/velocity_curve_controls/velocity_curve 4.099999904632568359375
+eigend: <midi_input1>: midi source added  79b45f0f  Null Device 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: midi source added  -47c1f792  IAC Driver Bus 1 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: midi source added  6fe0f226  Eigenlabs 4 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: midi source added  6fe0f225  Eigenlabs 3 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: midi source added  6fe0f224  Eigenlabs 2 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: midi source added  6fe0f223  Eigenlabs 1 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: created input Eigenlabs 1
+eigend: <rig8>: rig load errors  [] 
+eigend-backend: loaded:  5  60  in  2.7320189476013184  s  midi rig 4 
+eigend-backend: loaded:  5  60  in  2.7323479652404785  s  midi output 1 
+eigend: <midi_output1>: set source  name Eigenlabs 1
+eigend-backend: loaded:  6  60  in  2.739504098892212  s  midi output 1 
+eigend-backend: loaded:  6  60  in  2.739670991897583  s  midi input 1 
+eigend-backend: loaded:  7  60  in  2.741663932800293  s  midi input 1 
+eigend-backend: loaded:  7  60  in  2.7418630123138428  s  audio unit rig 4 
+eigend: <rig4>: inner agent description now  audio unit rig 4 
+eigend: <rig4>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig4 
+eigend: <rig4>: loading rig  main.rig4  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig4 
+eigend: <rig4>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig4 start block: 2 chkpoint: 84251 blksize: 65536
+eigend: <rig4>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup4 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig4>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup4 start block: 2 chkpoint: 84251 blksize: 65536
+eigend: <rig4>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig4  version  84251 
+eigend: <rig4>: prepare:  2.0.72-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup4 
+eigend: <rig4>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig4>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig4>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig4>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig4>: upgrading host  <audio_unit1> 
+eigend: <rig4>: upgrading host  <audio_unit2> 
+eigend: <rig4>: loading from version  141480  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig4 
+eigend: <rig4>: enclosure set to  audio unit rig 4 
+eigend: <rig4>: loaded:  0  6  in  5.2928924560546875e-05  s  gateway 1 
+eigend: <rig4>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig4>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig4>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig4>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig4>: canonicalised  a('<audio_unit2>',audio_unit,'2.0.36-experimental','1.0.3',2)  to  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2) 
+eigend: <rig4>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  audio unit rig 4 
+eigend: <rig4>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <summer1>: enclosure set to  audio unit rig 4 
+eigend: <rig4>: loading  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  into enclosure  audio unit rig 4 
+eigend: <rig4>: relation:  create(cnc("<audio_unit2>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <audio_unit2>: enclosure set to  audio unit rig 4 
+eigend: <rig4>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  audio unit rig 4 
+eigend: <rig4>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <audio_unit1>: enclosure set to  audio unit rig 4 
+eigend: <rig4>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  audio unit rig 4 
+eigend: <rig4>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <recorder1>: allocated new take 0x1504a4620
+eigend: <recorder1>: allocated new take 0x1504b0f20
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  audio unit rig 4 
+eigend: <rig4>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  audio unit rig 4 
+eigend: <rig4>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig4>')])) 
+eigend: <recorder1>: setup  main.rig4_recorder1 
+eigend: <scaler1>: enclosure set to  audio unit rig 4 
+eigend: <rig4>: loaded:  1  6  in  0.06333518028259277  s  gateway 1 
+eigend: <rig4>: loaded:  1  6  in  0.06495833396911621  s  summer 1 
+eigend: <rig4>: loaded:  2  6  in  0.0713050365447998  s  summer 1 
+eigend: <rig4>: loaded:  2  6  in  0.07133793830871582  s  recorder 1 
+eigend: <rig4>: loaded:  3  6  in  0.0776371955871582  s  recorder 1 
+eigend: <rig4>: loaded:  3  6  in  0.07769107818603516  s  scaler 1 
+eigend: <interpreter1>: send any  /audio_unit_rig_4/scaler_1/inputs/base_note_input4
+eigend: <interpreter1>: sending /audio_unit_rig_4/scaler_1/inputs/base_note_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_4/scaler_1/inputs/curve5
+eigend: <interpreter1>: sending /audio_unit_rig_4/scaler_1/inputs/curve 2
+eigend: <interpreter1>: send any  /audio_unit_rig_4/scaler_1/inputs/octave_input4
+eigend: <interpreter1>: sending /audio_unit_rig_4/scaler_1/inputs/octave_input 3.0
+eigend: <interpreter1>: send any  /audio_unit_rig_4/scaler_1/inputs/relative_octave_input4
+eigend: <interpreter1>: sending /audio_unit_rig_4/scaler_1/inputs/relative_octave_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_4/scaler_1/inputs/tonic_input4
+eigend: <interpreter1>: sending /audio_unit_rig_4/scaler_1/inputs/tonic_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_4/scaler_1/inputs/override6
+eigend: <interpreter1>: sending /audio_unit_rig_4/scaler_1/inputs/override n
+eigend: <interpreter1>: send any  /audio_unit_rig_4/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /audio_unit_rig_4/scaler_1/inputs/key_bend_range_input 1.0
+eigend: <interpreter1>: send any  /audio_unit_rig_4/instrument_audio_unit_1/midi_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_4/instrument_audio_unit_1/midi_channel 0
+eigend: <interpreter1>: send any  /audio_unit_rig_4/instrument_audio_unit_1/maximum_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_4/instrument_audio_unit_1/maximum_channel 16
+eigend: <interpreter1>: send any  /audio_unit_rig_4/instrument_audio_unit_1/minimum_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_4/instrument_audio_unit_1/minimum_channel 1
+eigend: <rig4>: loaded:  4  6  in  0.08543825149536133  s  scaler 1 
+eigend: <rig4>: loaded:  4  6  in  0.08552312850952148  s  instrument audio unit 1 
+eigend: <recorder1>: attached to scheduler 
+eigend: <rig4>: loaded:  5  6  in  0.10372805595397949  s  instrument audio unit 1 
+eigend: <rig4>: loaded:  5  6  in  0.10377216339111328  s  effect audio unit 1 
+eigend: <interpreter1>: send any  /audio_unit_rig_4/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /audio_unit_rig_4/scaler_1/inputs/key_bend_range_input 2.0
+eigend: <interpreter1>: send any  /audio_unit_rig_4/instrument_audio_unit_1/midi_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_4/instrument_audio_unit_1/midi_channel 1
+eigend: <interpreter1>: send any  /audio_unit_rig_4/instrument_audio_unit_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /audio_unit_rig_4/instrument_audio_unit_1/velocity_curve_controls/velocity_curve 4.099999904632568359375
+eigend: <rig4>: loaded:  6  6  in  0.10979294776916504  s  effect audio unit 1 
+eigend: <rig4>: rig load errors  [] 
+eigend-backend: loaded:  8  60  in  3.8785970211029053  s  audio unit rig 4 
+eigend-backend: loaded:  8  60  in  3.8790929317474365  s  midi output 2 
+eigend: <midi_output2>: set source  name Eigenlabs 2
+eigend-backend: loaded:  9  60  in  3.8866159915924072  s  midi output 2 
+eigend-backend: loaded:  9  60  in  3.8868980407714844  s  midi rig 1 
+eigend: <rig5>: inner agent description now  rig 1 
+eigend: <rig5>: inner agent description now  midi rig 1 
+eigend: <rig5>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig5 
+eigend: <rig5>: loading rig  main.rig5  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig5 
+eigend: <rig5>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig5 start block: 1 chkpoint: 54098 blksize: 65536
+eigend: <rig5>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup5 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig5>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup5 start block: 1 chkpoint: 54098 blksize: 65536
+eigend: <rig5>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig5  version  54098 
+eigend: <rig5>: prepare:  2.0.72-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup5 
+eigend: <rig5>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig5>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig5>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig5>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig5>: upgrading midi converter  <midi_converter1> 
+eigend: <rig5>: loading from version  74140  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig5 
+eigend: <rig5>: enclosure set to  rig 1 
+eigend: <rig5>: enclosure set to  midi rig 1 
+eigend: <rig5>: loaded:  0  5  in  5.0067901611328125e-05  s  gateway 1 
+eigend: <rig5>: canonicalised  a('<midi_clock1>',midi_clock,'2.0.36-experimental','1.0.0',1)  to  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1) 
+eigend: <rig5>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig5>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig5>: canonicalised  a('<midi_converter1>',midi_converter,'2.0.36-experimental','1.0.3',1)  to  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1) 
+eigend: <rig5>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  midi rig 1 
+eigend: <rig5>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig5>')])) 
+eigend: <recorder1>: allocated new take 0x14163b820
+eigend: <recorder1>: allocated new take 0x141668120
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  midi rig 1 
+eigend: <rig5>: loading  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1)  into enclosure  midi rig 1 
+eigend: <rig5>: relation:  create(cnc("<midi_converter1>"),role(by,[cnc('<main:rig5>')])) 
+eigend: <recorder1>: setup  main.rig5_recorder1 
+eigend: <midi_converter1>: enclosure set to  midi rig 1 
+eigend: <rig5>: loading  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1)  into enclosure  midi rig 1 
+eigend: <rig5>: relation:  create(cnc("<midi_clock1>"),role(by,[cnc('<main:rig5>')])) 
+eigend: <midi_clock1>: enclosure set to  midi rig 1 
+eigend: <rig5>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  midi rig 1 
+eigend: <rig5>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig5>')])) 
+eigend: <scaler1>: enclosure set to  midi rig 1 
+eigend: <rig5>: loaded:  1  5  in  0.053835153579711914  s  gateway 1 
+eigend: <rig5>: loaded:  1  5  in  0.055631160736083984  s  midi clock 1 
+eigend: <rig5>: loaded:  2  5  in  0.06106233596801758  s  midi clock 1 
+eigend: <rig5>: loaded:  2  5  in  0.06108427047729492  s  recorder 1 
+eigend: <interpreter1>: send any  /midi_rig_1/scaler_1/inputs/base_note_input4
+eigend: <interpreter1>: sending /midi_rig_1/scaler_1/inputs/base_note_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_1/scaler_1/inputs/relative_octave_input4
+eigend: <interpreter1>: sending /midi_rig_1/scaler_1/inputs/relative_octave_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_1/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /midi_rig_1/scaler_1/inputs/key_bend_range_input 1.0
+eigend: <interpreter1>: send any  /midi_rig_1/scaler_1/inputs/curve5
+eigend: <interpreter1>: sending /midi_rig_1/scaler_1/inputs/curve 2
+eigend: <interpreter1>: send any  /midi_rig_1/scaler_1/inputs/override6
+eigend: <interpreter1>: sending /midi_rig_1/scaler_1/inputs/override n
+eigend: <interpreter1>: send any  /midi_rig_1/scaler_1/inputs/octave_input4
+eigend: <interpreter1>: sending /midi_rig_1/scaler_1/inputs/octave_input 3.0
+eigend: <interpreter1>: send any  /midi_rig_1/scaler_1/inputs/tonic_input4
+eigend: <interpreter1>: sending /midi_rig_1/scaler_1/inputs/tonic_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_1/scaler_1/inputs/global_bend_range_input4
+eigend: <interpreter1>: sending /midi_rig_1/scaler_1/inputs/global_bend_range_input 12.0
+eigend: <interpreter1>: send any  /midi_rig_1/midi_converter_1/midi_channel5
+eigend: <interpreter1>: sending /midi_rig_1/midi_converter_1/midi_channel 0
+eigend: <interpreter1>: send any  /midi_rig_1/midi_converter_1/minimum_channel5
+eigend: <interpreter1>: sending /midi_rig_1/midi_converter_1/minimum_channel 1
+eigend: <interpreter1>: send any  /midi_rig_1/midi_converter_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /midi_rig_1/midi_converter_1/velocity_curve_controls/velocity_curve 4.0
+eigend: <interpreter1>: send any  /midi_rig_1/midi_converter_1/velocity_curve_controls/velocity_sample5
+eigend: <interpreter1>: sending /midi_rig_1/midi_converter_1/velocity_curve_controls/velocity_sample 4
+eigend: <interpreter1>: send any  /midi_rig_1/midi_converter_1/velocity_curve_controls/velocity_scale4
+eigend: <interpreter1>: sending /midi_rig_1/midi_converter_1/velocity_curve_controls/velocity_scale 4.0
+eigend: <rig5>: loaded:  3  5  in  0.06729507446289062  s  recorder 1 
+eigend: <rig5>: loaded:  3  5  in  0.06737017631530762  s  scaler 1 
+eigend: <rig5>: loaded:  4  5  in  0.07343125343322754  s  scaler 1 
+eigend: <rig5>: loaded:  4  5  in  0.0734562873840332  s  midi converter 1 
+eigend: <recorder1>: attached to scheduler 
+eigend: <interpreter1>: send any  /midi_rig_1/midi_converter_1/midi_channel5
+eigend: <interpreter1>: sending /midi_rig_1/midi_converter_1/midi_channel 1
+eigend: <interpreter1>: send any  /midi_rig_1/midi_converter_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /midi_rig_1/midi_converter_1/velocity_curve_controls/velocity_curve 4.099999904632568359375
+eigend: <rig5>: loaded:  5  5  in  0.08979511260986328  s  midi converter 1 
+eigend: <midi_input1>: midi source removed  6fe0f224  Eigenlabs 2 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: midi source removed  6fe0f223  Eigenlabs 1 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: created input Eigenlabs 1
+eigend: <rig5>: rig load errors  [] 
+eigend-backend: loaded:  10  60  in  4.999417066574097  s  midi rig 1 
+eigend-backend: loaded:  10  60  in  4.999794006347656  s  midi output 3 
+eigend: <midi_output3>: set source  name Eigenlabs 3
+eigend-backend: loaded:  11  60  in  5.008698225021362  s  midi output 3 
+eigend-backend: loaded:  11  60  in  5.009005069732666  s  midi output 4 
+eigend: <midi_output4>: set source  name Eigenlabs 4
+eigend-backend: loaded:  12  60  in  5.01097297668457  s  midi output 4 
+eigend-backend: loaded:  12  60  in  5.0111448764801025  s  audio unit rig 3 
+eigend: <rig3>: inner agent description now  audio unit rig 3 
+eigend: <rig3>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig3 
+eigend: <rig3>: loading rig  main.rig3  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig3 
+eigend: <rig3>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig3 start block: 2 chkpoint: 86160 blksize: 65536
+eigend: <rig3>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup6 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig3>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup6 start block: 2 chkpoint: 86160 blksize: 65536
+eigend: <rig3>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig3  version  86160 
+eigend: <rig3>: prepare:  2.0.72-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup6 
+eigend: <rig3>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig3>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig3>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig3>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig3>: upgrading host  <audio_unit1> 
+eigend: <rig3>: upgrading host  <audio_unit2> 
+eigend: <rig3>: loading from version  141480  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig3 
+eigend: <rig3>: enclosure set to  audio unit rig 3 
+eigend: <rig3>: loaded:  0  6  in  4.100799560546875e-05  s  gateway 1 
+eigend: <rig3>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig3>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig3>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig3>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig3>: canonicalised  a('<audio_unit2>',audio_unit,'2.0.36-experimental','1.0.3',2)  to  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2) 
+eigend: <rig3>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  audio unit rig 3 
+eigend: <rig3>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <summer1>: enclosure set to  audio unit rig 3 
+eigend: <rig3>: loading  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  into enclosure  audio unit rig 3 
+eigend: <rig3>: relation:  create(cnc("<audio_unit2>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <audio_unit2>: enclosure set to  audio unit rig 3 
+eigend: <rig3>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  audio unit rig 3 
+eigend: <rig3>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <audio_unit1>: enclosure set to  audio unit rig 3 
+eigend: <rig3>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  audio unit rig 3 
+eigend: <rig3>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <recorder1>: allocated new take 0x14004bd20
+eigend: <recorder1>: allocated new take 0x140058720
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  audio unit rig 3 
+eigend: <rig3>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  audio unit rig 3 
+eigend: <rig3>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig3>')])) 
+eigend: <recorder1>: setup  main.rig3_recorder1 
+eigend: <scaler1>: enclosure set to  audio unit rig 3 
+eigend: <rig3>: loaded:  1  6  in  0.06705617904663086  s  gateway 1 
+eigend: <rig3>: loaded:  1  6  in  0.06900215148925781  s  summer 1 
+eigend: <rig3>: loaded:  2  6  in  0.0740201473236084  s  summer 1 
+eigend: <rig3>: loaded:  2  6  in  0.07409524917602539  s  recorder 1 
+eigend: <rig3>: loaded:  3  6  in  0.07871794700622559  s  recorder 1 
+eigend: <rig3>: loaded:  3  6  in  0.0787811279296875  s  scaler 1 
+eigend: <interpreter1>: send any  /audio_unit_rig_3/scaler_1/inputs/base_note_input4
+eigend: <interpreter1>: sending /audio_unit_rig_3/scaler_1/inputs/base_note_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_3/scaler_1/inputs/relative_octave_input4
+eigend: <interpreter1>: sending /audio_unit_rig_3/scaler_1/inputs/relative_octave_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_3/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /audio_unit_rig_3/scaler_1/inputs/key_bend_range_input 1.0
+eigend: <interpreter1>: send any  /audio_unit_rig_3/scaler_1/inputs/curve5
+eigend: <interpreter1>: sending /audio_unit_rig_3/scaler_1/inputs/curve 2
+eigend: <interpreter1>: send any  /audio_unit_rig_3/scaler_1/inputs/override6
+eigend: <interpreter1>: sending /audio_unit_rig_3/scaler_1/inputs/override n
+eigend: <interpreter1>: send any  /audio_unit_rig_3/scaler_1/inputs/octave_input4
+eigend: <interpreter1>: sending /audio_unit_rig_3/scaler_1/inputs/octave_input 3.0
+eigend: <interpreter1>: send any  /audio_unit_rig_3/scaler_1/inputs/tonic_input4
+eigend: <interpreter1>: sending /audio_unit_rig_3/scaler_1/inputs/tonic_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_3/instrument_audio_unit_1/maximum_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_3/instrument_audio_unit_1/maximum_channel 16
+eigend: <interpreter1>: send any  /audio_unit_rig_3/instrument_audio_unit_1/minimum_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_3/instrument_audio_unit_1/minimum_channel 1
+eigend: <interpreter1>: send any  /audio_unit_rig_3/instrument_audio_unit_1/midi_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_3/instrument_audio_unit_1/midi_channel 0
+eigend: <interpreter1>: send any  /audio_unit_rig_3/instrument_audio_unit_1/velocity_curve_controls/velocity_sample5
+eigend: <interpreter1>: sending /audio_unit_rig_3/instrument_audio_unit_1/velocity_curve_controls/velocity_sample 4
+eigend: <interpreter1>: send any  /audio_unit_rig_3/instrument_audio_unit_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /audio_unit_rig_3/instrument_audio_unit_1/velocity_curve_controls/velocity_curve 4.0
+eigend: <rig3>: loaded:  4  6  in  0.0853271484375  s  scaler 1 
+eigend: <rig3>: loaded:  4  6  in  0.08543610572814941  s  instrument audio unit 1 
+eigend: <recorder1>: attached to scheduler 
+eigend: <rig3>: loaded:  5  6  in  0.10583710670471191  s  instrument audio unit 1 
+eigend: <rig3>: loaded:  5  6  in  0.1058661937713623  s  effect audio unit 1 
+eigend: <interpreter1>: send any  /audio_unit_rig_3/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /audio_unit_rig_3/scaler_1/inputs/key_bend_range_input 2.0
+eigend: <interpreter1>: send any  /audio_unit_rig_3/instrument_audio_unit_1/midi_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_3/instrument_audio_unit_1/midi_channel 1
+eigend: <interpreter1>: send any  /audio_unit_rig_3/instrument_audio_unit_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /audio_unit_rig_3/instrument_audio_unit_1/velocity_curve_controls/velocity_curve 4.099999904632568359375
+eigend: <rig3>: loaded:  6  6  in  0.11118125915527344  s  effect audio unit 1 
+eigend: <midi_output4>: midi sink added  6fe0f223  Eigenlabs 1 
+eigend: <midi_output4>: created output Eigenlabs 4
+eigend: <midi_output4>: OutputMidiPort: set port to   
+eigend: <midi_output3>: midi sink added  6fe0f223  Eigenlabs 1 
+eigend: <midi_output3>: created output Eigenlabs 3
+eigend: <midi_output3>: OutputMidiPort: set port to   
+eigend: <midi_output2>: midi sink added  6fe0f223  Eigenlabs 1 
+eigend: <midi_output2>: created output Eigenlabs 2
+eigend: <midi_output2>: OutputMidiPort: set port to   
+eigend: <midi_output1>: midi sink added  6fe0f223  Eigenlabs 1 
+eigend: <midi_output1>: created output Eigenlabs 1
+eigend: <midi_output1>: OutputMidiPort: set port to   
+eigend: <rig3>: rig load errors  [] 
+eigend-backend: loaded:  13  60  in  6.151098012924194  s  audio unit rig 3 
+eigend-backend: loaded:  13  60  in  6.151530027389526  s  midi rig 3 
+eigend: <rig7>: inner agent description now  rig 3 
+eigend: <rig7>: inner agent description now  midi rig 3 
+eigend: <rig7>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig7 
+eigend: <rig7>: loading rig  main.rig7  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig7 
+eigend: <rig7>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig7 start block: 1 chkpoint: 54110 blksize: 65536
+eigend: <rig7>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup7 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig7>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup7 start block: 1 chkpoint: 54110 blksize: 65536
+eigend: <rig7>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig7  version  54110 
+eigend: <rig7>: prepare:  2.0.72-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup7 
+eigend: <rig7>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig7>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig7>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig7>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig7>: upgrading midi converter  <midi_converter1> 
+eigend: <rig7>: loading from version  74140  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig7 
+eigend: <rig7>: enclosure set to  rig 3 
+eigend: <rig7>: enclosure set to  midi rig 3 
+eigend: <rig7>: loaded:  0  5  in  5.602836608886719e-05  s  gateway 1 
+eigend: <rig7>: canonicalised  a('<midi_clock1>',midi_clock,'2.0.36-experimental','1.0.0',1)  to  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1) 
+eigend: <rig7>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig7>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig7>: canonicalised  a('<midi_converter1>',midi_converter,'2.0.36-experimental','1.0.3',1)  to  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1) 
+eigend: <rig7>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  midi rig 3 
+eigend: <rig7>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig7>')])) 
+eigend: <recorder1>: allocated new take 0x1400dfb20
+eigend: <recorder1>: allocated new take 0x1400ec420
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  midi rig 3 
+eigend: <rig7>: loading  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1)  into enclosure  midi rig 3 
+eigend: <rig7>: relation:  create(cnc("<midi_converter1>"),role(by,[cnc('<main:rig7>')])) 
+eigend: <recorder1>: setup  main.rig7_recorder1 
+eigend: <midi_converter1>: enclosure set to  midi rig 3 
+eigend: <rig7>: loading  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1)  into enclosure  midi rig 3 
+eigend: <rig7>: relation:  create(cnc("<midi_clock1>"),role(by,[cnc('<main:rig7>')])) 
+eigend: <midi_clock1>: enclosure set to  midi rig 3 
+eigend: <rig7>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  midi rig 3 
+eigend: <rig7>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig7>')])) 
+eigend: <scaler1>: enclosure set to  midi rig 3 
+eigend: <rig7>: loaded:  1  5  in  0.0557861328125  s  gateway 1 
+eigend: <rig7>: loaded:  1  5  in  0.05782723426818848  s  midi clock 1 
+eigend: <midi_input1>: midi source added  6fe0f224  Eigenlabs 2 
+eigend: <midi_input1>: set port to   
+eigend: <midi_input1>: midi source added  6fe0f223  Eigenlabs 1 
+eigend: <midi_input1>: set port to   
+eigend: <rig7>: loaded:  2  5  in  0.06427907943725586  s  midi clock 1 
+eigend: <rig7>: loaded:  2  5  in  0.06430506706237793  s  recorder 1 
+eigend: <interpreter1>: send any  /midi_rig_3/scaler_1/inputs/base_note_input4
+eigend: <interpreter1>: sending /midi_rig_3/scaler_1/inputs/base_note_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_3/scaler_1/inputs/relative_octave_input4
+eigend: <interpreter1>: sending /midi_rig_3/scaler_1/inputs/relative_octave_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_3/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /midi_rig_3/scaler_1/inputs/key_bend_range_input 1.0
+eigend: <interpreter1>: send any  /midi_rig_3/scaler_1/inputs/curve5
+eigend: <interpreter1>: sending /midi_rig_3/scaler_1/inputs/curve 2
+eigend: <interpreter1>: send any  /midi_rig_3/scaler_1/inputs/override6
+eigend: <interpreter1>: sending /midi_rig_3/scaler_1/inputs/override n
+eigend: <interpreter1>: send any  /midi_rig_3/scaler_1/inputs/octave_input4
+eigend: <interpreter1>: sending /midi_rig_3/scaler_1/inputs/octave_input 3.0
+eigend: <interpreter1>: send any  /midi_rig_3/scaler_1/inputs/tonic_input4
+eigend: <interpreter1>: sending /midi_rig_3/scaler_1/inputs/tonic_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_3/scaler_1/inputs/global_bend_range_input4
+eigend: <interpreter1>: sending /midi_rig_3/scaler_1/inputs/global_bend_range_input 12.0
+eigend: <interpreter1>: send any  /midi_rig_3/midi_converter_1/midi_channel5
+eigend: <interpreter1>: sending /midi_rig_3/midi_converter_1/midi_channel 0
+eigend: <interpreter1>: send any  /midi_rig_3/midi_converter_1/minimum_channel5
+eigend: <interpreter1>: sending /midi_rig_3/midi_converter_1/minimum_channel 1
+eigend: <interpreter1>: send any  /midi_rig_3/midi_converter_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /midi_rig_3/midi_converter_1/velocity_curve_controls/velocity_curve 4.0
+eigend: <interpreter1>: send any  /midi_rig_3/midi_converter_1/velocity_curve_controls/velocity_sample5
+eigend: <interpreter1>: sending /midi_rig_3/midi_converter_1/velocity_curve_controls/velocity_sample 4
+eigend: <interpreter1>: send any  /midi_rig_3/midi_converter_1/velocity_curve_controls/velocity_scale4
+eigend: <interpreter1>: sending /midi_rig_3/midi_converter_1/velocity_curve_controls/velocity_scale 4.0
+eigend: <rig7>: loaded:  3  5  in  0.06988120079040527  s  recorder 1 
+eigend: <rig7>: loaded:  3  5  in  0.06992101669311523  s  scaler 1 
+eigend: <rig7>: loaded:  4  5  in  0.07574200630187988  s  scaler 1 
+eigend: <rig7>: loaded:  4  5  in  0.0757901668548584  s  midi converter 1 
+eigend: <recorder1>: attached to scheduler 
+eigend: <rig7>: loaded:  5  5  in  0.0925450325012207  s  midi converter 1 
+eigend: <interpreter1>: send any  /midi_rig_3/midi_converter_1/midi_channel5
+eigend: <interpreter1>: sending /midi_rig_3/midi_converter_1/midi_channel 1
+eigend: <interpreter1>: send any  /midi_rig_3/midi_converter_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /midi_rig_3/midi_converter_1/velocity_curve_controls/velocity_curve 4.099999904632568359375
+eigend: <rig7>: rig load errors  [] 
+eigend-backend: loaded:  14  60  in  7.271952152252197  s  midi rig 3 
+eigend-backend: loaded:  14  60  in  7.2723000049591064  s  effect audio unit 2 
+eigend-backend: loaded:  15  60  in  7.289600133895874  s  effect audio unit 2 
+eigend-backend: loaded:  15  60  in  7.28971004486084  s  midi rig 2 
+eigend: <rig6>: inner agent description now  rig 2 
+eigend: <rig6>: inner agent description now  midi rig 2 
+eigend: <rig6>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig6 
+eigend: <rig6>: loading rig  main.rig6  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig6 
+eigend: <rig6>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig6 start block: 1 chkpoint: 54108 blksize: 65536
+eigend: <rig6>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup8 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig6>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup8 start block: 1 chkpoint: 54108 blksize: 65536
+eigend: <rig6>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig6  version  54108 
+eigend: <rig6>: prepare:  2.0.72-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup8 
+eigend: <rig6>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig6>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig6>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig6>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig6>: upgrading midi converter  <midi_converter1> 
+eigend: <rig6>: loading from version  74140  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig6 
+eigend: <rig6>: enclosure set to  rig 2 
+eigend: <rig6>: enclosure set to  midi rig 2 
+eigend: <rig6>: loaded:  0  5  in  4.673004150390625e-05  s  gateway 1 
+eigend: <rig6>: canonicalised  a('<midi_clock1>',midi_clock,'2.0.36-experimental','1.0.0',1)  to  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1) 
+eigend: <rig6>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig6>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig6>: canonicalised  a('<midi_converter1>',midi_converter,'2.0.36-experimental','1.0.3',1)  to  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1) 
+eigend: <rig6>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  midi rig 2 
+eigend: <rig6>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <recorder1>: allocated new take 0x141b94b20
+eigend: <recorder1>: allocated new take 0x141ba1420
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  midi rig 2 
+eigend: <rig6>: loading  a('<midi_converter1>',midi_converter,'2.3.0-community','1.0.5',1)  into enclosure  midi rig 2 
+eigend: <rig6>: relation:  create(cnc("<midi_converter1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <recorder1>: setup  main.rig6_recorder1 
+eigend: <midi_converter1>: enclosure set to  midi rig 2 
+eigend: <rig6>: loading  a('<midi_clock1>',midi_clock,'2.3.0-community','1.0.0',1)  into enclosure  midi rig 2 
+eigend: <rig6>: relation:  create(cnc("<midi_clock1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <midi_clock1>: enclosure set to  midi rig 2 
+eigend: <rig6>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  midi rig 2 
+eigend: <rig6>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig6>')])) 
+eigend: <scaler1>: enclosure set to  midi rig 2 
+eigend: <rig6>: loaded:  1  5  in  0.051275014877319336  s  gateway 1 
+eigend: <rig6>: loaded:  1  5  in  0.05365395545959473  s  midi clock 1 
+eigend: <rig6>: loaded:  2  5  in  0.0581817626953125  s  midi clock 1 
+eigend: <rig6>: loaded:  2  5  in  0.05822896957397461  s  recorder 1 
+eigend: <rig6>: loaded:  3  5  in  0.06675100326538086  s  recorder 1 
+eigend: <rig6>: loaded:  3  5  in  0.06679987907409668  s  scaler 1 
+eigend: <interpreter1>: send any  /midi_rig_2/scaler_1/inputs/base_note_input4
+eigend: <interpreter1>: sending /midi_rig_2/scaler_1/inputs/base_note_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_2/scaler_1/inputs/relative_octave_input4
+eigend: <interpreter1>: sending /midi_rig_2/scaler_1/inputs/relative_octave_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_2/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /midi_rig_2/scaler_1/inputs/key_bend_range_input 1.0
+eigend: <interpreter1>: send any  /midi_rig_2/scaler_1/inputs/curve5
+eigend: <interpreter1>: sending /midi_rig_2/scaler_1/inputs/curve 2
+eigend: <interpreter1>: send any  /midi_rig_2/scaler_1/inputs/override6
+eigend: <interpreter1>: sending /midi_rig_2/scaler_1/inputs/override n
+eigend: <interpreter1>: send any  /midi_rig_2/scaler_1/inputs/octave_input4
+eigend: <interpreter1>: sending /midi_rig_2/scaler_1/inputs/octave_input 3.0
+eigend: <interpreter1>: send any  /midi_rig_2/scaler_1/inputs/tonic_input4
+eigend: <interpreter1>: sending /midi_rig_2/scaler_1/inputs/tonic_input 0.0
+eigend: <interpreter1>: send any  /midi_rig_2/scaler_1/inputs/global_bend_range_input4
+eigend: <interpreter1>: sending /midi_rig_2/scaler_1/inputs/global_bend_range_input 12.0
+eigend: <interpreter1>: send any  /midi_rig_2/midi_converter_1/maximum_channel5
+eigend: <interpreter1>: sending /midi_rig_2/midi_converter_1/maximum_channel 16
+eigend: <interpreter1>: send any  /midi_rig_2/midi_converter_1/midi_channel5
+eigend: <interpreter1>: sending /midi_rig_2/midi_converter_1/midi_channel 0
+eigend: <interpreter1>: send any  /midi_rig_2/midi_converter_1/minimum_channel5
+eigend: <interpreter1>: sending /midi_rig_2/midi_converter_1/minimum_channel 1
+eigend: <interpreter1>: send any  /midi_rig_2/midi_converter_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /midi_rig_2/midi_converter_1/velocity_curve_controls/velocity_curve 4.0
+eigend: <interpreter1>: send any  /midi_rig_2/midi_converter_1/velocity_curve_controls/velocity_sample5
+eigend: <interpreter1>: sending /midi_rig_2/midi_converter_1/velocity_curve_controls/velocity_sample 4
+eigend: <interpreter1>: send any  /midi_rig_2/midi_converter_1/velocity_curve_controls/velocity_scale4
+eigend: <interpreter1>: sending /midi_rig_2/midi_converter_1/velocity_curve_controls/velocity_scale 4.0
+eigend: <rig6>: loaded:  4  5  in  0.07302093505859375  s  scaler 1 
+eigend: <rig6>: loaded:  4  5  in  0.0730738639831543  s  midi converter 1 
+eigend: <recorder1>: attached to scheduler 
+eigend: <interpreter1>: send any  /midi_rig_2/midi_converter_1/midi_channel5
+eigend: <interpreter1>: sending /midi_rig_2/midi_converter_1/midi_channel 1
+eigend: <interpreter1>: send any  /midi_rig_2/midi_converter_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /midi_rig_2/midi_converter_1/velocity_curve_controls/velocity_curve 4.099999904632568359375
+eigend: <rig6>: loaded:  5  5  in  0.09020495414733887  s  midi converter 1 
+eigend: <rig6>: rig load errors  [] 
+eigend-backend: loaded:  16  60  in  8.397905111312866  s  midi rig 2 
+eigend-backend: loaded:  16  60  in  8.398324012756348  s  audio unit rig 1 
+eigend: <rig1>: inner agent description now  audio unit rig 1 
+eigend: <rig1>: rig load state  1  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig1 
+eigend: <rig1>: loading rig  main.rig1  from  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig1 
+eigend: <rig1>: opened /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig1 start block: 2 chkpoint: 83420 blksize: 65536
+eigend: <rig1>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup9 start block: 0 chkpoint: 0 blksize: 65536
+eigend: <rig1>: opened /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup9 start block: 2 chkpoint: 83258 blksize: 65536
+eigend: <rig1>: /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig1  version  83258 
+eigend: <rig1>: prepare:  2.0.72-stable  for  2.3.0-community  to  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Setups/tmpsetup9 
+eigend: <rig1>: Agent Path:  /Users/kodiak/Library/Eigenlabs/2.3.0-community/Plugins 
+eigend: <rig1>: Agent Path:  /Users/kodiak/projects/EigenD/tmp/plugins 
+eigend: <rig1>: Agent Path:  /usr/local/pi/contrib-2.3.0-community/plugins 
+eigend: <rig1>: Agent Path:  /usr/local/pi/contrib-2.3-community/plugins 
+eigend: <rig1>: upgrading host  <audio_unit1> 
+eigend: <rig1>: upgrading host  <audio_unit2> 
+eigend: <rig1>: loading from version  141480  in  /Users/kodiak/projects/EigenD/tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out#rig1 
+eigend: <rig1>: enclosure set to  audio unit rig 1 
+eigend: <rig1>: loaded:  0  6  in  4.696846008300781e-05  s  gateway 1 
+eigend: <rig1>: canonicalised  a('<summer1>',summer,'2.0.36-experimental','1.0.0',1)  to  a('<summer1>',summer,'2.3.0-community','1.0.0',1) 
+eigend: <rig1>: canonicalised  a('<scaler1>',scaler,'2.0.36-experimental','1.0.1',1)  to  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1) 
+eigend: <rig1>: canonicalised  a('<recorder1>',recorder,'2.0.36-experimental','1.0.3',1)  to  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1) 
+eigend: <rig1>: canonicalised  a('<audio_unit1>',audio_unit,'2.0.36-experimental','1.0.3',1)  to  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1) 
+eigend: <rig1>: canonicalised  a('<audio_unit2>',audio_unit,'2.0.36-experimental','1.0.3',2)  to  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2) 
+eigend: <rig1>: loading  a('<summer1>',summer,'2.3.0-community','1.0.0',1)  into enclosure  audio unit rig 1 
+eigend: <rig1>: relation:  create(cnc("<summer1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <summer1>: enclosure set to  audio unit rig 1 
+eigend: <rig1>: loading  a('<audio_unit2>',audio_unit,'2.3.0-community','1.0.5',2)  into enclosure  audio unit rig 1 
+eigend: <rig1>: relation:  create(cnc("<audio_unit2>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <audio_unit2>: enclosure set to  audio unit rig 1 
+eigend: <rig1>: loading  a('<audio_unit1>',audio_unit,'2.3.0-community','1.0.5',1)  into enclosure  audio unit rig 1 
+eigend: <rig1>: relation:  create(cnc("<audio_unit1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <audio_unit1>: enclosure set to  audio unit rig 1 
+eigend: <rig1>: loading  a('<recorder1>',recorder,'2.3.0-community','1.0.3',1)  into enclosure  audio unit rig 1 
+eigend: <rig1>: relation:  create(cnc("<recorder1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <recorder1>: allocated new take 0x141c5be20
+eigend: <recorder1>: allocated new take 0x141c68720
+eigend: <recorder1>: count changed from 0 to 2
+eigend: <recorder1>: freecount changed from 0 to 2
+eigend: <recorder1>: enclosure set to  audio unit rig 1 
+eigend: <rig1>: loading  a('<scaler1>',scaler,'2.3.0-community','1.0.1',1)  into enclosure  audio unit rig 1 
+eigend: <rig1>: relation:  create(cnc("<scaler1>"),role(by,[cnc('<main:rig1>')])) 
+eigend: <recorder1>: setup  main.rig1_recorder1 
+eigend: <scaler1>: enclosure set to  audio unit rig 1 
+eigend: <rig1>: loaded:  1  6  in  0.07523703575134277  s  gateway 1 
+eigend: <rig1>: loaded:  1  6  in  0.07745599746704102  s  summer 1 
+eigend: <rig1>: loaded:  2  6  in  0.0826570987701416  s  summer 1 
+eigend: <rig1>: loaded:  2  6  in  0.08271193504333496  s  recorder 1 
+eigend: <rig1>: loaded:  3  6  in  0.08728599548339844  s  recorder 1 
+eigend: <rig1>: loaded:  3  6  in  0.0873560905456543  s  scaler 1 
+eigend: <interpreter1>: send any  /audio_unit_rig_1/scaler_1/inputs/base_note_input4
+eigend: <interpreter1>: sending /audio_unit_rig_1/scaler_1/inputs/base_note_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_1/scaler_1/inputs/relative_octave_input4
+eigend: <interpreter1>: sending /audio_unit_rig_1/scaler_1/inputs/relative_octave_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_1/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /audio_unit_rig_1/scaler_1/inputs/key_bend_range_input 1.0
+eigend: <interpreter1>: send any  /audio_unit_rig_1/scaler_1/inputs/curve5
+eigend: <interpreter1>: sending /audio_unit_rig_1/scaler_1/inputs/curve 2
+eigend: <interpreter1>: send any  /audio_unit_rig_1/scaler_1/inputs/override6
+eigend: <interpreter1>: sending /audio_unit_rig_1/scaler_1/inputs/override n
+eigend: <interpreter1>: send any  /audio_unit_rig_1/scaler_1/inputs/octave_input4
+eigend: <interpreter1>: sending /audio_unit_rig_1/scaler_1/inputs/octave_input 3.0
+eigend: <interpreter1>: send any  /audio_unit_rig_1/scaler_1/inputs/tonic_input4
+eigend: <interpreter1>: sending /audio_unit_rig_1/scaler_1/inputs/tonic_input 0.0
+eigend: <interpreter1>: send any  /audio_unit_rig_1/instrument_audio_unit_1/maximum_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_1/instrument_audio_unit_1/maximum_channel 16
+eigend: <interpreter1>: send any  /audio_unit_rig_1/instrument_audio_unit_1/midi_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_1/instrument_audio_unit_1/midi_channel 0
+eigend: <interpreter1>: send any  /audio_unit_rig_1/instrument_audio_unit_1/minimum_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_1/instrument_audio_unit_1/minimum_channel 1
+eigend: <interpreter1>: send any  /audio_unit_rig_1/instrument_audio_unit_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /audio_unit_rig_1/instrument_audio_unit_1/velocity_curve_controls/velocity_curve 4.0
+eigend: <interpreter1>: send any  /audio_unit_rig_1/instrument_audio_unit_1/velocity_curve_controls/velocity_sample5
+eigend: <interpreter1>: sending /audio_unit_rig_1/instrument_audio_unit_1/velocity_curve_controls/velocity_sample 4
+eigend: <rig1>: loaded:  4  6  in  0.09365200996398926  s  scaler 1 
+eigend: <rig1>: loaded:  4  6  in  0.09367799758911133  s  instrument audio unit 1 
+eigend: <recorder1>: attached to scheduler 
+eigend: <interpreter1>: send any  /audio_unit_rig_1/scaler_1/inputs/key_bend_range_input4
+eigend: <interpreter1>: sending /audio_unit_rig_1/scaler_1/inputs/key_bend_range_input 2.0
+eigend: <interpreter1>: send any  /audio_unit_rig_1/instrument_audio_unit_1/midi_channel5
+eigend: <interpreter1>: sending /audio_unit_rig_1/instrument_audio_unit_1/midi_channel 1
+eigend: <interpreter1>: send any  /audio_unit_rig_1/instrument_audio_unit_1/velocity_curve_controls/velocity_curve4
+eigend: <interpreter1>: sending /audio_unit_rig_1/instrument_audio_unit_1/velocity_curve_controls/velocity_curve 4.099999904632568359375
+eigend: <rig1>: loaded:  5  6  in  0.11719107627868652  s  instrument audio unit 1 
+eigend: <rig1>: loaded:  5  6  in  0.11723804473876953  s  effect audio unit 1 
+eigend: <rig1>: loaded:  6  6  in  0.122711181640625  s  effect audio unit 1 
+eigend: <rig1>: rig load errors  [] 
+eigend-backend: loaded:  17  60  in  9.551049947738647  s  audio unit rig 1 
+eigend-backend: loaded:  17  60  in  9.551281929016113  s  audio 1 
+eigend: <audio1>: change sample rate  44100 
+eigend: <audio1>: current set to  Core Audio/Built-in Output 
+eigend: <audio1>: change buffer size  512 
+eigend: <audio1>: opening audio port  Core Audio/Built-in Output  44100  512 
+eigend: <audio1>: opening device: Core Audio/Built-in Output -> Core Audio/Built-in Output:Built-in Output
+eigend: <audio1>: using default device of type: Core Audio = MacBook Air Speakers
+eigend: <audio1>: opening device MacBook Air Speakers:MacBook Air Speakers type Core Audio
+eigend: <audio1>: available channels change notification from audio  2  0 
+eigend: <audio1>: opened Core Audio/MacBook Air Speakers sr=44100:44100 bs=512:512 out channels=2 in channels=0
+eigend: <audio1>: device change notification from audio  Core Audio/Built-in Output  44100  512 
+eigend: <audio1>: current set to  Core Audio/Built-in Output 
+eigend-backend: loaded:  18  60  in  9.599428176879883  s  audio 1 
+eigend-backend: loaded:  18  60  in  9.599675178527832  s  midi input controller 
+eigend-backend: loaded:  19  60  in  9.64100193977356  s  midi input controller 
+eigend-backend: loaded:  19  60  in  9.641061067581177  s  audio unit rig 2 talker 
+eigend-backend: loaded:  20  60  in  9.649380207061768  s  audio unit rig 2 talker 
+eigend-backend: loaded:  20  60  in  9.649466037750244  s  scale talker 
+eigend: <interpreter1>: send any  /audio_unit_rig_2_talker/key/key_1/activate5
+eigend: <interpreter1>: sending /audio_unit_rig_2_talker/key/key_1/activate 3
+eigend: <interpreter1>: send any  /audio_unit_rig_2_talker/key/key_2/activate5
+eigend: <interpreter1>: sending /audio_unit_rig_2_talker/key/key_2/activate 3
+eigend-backend: loaded:  21  60  in  9.66808009147644  s  scale talker 
+eigend-backend: loaded:  21  60  in  9.668169975280762  s  main keygroup 
+eigend: <interpreter1>: send any  /audio_unit_rig_2_talker/key/key_2/activate5
+eigend: <interpreter1>: sending /audio_unit_rig_2_talker/key/key_2/activate 2
+log:total audio dropouts 0 average tick 11607
+eigend-backend: loaded:  22  60  in  9.843934059143066  s  main keygroup 
+eigend-backend: loaded:  22  60  in  9.844068050384521  s  scheduler keygroup 
+eigend: <interpreter1>: send any  /main_keygroup/octave4
+eigend: <interpreter1>: sending /main_keygroup/octave 3.0
+eigend-backend: loaded:  23  60  in  9.862761974334717  s  scheduler keygroup 
+eigend-backend: loaded:  23  60  in  9.862853050231934  s  drummer talker 2 
+eigend-backend: loaded:  24  60  in  9.86910891532898  s  drummer talker 2 
+eigend-backend: loaded:  24  60  in  9.869181871414185  s  octave talker 
+eigend-backend: loaded:  25  60  in  9.875324010848999  s  octave talker 
+eigend-backend: loaded:  25  60  in  9.875421047210693  s  delay 1 
+eigend: <interpreter1>: send any  /octave_talker/key/key_2/activate5
+eigend: <interpreter1>: sending /octave_talker/key/key_2/activate 3
+eigend: <interpreter1>: send any  /octave_talker/key/key_1/activate5
+eigend: <interpreter1>: sending /octave_talker/key/key_1/activate 3
+eigend-backend: loaded:  26  60  in  9.878035068511963  s  delay 1 
+eigend-backend: loaded:  26  60  in  9.878093004226685  s  mixer controller 
+eigend: <delay1>: ch 0 tn 1 ti 0 cutoff 2000 g 0.247949
+eigend: <delay1>: ch 1 tn 1 ti 0 cutoff 2000 g 0.247949
+log:total audio dropouts 0 average tick 11610
+eigend: <main:pico_manager1/1> proxy closing down
+log:total audio dropouts 0 average tick 11611

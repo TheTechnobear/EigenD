@@ -1,14 +1,120 @@
 # EigenD Python 3.14 Migration - Session Resume Context
 
-**Date:** 2025-11-08  
+**Date:** 2025-11-10  
 **Branch:** python3  
-**Status:** 🎯 **FFTW 3.3.10 UPGRADE COMPLETE** - ARM support added
+**Status:** 🔍 **SETUP LOADING FAILURE ROOT CAUSE IDENTIFIED**
 
-## ✅ LATEST: FFTW Library Upgraded from 3.2.1 to 3.3.10
+## ✅ LATEST: Setup Loading Failure Analysis Complete (2025-11-09)
 
-### **COMPLETED: Multi-platform FFTW 3.3.10 with ARM support**
-**Date:** 2025-11-08  
-**Location:** `lib_fftw/`
+### **ROOT CAUSE IDENTIFIED: Forward-Reference Connection Problem**
+**Location:** `pi/atom.py` line 623 → `pi/rpc.py` line 53 → `piw/src/piw_tsd.cpp` line 136  
+**Issue:** Agents create connections during loading to not-yet-loaded agents, causing RPC exceptions that break the async callback chain.
+
+#### **The Problem in Detail:**
+
+**Non-Deterministic Loading Order:**
+- Agents load sequentially from `self.index.members()` (dict iteration)
+- Order varies between runs due to dict/set iteration in Python
+- Same setup fails at different points each time (phase 24 vs 26)
+- Agent N may load before or after Agent M unpredictably
+
+**Connection Timing:**
+- Connections created during **phase 2** of each agent's `rpc_loadstate`
+- `update_slaves()` sends async RPC to target agents: `invoke_async_rpc(target_id, 'connected', self_id)`
+- If target agent not loaded yet: **RPC throws exception** ("can't create async rpc")
+- Exception breaks Deferred callback chain → next agent never loads → setup incomplete
+
+**Python 2 vs 3 Difference:**
+- Python 2.7: Exception handling in coroutines allows graceful continuation
+- Python 3: Exception propagates and breaks callback chain
+- Same non-deterministic loading, different exception handling
+
+#### **Evidence:**
+1. ✅ 60+ agents WITHOUT wiring: Loads successfully
+2. ❌ 60 agents WITH wiring: Fails at variable points
+3. ✅ Same setup on Python 2.7: Loads successfully (60/60 phases, 15.42s)
+4. ❌ Same setup on Python 3: Fails consistently (phase 24-26)
+5. ✅ Non-deterministic order confirmed: ed.log vs ed2.log have completely different agent sequences
+
+#### **Documentation Created:**
+
+**Log Files:** All logs moved to `dev_docs/logs/`
+- `ed.log` - Failed Python 3 load (24/60 phases)
+- `ed2.log` - Failed Python 3 load (26/60 phases) - same setup, different order
+- `ed22.log` - Successful Python 2.7 load (60/60 phases) - same setup
+- `ed_success.log` - Successful Python 3 small setup (9/9 phases)
+
+**Analysis Documents:**
+- `dev_docs/setup_loading.md` (7.5KB) - Complete loading process documentation
+  - File format and database structure
+  - All 6 loading phases with code references  
+  - Connection timing and forward-reference problem
+  - Rig handling (nested workspaces)
+  - Investigation steps
+
+- `dev_docs/loading_order_nondeterministic.md` - Order analysis
+  - Proof that ed.log vs ed2.log have different agent sequences
+  - Only first 2 agents consistent (eigend, interpreter)
+  - After phase 2: completely different order
+
+- `dev_docs/agload_wiring_hypothesis.md` - Connection analysis
+- `dev_docs/agload_comparison.md` - Log comparisons
+- `dev_docs/agload_python3_issue.md` - Python 2/3 differences
+
+**Command-Line Tools:**
+- `dev_docs/cmdline.md` (12KB) - Complete tool reference
+  - 19 tools documented: bstdump, bstlist, bls, brpc, etc.
+  - Usage examples for debugging
+  - Connection term format
+  - Python 2/3 cross-check procedures
+  - Unit test potential identified
+
+**Analysis Script:**
+- `tools/analyze_setup.py` - Automated setup analysis
+  - Extracts agent loading order from database
+  - Finds all connections in setup
+  - Identifies forward references
+  - Shows which connections cause problems
+
+#### **Solution Approaches:**
+
+**Option 1: Defer Connection RPC to Post-Load**
+```python
+# In pi/atom.py update_slaves()
+# Queue connections instead of sending RPC immediately
+self.__pending_connections = []  # During load
+# In agent_postload() send queued RPCs when all agents exist
+```
+
+**Option 2: Wrap invoke_async_rpc in Exception Handler**
+```python
+# In pi/atom.py update_slaves()
+try:
+    rpc.invoke_async_rpc(id_abs, 'connected', myrid)
+except Exception as e:
+    # Queue for retry in post_load
+    self.__failed_connections.append((id_abs, myrid))
+```
+
+**Option 3: Make Loading Order Deterministic**
+```python
+# In pisession/workspace.py __load1()
+# Sort agents by dependency graph before loading
+agents_sorted = dependency_sort(agents)
+```
+
+**Recommended:** Option 1 (defer to post-load) - cleanest and most robust.
+
+#### **Next Steps:**
+1. Implement connection deferral fix
+2. Test with large setup
+3. Verify no regression on small setups
+4. Cross-check state decoding Python 2 vs 3 using `bstdump`
+5. Create unit tests using cmdline tools
+
+---
+
+## ✅ PREVIOUS: FFTW Library Upgraded from 3.2.1 to 3.3.10 (2025-11-08)
 **Upgrade:** FFTW 3.2.1 → 3.3.10
 **Reason:** Enable ARM support on macOS and improve multi-platform builds
 
