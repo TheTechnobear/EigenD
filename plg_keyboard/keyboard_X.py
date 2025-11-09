@@ -464,7 +464,7 @@ class BaseStation:
             self.__device = picross.usbdevice(self.__usbname,0)
         basecfg = self.bs_config_read()
         instcfg = self.inst_config_read()
-        if self.__counter.next():
+        if next(self.__counter):
             print('basecfg: %s' % ''.join(map(lambda x:hex(ord(x))[2:].zfill(2),basecfg)))
             print('instcfg: %s' % ''.join(map(lambda x:hex(ord(x))[2:].zfill(2),instcfg)))
         inst = ord(instcfg[0])
