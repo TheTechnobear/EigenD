@@ -5,7 +5,80 @@
 ## Overview
 The `app_cmdline` directory contains command-line utilities for inspecting, manipulating, and debugging EigenD setups and the running system. These tools are essential for understanding setup structure, agent state, and troubleshooting loading issues.
 
+## Setup Locations
+### User
+~/Library/Eigenlabs/2.3.0-community/Setups
+
+### Factory 
+**Release**
+/usr/local/pi/release-`releaseversions`-community/resources/state 
+e.g.   /usr/local/pi/release-2.2.1-community/resources/state 
+
+**Dev build**
+./tmp/resources/state
+
+**Source**  
+./sys_init/states/factory_mac
+./sys_init/states/factory_win
+
+----------------
+
 ## Setup Database Tools
+
+### analyze_setup - Analyze Setup Loading Order and Connections
+**Command:** `analyze_setup`  
+**Purpose:** Analyzes agent loading order and connection dependencies to identify forward-reference issues that cause setup loading failures.
+
+**Usage:**
+```bash
+analyze_setup [--db FILE] [--version VERSION] [--target NAME]
+```
+
+**Options:**
+- `--db FILE`: Specify setup database file path
+- `--version VERSION`: Analyze specific version number (default: trunk/latest)
+- `--target NAME`: Target setup name (default: 'micro')
+
+**Output Format:**
+```
+setup version: <version> (<previous>), <N> agents
+
+AGENT LOADING ORDER (from database)
+  0. eigend 1                            [persistent] (v12340)
+  1. interpreter 1                       [persistent] (v12341)
+  ...
+
+CONNECTIONS FOUND
+Agent 5: audio unit rig 1
+  Path 123.45: conn(...)
+  ...
+
+POTENTIAL FORWARD REFERENCES
+Agent  5 (audio unit rig 1) → Agent 15 (mixer 1) [+10 ahead]
+...
+
+SUMMARY
+total agents: 60
+total connections found: 45
+forward references: 12
+```
+
+**Use Cases:**
+- **Debug loading failures**: Identify which agents connect to not-yet-loaded agents
+- **Understand dependencies**: See connection graph and loading order
+- **Compare Python 2/3**: Verify same agent order between versions
+- **Identify forward references**: Find connections that may cause RPC failures
+
+**Example:**
+```bash
+# Analyze a problematic setup
+analyze_setup --db ~/Setups/large_setup
+
+# Analyze specific version
+analyze_setup --db ~/Setups/my_setup --version 12345
+```
+
+---
 
 ### bstdump - Dump Complete Setup State
 **Command:** `bstdump`  

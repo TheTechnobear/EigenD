@@ -1,10 +1,14 @@
 # EigenD Python 3.14 Migration - Session Resume Context
 
-**Date:** 2025-11-10  
+**Date:** 2025-11-09  
 **Branch:** python3  
-**Status:** 🔍 **SETUP LOADING FAILURE ROOT CAUSE IDENTIFIED**
+**Status:** 🔍 **RESUMING SETUP LOADING ANALYSIS & TESTING**
 
-## ✅ LATEST: Setup Loading Failure Analysis Complete (2025-11-09)
+## 🎯 CURRENT PRIORITY: Large Setup File Loading Issue (2025-11-09)
+
+**Status:** FFTW upgrade complete, subject to testing. Resuming setup loading analysis.
+
+### ✅ LATEST: Setup Loading Failure Analysis Complete (2025-11-09)
 
 ### **ROOT CAUSE IDENTIFIED: Forward-Reference Connection Problem**
 **Location:** `pi/atom.py` line 623 → `pi/rpc.py` line 53 → `piw/src/piw_tsd.cpp` line 136  
@@ -114,7 +118,66 @@ agents_sorted = dependency_sort(agents)
 
 ---
 
-## ✅ FIXED: Build Artifacts in lib_fftw Source Tree (2025-11-09)
+## ✅ COMPLETED: FFTW 3.3.10 Upgrade with Hybrid Build System (2025-11-09)
+
+**Status:** ✅ Complete and working, subject to runtime testing  
+**Root Issue:** Build artifacts incorrectly placed in source tree  
+**Solution:** Hybrid path approach - relative for SCons tracking, absolute for glob operations
+
+### Final Working Solution
+
+**Problem Evolution:**
+1. **Initial approach (2025-11-08):** Absolute paths everywhere
+   - ✅ Glob worked correctly
+   - ❌ 613 build artifacts created in `lib_fftw/fftw-3.3.10/` source tree
+   
+2. **Second attempt (2025-11-09 AM):** Relative paths everywhere
+   - ✅ Artifacts correctly placed in `tmp/obj/`
+   - ❌ Glob failed to find 170+ SIMD codelet files
+   - ❌ Undefined symbols at link time
+
+3. **Final solution (2025-11-09 PM):** Hybrid approach
+   - ✅ Relative paths for SCons file tracking → builds to `tmp/obj/`
+   - ✅ Absolute paths for glob operations → finds all SIMD files
+   - ✅ All 170+ codelet files included
+   - ✅ Source tree clean, no build artifacts
+
+**Key Lesson:** SCons requires relative paths for variant directory tracking, but Python's `glob.glob()` needs absolute paths in SCons context. Solution: glob with absolute, convert results to relative.
+
+### Implementation Details
+
+```python
+# In lib_fftw/SConscript
+fftw_base = 'fftw-3.3.10'  # Relative for SCons
+fftw_base_abs = os.path.join(Dir('.').srcnode().abspath, fftw_base)  # Absolute for glob
+
+# Glob with absolute, store as relative
+for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/n*.c')):
+    neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+```
+
+**SIMD Codelet Patterns (must capture all three):**
+- `n*.c` - N-point transforms (67 files)
+- `t*.c` - Twiddle transforms (95 files)  
+- `q*.c` - Q transforms (8 files)
+- Plus: `codlist.c` and `genus.c` (solver registration)
+
+### Cleanup & Verification
+
+- ✅ Deleted 613 `.o`/`.os` files from source tree
+- ✅ Verified clean source: no build artifacts remain
+- ✅ Verified correct placement: all objects in `tmp/obj/lib_fftw/`
+- ✅ Build completes successfully
+- ⏳ Runtime testing pending
+
+### Documentation
+
+- Updated `dev_docs/convolver_update.md` with complete build system details
+- Removed `dev_docs/fftw_upgrade_3.3.10.md` (merged into convolver doc)
+
+---
+
+## ✅ PREVIOUS: Build Artifacts in lib_fftw Source Tree (2025-11-09)
 
 **Issue:** 613 `.o` and `.os` files created in `lib_fftw/fftw-3.3.10/` instead of `tmp/obj/`  
 **Root Cause:** `lib_fftw/SConscript` path handling issues with glob operations  

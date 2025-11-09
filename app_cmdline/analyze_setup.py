@@ -1,18 +1,30 @@
-#!/usr/bin/env python3
-"""
-Extract and analyze connections from EigenD setup file.
-Shows agent loading order and connection dependencies.
-"""
 
-import sys
-import os
+#
+# Copyright 2009 Eigenlabs Ltd.  http://www.eigenlabs.com
+#
+# This file is part of EigenD.
+#
+# EigenD is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# EigenD is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
+#
 
-# Add EigenD modules to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from pi import state, paths, logic
-import piw
 import picross
+import sys
+import piw
+import optparse
+
+from pi import utils, resource, state
+from pisession import session
 
 def pathextend(path, i):
     if not path: return "%u" % i
@@ -36,18 +48,12 @@ def find_connections(node, path=''):
     
     return connections
 
-def analyze_setup(setup_file):
-    """Analyze setup file for loading order and connections"""
-    
-    print(f"Analyzing setup: {setup_file}\n")
-    
-    # Open database
-    db = state.open_database(setup_file, False)
-    snap = db.get_trunk()
+def analyze_setup(snap):
+    """Analyze snapshot for loading order and connections"""
     
     agent_count = snap.agent_count()
-    print(f"Setup version: {snap.version()}")
-    print(f"Total agents: {agent_count}\n")
+    print("setup version:", snap.version(), "(", snap.previous(), "),", agent_count, "agents")
+    print()
     
     print("=" * 80)
     print("AGENT LOADING ORDER (from database)")
@@ -71,7 +77,8 @@ def analyze_setup(setup_file):
         type_str = "persistent" if agent_type == 0 else "transient"
         print(f"{i:3d}. {addr:40s} [{type_str}] (v{checkpoint})")
     
-    print("\n" + "=" * 80)
+    print()
+    print("=" * 80)
     print("CONNECTIONS FOUND")
     print("=" * 80)
     
@@ -141,38 +148,44 @@ def analyze_setup(setup_file):
         print("No obvious forward references found.")
         print("(Note: Simple text search used - may miss encoded references)")
     
-    print("\n" + "=" * 80)
+    print()
+    print("=" * 80)
     print("SUMMARY")
     print("=" * 80)
-    print(f"Total agents: {agent_count}")
-    print(f"Total connections found: {len(all_connections)}")
-    print(f"Forward references: {len(forward_refs)}")
+    print("total agents:", agent_count)
+    print("total connections found:", len(all_connections))
+    print("forward references:", len(forward_refs))
     
     if forward_refs:
         max_ref = forward_refs[0]
-        print(f"\nWorst forward reference:")
+        print()
+        print("worst forward reference:")
         print(f"  Agent {max_ref['source_idx']} → Agent {max_ref['target_idx']} "
               f"(+{max_ref['diff']} positions ahead)")
         print(f"  {max_ref['source']} → {max_ref['target']}")
 
-if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print("Usage: python3 analyze_setup.py <setup_file>")
-        print("\nExample:")
-        print("  python3 analyze_setup.py ~/Setups/my_setup")
-        sys.exit(1)
-    
-    picross.pic_init_time()
-    
-    setup_file = sys.argv[1]
-    if not os.path.exists(setup_file):
-        print(f"Error: Setup file not found: {setup_file}")
-        sys.exit(1)
-    
-    try:
-        analyze_setup(setup_file)
-    except Exception as e:
-        print(f"Error analyzing setup: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+@utils.nothrow
+def main(manager):
+    parser = optparse.OptionParser()
+    parser.add_option('--db', action='store', dest='db', default=None, help='db file')
+    parser.add_option('--version', action='store', dest='version', default=None, help='version')
+    parser.add_option('--target', action='store', dest='target', default='micro', help='target')
+
+    (opts, args) = parser.parse_args(sys.argv)
+
+    if opts.db:
+        dbfile = opts.db
+    else:
+        dbfile = resource.user_resource_file(resource.setup_dir, opts.target)
+
+    db = state.open_database(dbfile, False)
+
+    if opts.version:
+        snap = db.get_version(int(opts.version))
+    else:
+        snap = db.get_trunk()
+
+    analyze_setup(snap)
+
+def cli():
+    session.run_session(main, name='analyze_setup')

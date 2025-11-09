@@ -40,3 +40,4 @@ env.PiPythonWrapper('upgrade_user','app_cmdline','upgrade_user','cli',package='e
 env.PiPythonWrapper('annotate','app_cmdline','annotate','cli',package='eigend')
 env.PiPythonWrapper('signature','app_cmdline','signature','cli',package='eigend')
 env.PiPythonWrapper('upgrade34','app_cmdline','upgrade34','cli')
+env.PiPythonWrapper('analyze_setup','app_cmdline','analyze_setup','cli',package='eigend')

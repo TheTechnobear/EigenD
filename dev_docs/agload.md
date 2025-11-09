@@ -1,5 +1,27 @@
 # Setup Load Analysis
 
+**Test Setup:** `pico 2 ~ 4 VST or Audio Unit and 4 Midi Out`  
+**Location:** `./tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out`  
+**Log Source:** Analysis of module loading from `dev_docs/logs/ed.log`
+
+## Testing Commands
+
+```bash
+# Run eigend with this setup
+./tmp/bin/eigend --stdout 2>&1 | tee eigend.log
+
+# Analyze setup structure
+./tmp/bin/analyze_setup --db "./tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out"
+
+# Dump setup details
+./tmp/bin/bstdump --db "./tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out"
+
+# List agents
+./tmp/bin/bstlist --db "./tmp/resources/state/pico 2 ~ 4 VST or Audio Unit and 4 Midi Out"
+```
+
+## Overview
+
 Analysis of module loading from `dev_docs/logs/ed.log`.
 
 Each module is listed with the actions performed on it during setup loading:
