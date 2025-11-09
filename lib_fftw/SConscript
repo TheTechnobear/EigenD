@@ -65,9 +65,11 @@ def get_platform_config():
 # Set the config file to use
 config_file = get_platform_config()
 
-# Base directory for FFTW 3.3.10 - need to make it relative to SConscript location
-script_dir = Dir('.').srcnode().abspath
-fftw_base = os.path.join(script_dir, 'fftw-3.3.10')
+# Base directory for FFTW 3.3.10 - use relative path so SCons handles build directory correctly
+fftw_base = 'fftw-3.3.10'
+
+# For glob operations, we need the absolute path
+fftw_base_abs = os.path.join(Dir('.').srcnode().abspath, fftw_base)
 
 # Include directories
 fftw_dirs = [
@@ -236,8 +238,26 @@ if env['IS_MACOSX']:
         # (The neon/*.c files include ../common/*.c with proper SIMD_HEADER defines)
         
         # Add NEON-specific files (these include common/*.c with proper SIMD_HEADER)
-        neon_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/neon/*.c'))
-        neon_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/neon/*.c'))
+        # Note: Must explicitly add codlist.c files and use absolute path for glob
+        neon_dft_files = [
+            os.path.join(fftw_base, 'dft/simd/neon/codlist.c'),
+            os.path.join(fftw_base, 'dft/simd/neon/genus.c'),
+        ]
+        # Use absolute path for glob, but add relative paths to list
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/n*.c')):
+            neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/t*.c')):
+            neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/q*.c')):
+            neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        
+        neon_rdft_files = [
+            os.path.join(fftw_base, 'rdft/simd/neon/codlist.c'),
+            os.path.join(fftw_base, 'rdft/simd/neon/genus.c'),
+        ]
+        for f in glob.glob(os.path.join(fftw_base_abs, 'rdft/simd/neon/hc*.c')):
+            neon_rdft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        
         fftw_files.extend(neon_dft_files)
         fftw_files.extend(neon_rdft_files)
     else:
@@ -255,8 +275,26 @@ if env['IS_MACOSX']:
         # Do NOT compile common SIMD codelets directly - they are included by sse2 versions
         
         # Add SSE2-specific files (these include common/*.c with proper SIMD_HEADER)
-        sse2_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/sse2/*.c'))
-        sse2_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/sse2/*.c'))
+        # Note: Must explicitly add codlist.c files and use absolute path for glob
+        sse2_dft_files = [
+            os.path.join(fftw_base, 'dft/simd/sse2/codlist.c'),
+            os.path.join(fftw_base, 'dft/simd/sse2/genus.c'),
+        ]
+        # Use absolute path for glob, but add relative paths to list
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/sse2/n*.c')):
+            sse2_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/sse2/t*.c')):
+            sse2_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/sse2/q*.c')):
+            sse2_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        
+        sse2_rdft_files = [
+            os.path.join(fftw_base, 'rdft/simd/sse2/codlist.c'),
+            os.path.join(fftw_base, 'rdft/simd/sse2/genus.c'),
+        ]
+        for f in glob.glob(os.path.join(fftw_base_abs, 'rdft/simd/sse2/hc*.c')):
+            sse2_rdft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        
         fftw_files.extend(sse2_dft_files)
         fftw_files.extend(sse2_rdft_files)
         
@@ -280,8 +318,30 @@ if env['IS_WINDOWS']:
     # Do NOT compile common SIMD codelets directly - they are included by sse2 versions
     
     # Add SSE2-specific files (these include common/*.c with proper SIMD_HEADER)
-    sse2_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/sse2/*.c'))
-    sse2_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/sse2/*.c'))
+    # Note: Must explicitly add codlist.c files and use proper path resolution
+    sse2_dft_files = [
+        os.path.join(fftw_base, 'dft/simd/sse2/codlist.c'),
+        os.path.join(fftw_base, 'dft/simd/sse2/genus.c'),
+    ]
+    # Use absolute path for glob, but add relative paths to list
+
+    for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/sse2/n*.c')):
+
+        sse2_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+    for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/sse2/t*.c')):
+
+        sse2_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/sse2/q*.c')):
+            sse2_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+    
+    sse2_rdft_files = [
+        os.path.join(fftw_base, 'rdft/simd/sse2/codlist.c'),
+        os.path.join(fftw_base, 'rdft/simd/sse2/genus.c'),
+    ]
+    for f in glob.glob(os.path.join(fftw_base_abs, 'rdft/simd/sse2/hc*.c')):
+
+        sse2_rdft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+    
     fftw_files.extend(sse2_dft_files)
     fftw_files.extend(sse2_rdft_files)
 
@@ -307,8 +367,30 @@ if env['IS_LINUX']:
         # Do NOT compile common SIMD codelets directly - they are included by neon versions
         
         # Add NEON-specific files (these include common/*.c with proper SIMD_HEADER)
-        neon_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/neon/*.c'))
-        neon_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/neon/*.c'))
+        # Note: Must explicitly add codlist.c files and use proper path resolution
+        neon_dft_files = [
+            os.path.join(fftw_base, 'dft/simd/neon/codlist.c'),
+            os.path.join(fftw_base, 'dft/simd/neon/genus.c'),
+        ]
+        # Use absolute path for glob, but add relative paths to list
+
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/n*.c')):
+
+            neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/t*.c')):
+
+            neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/q*.c')):
+            neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        
+        neon_rdft_files = [
+            os.path.join(fftw_base, 'rdft/simd/neon/codlist.c'),
+            os.path.join(fftw_base, 'rdft/simd/neon/genus.c'),
+        ]
+        for f in glob.glob(os.path.join(fftw_base_abs, 'rdft/simd/neon/hc*.c')):
+
+            neon_rdft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        
         fftw_files.extend(neon_dft_files)
         fftw_files.extend(neon_rdft_files)
     else:
@@ -326,8 +408,30 @@ if env['IS_LINUX']:
         # Do NOT compile common SIMD codelets directly - they are included by sse2 versions
         
         # Add SSE2-specific files (these include common/*.c with proper SIMD_HEADER)
-        sse2_dft_files = glob.glob(os.path.join(fftw_base, 'dft/simd/sse2/*.c'))
-        sse2_rdft_files = glob.glob(os.path.join(fftw_base, 'rdft/simd/sse2/*.c'))
+        # Note: Must explicitly add codlist.c files and use proper path resolution
+        sse2_dft_files = [
+            os.path.join(fftw_base, 'dft/simd/sse2/codlist.c'),
+            os.path.join(fftw_base, 'dft/simd/sse2/genus.c'),
+        ]
+        # Use absolute path for glob, but add relative paths to list
+
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/sse2/n*.c')):
+
+            sse2_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/sse2/t*.c')):
+
+            sse2_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/sse2/q*.c')):
+            sse2_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        
+        sse2_rdft_files = [
+            os.path.join(fftw_base, 'rdft/simd/sse2/codlist.c'),
+            os.path.join(fftw_base, 'rdft/simd/sse2/genus.c'),
+        ]
+        for f in glob.glob(os.path.join(fftw_base_abs, 'rdft/simd/sse2/hc*.c')):
+
+            sse2_rdft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+        
         fftw_files.extend(sse2_dft_files)
         fftw_files.extend(sse2_rdft_files)
         

@@ -114,6 +114,85 @@ agents_sorted = dependency_sort(agents)
 
 ---
 
+## ✅ FIXED: Build Artifacts in lib_fftw Source Tree (2025-11-09)
+
+**Issue:** 613 `.o` and `.os` files created in `lib_fftw/fftw-3.3.10/` instead of `tmp/obj/`  
+**Root Cause:** `lib_fftw/SConscript` path handling issues with glob operations  
+**Impact:** SCons couldn't track files properly, leading to two separate problems
+
+### Problem Evolution:
+
+**2025-11-08:** Initial FFTW 3.3.10 upgrade used absolute paths everywhere:
+```python
+script_dir = Dir('.').srcnode().abspath  
+fftw_base = os.path.join(script_dir, 'fftw-3.3.10')  # Absolute!
+```
+- ✅ Glob worked: `glob.glob(os.path.join(fftw_base, 'dft/simd/neon/*.c'))`
+- ❌ Build artifacts created in source tree (613 files)
+- ❌ SCons couldn't track files relative to source → built in-place
+
+**2025-11-09 (morning):** Changed to relative paths:
+```python
+fftw_base = 'fftw-3.3.10'  # Relative
+```
+- ✅ Build artifacts now go to `tmp/obj/` correctly
+- ❌ Glob failed: `glob.glob()` with relative path doesn't work in SCons
+- ❌ Missing 170+ SIMD codelet files → undefined symbols at link time
+
+### Solution: Hybrid Approach
+
+Use relative paths for SCons file tracking, absolute paths for glob operations:
+
+```python
+# Relative for SCons (so builds go to tmp/obj/)
+fftw_base = 'fftw-3.3.10'
+
+# Absolute for glob operations (so glob.glob() finds files)
+fftw_base_abs = os.path.join(Dir('.').srcnode().abspath, fftw_base)
+
+# Add SIMD codelets
+neon_dft_files = [
+    os.path.join(fftw_base, 'dft/simd/neon/codlist.c'),  # Relative
+    os.path.join(fftw_base, 'dft/simd/neon/genus.c'),
+]
+# Use absolute for glob, convert back to relative for SCons
+for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/n*.c')):
+    neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/t*.c')):
+    neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/q*.c')):
+    neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
+```
+
+### Files Changed:
+- `lib_fftw/SConscript` - Added `fftw_base_abs`, updated all glob operations
+
+### SIMD Codelet Patterns:
+Must capture all three patterns for complete symbol table:
+- `n*.c` - N-point transforms (67 files)
+- `t*.c` - Twiddle transforms (95 files)
+- `q*.c` - Q transforms (8 files)
+- Plus: `codlist.c` and `genus.c` (solver tables)
+
+Initially missed `q*.c` pattern → additional undefined symbols → added in second iteration.
+
+### Cleanup:
+- Deleted 613 build artifacts from `lib_fftw/fftw-3.3.10/` subdirectories
+- Verified source tree clean: no `.o` or `.os` files remain
+- Verified builds go to `tmp/obj/lib_fftw/` correctly
+
+### Lesson:
+**SCons requires relative paths for proper build directory tracking.**  
+Using absolute paths breaks the variant directory mechanism, causing builds in the source tree.  
+However, Python's `glob.glob()` needs absolute paths when running in SCons context.  
+Solution: Use absolute for glob, convert results to relative for file lists.
+
+### Documentation:
+- Updated `dev_docs/convolver_update.md` with build system details
+- Removed `dev_docs/fftw_upgrade_3.3.10.md` (merged into convolver doc)
+
+---
+
 ## ✅ PREVIOUS: FFTW Library Upgraded from 3.2.1 to 3.3.10 (2025-11-08)
 **Upgrade:** FFTW 3.2.1 → 3.3.10
 **Reason:** Enable ARM support on macOS and improve multi-platform builds

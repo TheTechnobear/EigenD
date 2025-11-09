@@ -12,12 +12,71 @@
 - **64-bit Platform Support**: Modernize for all 64-bit platforms
 - **FFTW Upgrade Required**: Old FFTW 3.2.1 lacked ARM support
 
-### FFTW Upgrade (Completed)
-- Upgraded `lib_fftw` from 3.2.1 to 3.3.10
-- Successfully building with NEON SIMD support for ARM64
-- SSE2 support for x86_64 platforms
-- Library builds correctly: `tmp/obj/lib_fftw/libpifftw3.dylib` (1.2MB)
-- Verified NEON symbols present: `_fftw_solvtab_dft_neon`, `_fftw_solvtab_rdft_neon`
+### FFTW Upgrade (Completed - 2025-11-08/09)
+
+**Upgraded:** `lib_fftw` from 3.2.1 → 3.3.10
+
+**Platforms Supported:**
+- macOS ARM64 (NEON) ✅
+- macOS x86_64 (SSE2) ✅
+- Linux ARM64 (NEON) ✅
+- Linux x86_64 (SSE2) ✅
+- Windows x86_64 (SSE2) ✅
+
+**Key Changes:**
+- Single-precision float build (`fftwf_*` functions) for audio processing
+- Platform-specific config headers with NEON/SSE2 optimizations
+- SIMD codelet support: 172+ NEON codelets per platform (DFT + RDFT)
+
+**Build System Details:**
+
+The FFTW build uses a hybrid path approach to work with SCons:
+
+1. **Source File Paths**: Relative (`'fftw-3.3.10/...'`) so SCons tracks builds correctly in `tmp/obj/`
+2. **Glob Operations**: Absolute paths needed because Python's `glob.glob()` doesn't work with relative paths in SCons context
+3. **Solution**: Use `fftw_base_abs` for glob, convert results back to relative with `os.path.relpath()`
+
+```python
+# Relative for SCons
+fftw_base = 'fftw-3.3.10'
+
+# Absolute for glob operations
+fftw_base_abs = os.path.join(Dir('.').srcnode().abspath, fftw_base)
+
+# Gather SIMD codelets
+neon_dft_files = [
+    os.path.join(fftw_base, 'dft/simd/neon/codlist.c'),  # Relative
+    os.path.join(fftw_base, 'dft/simd/neon/genus.c'),
+]
+for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/n*.c')):  # Absolute
+    neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))  # Back to relative
+```
+
+**SIMD Codelet Patterns:**
+- `n*.c` - N-point transforms (67 files)
+- `t*.c` - Twiddle transforms (95 files) 
+- `q*.c` - Q transforms (8 files)
+- `codlist.c` + `genus.c` - Solver tables (must be explicitly listed)
+- Pattern: `hc*.c` for RDFT (halfcomplex) transforms
+
+**Why This Matters:**
+- Initially used absolute paths everywhere → worked but polluted source tree with 613 `.os` files
+- Changed to relative paths → broke glob (couldn't find files)
+- Hybrid approach → clean build tree + working glob operations
+
+**Verification:**
+```bash
+# Check no build artifacts in source
+find lib_fftw/fftw-3.3.10 -name "*.o" -o -name "*.os"  # Should be empty
+
+# Check builds go to tmp/obj
+ls tmp/obj/lib_fftw/fftw-3.3.10/dft/simd/neon/*.os  # Should have 172 files
+```
+
+**Library Output:**
+- `tmp/obj/lib_fftw/libpifftw3.dylib` (~1.2MB)
+- Verified NEON symbols: `_fftwf_solvtab_dft_neon`, `_fftwf_solvtab_rdft_neon`
+- Single-precision functions: `fftwf_plan_*`, `fftwf_execute_*`, `fftwf_destroy_*`
 
 ### The Problem
 - `plg_convolver` uses old custom `zita_convolver.cpp/.h` (based on older zita-convolver)
@@ -187,7 +246,7 @@ Need to enable single-precision float FFTW build in lib_fftw:
 
 ---
 
-## FFTW Precision: Double vs Single
+## FFTW Precision: Double vs Single (2025-11-08)
 
 ### Current State
 - **lib_fftw** builds: Double-precision only (`fftw_*` functions)
