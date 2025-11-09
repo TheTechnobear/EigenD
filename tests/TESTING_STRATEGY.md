@@ -1,24 +1,24 @@
-# EigenD Professional Testing Framework
+# EigenD Testing Framework
 
 ## Overview
 
-This document defines the professional testing framework for EigenD Python 3.14 migration and ongoing development. The testing system follows Test-Driven Development (TDD) principles with a structured, hierarchical approach that builds from foundation components to full system integration.
+This document defines the  testing framework for EigenD Python 3.14 migration and ongoing development. The testing system follows Test-Driven Development (TDD) principles with a structured, hierarchical approach that builds from foundation components to full system integration.
 
 ## Core Principles
 
-### 1. **Professional Test-Driven Development**
+### 1. ** Test-Driven Development**
 - Tests are organized in numbered levels (00-05) that build upon each other
 - Lower levels must pass before proceeding to higher levels
 - **CRITICAL**: Use existing tests before creating new ones - extend coverage systematically
 - Focus on code coverage and systematic testing, not ad-hoc verification
 
 ### 2. **Structured Pytest Framework** 
-- Professional pytest-based testing with proper fixtures and configuration
+-  pytest-based testing with proper fixtures and configuration
 - Tests mirror the EigenD source code architecture for intuitive navigation
 - Centralized environment setup via `conftest.py` eliminates duplication
 - Clear separation: foundation → core → data → plugins → applications → integration
 
-### 3. **Consistent Professional Execution**
+### 3. **Consistent Execution**
 - **ALWAYS** use `./run_tests.sh` to ensure consistent environment setup
 - Never run tests directly with python/pytest commands
 - Script manages Python 3.14 virtual environment and PYTHONPATH automatically
@@ -27,16 +27,16 @@ This document defines the professional testing framework for EigenD Python 3.14 
 ### 4. **Clean, Organized Test Management**
 - Keep test directory organized and clean - no temporary files or ad-hoc tests
 - Update existing tests when possible before adding new test files
-- Remove unnecessary files promptly - maintain professional structure
+- Remove unnecessary files promptly - maintain  structure
 - Document test purposes clearly with comprehensive docstrings
 
-## Professional Test Structure
+##  Test Structure
 
 ```
 tests/
 ├── conftest.py                    # Centralized fixtures and environment setup
-├── pytest.ini                    # Professional pytest configuration with markers
-├── run_tests.sh                   # Professional test runner with timeout protection
+├── pytest.ini                    #  pytest configuration with markers
+├── run_tests.sh                   #  test runner with timeout protection
 ├── unit/                          # Main unit test suite (43 tests total)
 │   ├── test_00_foundation.py      # ✅ Core dependencies (12 tests: 10 pass, 2 skip)
 │   ├── test_01_core_piw.py        # ✅ PIW engine and sessions (14 tests: 2 pass, timeout protection)
@@ -57,12 +57,12 @@ tests/
 **Level 04 - Applications**: Command-line tools, backend services, GUIs
 **Level 05 - Integration**: Cross-component workflows, end-to-end functionality
 
-## Professional Test Execution
+##  Test Execution
 
 ### Standard Testing Commands
 
 ```bash
-# Professional test execution - ALWAYS use this
+# Standard test execution - ALWAYS use this
 ./run_tests.sh
 
 # Run specific test level
@@ -74,13 +74,58 @@ tests/
 ./run_tests.sh --level integration   # Level 05 only
 ./run_tests.sh --level all           # All levels (default)
 
-# Professional reporting
-./run_tests.sh --verbose             # Detailed output
+# Run specific test(s) by pattern (pytest -k syntax)
+./run_tests.sh --test 'mutex'                    # Tests with 'mutex' in name
+./run_tests.sh --test 'mutex_function'           # Specific test method
+./run_tests.sh --test 'mutex or session'         # Either pattern
+./run_tests.sh --test 'not mutex'                # NOT matching pattern
+./run_tests.sh --test 'TestClass and method'     # Class AND method
+
+# Combine level and test filters
+./run_tests.sh --level data --test 'TestPiwDataComparison'
+
+# Output and reporting options
+./run_tests.sh --verbose             # Detailed output (-v)
 ./run_tests.sh --html                # Generate HTML report
+./run_tests.sh --durations 10        # Show 10 slowest tests (default)
+./run_tests.sh --no-durations        # Disable duration reporting
 ./run_tests.sh --timeout 15          # Custom timeout (default: 10s)
 
-# Help and options
-./run_tests.sh --help                # Full usage information
+# Performance and workflow options
+./run_tests.sh --quick               # Quick mode: faster timeout, skip clean teardown (TDD)
+./run_tests.sh -q                    # Short form of --quick
+
+# Advanced pytest arguments
+./run_tests.sh --pytest-args='-s'                # Show print statements
+./run_tests.sh --pytest-args='-s --tb=short'     # Prints + short tracebacks
+./run_tests.sh --pytest-args='--pdb'             # Drop into debugger on failure
+./run_tests.sh --pytest-args='-x'                # Stop on first failure
+
+# Help and usage
+./run_tests.sh --help                # Show all options
+./run_tests.sh -h                    # Short form
+```
+
+### Test Pattern Examples
+
+The `--test` option uses pytest's `-k` syntax for flexible filtering:
+
+```bash
+# Single keyword
+./run_tests.sh --test 'equality'
+
+# Multiple keywords with boolean logic
+./run_tests.sh --test 'piw and comparison'       # Both must match
+./run_tests.sh --test 'piw or session'           # Either matches
+./run_tests.sh --test 'not slow'                 # Exclude pattern
+
+# Class and method combinations
+./run_tests.sh --test 'TestPiwDataComparison'    # All tests in class
+./run_tests.sh --test 'test_data_equality'       # All methods starting with this
+./run_tests.sh --test 'TestPiwDataComparison and basic'  # Specific test
+
+# Complex patterns
+./run_tests.sh --test '(piw or atom) and not slow'
 ```
 
 ### Environment Management
@@ -89,10 +134,10 @@ The `run_tests.sh` script automatically handles:
 - **PYTHONPATH Configuration**: Includes source and built modules automatically  
 - **Working Directory**: Ensures correct context for test execution
 - **Timeout Protection**: Prevents hanging tests with configurable timeouts
-- **Professional Output**: Color-coded status messages and clear reporting
+- ** Output**: Color-coded status messages and clear reporting
 
 ### Pytest Markers and Organization
-Tests use professional pytest markers for categorization:
+Tests use  pytest markers for categorization:
 - `@pytest.mark.foundation` - Core environment tests
 - `@pytest.mark.core` - PIW engine and session tests
 - `@pytest.mark.data` - Data layer and serialization tests  
@@ -125,14 +170,21 @@ Tests use professional pytest markers for categorization:
 ./run_tests.sh --level integration   # Final end-to-end verification
 ```
 
-### 3. **Professional Test Development**
+### 3. ** Test Development**
 - **Update existing tests** before creating new test files
 - **Follow pytest conventions** with clear test class and method names
 - **Use centralized fixtures** from `conftest.py` - no duplicate setup code
 - **Add proper docstrings** explaining test purpose and expected behavior
 - **Handle failures gracefully** with `pytest.skip()` for environment dependencies
 
-### 4. **Clean Test Management**
+### 4. ** Test Failure and analysys** 
+when running a test it is important to understand its purpose.
+what is failure it it trying to expose.
+it is bad practice to update a test, just to make it pass
+passing test is not the goal of unit test, the goal is to expose underlying issues that can be resolve.
+
+
+### 5. **Clean Test Management**
 ```bash
 # Verify test directory stays clean
 ./run_tests.sh --level all
@@ -143,21 +195,19 @@ Tests use professional pytest markers for categorization:
 
 ## Critical Testing Rules
 
-### For Professional Development
+### For  Development
 
-1. **ALWAYS use `./run_tests.sh`** - Never run pytest directly or use ad-hoc testing
-2. **Extend before creating** - Add to existing test files before creating new ones  
-3. **Test incrementally** - Build tests systematically from foundation to integration
-4. **Maintain clean structure** - Remove temporary files, avoid scattered test scripts
-5. **Document thoroughly** - Clear docstrings and comments for test purposes
+1. **Extend before creating** - Add to existing test files before creating new ones  
+2. **Test incrementally** - Build tests systematically from foundation to integration
+3. **Maintain clean structure** - Remove temporary files, avoid scattered test scripts
+3. **Document thoroughly** - Clear docstrings and comments for test purposes
 
 ### For Code Quality
 
-1. **Run tests before commits** - Ensure no regressions in existing functionality
-2. **Add tests for new features** - Maintain comprehensive coverage
-3. **Update tests for changes** - Keep tests synchronized with code changes
-4. **Use appropriate test level** - Place tests in correct hierarchical position
-5. **Handle timeouts properly** - Use pytest-timeout for operations that might hang
+1. **Add tests for new features** - Maintain comprehensive coverage
+2. **Update tests for changes** - Keep tests synchronized with code changes
+3. **Use appropriate test level** - Place tests in correct hierarchical position
+4. **Handle timeouts properly** - Use pytest-timeout for operations that might hang
 
 ## Current Testing Status
 
@@ -186,16 +236,16 @@ Tests use professional pytest markers for categorization:
    - Native module loading in test context
    - Command-line tool Python 2→3 compatibility (range concatenation fixed)
 
-### Professional Test Features
+###  Test Features
 
 - ✅ **Timeout Protection**: 10-second default prevents hanging tests
 - ✅ **Centralized Fixtures**: All environment setup in `conftest.py`
 - ✅ **Defensive Testing**: Proper `pytest.skip()` for unavailable components
-- ✅ **Professional Structure**: Industry-standard pytest organization
-- ✅ **HTML Reporting**: Professional test result documentation
+- ✅ ** Structure**: Industry-standard pytest organization
+- ✅ **HTML Reporting**:  test result documentation
 - ✅ **Marker System**: Organized test categorization and filtering
 
-## Professional Test Development Guidelines
+##  Test Development Guidelines
 
 ### Extending Existing Tests
 
@@ -221,11 +271,11 @@ When adding new functionality tests:
    - Use appropriate pytest markers
    - Include comprehensive docstrings
 
-### Professional Test Structure Template
+###  Test Structure Template
 
 ```python
 """
-EigenD Professional Test Template
+EigenD  Test Template
 ================================
 Test Level: XX - Component Name
 Purpose: Clear description of test scope and objectives
@@ -240,7 +290,7 @@ from conftest import *  # Use centralized fixtures
 @pytest.mark.level_name
 class TestComponentName:
     """
-    Professional test class for component functionality.
+     test class for component functionality.
     
     Consolidated from: Previous scattered test files (if applicable)
     Coverage: List specific areas tested
@@ -280,14 +330,14 @@ make && ./run_tests.sh --level foundation
 make && ./run_tests.sh --level all
 ```
 
-### Professional Development Practices
+###  Development Practices
 - **Run foundation tests** after environment changes
 - **Test applications level** after command-line tool modifications  
 - **Full test suite** before major commits or releases
 - **Document test failures** as development issues, not test problems
 
 ### Continuous Integration Ready
-- Professional pytest framework suitable for CI/CD pipelines
+-  pytest framework suitable for CI/CD pipelines
 - HTML reporting for automated test result documentation
 - Clear exit codes for automated pass/fail determination
 - Consistent environment setup eliminates "works on my machine" issues
@@ -308,13 +358,13 @@ The EigenD Python 3.14 migration is complete when:
 3. **Core functionality equivalent to Python 2.7 version** - no feature loss
 4. **Performance meets acceptable standards** - no significant degradation
 
-### Professional Testing Framework Success
+###  Testing Framework Success
 The testing framework succeeds when:
 1. **Developers consistently use `./run_tests.sh`** - no ad-hoc testing
-2. **Test directory stays clean and organized** - professional maintenance
+2. **Test directory stays clean and organized** -  maintenance
 3. **New functionality includes appropriate tests** - coverage maintained
 4. **Test failures clearly indicate specific issues** - effective debugging tool
 
 ---
 
-**Remember**: This is a professional testing framework for both migration verification and ongoing development. Focus on systematic testing, code coverage, and maintaining clean, organized test structure that supports long-term project maintainability.
+**Remember**: This is a  testing framework for both migration verification and ongoing development. Focus on systematic testing, code coverage, and maintaining clean, organized test structure that supports long-term project maintainability.

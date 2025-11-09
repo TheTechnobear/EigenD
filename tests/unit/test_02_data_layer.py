@@ -481,3 +481,212 @@ class TestSetupFileHandling:
             # Float data should NOT be recognized as string
             assert results[f'{name}_float_correctly_not_string'], f"{name} float should not be recognized as string"
             assert f'{name}_float_unexpected_string' not in results, f"{name} float should not be mistaken for string"
+
+
+@pytest.mark.data
+@pytest.mark.migration
+class TestPiwDataComparison:
+    """
+    Test piw.data equality and comparison operations (Python 2→3 migration issue).
+    
+    Issue: In Python 2, __cmp__ was used for comparisons. Python 3 removed __cmp__
+    and requires __eq__, __lt__, etc. (rich comparison protocol).
+    
+    The PIP template generates tp_richcompare=0, causing piw.data objects to use
+    default identity comparison instead of content comparison via compare() method.
+    
+    This breaks proxy.py's change detection which relies on as_dict_lookup() == comparison.
+    """
+    
+    @pytest.mark.data
+    def test_data_equality_basic(self, piw_session):
+        """Test that identical piw.data objects compare as equal."""
+        
+        def test_basic_equality(session_ctx):
+            import piw
+            
+            # Create two null/empty data objects
+            d1 = piw.data()
+            d2 = piw.data()
+            
+            return {
+                'd1_str': str(d1),
+                'd2_str': str(d2),
+                'd1_equals_d2': d1 == d2,
+                'd1_compare_d2': d1.compare(d2),
+                'd1_id': id(d1),
+                'd2_id': id(d2),
+                'same_identity': d1 is d2
+            }
+        
+        results = piw_session['run'](test_basic_equality)
+        
+        # compare() returns 0 for equal objects (C++ style)
+        assert results['d1_compare_d2'] == 0, "compare() should return 0 for identical data"
+        
+        # BUG: This fails in Python 3 because __eq__ uses identity comparison
+        # instead of calling compare() method
+        assert results['d1_equals_d2'], (
+            "PYTHON 3 BUG: piw.data.__eq__ uses identity comparison instead of "
+            "compare() method. Two identical data objects should compare as equal "
+            f"(compare()={results['d1_compare_d2']} but =={results['d1_equals_d2']})"
+        )
+    
+    @pytest.mark.data
+    def test_data_equality_strings(self, piw_session):
+        """Test that piw.data string objects with same content compare as equal."""
+        
+        def test_string_equality(session_ctx):
+            import piw
+            
+            # Create two string data objects with identical content
+            s1 = piw.makestring("test", 0)
+            s2 = piw.makestring("test", 0)
+            
+            # Create different string for contrast
+            s3 = piw.makestring("different", 0)
+            
+            return {
+                's1_str': str(s1),
+                's2_str': str(s2),
+                's3_str': str(s3),
+                's1_equals_s2': s1 == s2,
+                's1_compare_s2': s1.compare(s2),
+                's1_equals_s3': s1 == s3,
+                's1_compare_s3': s1.compare(s3),
+            }
+        
+        results = piw_session['run'](test_string_equality)
+        
+        # compare() should return 0 for equal strings
+        assert results['s1_compare_s2'] == 0, "compare() should return 0 for identical strings"
+        assert results['s1_compare_s3'] != 0, "compare() should return non-0 for different strings"
+        
+        # BUG: These fail in Python 3
+        assert results['s1_equals_s2'], (
+            "PYTHON 3 BUG: Identical piw.data string objects should compare as equal "
+            f"(compare()={results['s1_compare_s2']} but =={results['s1_equals_s2']})"
+        )
+        assert not results['s1_equals_s3'], "Different strings should not compare as equal"
+    
+    @pytest.mark.data
+    def test_data_equality_dict_lookup(self, piw_session):
+        """Test that as_dict_lookup() values compare correctly (the exact proxy.py use case)."""
+        
+        def test_dict_lookup_comparison(session_ctx):
+            import piw
+            import pi.utils as utils
+            
+            # Create a dict with domain metadata (like controller nodes use)
+            # Use the same pattern as proxy.py: create dict from Python dict
+            dict1 = utils.makedict_nb({'domain': piw.makestring_nb('bfloat(-1000,1000,0,[inc(1),control(updown)])', 0)}, 0)
+            dict2 = utils.makedict_nb({'domain': piw.makestring_nb('bfloat(-1000,1000,0,[inc(1),control(updown)])', 0)}, 0)
+            
+            # Extract domain values
+            v1 = dict1.as_dict_lookup('domain')
+            v2 = dict2.as_dict_lookup('domain')
+            
+            return {
+                'v1_str': str(v1),
+                'v2_str': str(v2),
+                'v1_equals_v2': v1 == v2,
+                'v1_compare_v2': v1.compare(v2),
+                'v1_id': id(v1),
+                'v2_id': id(v2),
+            }
+        
+        results = piw_session['run'](test_dict_lookup_comparison)
+        
+        # compare() should return 0 for identical domain strings
+        assert results['v1_compare_v2'] == 0, "compare() should return 0 for identical domains"
+        
+        # BUG: This is the exact failure case from proxy.py line 279!
+        # old_value.as_dict_lookup(k) == new_value.as_dict_lookup(k) returns False
+        # even though the domain strings are identical
+        assert results['v1_equals_v2'], (
+            "CRITICAL BUG: This is the exact failure in proxy.py __meta_changed()! "
+            f"Identical domain values should compare equal (compare()={results['v1_compare_v2']} "
+            f"but =={results['v1_equals_v2']}). This causes spurious node_changed() "
+            "notifications and triggers the attach/detach loop in controller_plg.py"
+        )
+    
+    @pytest.mark.data  
+    def test_data_richcompare_all_operators(self, piw_session):
+        """Test all rich comparison operators (__eq__, __lt__, __le__, __gt__, __ge__, __ne__)."""
+        
+        def test_all_comparisons(session_ctx):
+            import piw
+            
+            # Create comparable data
+            n1 = piw.makelong(1, 0)
+            n2 = piw.makelong(1, 0)
+            n3 = piw.makelong(2, 0)
+            
+            return {
+                'n1_eq_n2': n1 == n2,       # Should be True
+                'n1_ne_n2': n1 != n2,       # Should be False
+                'n1_eq_n3': n1 == n3,       # Should be False
+                'n1_ne_n3': n1 != n3,       # Should be True
+                'n1_lt_n3': n1 < n3,        # Should be True
+                'n1_le_n2': n1 <= n2,       # Should be True
+                'n3_gt_n1': n3 > n1,        # Should be True
+                'n3_ge_n1': n3 >= n1,       # Should be True
+                'n1_compare_n2': n1.compare(n2),
+                'n1_compare_n3': n1.compare(n3),
+            }
+        
+        results = piw_session['run'](test_all_comparisons)
+        
+        # Verify compare() works correctly
+        assert results['n1_compare_n2'] == 0, "1 should equal 1"
+        assert results['n1_compare_n3'] < 0, "1 should be less than 2"
+        
+        # BUG: All these will fail because tp_richcompare=0
+        assert results['n1_eq_n2'], "__eq__ should work based on compare()"
+        assert not results['n1_ne_n2'], "__ne__ should work based on compare()"
+        assert not results['n1_eq_n3'], "1 != 2"
+        assert results['n1_ne_n3'], "1 != 2"
+        assert results['n1_lt_n3'], "1 < 2"
+        assert results['n1_le_n2'], "1 <= 1"
+        assert results['n3_gt_n1'], "2 > 1"
+        assert results['n3_ge_n1'], "2 >= 1"
+    
+    @pytest.mark.data
+    def test_data_nb_inherits_comparison(self, piw_session):
+        """Test that data_nb subtype properly inherits comparison from data_base."""
+        
+        def test_data_nb_comparison(session_ctx):
+            import piw
+            
+            # Create data_nb objects (non-blocking variant)
+            nb1 = piw.data_nb()
+            nb2 = piw.data_nb()
+            
+            # Create string data_nb objects
+            nbs1 = piw.makestring_nb("test", 0)
+            nbs2 = piw.makestring_nb("test", 0)
+            nbs3 = piw.makestring_nb("different", 0)
+            
+            return {
+                'nb1_equals_nb2': nb1 == nb2,
+                'nb1_compare_nb2': nb1.compare(nb2),
+                'nbs1_equals_nbs2': nbs1 == nbs2,
+                'nbs1_compare_nbs2': nbs1.compare(nbs2),
+                'nbs1_equals_nbs3': nbs1 == nbs3,
+                'nbs1_compare_nbs3': nbs1.compare(nbs3),
+                'nbs1_lt_nbs3': nbs1 < nbs3,  # Test ordering
+            }
+        
+        results = piw_session['run'](test_data_nb_comparison)
+        
+        # Verify compare() works
+        assert results['nb1_compare_nb2'] == 0, "Empty data_nb should equal"
+        assert results['nbs1_compare_nbs2'] == 0, "Identical strings should equal"
+        
+        # Verify __eq__ works (inherited from data_base)
+        assert results['nb1_equals_nb2'], "data_nb should inherit __eq__ from data_base"
+        assert results['nbs1_equals_nbs2'], "data_nb strings should compare equal"
+        assert not results['nbs1_equals_nbs3'], "Different strings should not compare equal"
+        
+        # Verify ordering operators work
+        assert results['nbs1_lt_nbs3'], "data_nb should inherit < operator from data_base"

@@ -905,6 +905,47 @@ struct <<name>>_wrapper_: public <<name>>_type_ <<ifdef(isabstract){ // ABSTRACT
         }
     }
 
+    // Python 3 rich comparison support (replaces __cmp__)
+    static PyObject *special_richcompare_method_(PyObject *self, PyObject *other, int op)
+    {
+        // Check if other is the same type as self (or subtype)
+        if (!PyType_IsSubtype(Py_TYPE(other), Py_TYPE(self)))
+        {
+            Py_RETURN_NOTIMPLEMENTED;
+        }
+
+        // Call the existing __cmp__ implementation
+        int cmp_result = special_cmp_method_((<<name>>_object_ *)self, (<<name>>_object_ *)other);
+        
+        if (PyErr_Occurred())
+        {
+            return NULL;
+        }
+
+        // Convert __cmp__ result to rich comparison result
+        bool result;
+        switch (op)
+        {
+            case Py_LT: result = (cmp_result < 0); break;
+            case Py_LE: result = (cmp_result <= 0); break;
+            case Py_EQ: result = (cmp_result == 0); break;
+            case Py_NE: result = (cmp_result != 0); break;
+            case Py_GT: result = (cmp_result > 0); break;
+            case Py_GE: result = (cmp_result >= 0); break;
+            default:
+                Py_RETURN_NOTIMPLEMENTED;
+        }
+
+        if (result)
+        {
+            Py_RETURN_TRUE;
+        }
+        else
+        {
+            Py_RETURN_FALSE;
+        }
+    }
+
 }ifdefcmp>>
 
 <<ifdefhash(__hash__){
@@ -1414,7 +1455,7 @@ PyTypeObject <<name>>_typeobject_ =
     (char *)<<name>>_docstring_,       /* tp_doc */
     <<ifdefgc(isgc){(traverseproc)<<name>>_wrapper_::gc_traverse_method_ }ifdefgc>> <<ifndefgc(isgc){0 }ifndefgc>>,   /* tp_traverse */
     <<ifdefgc(isgc){(inquiry)<<name>>_wrapper_::gc_clear_method_ }ifdefgc>> <<ifndefgc(isgc){0 }ifndefgc>>,           /* tp_clear */
-    0,                         /* tp_richcompare */
+    <<ifdefcmp(__cmp__){ (richcmpfunc)<<name>>_wrapper_::special_richcompare_method_ }ifdefcmp>> <<ifndefcmp(__cmp__){ 0 }ifndefcmp>>, /* tp_richcompare */
     0,                         /* tp_weaklistoffset */
     0,                         /* tp_iter */
     0,                         /* tp_iternext */
