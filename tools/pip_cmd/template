@@ -221,7 +221,7 @@ PyObject *tpcvt_strset(void *a)
 PyObject *tpcvt_stdstr(void *a)
 {
     std::string *s = (std::string *)a;
-    return PyUnicode_FromStringAndSize(s->c_str(),s->length());
+    return PyUnicode_DecodeLatin1(s->c_str(),s->length(), NULL);
 }
 
 PyObject *tpcvt_bytearray(void *a)
@@ -519,6 +519,20 @@ int fpcvt_c(PyObject *o, void *a)
 int fpcvt_stdstr(PyObject *o, void *a)
 {
     const char *s; pip_ssize_t l;
+    
+    // Try Latin-1 encoding first (for binary data compatibility)
+    PyObject *latin1_bytes = PyUnicode_AsLatin1String(o);
+    if(latin1_bytes)
+    {
+        s = PyBytes_AS_STRING(latin1_bytes);
+        l = PyBytes_GET_SIZE(latin1_bytes);
+        *((std::string *)a) = std::string(s,l);
+        Py_DECREF(latin1_bytes);
+        return 1;
+    }
+    
+    // Fall back to UTF-8 if Latin-1 fails
+    PyErr_Clear();
     if((s = PyUnicode_AsUTF8AndSize(o, &l)))
     {
         *((std::string *)a) = std::string(s,l);

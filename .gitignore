@@ -45,5 +45,5 @@ Podfile.lock
 !default.mode2v3
 !default.perspectivev3
 *.xccheckout
-
+*.log
 
