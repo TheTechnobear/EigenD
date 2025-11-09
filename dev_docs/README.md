@@ -12,12 +12,13 @@ This directory contains developer-focused documentation for the EigenD project.
 
 ### Technical Analysis
 - `binary_protocol.md` - Binary protocol compatibility analysis
+- `dev_howitworks.md` - System architecture notes
+- `dev_notes.md` - Migration progress notes  
+- `dev_todo.md` -  task tracking
+- `terms.md` - about terms and predicates
+- `setup_loading.md` - how started and setups work
+- `threading_model.md` - fast n' slow threads, how they talk, and other similar items
 
-### Legacy Files
-- `prevmigration/` - Previous developer's migration documentation (retained for reference)
-  - `dev_howitworks.md` - System architecture notes
-  - `dev_notes.md` - Migration progress notes  
-  - `dev_todo.md` - Previous task tracking
 
 ## Organization
 

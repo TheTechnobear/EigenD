@@ -1,205 +1,137 @@
-# Python 3.14 Migration Notes - Copilot Branch
+# Python 3.14 Migration Notes - Python3 Branch
 
-# Python 3.14 Migration Notes - Copilot Branch
 
-## Status: 🚀 MIGRATION IN PROGRESS - TDD APPROACH (Updated: 2024-11-06)
+## ✅ Completed - November 2025
 
-**✅ TEST-DRIVEN DEVELOPMENT ACTIVE** - 36/43 tests passing across 6-layer hierarchy
+### piw.data Comparison Fix - Python 3 Rich Comparison Protocol ✅ (Nov 9, 2025)
+**Problem**: Setup loading hung due to spurious domain change notifications
+**Root Cause**: `piw.data.__eq__` used identity comparison instead of content comparison (Python 2's `__cmp__` removed in Python 3)
+**Solution**: Updated PIP template to generate `tp_richcompare` from existing `__cmp__` method
 
-## Fixed: PIW String Term Corruption - 2025-11-06
+**Implementation**:
+- Added `special_richcompare_method_()` to PIP template (lines 909-951)
+- Updated `tp_richcompare` slot to conditional function pointer (line 1459)
+- Uses `PyType_IsSubtype(Py_TYPE(other), Py_TYPE(self))` for runtime type checking
 
-### **ROOT CAUSE IDENTIFIED**: PyUnicode_AsUTF8 Pointer Corruption in Python 3 Bindings
+**Files Changed**:
+- `tools/pip_cmd/template` - Rich comparison generation
+- `tests/unit/test_02_data_layer.py` (lines 488-687) - Comprehensive comparison tests
 
-**Issue**: `eigend` startup fails with corrupted PIW string terms
+**Testing**: ✅ All 5 TestPiwDataComparison tests passing
+- test_data_equality_basic
+- test_data_equality_strings
+- test_data_equality_dict_lookup (proxy.py use case)
+- test_data_richcompare_all_operators (all 6: <, <=, ==, !=, >, >=)
+- test_data_nb_inherits_comparison (subtype inheritance)
+
+**Result**: ✅ Setup loading now works correctly, no spurious node_changed() calls
+**Impact**: Fixed major Python 3 migration blocker - setup loading system fully functional
+
+### PIW String Term Corruption Fix ✅ (Nov 6, 2025)
+
+**ROOT CAUSE IDENTIFIED**: PyUnicode_AsUTF8 Pointer Corruption in Python 3 Bindings
+
+**Issue**: `eigend` startup failed with corrupted PIW string terms
 **Location**: `agentd.py:1035` - `piw.term(string, type_code)` 
 **Symptoms**: Segfaults, assertion failures, "null term" errors
 
-#### **Technical Root Cause**:
+**Technical Root Cause**:
 1. **Wrong Constructor Used**: `piw.term(string, arity)` creates **predicate terms**, not **data terms**
 2. **Pointer Corruption**: Python 3 binding `fpcvt_str()` uses `PyUnicode_AsUTF8()` which returns internal buffer pointer
 3. **Dangling Reference**: When Python string gets GC'd, C++ term stores invalid pointer
 4. **Segfault on Access**: Later `.pred()` calls → `PyUnicode_FromString(corrupted_ptr)` → crash
 
-#### **Migration Impact**:
+**Migration Impact**:
 - **Python 2.7**: Used `PyString_AsString()` - different lifetime semantics allowed wrong usage to work
 - **Python 3.x**: `PyUnicode_AsUTF8()` buffer lifetime tied to Python object - exposes the bug
 
-#### **Evidence**:
-```cpp
-// Generated binding in tmp/obj/piw/src/piw_native_python.cpp:
-int fpcvt_str(PyObject *o, void *a) {
-    const char *s = PyUnicode_AsUTF8(o);      // Internal buffer pointer
-    if(s) { *((const char **)a) = s; return 1; }  // Stored, becomes dangling
-    return 0;
-}
-```
-
-**Segfault Stack Trace**:
-```
-PyUnicode_FromString+0x14 [corrupted pointer access]
-term_wrapper_::pred_method_ [.pred() method on corrupted term]
-```
-
-#### **Solution**:
+**Solution**:
 ```python
-# BROKEN (current):
+# BROKEN:
 term = piw.term(string, type_code)  # Predicate constructor + dangling pointer
 
 # FIXED:
 term = piw.term(piw.makestring(string, 0))  # Data constructor, proper lifetime
 ```
 
-#### **Constructor Semantics**:
+**Constructor Semantics**:
 - `piw.term(const char *, unsigned)` → **Predicate term** for "foo(arg1, arg2)" structures
 - `piw.term(const piw::data_t &)` → **Data term** for storing actual values
 
-#### **Testing Infrastructure**:
-- Created `TestPiwStringTermCorruption` class with 8 detailed tests
-- `test_pyunicode_asuft8_pointer_corruption()` - Reproduces exact corruption mechanism  
-- `test_term_constructor_semantic_analysis()` - Confirms predicate vs data semantics
-- Tests demonstrate both the problem and the correct solution
+**Status**: Fixed and validated with comprehensive test suite
 
-**Status**: ROOT CAUSE 100% CONFIRMED. Ready to implement fix in agentd.py.
-
----
-
-**Future TODO**: 
-- Update JUCE to latest version (includes newer VST3 SDK)
-- Remove external vst3sdk submodule once JUCE updated
-- Monitor for VST3 SDK compatibility issues
-
-### ✅ Recent Fixes Completed (Nov 6, 2025)
-
-#### EigenD Empty String Display Issue ✅
+### EigenD Empty String Display Issue ✅ (Nov 6, 2025)
 - **Problem**: EigenD GUI showing empty strings instead of values  
 - **Root Cause**: Added defensive `is_string()` checks in `app_eigend2/eigend.cpp` but `is_string()` function had issues
 - **Solution**: Reverted all defensive checks to original direct `as_string()` calls
 - **Files Fixed**: `app_eigend2/eigend.cpp` (restored slot_, selected_, setup logic)
 - **Result**: String display working correctly again
 
-#### Test Runner Enhancement for TDD ✅  
+### Test Runner Enhancement for TDD ✅ (Nov 6, 2025)
 - **Problem**: Session teardown taking 30+ seconds hindering TDD workflow
 - **Solution**: Added `--quick/-q` mode with 5s timeout and session teardown skip
 - **Implementation**: Enhanced `run_tests.sh` and `tests/conftest.py` with threading timeout
 - **Performance**: ~75% faster (6s vs 30s), enabling rapid iteration cycles
 - **Usage**: `./run_tests.sh --quick --level foundation`
 
-### 🎯 Current TDD Status
+### PIP Template Constructor Exception Handling Fix ✅ (Nov 5, 2025)
+**Issue**: Copy constructor failures with "function takes exactly 2 arguments (1 given)"
+**Root Cause**: PIP template didn't clear exceptions between constructor attempts
+**Analysis**: Same bug exists in both Python 2.7 and 3.14 templates, but only manifests as failure in Python 3.14
+**Fix**: Added `PyErr_Clear()` after each failed constructor attempt in `tools/pip_cmd/template`
+**Impact**: Fixes all copy constructors across PIW binding system (`piw.term(existing)`, `piw.data(existing)`, etc.)
+**Validation**: All term constructor tests pass (12/12)
+**Files**: tools/pip_cmd/template
 
-**Test Results** (36/43 passing):
-- ✅ Foundation (12/12) - Python environment, module imports, basic functionality
-- ✅ Core PIW (20/20) - Real-time engine, data creation, session management  
-- ✅ Data Layer (4/4) - Database operations, Belcanto integration
-- ❌ Plugins (0/3) - Plugin loading and communication
-- ❌ Applications (0/2) - High-level application functionality
-- ❌ Integration (2/4) - End-to-end system tests
+### Timer Race Condition Fix ✅ (Nov 5, 2025)
+**Issue**: Timer callbacks firing during constructor exceptions caused additional crashes
+**Analysis**: Using LLDB revealed timer was accessing partially-constructed objects
+**Fix**: Identified root cause vs secondary symptoms in crash analysis
+**Result**: Clean exception reporting without timer interference
 
-**Focus Areas**:
-1. **PIW String Segfault** - Core issue in `test_makestring_with_different_types`
-2. **Plugin Layer** - Agent communication and loading
-3. **Integration Layer** - Full EigenD environment setup
+### Cheatsheet Command Fix ✅ (Nov 5, 2025)
+**Issue**: `TypeError: can only concatenate list (not "range") to list`
+**Fix**: `[x] + range(y)` → `[x] + list(range(y))` in app_cmdline/cheat.py
+**Result**: Identical output to Python 2.7 version
 
-### ✅ Previously Completed Migration Work
-
-#### Core Migration Complete ✅
-- ✅ Full build completes (make, make mpkg)
-- ✅ PIP binding system (C++/Python integration)
-- ✅ All command-line tools: bcat, bls, bpaths, brexec, brpc, bscript, bdownload, capture, signature, upgrade34, annotate, **cheatsheet**
-- ✅ Belcanto logic system (pi/logic/) imports and initializes
-- ✅ Core pi/ modules load correctly
-- ✅ Session and agent management modules import
-
-### 🔍 Remaining Issue: Setup File Compatibility
-**Status**: Core Python 3.14 migration complete, remaining issue is setup file data handling
-
-**Current Behavior**:
-- ✅ Python modules load successfully
-- ✅ All plugins discovered
-- ❌ Crashes during setup file loading with `assertion failure: is_string()` from `piw/piw_data.h:211`
-
-**LLDB Debugging Information**:
-- **Main crash thread**: thread #1 (JUCE Message Thread, main-thread)
-- **Crash location**: `EXC_BAD_ACCESS (code=257, address=0x1)` - null pointer dereference
-- **Active threads**: 18 total threads running (JUCE Timer, Thread-1, Thread-2, multiple worker/semaphore threads)
-- **Context**: Crash occurs during setup file parsing, not during Python initialization
-- **Assessment**: This is a data format/serialization compatibility issue between Python versions
-
-**Detailed Stack Trace Analysis**:
-```
-frame #0: 0x0000000000000001  ← Crash at invalid address 0x1
-frame #1: libpia.dylib idle_t<pia_data_t>::run() at pia_eventq.cpp:223:13
-frame #2: libpia.dylib pia_eventq_impl_t<pia_data_t>::run() at pia_eventq.cpp:436:12
-frame #3: libpia.dylib pia::manager_t::impl_t::process_ctx() at pia_glue.cpp:1200:31
-frame #4-5: libpia.dylib guiscaffold_t::process_ctx() / scaffold_gui_t::process_ctx()
-frame #6-7: libpijuce.dylib JUCE MessageQueue::deliverNextMessage/runLoopCallback
-frame #8-12: CoreFoundation CFRunLoop processing
-frame #13-15: JUCE ModalComponentManager::runEventLoopForCurrentComponent
-frame #16-19: JUCE AlertWindow::showMessageBox ← Exception dialog display
-frame #20: eigend EigenD::initialise() + 1896 ← Exception caught and displayed
-```
-
-**Key Findings**:
-1. **Exception sequence**: `is_string()` assertion → exception caught → AlertWindow shown → message loop processing → event queue crash
-2. **Secondary crash**: The crash occurs while processing the exception AlertWindow message loop
-3. **Root cause**: Still the original `is_string()` assertion failure during setup parsing
-4. **Platform issues**: macOS NSAffineTransform warnings suggest GUI/system compatibility issues
-
-**Terminal Output Analysis**:
-- ✅ All Python initialization successful
-- ✅ All debug checkpoints reached
-- ⚠️ macOS NSAffineTransform warnings during GUI setup
-- ❌ `assertion failure: is_string()` from `piw/piw_data.h:211`
-- ❌ Secondary crash in message loop while showing exception dialog
-
-### Final Session Fixes (Nov 5, 2025)
-
-**PIP Template Constructor Exception Handling:** Fixed copy constructor failures ✅
-- Issue: `piw.term(existing_term)` failed with "function takes exactly 2 arguments (1 given)"
-- Root Cause: PIP template didn't clear exceptions between constructor attempts
-- Analysis: Same bug exists in both Python 2.7 and 3.14 templates, but only manifests as failure in Python 3.14
-- Hypothesis: Python 2.7 runtime was more forgiving with exception persistence
-- Fix: Added `PyErr_Clear()` after each failed constructor attempt in `tools/pip_cmd/template`
-- Impact: Fixes all copy constructors across PIW binding system
-- Validation: All term constructor tests pass (12/12)
-- Files: tools/pip_cmd/template
-
-**Timer Race Condition Fix:** Resolved secondary crash during exception handling ✅
-- Issue: Timer callbacks firing during constructor exceptions caused additional crashes
-- Analysis: Using LLDB revealed timer was accessing partially-constructed objects
-- Fix: Identified root cause vs secondary symptoms in crash analysis
-- Result: Clean exception reporting without timer interference
-
-**Cheatsheet command:** Fixed `TypeError: can only concatenate list (not "range") to list`
-- Fix: `[x] + range(y)` → `[x] + list(range(y))` in app_cmdline/cheat.py
-
-**EigenD daemon startup:** Fixed multiple Python 2→3 issues
+### EigenD Daemon Startup Fixes ✅ (Nov 5, 2025)
+Multiple Python 2→3 compatibility issues resolved:
 - Fixed: `httplib` → `http.client` (bugs_cli.py)
 - Fixed: `range().reverse()` → `list(range()).reverse()` (pi/resource.py)  
 - Fixed: `map()` iterator → `list(map())` (pi/resource.py)
 - Fixed: Missing imports and method implementations (bugs_cli.py, backend.py)
 - Fixed: `xmlrpclib` → `xmlrpc.client` (latest_release.py)
 - Fixed: `xrange` → `range` (backend.py)
+- Result: Daemon starts successfully, identical behavior to Python 2.7
 
-### Migration Assessment
-**Core Python 3.14 migration: COMPLETE ✅**
+### Core Migration Work ✅ (Completed Earlier)
+- ✅ Full build completes (make, make mpkg)
+- ✅ PIP binding system (C++/Python integration)
+- ✅ All command-line tools: bcat, bls, bpaths, brexec, brpc, bscript, bdownload, capture, signature, upgrade34, annotate, cheatsheet
+- ✅ Belcanto logic system (pi/logic/) imports and initializes
+- ✅ Core pi/ modules load correctly
+- ✅ Session and agent management modules import
+- ✅ All 50+ plugins discovered and loaded
+- ✅ Python modules load successfully
+
+---
+
+## 📚 Migration Reference Documentation
+
+### Migration Status Summary
+**Core Python 3.14 migration: COMPLETE** ✅
 - All Python modules load and function correctly
 - PIP binding system works with Python 3.14  
 - Constructor dispatch issues resolved
 - All command-line tools functional
+- Setup loading system working
+- Controller attach/detach loop fixed
+- Comprehensive test suite in place
 
-**Remaining setup file issue: SEPARATE from migration**
-- Issue is in C++ data handling layer during setup parsing
-- Not related to Python 2→3 compatibility
-- Would require C++ debugging and data format analysis to resolve
-
-### What's Beyond Migration Scope
-- Audio/MIDI real-time processing (requires hardware)
-- Hardware communication (Eigenharp devices)
-- GUI applications (Workbench, Stage)
-- Setup file format compatibility debugging (C++ investigation)
+**Ready for**: Hardware testing, platform validation, final release preparation
 
 ## Overview
-Migration of EigenD from Python 2.7 to Python 3.14 on copilot branch.
+Migration of EigenD from Python 2.7 to Python 3.14 on python branch.
 Building on earlier work by TheTechnobear (python3 branch) but with more complete fixes and testing.
 
 ## Target Environment
@@ -468,4 +400,3 @@ Using old Python 2 GIL locking could cause hangs on startup
 - bytearray class: ADDED (was in python3 branch) ✅
 - Documentation copied with "technobear-" prefix for reference
 
-## Next Steps (see copilot-python_dev_todo.md)

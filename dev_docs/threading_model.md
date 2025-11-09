@@ -179,34 +179,6 @@ Thread enters C++ (releases Python GIL)
 - ❌ Thread B: Holds resource → tries WRITE lock → blocked by A
 - ✅ **Mitigation:** Non-blocking write locks (`trywlock()`)
 
-**Current Issue Pattern:**
-- 70/142 agents loaded successfully
-- 72 agents hung waiting (likely on READ lock)
-- Something holds WRITE lock and won't release
-- **Question:** What thread acquired WRITE lock?
-
-## Instrumentation Added (2025-11-09)
-
-**Write Lock Tracking:**
-```cpp
-// In pia_glue.cpp
-GLOBAL_LOCK: Write lock acquired by thread <tid>
-GLOBAL_LOCK: Write lock FAILED for thread <tid>
-GLOBAL_UNLOCK: Write lock released by thread <tid>
-```
-
-**Read Lock Tracking:**
-```cpp
-RLOCK_WAIT: Context <grp> thread <tid> waiting for read lock
-RLOCK_ACQUIRED: Context <grp> thread <tid> acquired read lock
-RLOCK_RELEASE: Context <grp> thread <tid> releasing read lock
-```
-
-**Next Steps:**
-- Run instrumented eigend with failing setup
-- Identify which thread holds WRITE lock when hang occurs
-- Determine why that thread doesn't release lock
-
 ## Migration Issues (Python 2 → 3)
 
 ### Known Threading Changes
@@ -238,7 +210,8 @@ pic::mutex_t::mutex_t(bool recursive, bool inheritance) {
 }
 ```
 
-**This is WRONG!** Unlocking a mutex that was never locked violates POSIX semantics and causes undefined behavior.
+**This is WRONG!** Unlocking a mutex that was never locked violates POSIX semantics and causes undefined behavior. **fixed**
+
 
 **Lines 449-467 - Error Handling Workaround:**
 ```cpp
@@ -419,56 +392,6 @@ pic::semaphore_t::~semaphore_t() {
 - ONE semaphore per fastcall (no shared pool)
 - Queue contains POINTERS to stack-allocated `synccaller_t` structures
 
-### Deadlock Scenario (IDENTIFIED BUG)
-
-**Problem:** Calling `fastcall()` while holding READ lock during `client_sync()` callback:
-
-```
-Thread #10 (Context 1):
-  1. Holds READ lock (acquired at pia_glue.cpp:1196)
-  2. Executes client_sync() callback (Python code)
-  3. Python calls detach() on controlled object
-  4. detach() → wire_ctl_t::disconnect()
-  5. disconnect() → ~dataqueue_t()
-  6. ~dataqueue_t() → clear()
-  7. clear() → tsd_fastcall()
-  8. tsd_fastcall() → fastcall()
-  9. fastcall() creates synccaller_t on stack
-  10. fastcall() queues to fast thread
-  11. fastcall() blocks on s.g.untimeddown()
-  12. ... returns to stack cleanup ...
-  13. ~synccaller_t() destructor runs
-  14. ~semaphore_t() calls semaphore_destroy()
-  15. semaphore_destroy() makes mach_msg system call
-  16. **mach_msg BLOCKS INDEFINITELY** ← STUCK HERE
-  17. READ lock never released
-  18. Setup loading hangs
-```
-
-**Why mach_msg blocks:**
-- Fast thread may be busy/blocked
-- Message queue full
-- Coordination channel deadlocked
-- **Unknown** - requires more investigation
-
-**Fix Options:**
-1. Don't call operations requiring fastcall during client_sync()
-2. Defer wire disconnect until after callback completes
-3. Make fastcall timeout + handle failure
-4. Don't destroy wires during client_sync - queue for later
-
-## Test Strategy
-
-See `dev_docs/test_strategy.md` for unit test approach.
-
-**Proposed Lock Stress Test:**
-- Create fast thread (DSP simulation)
-- Create multiple slow threads (Python contexts)
-- Have threads compete for rwmutex
-- Detect deadlock or starvation scenarios
-- Measure lock hold times
-
----
 
 ## References
 

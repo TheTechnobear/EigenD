@@ -139,6 +139,9 @@ Strings are Unicode text by default
 - Slow context: UI updates, non-realtime work
 - Each context has own thread state for Python calls
 
+---------------------------------------------
+
+
 ## Common Gotchas
 
 ### Unicode vs Bytes
