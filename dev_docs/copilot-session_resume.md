@@ -1,8 +1,249 @@
 # EigenD Python 3.14 Migration - Session Resume Context
 
-**Date:** 2025-11-09  
-**Branch:** python3  
-**Status:** ✅ **CORE MIGRATION COMPLETE - HARDWARE TESTING PHASE**
+**Date:** 2025-11-10  
+**Branch:** py3-C17-juce8  
+**Status:** ✅ **C++17 & JUCE 8 MIGRATION COMPLETE - TESTING PHASE**
+
+---
+
+## 🎯 LATEST: JUCE 8 Dialog API Breaking Change Fixed (2025-11-10)
+
+### ✅ Workbench Dialog Content Issue Resolved
+
+**Problem:** All dialog boxes in Workbench showed empty content (DeleteAgentConfirmation, etc.)  
+**Root Cause:** JUCE 8 changed `DialogWindow::showDialog()` from synchronous to asynchronous  
+**Impact:** 32 dialog instances across app_juceworkbench
+
+#### **API Behavior Change:**
+
+**JUCE 6 (Old):**
+```cpp
+DialogWindow::showDialog(..., component, ...);  // BLOCKS until dialog closed
+delete component;  // Safe - dialog already closed
+```
+
+**JUCE 8 (New):**
+```cpp
+DialogWindow::showDialog(..., component, ...);  // Returns IMMEDIATELY (async)
+delete component;  // CRASHES - dialog still open, content deleted!
+```
+
+#### **Technical Details:**
+
+**showDialog() now calls launchAsync() internally:**
+```cpp
+// lib_juce/juce/modules/juce_gui_basics/windows/juce_DialogWindow.cpp:140-157
+void DialogWindow::showDialog(...)
+{
+    LaunchOptions o;
+    o.content.setNonOwned(contentComponent);  // Doesn't take ownership
+    o.launchAsync();  // Returns immediately!
+}
+```
+
+**LaunchOptions uses OptionalScopedPointer:**
+- `setNonOwned()` means caller must keep component alive
+- Dialog window exists asynchronously after `showDialog()` returns
+- Old code pattern: create → show → delete immediately = empty dialog
+
+#### **Solution:**
+
+Replace all `DialogWindow::showDialog()` with `DialogWindow::showModalDialog()`:
+```cpp
+// BEFORE (JUCE 6 compatible, breaks in JUCE 8):
+DeleteAgentConfirmation* da = new DeleteAgentConfirmation(...);
+DialogWindow::showDialog("Delete agent", da, this, Colour(0xffababab), true);
+delete da;
+
+// AFTER (JUCE 8 compatible - blocks until closed):
+DeleteAgentConfirmation* da = new DeleteAgentConfirmation(...);
+DialogWindow::showModalDialog("Delete agent", da, this, Colour(0xffababab), true);
+delete da;
+```
+
+#### **Files Changed:**
+
+Used `sed` to replace all 32 occurrences:
+```bash
+find app_juceworkbench -name "*.cpp" -exec sed -i '' \
+  's/DialogWindow::showDialog(/DialogWindow::showModalDialog(/g' {} +
+```
+
+**Files affected:**
+- Box.cpp (4 instances)
+- BoolPropertyEditor.cpp (1 instance)
+- BrowseEditor.cpp (1 instance)
+- CoursesPropertyEditor.cpp (1 instance)
+- juceworkbench.cpp (1 instance)
+- KeyToCourseEditor.cpp (2 instances)
+- KeyToCoursePropertyEditor.cpp (2 instances)
+- MainComponent.cpp (8 instances)
+- MappingEditor.cpp (2 instances)
+- Peg.cpp (1 instance)
+- StringMappingPropertyEditor.cpp (2 instances)
+- StrummerEditor.cpp (1 commented out)
+- Trunk.cpp (2 instances)
+
+#### **Verification:**
+
+**Other applications checked:**
+- ✅ app_stage: No DialogWindow usage
+- ✅ app_eigend2: No DialogWindow usage
+- ✅ app_install: No DialogWindow usage
+
+**Only app_juceworkbench affected.**
+
+#### **Testing Status:**
+
+- ✅ Build successful
+- ✅ Workbench launches
+- ⏳ Dialog content display needs runtime verification
+- ⏳ User interaction testing pending
+
+#### **Key Lesson:**
+
+**JUCE 8 favors asynchronous APIs for better responsiveness**, but this breaks synchronous patterns from JUCE 6. When migrating:
+
+1. **showDialog() → launchAsync()** pattern (non-blocking)
+2. **showModalDialog() still available** for blocking behavior (requires `JUCE_MODAL_LOOPS_PERMITTED=1`)
+3. **Always check JUCE changelog** for API behavior changes, not just signatures
+
+---
+
+## 🎯 PREVIOUS: JUCE 6→8 and C++17 Upgrade Complete (2025-01-10)
+
+### ✅ lib_juce and lib_midi Build Successfully on macOS
+
+**Upgrade:** JUCE 6 → JUCE 8.0.10, C++11 → C++17  
+**Status:** ✅ macOS ARM64 tested and working, Windows/Linux ready (untested)
+
+#### **Root Causes Fixed:**
+
+**1. SheenBidi Unity Build Pattern (CRITICAL)**
+- **Issue:** Command-line `-DSB_CONFIG_UNITY=1` doesn't work - preprocessor timing issue
+- **JUCE's Solution:** Uses wrapper file that defines `SB_CONFIG_UNITY` before including source
+- **Discovery Method:** Built JUCE 8 DemoRunner with `cmake --verbose` to see actual approach
+- **Our Fix:** Created `juce_graphics_Sheenbidi_wrapper.c`:
+  ```c
+  #define SB_CONFIG_UNITY 1
+  #include "juce/modules/juce_graphics/unicode/sheenbidi/Source/SheenBidi.c"
+  ```
+- **Applies to:** ALL platforms (macOS/Windows/Linux)
+
+**2. NativeMessageBox Symbol Visibility**
+- **Issue:** `NativeMessageBox::showOkCancelBox` symbols private (not exported)
+- **Root Cause:** Class declaration missing `JUCE_API` marker in JUCE 8
+- **Solution:** Use `AlertWindow::showOkCancelBox` instead (has `JUCE_API`)
+- **API Difference:** AlertWindow requires explicit button labels: `"Yes"`, `"No"`
+- **Files:** `lib_midi/src/control_mapper_gui.cpp` lines 488, 1037
+
+**3. Modal Loop Configuration**
+- **Issue:** Existing code uses `runModalLoop()` in PopupDialogWindow
+- **Solution:** Define `JUCE_MODAL_LOOPS_PERMITTED=1` in AppConfig.h
+- **Alternative:** Requires rewriting all modal dialog code (deferred to later)
+
+**4. Platform-Specific Dependencies**
+- **HarfBuzz (macOS):** Requires `-DHAVE_CORETEXT=1` to enable CoreText backend
+- **Security framework (macOS):** JUCE 8 uses `SecCodeCopySelf` - requires `-framework Security`
+- **Linux:** Uses FreeType backend (no CoreText)
+- **Windows:** Uses DirectWrite backend (no CoreText)
+
+#### **Minimal Required Changes Per Platform:**
+
+**macOS (lines 94-117 in lib_juce/SConscript):**
+```python
+# Use wrapper file (not SheenBidi.c directly)
+juce_graphics_Sheenbidi_wrapper.c
+
+# Compiler flags
+-Wno-unused-variable        # SheenBidi has unused vars in unity build
+-DHAVE_CORETEXT=1          # HarfBuzz CoreText backend
+-framework Security         # JUCE 8 code signing checks
+```
+
+**Linux (lines 73-93 in lib_juce/SConscript):**
+```python
+# Use wrapper file
+juce_graphics_Sheenbidi_wrapper.c
+
+# Compiler flags
+-Wno-unused-variable        # SheenBidi unused vars
+# No CoreText/Security (Linux uses FreeType)
+```
+
+**Windows (lines 47-71 in lib_juce/SConscript):**
+```python
+# Use wrapper file
+juce_graphics_Sheenbidi_wrapper.c
+
+# No extra flags needed (MSVC handles warnings differently)
+```
+
+#### **Files Modified:**
+
+**Created:**
+- `lib_juce/juce_graphics_Sheenbidi_wrapper.c` - Unity build wrapper (ALL platforms)
+
+**Modified:**
+- `lib_juce/SConscript` - All three platform sections updated with wrapper file
+- `lib_juce/AppConfig.h` line 66 - Added `JUCE_MODAL_LOOPS_PERMITTED=1`
+- `lib_midi/src/control_mapper_gui.cpp`:
+  - Line 386: Added `const` to `getBorderThickness()` override
+  - Lines 488, 1037: `NativeMessageBox` → `AlertWindow::showOkCancelBox`
+
+#### **Key Lessons Learned:**
+
+1. **Unity build defines MUST be inside C file, not command-line**
+   - Preprocessor processes file sequentially
+   - Command-line `-D` comes too late for `#ifdef` inside SheenBidi.c
+   - JUCE's official CMake uses wrapper pattern - authoritative reference
+
+2. **Not all JUCE classes have JUCE_API markers**
+   - `NativeMessageBox` lacks `JUCE_API` → symbols private
+   - `AlertWindow` has `JUCE_API` → symbols exported
+   - Always use public API classes for plugin integration
+
+3. **Security framework mandatory in JUCE 8 (changed from JUCE 6)**
+   - Used for code signing validation on macOS
+   - Not optional despite initial assumption
+
+4. **Simplification testing critical**
+   - Initial fix had 4 extra unnecessary flags
+   - Testing one-by-one identified minimal set
+   - Removed: `-fvisibility=default`, `-Wno-unused-but-set-variable`, `-Wno-uninitialized`, `-Wno-sign-compare`
+   - Kept only: `-Wno-unused-variable` (build fails without it)
+
+#### **Testing Status:**
+
+**✅ Verified working:**
+- macOS ARM64: Full clean rebuild succeeds
+- lib_juce: All symbols present (verified with `nm`)
+- lib_midi: Links correctly, only 1 harmless warning
+
+**⚠️ Needs testing:**
+- Windows MSVC build (wrapper file added but not tested)
+- Linux GCC build (wrapper file added but not tested)
+- Other modules using JUCE APIs (plg_* plugins)
+
+#### **For Future JUCE 8 Migrations:**
+
+When other modules encounter JUCE 8 issues, apply these changes:
+
+1. **SheenBidi wrapper** (if using juce_graphics):
+   - Create wrapper file as above
+   - Replace `SheenBidi.c` with wrapper in build
+
+2. **NativeMessageBox calls** (if any):
+   - Replace with `AlertWindow::showOkCancelBox`
+   - Add explicit button labels
+
+3. **Modal loops** (if using runModalLoop):
+   - Add `JUCE_MODAL_LOOPS_PERMITTED=1` to AppConfig.h
+
+4. **Platform flags** (macOS only):
+   - Add `-DHAVE_CORETEXT=1` and `-framework Security`
+
+---
 
 ## 🎯 CURRENT PRIORITY: Hardware and Factory Setup Testing (2025-11-09)
 

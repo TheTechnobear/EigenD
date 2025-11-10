@@ -24,6 +24,9 @@
 #define JUCE_MODULE_AVAILABLE_juce_graphics             1
 #define JUCE_MODULE_AVAILABLE_juce_gui_basics           1
 
+// Enable modal loops for JUCE 8 compatibility
+#define JUCE_MODAL_LOOPS_PERMITTED 1
+
 #define JUCE_ASIO 0
 #define JUCE_WASAPI 0
 #define JUCE_DIRECTSOUND 0
