@@ -14,8 +14,8 @@ set(SCONSTRUCT "${TOOLS_DIR}/SConstruct")
 # Find Python3
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
-# Override to use the same Python as the Makefile
-set(Python3_EXECUTABLE "/opt/homebrew/opt/python@3.14/bin/python3.14")
+# Override to use Python 3.14 from python.org (standard installation)
+set(Python3_EXECUTABLE "/usr/local/bin/python3.14")
 
 # Common SCons command setup
 set(SCONS_ENV PYTHONPATH=${SCONS_DIR})

@@ -36,7 +36,9 @@ from SCons.Util import Split
 class PiLinuxEnvironment(unix_tools.PiUnixEnvironment):
 
     def __init__(self,platform):
-        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','.belcanto','/usr/bin/python')
+        # Use Python 3.14 specifically (installed via distro package manager or python.org)
+        # Linux allows multiple Python versions: python3.10, python3.11, python3.14, etc.
+        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','.belcanto','/usr/bin/python3.14')
 
         self.Append(LIBS=Split('dl m pthread rt'))
         self.Append(CXXFLAGS=Split('-std=c++11'))

@@ -24,6 +24,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Python development virtual environment (created by make dev-setup)
+.venv_dev/
+
 eigend.sublime-project
 eigend.sublime-workspace
 

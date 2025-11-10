@@ -40,7 +40,7 @@
 #include <picross/pic_thread.h>
 #include <iostream>
 
-void epython::PythonInterface::py_startup()
+bool epython::PythonInterface::py_startup()
 {
     std::string pyhome_str = pic::python_prefix_dir();
     std::wstring pyhome_wstr(pyhome_str.begin(), pyhome_str.end());
@@ -49,6 +49,25 @@ void epython::PythonInterface::py_startup()
     pic_init_dll_path();
 
     Py_Initialize();
+
+    // Verify Python 3.14 is available (required for build compatibility)
+    // PY_VERSION_HEX format: 0xMMmmrrLL (Major, minor, micro, release level)
+    if (PY_VERSION_HEX < 0x030E0000) // 3.14.0 = 0x030E0000
+    {
+        const char* version = Py_GetVersion();
+        char error_msg[1024];
+        snprintf(error_msg, sizeof(error_msg),
+            "Python 3.14 or later is required.\n\n"
+            "Found: %s\n\n"
+            "EigenD was built with Python 3.14 and requires this version to run.\n\n"
+            "Please install Python 3.14 from:\n"
+            "  macOS/Windows: https://www.python.org/downloads/\n"
+            "  Linux: apt install python3.14 (or use deadsnakes PPA)",
+            version);
+        last_error_ = std::string(error_msg);
+        Py_Finalize();
+        return false;
+    }
 
     {
       std::string root = pic::release_root_dir();
@@ -90,6 +109,7 @@ void epython::PythonInterface::py_startup()
     }
 
     thread_ = PyEval_SaveThread();
+    return true;
 }
 
 void epython::PythonInterface::py_shutdown()

@@ -17,17 +17,34 @@
 - ✅ Setup loading/saving with real user setups working
 
 ### 2. Platform Compatibility Testing
-**Status**: Critical - Must verify before release
-- Test on system Python installations (not just Homebrew)
-- Test on fresh macOS with system Python (no Homebrew)
-- Test on Ubuntu/Debian with apt-installed Python
-- Test on Windows with python.org installer
-- Verify no Homebrew-specific paths hard-coded
-- Document installation requirements per platform
-- Test Python version compatibility range (3.8-3.14)
-- Windows: Python26 - check get_pyprefix() in pic_resources.cpp
+**Status**: ✅ macOS python.org testing complete (2025-11-10)
+- ✅ Test on fresh macOS with python.org Python 3.14 installer
+- ✅ Verify no Homebrew-specific paths hard-coded
+- ✅ All command-line tools work with python.org Python
+- ✅ EigenD daemon startup works with python.org Python
+- ✅ Added Python 3.14 version check in eigend startup (2025-11-10)
+- ⏭️ Test on Ubuntu/Debian with Python 3.14
+  - Verify `/usr/bin/python3.14` exists and works
+  - Test with deadsnakes PPA: `add-apt-repository ppa:deadsnakes/ppa && apt install python3.14 python3.14-dev`
+  - Test with python.org source compilation if needed
+  - Verify venv creation: `python3.14 -m venv .venv_dev`
+  - Test Python 3.14 version check error message
+- ⏭️ Test Python version compatibility range (3.8-3.14)
 
-### 3. System Integration Testing
+### 3. Windows Build System Modernization
+**Status**: 🔧 Implemented, needs testing (2025-11-10)
+- ✅ Migrated to MSYS2 + make workflow (matches macOS/Linux)
+- ✅ Updated Python path to python.org Python 3.14
+- ✅ SCons validates MSVC and DirectX SDK environments
+- ✅ Updated windows_tools.py for Python 3.14 (python314.dll)
+- ✅ Removed legacy bld.cmd scripts
+- ✅ Created NOTES_WINDOWS.md with setup instructions
+- 🔴 **HIGH PRIORITY**: Test new MSYS2 build setup on Windows
+- 🔴 **HIGH PRIORITY**: Test Windows release build (distribution)
+- ⚠️ **MEDIUM**: Verify DirectX SDK still required (may be in Windows SDK)
+- ⏭️ **LOW**: Investigate pure MSYS2/MinGW build (no MSVC dependency)
+
+### 4. System Integration Testing
 **Status**: Essential validation
 - Test pezload (Pico firmware loading - uses bytearray)
 - Test minimal plugin setup (no Eigenharp connected)
@@ -65,8 +82,8 @@
 ### 6. Documentation Updates
 **Status**: Prepare for release
 - Update main README with Python 3.14 requirement
-- Update NOTES_MACOS.md with Python 3 build instructions
-- Document installation process (per platform)
+- Update NOTES_MACOS.md with Python 3 build instructions (python.org installation)
+- Document installation process (python.org, not Homebrew)
 - Note breaking changes from Python 2.7 version
 - Document VST SDK as optional dependency
 - Create release notes for community
@@ -361,24 +378,24 @@ Our migration is MORE COMPLETE:
 ## 🚨 CRITICAL PRE-RELEASE TESTING REQUIRED
 
 ### ⚠️ System Python Compatibility Testing
-**IMPORTANT:** Current testing was done with Homebrew Python 3.14. Before release, must verify compatibility with system default Python installations:
+**IMPORTANT:** Now using Python 3.14 from python.org (standard installer)
 
-**Required tests:**
-- ✅ Test on fresh macOS with system Python (no Homebrew)
-- ✅ Test on Ubuntu/Debian with apt-installed Python
-- ✅ Test on Windows with python.org installer
-- ✅ Verify no Homebrew-specific paths hard-coded
-- ✅ Test all command-line tools work with system Python
-- ✅ Test EigenD daemon startup with system Python
-- ✅ Check Python version compatibility range (3.8+ minimum?)
+**Completed:**
+- ✅ Test on fresh macOS with python.org Python 3.14 (/usr/local/bin/python3.14)
+- ✅ Verify no Homebrew-specific paths hard-coded (switched from Homebrew to python.org)
+- ✅ Test all command-line tools work with python.org Python
+- ✅ Test EigenD daemon startup with python.org Python
+
+**Remaining tests:**
+- ⏭️ Test on Ubuntu/Debian with apt-installed Python
+- ⏭️ Test on Windows with python.org installer
+- ⏭️ Check Python version compatibility range (3.8+ minimum?)
+- ⏭️ Windows: Python26 - get_pyprefix() pic_resources.cpp
 
 **Potential issues to watch for:**
-- Hard-coded paths to `/opt/homebrew/`
-- Missing standard library modules
 - Different Python versions (3.8, 3.9, 3.10, 3.11, 3.12, 3.13)
 - Platform-specific Python installation differences
 - Package manager conflicts (pip vs system packages)
-- Windows : Python26 - get_pyprefix() pic_resources.cpp
 
 ## Next Steps - Beyond Migration Scope
 - Test pezload (Pico firmware loading - uses bytearray)

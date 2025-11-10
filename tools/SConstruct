@@ -24,10 +24,19 @@ import select_tools
 
 from os.path import join,dirname
 
-EnsureSConsVersion(0,96,91)
+EnsureSConsVersion(4,5,0)
 
 master_env = select_tools.select()
 master_env.Initialise()
+
+# Check if development environment exists (for testing)
+venv_dev_path = os.path.join(Dir('#').abspath, '.venv_dev')
+if not os.path.exists(venv_dev_path):
+    print("")
+    print("⚠️  Development environment not found")
+    print("   Run 'make dev-setup' to create .venv_dev/ for testing")
+    print("   (Build will continue, but you won't be able to run tests)")
+    print("")
 
 #CacheDir(master_env.cache_dir())
 SConscriptChdir(0)

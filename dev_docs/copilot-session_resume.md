@@ -731,7 +731,7 @@ git checkout python3
 
 # Verify Python 3.14
 which python3.14
-# Should be: /opt/homebrew/opt/python@3.14/bin/python3.14
+# Should be: /usr/local/bin/python3.14 (from python.org installer)
 
 # Build
 make clean

@@ -5,6 +5,23 @@
 
 set -e
 
+# Check for development environment and activate it
+VENV_DEV=".venv_dev"
+if [ ! -d "$VENV_DEV" ]; then
+    echo "❌ ERROR: Development environment not found"
+    echo ""
+    echo "Please run: make dev-setup"
+    echo ""
+    echo "This will create $VENV_DEV/ with pytest and test dependencies."
+    exit 1
+fi
+
+# Activate venv if not already in one
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo "🔧 Activating development environment: $VENV_DEV"
+    source "$VENV_DEV/bin/activate"
+fi
+
 # Default values
 LEVEL=""
 TEST_PATTERN=""

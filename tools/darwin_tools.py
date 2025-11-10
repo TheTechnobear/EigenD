@@ -107,7 +107,7 @@ def mycopytree(src, dst, symlinks=False, ignore=None):
 class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
 
     def __init__(self,platform):
-        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','Library/Eigenlabs',python='/opt/homebrew/opt/python@3.14/bin/python3.14')
+        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','Library/Eigenlabs',python='/usr/local/bin/python3.14')
         os_major=uname()[2].split('.')[0]
 
         self.Append(LIBS=Split('dl m pthread'))

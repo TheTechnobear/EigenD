@@ -1,0 +1,9 @@
+# Python Development Dependencies for EigenD
+# Used to create .venv_dev/ for testing
+# 
+# Install with: make dev-setup
+# or: python3.14 -m venv .venv_dev && source .venv_dev/bin/activate && pip install -r py_requirements.txt
+
+pytest>=8.0.0
+pytest-timeout>=2.0.0
+pytest-html>=4.0.0

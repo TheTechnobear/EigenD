@@ -32,13 +32,15 @@ namespace epython
         public:
             PythonInterface(): thread_(0) {}
 
-            void py_startup();
+            bool py_startup();
             void py_shutdown();
             bool get_thread();
             void set_thread();
+            std::string last_error() { return last_error_;}
 
         private:
             void *thread_;
+            std::string last_error_;
     };
 
     class PythonBackend

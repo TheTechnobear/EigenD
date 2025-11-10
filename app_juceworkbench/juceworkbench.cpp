@@ -176,7 +176,16 @@ void JuceWorkbenchApp::initialise (const String& commandLine)
     python_interp_ = new epython::PythonInterface();
     context_ = scaffold()->context("main",pic::status_t(),workbench_logger,"workbench");
     piw::tsd_setcontext(context_.entity());
-    python_interp_->py_startup();
+
+    if(!python_interp_->py_startup())
+    {
+        juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, 
+            "Python Version Error", 
+            python_interp_->last_error().c_str(),
+            "OK");
+        exit(0);
+    }
+
 
     python_backend0_ = new epython::PythonBackend(python_interp_);
 

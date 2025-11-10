@@ -135,7 +135,7 @@ Migration of EigenD from Python 2.7 to Python 3.14 on python branch.
 Building on earlier work by TheTechnobear (python3 branch) but with more complete fixes and testing.
 
 ## Target Environment
-- Python 3.14 from Homebrew (/opt/homebrew/opt/python@3.14/bin/python3.14)
+- Python 3.14 from python.org (/usr/local/bin/python3.14)
 - macOS Apple Silicon (arm64)
 - No backwards compatibility - Python 3 only
 

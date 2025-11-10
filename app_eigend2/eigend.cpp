@@ -1983,7 +1983,15 @@ void EigenD::initialise (const String& commandLine)
     context_ = scaffold()->context("main",pic::status_t(),eigend_logger,"eigend");
 
     piw::tsd_setcontext(context_.entity());
-    python_->py_startup();
+    
+    if(!python_->py_startup())
+    {
+        juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon, 
+            "Python Version Error", 
+            python_->last_error().c_str(),
+            "OK");
+        exit(0);
+    }
 
     if(python_->init_python("app_eigend2.backend","main"))
     {

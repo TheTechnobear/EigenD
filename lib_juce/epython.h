@@ -29,7 +29,7 @@ namespace epython
         public:
             PythonInterface(): object_(0), thread_(0), last_error_() { }
 
-            void py_startup();
+            bool py_startup();  // Returns false if Python version check fails
             void py_shutdown();
             bool init_python(const char *module,const char *method);
             void shutdown_python();

@@ -1,18 +1,10 @@
-# Archived SCons Versions
+# Archived SCons Versions (REMOVED)
 
-These are the old Python 2 versions of SCons that are no longer used.
-
-## Contents
-
-- `SCons/` - Original SCons version (Python 2 only)
-- `SCons.old/` - Backup of older SCons version (Python 2 only)
+**Status**: Old SCons 0.96.91 (Python 2) versions removed 2025-11-10
 
 ## Current Version
 
-The project now uses **SCons4** (located in `../SCons4/`) which is compatible with Python 3.
+The project now uses **SCons 4.5.0** (located in `../SCons4/`) which is compatible with Python 3.14.
 
-## Status
+SCons is launched via `tools/scons.py` which loads SCons4 from `tools/packages/SCons4/`.
 
-These archived versions can be safely removed. They are kept temporarily for reference in case of unforeseen issues during the Python 3 migration.
-
-To remove: `rm -rf tools/packages/archive/`

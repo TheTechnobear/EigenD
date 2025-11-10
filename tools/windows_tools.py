@@ -120,7 +120,7 @@ def generate_guids(root):
 
 class PiWindowsEnvironment(generic_tools.PiGenericEnvironment):
     def __init__(self):
-        generic_tools.PiGenericEnvironment.__init__(self,'win32','EigenLabs','Belcanto',None,TARGET_ARCH='x86')
+        generic_tools.PiGenericEnvironment.__init__(self,'win32','EigenLabs','Belcanto',python='C:\\Python314\\python.exe',TARGET_ARCH='x86')
 
         self.Replace(IS_WINDOWS=True)
         self.Replace(PI_MODPREFIX='')
@@ -490,6 +490,91 @@ class PiWindowsEnvironment(generic_tools.PiGenericEnvironment):
 
     def Initialise(self):
         generic_tools.PiGenericEnvironment.Initialise(self)
+        
+        # Auto-detect and setup MSVC environment if not already set
+        if not os.environ.get('VCINSTALLDIR'):
+            print("")
+            print("Detecting MSVC environment...")
+            
+            # Common MSVC paths
+            msvc_paths = [
+                r"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat",
+                r"C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat",
+                r"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat",
+                r"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat",
+                r"C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat",
+            ]
+            
+            vcvars_found = None
+            for path in msvc_paths:
+                if os.path.exists(path):
+                    vcvars_found = path
+                    print("  Found MSVC at: %s" % path)
+                    break
+            
+            if not vcvars_found:
+                print("")
+                print("=" * 60)
+                print("ERROR: MSVC environment not detected")
+                print("=" * 60)
+                print("")
+                print("EigenD requires Microsoft Visual C++ compiler.")
+                print("")
+                print("To fix:")
+                print("  1. Install Visual Studio Build Tools")
+                print("     https://visualstudio.microsoft.com/downloads/")
+                print("")
+                print("  2. From MSYS2 MinGW64 shell, source MSVC environment:")
+                print("     source /c/Program\\ Files/Microsoft\\ Visual\\ Studio/")
+                print("            2022/Community/VC/Auxiliary/Build/vcvars64.bat")
+                print("")
+                print("  3. Then run: make")
+                print("")
+                print("=" * 60)
+                print("")
+                raise RuntimeError("MSVC environment required but not found")
+            else:
+                print("")
+                print("  NOTE: MSVC detected but environment not loaded.")
+                print("  From MSYS2, you must source vcvars64.bat manually:")
+                print("    source '%s'" % vcvars_found.replace('\\', '/'))
+                print("  Then run: make")
+                print("")
+                print("=" * 60)
+                print("")
+                raise RuntimeError("Please source MSVC environment and re-run")
+        else:
+            print("✓ MSVC environment detected: %s" % os.environ.get('VCINSTALLDIR'))
+        
+        # Check for DirectX SDK (may be required by JUCE for audio/MIDI)
+        # Can be either legacy DirectX SDK or Windows SDK
+        dxsdk_dir = os.environ.get('DXSDK_DIR')
+        windows_sdk = os.environ.get('WindowsSdkDir')
+        
+        if not dxsdk_dir and not windows_sdk:
+            print("")
+            print("=" * 60)
+            print("WARNING: DirectX SDK not detected")
+            print("=" * 60)
+            print("")
+            print("DirectX may be required for audio/MIDI support (via JUCE).")
+            print("")
+            print("Options:")
+            print("  1. Windows SDK (included with Visual Studio) - Recommended")
+            print("     Should be automatically available if MSVC environment loaded")
+            print("")
+            print("  2. Legacy DirectX SDK (June 2010)")
+            print("     Set DXSDK_DIR environment variable")
+            print("")
+            print("Build will continue but may fail if DirectX headers needed.")
+            print("")
+            print("=" * 60)
+            print("")
+        else:
+            if windows_sdk:
+                print("✓ Windows SDK detected: %s" % windows_sdk)
+            if dxsdk_dir:
+                print("✓ DirectX SDK detected: %s" % dxsdk_dir)
 
 
     def Finalise(self):
@@ -591,7 +676,8 @@ class PiWindowsEnvironment(generic_tools.PiGenericEnvironment):
 
     def PiRuntime(self,package):
         env = self.Clone()
-        target = os.path.join(os.path.dirname(self['PI_PYTHON']),'python26.dll')
+        # Python 3.14 DLL - python.org installer puts python3.dll and python314.dll in Python314 dir
+        target = os.path.join(os.path.dirname(self['PI_PYTHON']),'python314.dll')
         f2 = env.File(target)
 
         run_file=env.Install(env.subst('$BINRUNDIR'),f2)

@@ -35,17 +35,5 @@ class PiUnixEnvironment(generic_tools.PiGenericEnvironment):
 
     def Finalise(self):
         generic_tools.PiGenericEnvironment.Finalise(self)
-        self.doenv()
-
-    def doenv(self):
-        pth_file = self.File('env.sh',self.subst('#')).abspath
-
-        pth_template=("#!/bin/sh\n"
-                      "#This script is auto generated - do not bother editing\n"
-                      "#source this ...\n"
-                      "export PATH=%(bindir)s:$PATH\n")
-
-        pp=self.Dir(self['BINRUNDIR']).abspath
-        pth_node = self.baker(pth_file,pth_template,bindir=pp)
-        self.Alias('target-default','#env.sh')
+        # env.sh generation removed - keeping build simple
 
