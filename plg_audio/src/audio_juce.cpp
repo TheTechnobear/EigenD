@@ -142,7 +142,7 @@ namespace pi_audio
         impl_t(const piw::cookie_t &o, piw::clockdomain_ctl_t *d, const std::string &dn, pi_audio::audioctl_t *del);
         ~impl_t();
 
-        void audioDeviceIOCallback (const float** inputChannelData, int numInputChannels, float** outputChannelData, int numOutputChannels, int numSamples);
+        void audioDeviceIOCallbackWithContext (const float* const* inputChannelData, int numInputChannels, float* const* outputChannelData, int numOutputChannels, int numSamples, const juce::AudioIODeviceCallbackContext& context);
         void audioDeviceAboutToStart (juce::AudioIODevice* device) {}
         void audioDeviceStopped() {}
         void enumerate();
@@ -1032,7 +1032,7 @@ bool pi_audio::audioctl_t::impl_t::open_device(const juce::String &requested_uid
 
     set_details(bs,sr);
     runaway_ = false;
-    device_->start(this);
+    device_->start(static_cast<juce::AudioIODeviceCallback*>(this));
     changing_ = false;
     running_ = true;
 
@@ -1070,7 +1070,7 @@ void pi_audio::audioctl_t::impl_t::enable_callbacks(bool e)
     }
 }
 
-void pi_audio::audioctl_t::impl_t::audioDeviceIOCallback(const float** inputChannelData, int numInputChannels, float** outputChannelData, int numOutputChannels, int numSamples)
+void pi_audio::audioctl_t::impl_t::audioDeviceIOCallbackWithContext(const float* const* inputChannelData, int numInputChannels, float* const* outputChannelData, int numOutputChannels, int numSamples, const juce::AudioIODeviceCallbackContext& context)
 {
     int ii=0,ij=0;
     bool dropout=false;

@@ -18,5 +18,5 @@
  along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <lib_juce/juce.h>
+#include "../../lib_juce/juce.h"
 using namespace juce;

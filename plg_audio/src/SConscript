@@ -30,5 +30,5 @@ plg_libs = Split("""
     pic piw pie pia pijuce
 """)
 
-paenv.Append(CPPPATH='../../lib_juce/modules')
+paenv.Append(CPPPATH='../../lib_juce/juce/modules')
 paenv.PiPipBinding('audio_native','audio.pip',libraries=plg_libs,sources=plg_files,package='eigend',per_agent='plg_audio',locked=True)

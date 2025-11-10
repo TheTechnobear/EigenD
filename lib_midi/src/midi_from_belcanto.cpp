@@ -143,7 +143,7 @@ namespace
         {
             pic::mutex_t::guard_t g(bucket_lock_);
 
-            byte ch = 0;
+            unsigned char ch = 0;
             if(legato_mode_ && legato_channel_ != 0)
             {
                 ch = bucket_.take(legato_channel_);

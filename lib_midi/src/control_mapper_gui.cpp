@@ -383,7 +383,7 @@ namespace midi
                 closeButtonPressed();
             }
 
-            virtual BorderSize<int> getBorderThickness()
+            virtual BorderSize<int> getBorderThickness() const
             {
                 // return null border size for no border
                 return BorderSize<int>();
@@ -485,10 +485,18 @@ namespace midi
 
     void mapping_delegate_t::clearall()
     {
-        if(!AlertWindow::showOkCancelBox(AlertWindow::NoIcon, "Please confirm ...", "Are you certain that you want to clear all the mappings in all tabs?", "No", "Yes"))
-        {
-           settings_functors_.clearall_();
-        }
+        AlertWindow::showOkCancelBox(AlertWindow::NoIcon, 
+                                          "Please confirm ...", 
+                                          "Are you certain that you want to clear all the mappings in all tabs?",
+                                          "Yes",
+                                          "No",
+                                          nullptr,
+                                          ModalCallbackFunction::create([this](int result) {
+                                              if (result == 1) // 1 = OK was clicked (not 0!)
+                                              {
+                                                  settings_functors_.clearall_();
+                                              }
+                                          }));
     }
 
     void mapping_delegate_t::settings()
@@ -1028,10 +1036,18 @@ namespace midi
     {
         if(button == clear_tab_)
         {
-            if(!AlertWindow::showOkCancelBox(AlertWindow::NoIcon, "Please confirm ...", "Are you certain that you want to clear all the mappings in this tab?", "No", "Yes"))
-            {
-                mapping_functors_.clear_();
-            }
+            AlertWindow::showOkCancelBox(AlertWindow::NoIcon, 
+                                              "Please confirm ...", 
+                                              "Are you certain that you want to clear all the mappings in this tab?",
+                                              "Yes",
+                                              "No",
+                                              nullptr,
+                                              ModalCallbackFunction::create([this](int result) {
+                                                  if (result == 1) // 1 = OK was clicked (not 0!)
+                                                  {
+                                                      mapping_functors_.clear_();
+                                                  }
+                                              }));
         }
     }
 

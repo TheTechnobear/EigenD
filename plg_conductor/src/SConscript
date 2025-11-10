@@ -30,5 +30,5 @@ conductor_files = Split("""
         recording.cpp recording_consumer.cpp sqlite_utils.cpp widget.cpp
     """)
 
-cenv.Append(CPPPATH='../../lib_juce/modules')
+cenv.Append(CPPPATH='../../lib_juce/juce/modules')
 cenv.PiPipBinding('conductor_native','conductor.pip',libraries=Split('piw pia pic pijuce pisqlite'),sources=conductor_files,package='eigend',per_agent='plg_conductor',locked=True)

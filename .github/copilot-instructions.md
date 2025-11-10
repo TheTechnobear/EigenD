@@ -22,4 +22,10 @@ Keep this file small and editable. Move detailed, workspace-specific information
     - 1–3 short bullets: (done, discovered, next steps).
     - If producing or modifying files, include filepaths.
 
+
+- Notes for building
+    - use `make` in preference
+    - if you need to build a specific module use `PYTHONPATH=tools/packages/SCons4 python3 tools/packages/SCons4/bin/scons -f tools/SConstruct <module>`
+    - when building, pipe full output to a logile (default : build.log), so that contents can be inspected later
+    
 (Keep this file minimal — move specifics to `dev_docs/prompts/`)

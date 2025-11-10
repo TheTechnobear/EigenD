@@ -48,7 +48,7 @@ public:
         // no close button so do nothing, but have to implement this
     }
     
-    virtual BorderSize<int> getBorderThickness ()
+    virtual BorderSize<int> getBorderThickness () const
     {
         // return null border size for no border
         return BorderSize<int>();

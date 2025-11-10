@@ -47,7 +47,7 @@ if (env['IS_MACOSX_8664'] or env['IS_LINUX_8664'] or env['IS_MACOS_ARM64']):
     env.Append(CCFLAGS='-DPLUGSIN_64')
 
 
-env.Append(CPPPATH='../lib_juce/modules')
+env.Append(CPPPATH='../lib_juce/juce/modules')
 env.Append(CCFLAGS='-DPI_RELEASE=\\"$PI_RELEASE\\"')
 env.Append(CCFLAGS='-DPI_COLLECTION=\\"$PI_COLLECTION\\"')
 env.Append(PI_HIRES=True)

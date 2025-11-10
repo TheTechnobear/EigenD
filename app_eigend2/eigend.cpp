@@ -802,7 +802,6 @@ void EigenLoadComponent::tree_changed()
     model_->tree_changed(mediator_->backend()->get_setups());
 
     // traverse the tree to restore the opened branches
-    std::vector<std::string>::iterator it;
     items.clear();
 
     items.push_back(ItemStackEntry(model_,""));

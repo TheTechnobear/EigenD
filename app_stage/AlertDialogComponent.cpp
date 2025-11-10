@@ -129,8 +129,9 @@ void AlertDialogComponent::openAlertDialog(const String& titleText, const String
     framework.setContentComponent(&content);
     content.setFocusOrder(&framework);
 
-    framework.runModalLoop();
-
+   #if JUCE_MODAL_LOOPS_PERMITTED
+    window.runModalLoop();
+   #endif
 }
 
 

@@ -1014,7 +1014,8 @@ void MainComponent::userEditPreferences()
     content.getTabViewPreferences()->setTabbedComponent(tabbedComponent);
     content.getViewPreferences()->setTabbedComponent(tabbedComponent);
 
-    int result = framework.runModalLoop();
+   #if JUCE_MODAL_LOOPS_PERMITTED
+    int result = window.runModalLoop();
 
     // apply changes if ok pressed
     if(result)
@@ -1023,7 +1024,7 @@ void MainComponent::userEditPreferences()
         content.getNetworkPreferences()->applyChanges();
         content.getViewPreferences()->applyChanges();
     }
-
+   #endif
 }
 
 

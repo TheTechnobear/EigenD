@@ -37,8 +37,6 @@ as possible is important for sounds that have long releases.
 #ifndef CHANNELBUCKET_H_
 #define CHANNELBUCKET_H_
 
-typedef unsigned char byte;
-
 class ChannelBucket {
 public:
   ChannelBucket() {
@@ -47,7 +45,7 @@ public:
 
   ~ChannelBucket() {}
 
-  void add(byte channel) {
+  void add(unsigned char channel) {
     // we can't add a MIDI channel that exceeds 16
     if (channel > 16) return;
 
@@ -79,12 +77,12 @@ public:
     }
   }
 
-  byte take() {
+  unsigned char take() {
     // return an invalid channel if none have been added
     if (-1 == top_) return 0;
 
     // get the channel at the top of the bucket
-    byte channel = top_;
+    unsigned char channel = top_;
 
     // sink the channel to the bottom of the entire bucket, also crossing
     // the release/taken marker. Essentially the channel goes to the bottom
@@ -106,7 +104,7 @@ public:
     return channel+1;
   }
 
-  byte take(byte channel) {
+  unsigned char take(unsigned char channel) {
     // we can't take a MIDI channel that exceeds 16, nor can we work with an empty bucket
     // we expect this channel to also be already in the bucket
     if (channel > 16 || -1 == top_ || -1 == next_[channel-1]) return 0;
@@ -141,7 +139,7 @@ public:
     return channel+1;
   }
 
-  void release(byte channel) {
+  void release(unsigned char channel) {
     // we can't release a MIDI channel that exceeds 16, nor can we work with an empty bucket
     // we expect this channel to also be already in the bucket
     if (channel > 16 || -1 == top_ || -1 == next_[channel-1]) return;
@@ -207,7 +205,7 @@ public:
 
 private:
 
-  void extract(byte channel) {
+  void extract(unsigned char channel) {
     if (next_[channel] != -1) {
       next_[previous_[channel]] = next_[channel];
       previous_[next_[channel]] = previous_[channel];
@@ -217,7 +215,7 @@ private:
     }
   }
 
-  void extremize(byte channel) {
+  void extremize(unsigned char channel) {
     int bottom = previous_[top_];
     if (bottom == channel) {
       bottom = previous_[channel];
@@ -249,7 +247,7 @@ private:
   int top_;            // the channel number of the top one in the bucket
   int previous_[16];   // the channel number of the previous channel in the bucket for each individual channel
   int next_[16];       // the channel number of the next channel in the bucket for each individual channel
-  byte taken_[16];     // counts how many times each channel is still taken
+  unsigned char taken_[16];     // counts how many times each channel is still taken
   int bottomReleased_; // marks the bottom of the released section
 };
 

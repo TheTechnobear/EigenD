@@ -81,7 +81,7 @@ void BeeThree :: noteOn(StkFloat frequency, StkFloat amplitude)
 
 StkFloat BeeThree :: computeSample()
 {
-  register StkFloat temp;
+  StkFloat temp;
 
   if (modDepth_ > 0.0)	{
     temp = 1.0 + (modDepth_ * vibrato_.tick() * 0.1);

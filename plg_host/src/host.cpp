@@ -433,6 +433,10 @@ namespace
     {
         metronome_input_t(host::plugin_instance_t::impl_t *c);
 
+        // JUCE 8 requires getPosition() instead of getCurrentPosition()
+        Optional<PositionInfo> getPosition() const override;
+        
+        // Keep old method for backwards compatibility (calls getPosition internally)
         bool getCurrentPosition(CurrentPositionInfo &result);
 
         unsigned buffer_size();
@@ -1099,16 +1103,16 @@ struct host::plugin_instance_t::impl_t: midi::params_delegate_t, midi::mapping_o
 
     void remove_upstream_clock(bct_clocksink_t *c)
     {
-        remove_upstream(c);
+        piw::clocksink_t::remove_upstream(c);
     }
 
     void add_upstream_clock(bct_clocksink_t *c)
     {
-        add_upstream(c);
+        piw::clocksink_t::add_upstream(c);
         if(midi_from_belcanto_)
         {
-            remove_upstream(midi_from_belcanto_->clocksink());
-            add_upstream(midi_from_belcanto_->clocksink());
+            piw::clocksink_t::remove_upstream(midi_from_belcanto_->clocksink());
+            piw::clocksink_t::add_upstream(midi_from_belcanto_->clocksink());
         }
     }
 
@@ -1198,7 +1202,7 @@ struct host::plugin_instance_t::impl_t: midi::params_delegate_t, midi::mapping_o
             if(!active_)
             {
                 start_output_events(to);
-                trigger_slow();
+                piw::thing_t::trigger_slow();
             }
         }
         else if(idling_enabled_)
@@ -1212,7 +1216,7 @@ struct host::plugin_instance_t::impl_t: midi::params_delegate_t, midi::mapping_o
                 if(active_)
                 {
                     end_output_events(to);
-                    trigger_slow();
+                    piw::thing_t::trigger_slow();
                 }
             }
         }
@@ -1227,7 +1231,7 @@ struct host::plugin_instance_t::impl_t: midi::params_delegate_t, midi::mapping_o
 
         if(b)
         {
-            tick_disable();
+            piw::clocksink_t::tick_disable();
             audio_output_.scalar_disconnect();
             audio_input_clone_.clear_output(1);
             audio_input_clone_.set_output(1,audio_output_cookie_);
@@ -1241,7 +1245,7 @@ struct host::plugin_instance_t::impl_t: midi::params_delegate_t, midi::mapping_o
             audio_input_clone_.clear_output(1);
             audio_input_clone_.set_output(1,piw::cookie_t(&audio_input_));
             audio_output_.scalar_connect(audio_output_cookie_);
-            tick_enable(false);
+            piw::clocksink_t::tick_enable(false);
         }
 
         bypassed_ = b;
@@ -1618,6 +1622,21 @@ metronome_input_t::metronome_input_t(host::plugin_instance_t::impl_t *c):
     host_scalar_t(c), interp_(2), beat_(0.0), tempo_(120.0), running_(false),
     sample_counter_(-PLG_CLOCK_BUFFER_SIZE), beats_in_bar_(4), bar_beat_(0.0)
 {
+}
+
+// JUCE 8 API: implement getPosition() to return Optional<PositionInfo>
+Optional<juce::AudioPlayHead::PositionInfo> metronome_input_t::getPosition() const
+{
+    PositionInfo pos;
+    
+    pos.setBpm(tempo_);
+    pos.setTimeSignature(TimeSignature { static_cast<int>(beats_in_bar_), 4 });
+    pos.setTimeInSeconds(sample_counter_ / controller_->sample_rate_);
+    pos.setPpqPosition(beat_);
+    pos.setPpqPositionOfLastBarStart(beat_ - bar_beat_);
+    pos.setIsPlaying(running_);
+    
+    return pos;
 }
 
 bool metronome_input_t::getCurrentPosition(CurrentPositionInfo &result)

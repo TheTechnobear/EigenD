@@ -397,6 +397,15 @@ namespace
 
         ~keyboard_t()
         {
+            // Explicitly destroy wires before invalidating base classes
+            // to ensure proper disconnection order
+            for(unsigned i = 0; i < KEYS; i++)
+            {
+                kwires_[i].reset();
+            }
+            swire_.reset();
+            bwire_.reset();
+            
             tracked_invalidate();
             close_thing();
         }

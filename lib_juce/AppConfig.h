@@ -17,9 +17,7 @@
 
 // End User License Agreement: www.juce.com/juce-5-licence
 // GPL code so no splash screen required
-#define JUCE_DISPLAY_SPLASH_SCREEN 0
 #define JUCE_REPORT_APP_USAGE 0
-#define JUCE_USE_DARK_SPLASH_SCREEN 1
 
 #define  JUCE_STANDALONE_APPLICATION 1
 
@@ -63,6 +61,9 @@
 // #define JUCE_CHECK_MEMORY_LEAKS 1
 #define JUCE_DONT_AUTOLINK_TO_WIN32_LIBRARIES 1
 // #define JUCE_CATCH_UNHANDLED_EXCEPTIONS 1
+
+// Enable modal loops for runModalLoop() calls in control_mapper_gui.cpp
+#define JUCE_MODAL_LOOPS_PERMITTED 1
 
 #define JUCE_USE_COREIMAGE_LOADER 0
 #define JUCE_USE_DIRECTWRITE 0
