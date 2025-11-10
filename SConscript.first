@@ -22,8 +22,8 @@ Import('master_env')
 
 import os.path
 
-release = '2.3.0'
-compatible = '2.3'
+release = '3.0.0'
+compatible = '3.0'
 
 status = {
     'windows': 'community',
@@ -43,7 +43,6 @@ master_env.PiBuildSystem(package='eigend-build')
 
 if master_env['IS_WINDOWS']:
     prereq = [
-        ('runtime-1.0.0',"Please install the EigenD Support package before installing EigenD.")
     ]
 
 if master_env['IS_MACOSX']:

@@ -387,8 +387,8 @@ namespace
 
             create_kwires();
 
-            swire_ = std::auto_ptr<strip_t>(new strip_t(this));
-            bwire_ = std::auto_ptr<breath_t>(new breath_t(this));
+            swire_ = std::unique_ptr<strip_t>(new strip_t(this));
+            bwire_ = std::unique_ptr<breath_t>(new breath_t(this));
 
             tick_bound_low_ = 0;
             tick_bound_hi_ = 0;
@@ -527,7 +527,7 @@ namespace
                     previous_colkeys += colkeys;
                     row = k-previous_colkeys; 
                 }
-                kwires_[k-1] = std::auto_ptr<kwire_t>(new kwire_t(k,column,row,piw::pathtwo(1,k,0),this));
+                kwires_[k-1] = std::unique_ptr<kwire_t>(new kwire_t(k,column,row,piw::pathtwo(1,k,0),this));
             }
         }
 
@@ -617,9 +617,9 @@ namespace
             return courseoffset_;
         }
 
-        std::auto_ptr<kwire_t> kwires_[KEYS];
-        std::auto_ptr<strip_t> swire_;
-        std::auto_ptr<breath_t> bwire_;
+        std::unique_ptr<kwire_t> kwires_[KEYS];
+        std::unique_ptr<strip_t> swire_;
+        std::unique_ptr<breath_t> bwire_;
         pic::notify_t dead;
         float threshold1,threshold2,roll_axis_window_,yaw_axis_window_;
         bool key_logging_;

@@ -204,7 +204,7 @@ namespace pi_audio
         juce::AudioIODevice *device_;
         piw::window_t settings_window_;
         SettingsDialog *settings_;
-        std::auto_ptr<audio_output_t> audio_output_;
+        std::unique_ptr<audio_output_t> audio_output_;
         pic::lckmap_t<unsigned,bool>::nbtype audio_outputs_state_;
         bool runaway_;
     };

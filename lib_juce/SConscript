@@ -24,10 +24,10 @@ juce_env = env.Clone()
 
 me = env.Dir('.').abspath
 
-juce_env.Append(CPPPATH='modules')
+juce_env.Append(CPPPATH='juce/modules')
 juce_env.Append(CPPPATH='#vst3sdk')
 
-juce_env.Append(CPPPATH='modules')
+juce_env.Append(CPPPATH='juce/modules')
 juce_env.Append(CPPPATH='#vst3sdk')  # Add VST3 SDK headers for includes like <pluginterfaces/...>
 
 # TEMPORARY HYBRID APPROACH: JUCE has most VST3 implementation built-in, but needs some utility functions
@@ -42,18 +42,18 @@ vst3sdk_utility_files = [
 
 if env['IS_WINDOWS']:
     juce_files = Split("""
-            modules/juce_audio_basics/juce_audio_basics.cpp
-            modules/juce_audio_devices/juce_audio_devices.cpp
-            modules/juce_audio_formats/juce_audio_formats.cpp
-            modules/juce_audio_processors/juce_audio_processors.cpp
-            modules/juce_audio_utils/juce_audio_utils.cpp
-            modules/juce_core/juce_core.cpp
-            modules/juce_cryptography/juce_cryptography.cpp
-            modules/juce_data_structures/juce_data_structures.cpp
-            modules/juce_events/juce_events.cpp
-            modules/juce_graphics/juce_graphics.cpp
-            modules/juce_gui_basics/juce_gui_basics.cpp
-            modules/juce_gui_extra/juce_gui_extra.cpp
+            juce/modules/juce_audio_basics/juce_audio_basics.cpp
+            juce/modules/juce_audio_devices/juce_audio_devices.cpp
+            juce/modules/juce_audio_formats/juce_audio_formats.cpp
+            juce/modules/juce_audio_processors/juce_audio_processors.cpp
+            juce/modules/juce_audio_utils/juce_audio_utils.cpp
+            juce/modules/juce_core/juce_core.cpp
+            juce/modules/juce_cryptography/juce_cryptography.cpp
+            juce/modules/juce_data_structures/juce_data_structures.cpp
+            juce/modules/juce_events/juce_events.cpp
+            juce/modules/juce_graphics/juce_graphics.cpp
+            juce/modules/juce_gui_basics/juce_gui_basics.cpp
+            juce/modules/juce_gui_extra/juce_gui_extra.cpp
         """) + vst3sdk_utility_files
     juce_env.Append(CCFLAGS='/D "WINDOWS=1" /D "_LIB" /D "WIN32" /D "_WINDOWS" /D "NDEBUG" /D "JUCE_DLL_BUILD=1" /D "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1" /FI AppConfig.h  /arch:SSE2')
     juce_env.Append(LINKFLAGS="/nodefaultlib:libcmt.lib")
@@ -64,18 +64,18 @@ if env['IS_WINDOWS']:
 
 if env['IS_LINUX']:
     juce_files = Split("""
-            modules/juce_audio_basics/juce_audio_basics.cpp
-            modules/juce_audio_devices/juce_audio_devices.cpp
-            modules/juce_audio_formats/juce_audio_formats.cpp
-            modules/juce_audio_processors/juce_audio_processors.cpp
-            modules/juce_audio_utils/juce_audio_utils.cpp
-            modules/juce_core/juce_core.cpp
-            modules/juce_cryptography/juce_cryptography.cpp
-            modules/juce_data_structures/juce_data_structures.cpp
-            modules/juce_events/juce_events.cpp
-            modules/juce_graphics/juce_graphics.cpp
-            modules/juce_gui_basics/juce_gui_basics.cpp
-            modules/juce_gui_extra/juce_gui_extra.cpp
+            juce/modules/juce_audio_basics/juce_audio_basics.cpp
+            juce/modules/juce_audio_devices/juce_audio_devices.cpp
+            juce/modules/juce_audio_formats/juce_audio_formats.cpp
+            juce/modules/juce_audio_processors/juce_audio_processors.cpp
+            juce/modules/juce_audio_utils/juce_audio_utils.cpp
+            juce/modules/juce_core/juce_core.cpp
+            juce/modules/juce_cryptography/juce_cryptography.cpp
+            juce/modules/juce_data_structures/juce_data_structures.cpp
+            juce/modules/juce_events/juce_events.cpp
+            juce/modules/juce_graphics/juce_graphics.cpp
+            juce/modules/juce_gui_basics/juce_gui_basics.cpp
+            juce/modules/juce_gui_extra/juce_gui_extra.cpp
         """) + vst3sdk_utility_files
     juce_env.Append(CCFLAGS='-Wno-unused-variable -Wno-sign-compare -DLINUX=1 -DNDEBUG -DJUCE_DLL_BUILD -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 -include AppConfig.h')
     juce_env.Append(CPPPATH='/usr/include/freetype2')
@@ -83,18 +83,18 @@ if env['IS_LINUX']:
 
 if env['IS_MACOSX']:
     juce_files = Split("""
-            modules/juce_audio_processors/juce_audio_processors.mm
-            modules/juce_audio_basics/juce_audio_basics.mm
-            modules/juce_audio_devices/juce_audio_devices.mm
-            modules/juce_audio_formats/juce_audio_formats.mm
-            modules/juce_audio_utils/juce_audio_utils.mm
-            modules/juce_core/juce_core.mm
-            modules/juce_cryptography/juce_cryptography.mm
-            modules/juce_data_structures/juce_data_structures.mm
-            modules/juce_events/juce_events.mm
-            modules/juce_graphics/juce_graphics.mm
-            modules/juce_gui_basics/juce_gui_basics.mm
-            modules/juce_gui_extra/juce_gui_extra.mm
+            juce/modules/juce_audio_processors/juce_audio_processors.mm
+            juce/modules/juce_audio_basics/juce_audio_basics.mm
+            juce/modules/juce_audio_devices/juce_audio_devices.mm
+            juce/modules/juce_audio_formats/juce_audio_formats.mm
+            juce/modules/juce_audio_utils/juce_audio_utils.mm
+            juce/modules/juce_core/juce_core.mm
+            juce/modules/juce_cryptography/juce_cryptography.mm
+            juce/modules/juce_data_structures/juce_data_structures.mm
+            juce/modules/juce_events/juce_events.mm
+            juce/modules/juce_graphics/juce_graphics.mm
+            juce/modules/juce_gui_basics/juce_gui_basics.mm
+            juce/modules/juce_gui_extra/juce_gui_extra.mm
         """) + vst3sdk_utility_files
     juce_env.Append(CCFLAGS='-Wno-unused-but-set-variable -Wno-uninitialized -Wno-sign-compare -DNDEBUG -DJUCE_DLL_BUILD -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1 -include AppConfig.h')
     juce_env.Append(LINKFLAGS='-framework CoreAudio -framework CoreMIDI -framework AudioUnit -framework IOKit')
@@ -108,7 +108,7 @@ if env['IS_MACOSX'] or env['IS_LINUX'] or env['IS_WINDOWS']:
 juce_env.PiSharedLibrary('pijuce',juce_files,libraries=juce_libraries,package='eigend')
 
 ejuce_env = env.Clone()
-ejuce_env.Append(CPPPATH='modules')
+ejuce_env.Append(CPPPATH='juce/modules')
 ejuce_files = Split('ejuce.cpp ejuce_laf.cpp')
 ejuce_libraries = Split('pijuce pia pic')
 ejuce_env.PiSharedLibrary('ejuce',ejuce_files,libraries=ejuce_libraries,package='eigend')

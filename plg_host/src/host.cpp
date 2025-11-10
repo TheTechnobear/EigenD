@@ -416,7 +416,7 @@ namespace
 
     struct host_view_t: juce::DocumentWindow
     {
-        host_view_t(const juce::String &name, Component *content, host::plugin_instance_t::impl_t *controller,std::auto_ptr<juce::Rectangle<int> > &bounds);
+        host_view_t(const juce::String &name, Component *content, host::plugin_instance_t::impl_t *controller,std::unique_ptr<juce::Rectangle<int> > &bounds);
 
         ~host_view_t()
         {
@@ -628,7 +628,7 @@ struct host::plugin_instance_t::impl_t: midi::params_delegate_t, midi::mapping_o
 
         for(unsigned i=0; i<32; i++)
         {
-            param_input_[i] = std::auto_ptr<midi::param_input_t>(new midi::param_input_t(this,i+1));
+            param_input_[i] = std::unique_ptr<midi::param_input_t>(new midi::param_input_t(this,i+1));
         }
 
         audio_output_.set_clock(this);
@@ -1424,7 +1424,7 @@ struct host::plugin_instance_t::impl_t: midi::params_delegate_t, midi::mapping_o
     host_scalar_t audio_input_;
     midi_input_t midi_input_;
     metronome_input_t metronome_input_;
-    std::auto_ptr<midi::param_input_t> param_input_[32];
+    std::unique_ptr<midi::param_input_t> param_input_[32];
 
     host_output_scalar_t audio_output_;
     host_output_scalar_t midi_output_;
@@ -1460,7 +1460,7 @@ struct host::plugin_instance_t::impl_t: midi::params_delegate_t, midi::mapping_o
     float idle_time_sec_;
 
     piw::window_t host_window_;
-    std::auto_ptr<juce::Rectangle<int> > bounds_;
+    std::unique_ptr<juce::Rectangle<int> > bounds_;
 
     midi::settings_functors_t settings_functors_;
     midi::controllers_mapping_t mapping_;
@@ -1545,7 +1545,7 @@ unsigned metronome_input_t::buffer_size()
     return controller_->buffer_size_;
 }
 
-host_view_t::host_view_t(const juce::String &name, Component *content, host::plugin_instance_t::impl_t *controller, std::auto_ptr<juce::Rectangle<int> > &bounds):
+host_view_t::host_view_t(const juce::String &name, Component *content, host::plugin_instance_t::impl_t *controller, std::unique_ptr<juce::Rectangle<int> > &bounds):
     DocumentWindow(name,juce::Colours::black,juce::DocumentWindow::closeButton,true), controller_(controller), delegate_(controller_)
 {
     setResizable(true,true);

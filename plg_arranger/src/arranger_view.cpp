@@ -409,12 +409,12 @@ struct arranger::view_t::impl_t: piw::root_ctl_t, piw::decode_ctl_t, piw::thing_
         model_->playstop_set(piw::change_nb_t::method(this,&impl_t::playstop_set));
         playstop_ = model_->set_playstop();
 
-        modes_[0] = std::auto_ptr<controller_t>(new evt_controller_t(this,0,model_));
-        modes_[1] = std::auto_ptr<controller_t>(new loop_controller_t(this,1,model_)); 
-        modes_[2] = std::auto_ptr<controller_t>(new controller_t(this,2));
-        modes_[3] = std::auto_ptr<controller_t>(new controller_t(this,3));
-        modes_[4] = std::auto_ptr<controller_t>(new controller_t(this,4));
-        modes_[5] = std::auto_ptr<controller_t>(new controller_t(this,5));
+        modes_[0] = std::unique_ptr<controller_t>(new evt_controller_t(this,0,model_));
+        modes_[1] = std::unique_ptr<controller_t>(new loop_controller_t(this,1,model_)); 
+        modes_[2] = std::unique_ptr<controller_t>(new controller_t(this,2));
+        modes_[3] = std::unique_ptr<controller_t>(new controller_t(this,3));
+        modes_[4] = std::unique_ptr<controller_t>(new controller_t(this,4));
+        modes_[5] = std::unique_ptr<controller_t>(new controller_t(this,5));
         connect(lo);
         piw::tsd_thing(this);
     }
@@ -820,7 +820,7 @@ struct arranger::view_t::impl_t: piw::root_ctl_t, piw::decode_ctl_t, piw::thing_
 
     pic::lckmap_t<colrow_t,unsigned>::nbtype rect2k_;
 
-    std::auto_ptr<controller_t> modes_[MODES];
+    std::unique_ptr<controller_t> modes_[MODES];
     unsigned active_mode_;
 
     pic::flipflop_t<std::vector<pic::ref_t<lwire_t> > > lwires_;

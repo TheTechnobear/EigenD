@@ -100,7 +100,7 @@ namespace midi
         bool is_mpe_mode();
         void set_title(const std::string &title);
 
-        std::auto_ptr<param_input_t> param_input_[32];
+        std::unique_ptr<param_input_t> param_input_[32];
 
         settings_functors_t settings_functors_;
 
@@ -250,7 +250,7 @@ namespace midi
 
         for(unsigned i=0; i<32; i++)
         {
-            param_input_[i] = std::auto_ptr<param_input_t>(new param_input_t(this,i+1));
+            param_input_[i] = std::unique_ptr<param_input_t>(new param_input_t(this,i+1));
         }
 
         midi_from_belcanto_->set_resend_current(resend_current_t::method(this, &midi_converter_t::impl_t::resend_parameter_current));

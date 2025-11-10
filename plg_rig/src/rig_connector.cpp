@@ -114,7 +114,7 @@ struct rig::connector_t::impl_t: piw::client_t, piw::fastdata_t, pic::lckobject_
         {
             if(!child_get(&i,1))
             {
-                std::auto_ptr<impl_t> p(new impl_t(connector_,&output_,i,filter_,ctl_));
+                std::unique_ptr<impl_t> p(new impl_t(connector_,&output_,i,filter_,ctl_));
                 child_add(i, p.get());
                 children_[i] = p.release();
             }

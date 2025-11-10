@@ -362,7 +362,7 @@ void *sink_t::add_notify(void (*cb)(void *), void *arg)
     }
 
     notifier_t *n = new notifier_t(this,cb,arg);
-    std::auto_ptr<notifier_t> np(n);
+    std::unique_ptr<notifier_t> np(n);
     notifiers_.push_front(n);
     np.release();
     return (void *)n;
@@ -484,7 +484,7 @@ void domain_t::enroll(bct_clocksink_t *bc,const pia_data_t &n)
 
     sink_t *s = new sink_t(bc, this, env_);
     s->name_ = n;
-    std::auto_ptr<sink_t> sp(s);
+    std::unique_ptr<sink_t> sp(s);
     members_.push_back(s);
     sp.release();
     clocklist_->build();
@@ -766,7 +766,7 @@ void pia_clocklist_t::add_source(const pia_data_t &n, unsigned bs, unsigned long
         throw pic::error("dup source name");
     }
     source_t *s = new source_t(impl_,n,bs,sr,e,c);
-    std::auto_ptr<source_t> sp(s);
+    std::unique_ptr<source_t> sp(s);
     impl_->sources_.push_front(sp.get());
     sp.release();
     if(impl_->defaultsource_ == &impl_->internalsource_)
@@ -829,7 +829,7 @@ void pia_clocklist_t::impl_t::build()
 
 void pia_clocklist_t::add_domain(const pia_ctx_t &e, bct_clockdomain_t *c)
 {
-    std::auto_ptr<domain_t> dp(new domain_t(impl_, e, c));
+    std::unique_ptr<domain_t> dp(new domain_t(impl_, e, c));
     impl_->domains_.push_front(dp.get());
     dp.release();
 }

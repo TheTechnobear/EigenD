@@ -151,12 +151,12 @@ namespace
         void set_pedal_min(unsigned pedal, unsigned value);
         void set_pedal_max(unsigned pedal, unsigned value);
         
-        std::auto_ptr<kwire_t>* kwires_;
-        std::auto_ptr<pedal_t> pedal1_;
-        std::auto_ptr<pedal_t> pedal2_;
-        std::auto_ptr<pedal_t> pedal3_;
-        std::auto_ptr<pedal_t> pedal4_;
-        std::auto_ptr<test_wire_t> test_wire_;
+        std::unique_ptr<kwire_t>* kwires_;
+        std::unique_ptr<pedal_t> pedal1_;
+        std::unique_ptr<pedal_t> pedal2_;
+        std::unique_ptr<pedal_t> pedal3_;
+        std::unique_ptr<pedal_t> pedal4_;
+        std::unique_ptr<test_wire_t> test_wire_;
         unsigned short curmap_[9],skpmap_[9];
         pic::notify_t dead_;
         float threshold1_,threshold2_,yaw_axis_window_,roll_axis_window_;
@@ -495,12 +495,12 @@ namespace
 
         connect(c);
        
-        kwires_ = new std::auto_ptr<kwire_t>[num_keys];
-        pedal1_ = std::auto_ptr<pedal_t>( new pedal_t(piw::pathone(6,0),this));    
-        pedal2_ = std::auto_ptr<pedal_t>( new pedal_t(piw::pathone(7,0),this));    
-        pedal3_ = std::auto_ptr<pedal_t>( new pedal_t(piw::pathone(8,0),this));    
-        pedal4_ = std::auto_ptr<pedal_t>( new pedal_t(piw::pathone(9,0),this));    
-        test_wire_ = std::auto_ptr<test_wire_t>(new test_wire_t(piw::pathone(3,0),this));
+        kwires_ = new std::unique_ptr<kwire_t>[num_keys];
+        pedal1_ = std::unique_ptr<pedal_t>( new pedal_t(piw::pathone(6,0),this));    
+        pedal2_ = std::unique_ptr<pedal_t>( new pedal_t(piw::pathone(7,0),this));    
+        pedal3_ = std::unique_ptr<pedal_t>( new pedal_t(piw::pathone(8,0),this));    
+        pedal4_ = std::unique_ptr<pedal_t>( new pedal_t(piw::pathone(9,0),this));    
+        test_wire_ = std::unique_ptr<test_wire_t>(new test_wire_t(piw::pathone(3,0),this));
     }
 
     keyboard_t::~keyboard_t()
@@ -834,7 +834,7 @@ namespace
                 previous_colkeys += colkeys;
                 row = k-previous_colkeys; 
             }
-            kwires_[k-1] = std::auto_ptr<kwire_t>(new kwire_t(k,col,row,piw::pathtwo(1,k,0),this));
+            kwires_[k-1] = std::unique_ptr<kwire_t>(new kwire_t(k,col,row,piw::pathtwo(1,k,0),this));
         }
     }
 
@@ -849,9 +849,9 @@ namespace
         {
             create_kwires();
 
-            strip1_ = std::auto_ptr<strip_t>(new strip_t(piw::pathone(2,0),this));
-            strip2_ = std::auto_ptr<strip_t>(new strip_t(piw::pathone(4,0),this));
-            breath_ = std::auto_ptr<breath_t>(new breath_t(piw::pathone(5,0),this));
+            strip1_ = std::unique_ptr<strip_t>(new strip_t(piw::pathone(2,0),this));
+            strip2_ = std::unique_ptr<strip_t>(new strip_t(piw::pathone(4,0),this));
+            breath_ = std::unique_ptr<breath_t>(new breath_t(piw::pathone(5,0),this));
         }   
 
         ~alpha_kbd()
@@ -910,9 +910,9 @@ namespace
             return ALPHA_COURSEKEYS;
         }
 
-        std::auto_ptr<strip_t> strip1_;
-        std::auto_ptr<strip_t> strip2_;
-        std::auto_ptr<breath_t> breath_;
+        std::unique_ptr<strip_t> strip1_;
+        std::unique_ptr<strip_t> strip2_;
+        std::unique_ptr<breath_t> breath_;
     };
     
     static const unsigned int TAU_COLUMNCOUNT = 7;
@@ -926,8 +926,8 @@ namespace
         {
             create_kwires();
 
-            strip1_ = std::auto_ptr<strip_t>(new strip_t(piw::pathone(2,0),this));
-            breath1_ = std::auto_ptr<breath_t>(new breath_t(piw::pathone(5,0),this));
+            strip1_ = std::unique_ptr<strip_t>(new strip_t(piw::pathone(2,0),this));
+            breath1_ = std::unique_ptr<breath_t>(new breath_t(piw::pathone(5,0),this));
         }   
 
         ~tau_kbd()
@@ -990,8 +990,8 @@ namespace
             return TAU_COURSEKEYS;
         }
 
-        std::auto_ptr<strip_t> strip1_;
-        std::auto_ptr<breath_t> breath1_;
+        std::unique_ptr<strip_t> strip1_;
+        std::unique_ptr<breath_t> breath1_;
     };
 
     kwire_t::kwire_t(unsigned i, unsigned c, unsigned r, const piw::data_t &path, keyboard_t *k): piw::event_data_source_real_t(path), index_(i), column_(c), row_(r), id_(piw::pathone_nb(i,0)), keyboard_(k), maxpressure_(0), counter_(0), running_(false), ts_(0), output_(63,PIW_DATAQUEUE_SIZE_NORM),cur_pressure_(0), cur_roll_(0), cur_yaw_(0)
@@ -1718,8 +1718,8 @@ struct kbd::kbd_impl_t: piw::clockdomain_ctl_t, piw::clocksink_t, piw::thing_t, 
     alpha2::active_t loop_;
     keyboard_t *pkeyboard_;
     bool skipped_;
-    std::auto_ptr<mic_output_t> mic_output_;
-    std::auto_ptr<headphone_input_t> headphone_input_;
+    std::unique_ptr<mic_output_t> mic_output_;
+    std::unique_ptr<headphone_input_t> headphone_input_;
     piw::statusledconvertor_t leds_;
 };
 

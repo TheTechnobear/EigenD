@@ -291,7 +291,7 @@ namespace
 
             create_kwires();
 
-            cwire_ = std::auto_ptr<cwire_t>(new cwire_t(piw::pathone(2,0),this));
+            cwire_ = std::unique_ptr<cwire_t>(new cwire_t(piw::pathone(2,0),this));
         }
 
         ~keyboard_t()
@@ -351,7 +351,7 @@ namespace
                     previous_rowkeys += rowkeys;
                     row = k-previous_rowkeys; 
                 }
-                kwires_[k-1] = std::auto_ptr<kwire_t>(new kwire_t(k,column,row,piw::pathtwo(1,k,0),this));
+                kwires_[k-1] = std::unique_ptr<kwire_t>(new kwire_t(k,column,row,piw::pathtwo(1,k,0),this));
             }
         }
 
@@ -441,8 +441,8 @@ namespace
             return courseoffset_;
         }
 
-        std::auto_ptr<kwire_t> kwires_[KEYS];
-        std::auto_ptr<cwire_t> cwire_;
+        std::unique_ptr<kwire_t> kwires_[KEYS];
+        std::unique_ptr<cwire_t> cwire_;
         pic::notify_t dead;
         float threshold1,threshold2;
         piw::data_t columnlen_;

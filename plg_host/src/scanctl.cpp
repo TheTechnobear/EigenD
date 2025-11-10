@@ -353,7 +353,7 @@ namespace
             {
                 juce::File f(getPluginsDir().getChildFile(PLUGINS_CACHE));
 
-                std::auto_ptr<juce::XmlElement> el(plugin_list_.createXml().release());
+                std::unique_ptr<juce::XmlElement> el(plugin_list_.createXml().release());
                 std::cout << "writing " << f.getFullPathName() << std::endl;
                 if(!el->writeToFile(f,juce::String())) std::cout << "oops, failed!" << std::endl;
                 std::cout << "done." << std::endl;

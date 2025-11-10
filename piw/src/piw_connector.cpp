@@ -316,7 +316,7 @@ struct piw::connector_t::impl_t: piw::client_t
             if(!child_get(&i,1))
             {
                 piw::data_t p2(piw::pathappend_channel(path_,i));
-                std::auto_ptr<impl_t> p(new impl_t(ctl_,backend_.ptr(),p2,filter_,iso_));
+                std::unique_ptr<impl_t> p(new impl_t(ctl_,backend_.ptr(),p2,filter_,iso_));
                 child_add(i, p.get());
                 children_[i] = p.release();
             }
