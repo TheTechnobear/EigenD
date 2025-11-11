@@ -145,7 +145,7 @@ class KeyboardAgent(agent.Agent):
 
     def on_quit(self):
         print('pico on_quit - start')
-        for k in self.subsystem_keys():
+        for k in list(self.subsystem_keys()):
             self.del_keyboard(k)
         self.cleanup()
         print('pico on_quit - done')
