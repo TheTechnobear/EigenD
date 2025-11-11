@@ -917,12 +917,12 @@ def verify_productions(cycle_check=1):
 
     if yaccdebug:
         _vf.write("\nTerminals, with rules where they appear\n\n")
-        ks = Terminals.keys()
+        ks = list(Terminals.keys())
         ks.sort()
         for k in ks:
             _vf.write("%-20s : %s\n" % (k, " ".join([str(s) for s in Terminals[k]])))
         _vf.write("\nNonterminals, with rules where they appear\n\n")
-        ks = Nonterminals.keys()
+        ks = list(Nonterminals.keys())
         ks.sort()
         for k in ks:
             _vf.write("%-20s : %s\n" % (k, " ".join([str(s) for s in Nonterminals[k]])))

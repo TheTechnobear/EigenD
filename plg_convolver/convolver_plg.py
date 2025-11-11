@@ -196,7 +196,7 @@ class ImpulseBrowser(atom.Atom):
         # dict of filenames to their full paths
         self.__f2p = dict(zip(files,paths))
         # list of filenames
-        self.__files = self.__f2p.keys()
+        self.__files = list(self.__f2p.keys())
         # read .name files whose filenames are belcanto names (phrases) and contents are the 
         # impulse cookies that the belcanto maps to
         names,cookies = self.__scan1('*.name', lambda p: resource.file_open(p).read().strip())

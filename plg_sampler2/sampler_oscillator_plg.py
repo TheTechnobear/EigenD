@@ -208,7 +208,7 @@ class Sample(atom.Atom):
     def __scan(self):
         files,paths = self.__scan1('*.[sS][fF]2')
         self.__f2p = dict(zip(files,paths))
-        self.__files = self.__f2p.keys()
+        self.__files = list(self.__f2p.keys())
         names,cookies = self.__scan1('*.name', lambda p: resource.file_open(p).read().strip())
         self.__n2c = dict(zip(names,cookies))
         self.__c2n = dict(zip(cookies,names))

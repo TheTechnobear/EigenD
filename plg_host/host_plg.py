@@ -182,7 +182,7 @@ class PluginBrowser(atom.Atom):
     def rpc_cinfo(self,a):
         (path,idx) = logic.parse_clause(a)
         if len(path)!=0: return '[]'
-        l = self.__plugin_list.plugins_by_manufacturer.keys()
+        l = list(self.__plugin_list.plugins_by_manufacturer.keys())
         l.sort()
         return render_list(l,idx,lambda i,t: logic.render_term((t)))
 

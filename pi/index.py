@@ -80,7 +80,7 @@ class Index(piw.index):
         return callback
 
     def members(self):
-        for m in self.__members.values():
+        for m in list(self.__members.values()):
             if m.real is not None:
                 yield m.real
 
@@ -99,7 +99,7 @@ class Index(piw.index):
 
     def close_index(self):
         piw.index.close_index(self)
-        for m in self.__members.values():
+        for m in list(self.__members.values()):
             m.close_client()
         self.__members = {}
 

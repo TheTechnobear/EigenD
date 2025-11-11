@@ -62,9 +62,9 @@ class DictionaryModel(language.LanguageDisplayModel):
                 self.e2m[e]=m
 
         print('Dictionary length', len(self.m2e))
-        self.e2mkeys=self.e2m.keys()
+        self.e2mkeys=list(self.e2m.keys())
         self.e2mkeys.sort()
-        self.m2ekeys=self.m2e.keys()
+        self.m2ekeys=list(self.m2e.keys())
         self.m2ekeys.sort()
 
     def getDict(self):
