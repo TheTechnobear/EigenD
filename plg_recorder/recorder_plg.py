@@ -68,7 +68,7 @@ class TakeLibrary:
 
     def takelist(self):
         l = list(self.__takes.values())
-        l.sort(lambda a,b: cmp(int(a[0]),int(b[0])))
+        l.sort(key=lambda a: int(a[0]))
         return l
 
     def save(self):

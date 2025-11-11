@@ -506,7 +506,7 @@ class Agent(atom.Atom):
         self.close_server()
 
     def quit(self):
-        for v in self.__subsystems.values():
+        for v in list(self.__subsystems.values()):
             if hasattr(v,'on_quit'): v.on_quit()
         if hasattr(self,'on_quit'): self.on_quit()
 

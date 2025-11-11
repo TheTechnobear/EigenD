@@ -471,7 +471,7 @@ class OutputList(atom.Atom):
 
     def __outputs_changed(self):
         # check if there's just a single output
-        outputs = self.values()
+        outputs = list(self.values())
         if len(outputs)==1:
             outputs[0].enable(True)
 
