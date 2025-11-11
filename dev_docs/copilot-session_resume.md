@@ -89,7 +89,6 @@ find app_juceworkbench -name "*.cpp" -exec sed -i '' \
 **Other applications checked:**
 - ✅ app_stage: No DialogWindow usage
 - ✅ app_eigend2: No DialogWindow usage
-- ✅ app_install: No DialogWindow usage
 
 **Only app_juceworkbench affected.**
 
