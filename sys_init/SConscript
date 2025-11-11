@@ -64,3 +64,6 @@ if env['IS_MACOSX']:
     env.PiEtc('eigend',Split('tau-setup.pdf'))
     env.PiEtc('eigend',Split('sfpatch'))
 
+if env['IS_LINUX']:
+    pass
+

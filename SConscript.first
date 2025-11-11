@@ -37,20 +37,23 @@ compatible_tag = '%s-%s' % (compatible,status[master_env['PI_PLATFORMTYPE']])
 master_env.Prepend(CPPPATH=[master_env.Dir('.').srcnode().abspath])
 master_env.Prepend(CPPPATH=[os.path.join(master_env.Dir('.').srcnode().abspath,'steinberg')])
 master_env.PiRelease('release',tag,compatible_tag)
-master_env.PiPackageDescription('eigend',desc='EigenD Application',groups=('app',))
+master_env.PiPackageDescription('eigend',desc='EigenD Application',groups=('app',),depends=['python3.14'])
 master_env.PiPackageDescription('eigend-build',desc='EigenD Build System',groups=('bld',))
 master_env.PiBuildSystem(package='eigend-build')
 
 if master_env['IS_WINDOWS']:
     prereq = [
+        ('C:\\Python314\\python.exe', 'Python 3.14 from python.org is required. Download from https://www.python.org/downloads/')
     ]
 
 if master_env['IS_MACOSX']:
     prereq = [
+        ('/Library/Frameworks/Python.framework/Versions/3.14/Python', 'Python 3.14 from python.org is required. Download from https://www.python.org/downloads/')
     ]
 
 if master_env['IS_LINUX']:
     prereq = [
+        ('/usr/bin/python3.14', 'Python 3.14 is required. Install with: sudo apt-get install python3.14')
     ]
 
 master_env.PiPackageCollection('EigenD-gpl',groups=('app',),prereq=prereq)

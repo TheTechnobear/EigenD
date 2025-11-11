@@ -43,7 +43,6 @@ def get_template():
 
 def generate(module, ifile, ofile, path):
     tree=process.process(path,module,ifile)
-    print(f"DEBUG: module='{module}', tree['module']='{tree.get('module', 'NOT SET')}'", file=sys.stderr)
     text=expand.expand(get_template(),tree)
 
     output=open(ofile,"w")

@@ -63,4 +63,4 @@ if env['IS_MACOSX']:
     env.PiEtc('eigend',Split('postflight-eigend'))
 
 if env['IS_WINDOWS']:
-    env.PiPackageInit('eigend','upgrade_user',as_user=True)
+    env.PiPackageInit('eigend','upgrade_user',as_user=True,order=2)

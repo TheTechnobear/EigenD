@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 su $USER -c $PI_PREFIX/bin/upgrade_user
 

@@ -452,7 +452,14 @@ class PiWindowsEnvironment(generic_tools.PiGenericEnvironment):
                 f.write('Function .onInit\n')
 
                 for i,(d,m) in enumerate(prereq):
-                    f.write('IfFileExists "$INSTDIR\\%s" PreReq%dok\n' % (d,i))
+                    # Check if path is absolute (e.g., C:\Python314\python.exe)
+                    # If absolute, use as-is; if relative, prepend $INSTDIR
+                    if ':' in d or d.startswith('\\\\'):
+                        # Absolute path (has drive letter or UNC path)
+                        f.write('IfFileExists "%s" PreReq%dok\n' % (d,i))
+                    else:
+                        # Relative path - check in $INSTDIR
+                        f.write('IfFileExists "$INSTDIR\\%s" PreReq%dok\n' % (d,i))
                     f.write('MessageBox MB_ICONEXCLAMATION "%s"\n' % m)
                     f.write('Abort\n')
                     f.write('PreReq%dok:\n' % i)

@@ -107,7 +107,8 @@ def mycopytree(src, dst, symlinks=False, ignore=None):
 class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
 
     def __init__(self,platform):
-        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','Library/Eigenlabs',python='/usr/local/bin/python3.14')
+        # Use explicit Framework path - required for libepython.dylib to find Python runtime
+        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','Library/Eigenlabs',python='/Library/Frameworks/Python.framework/Versions/3.14/bin/python3')
         os_major=uname()[2].split('.')[0]
 
         self.Append(LIBS=Split('dl m pthread'))
