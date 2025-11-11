@@ -168,6 +168,7 @@ CreateAgentComponent::CreateAgentComponent (const std::set<std::string>& agents,
         i++;
     }
 
+    listBox->setColour (ListBox::backgroundColourId, Colours::white);
     listBox->updateContent();
     listBox->selectRow(0,false,true);
     //listBox->setMouseMoveSelectsRows(true);
