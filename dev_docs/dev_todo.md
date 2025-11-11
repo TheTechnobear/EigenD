@@ -2,6 +2,30 @@
 
 **Status**: 🚀 Core Migration COMPLETE - Hardware Testing Phase
 
+
+
+## Next to look at 
+
+exiting eigend... 
+
+eigend: <pico_manager1>: Traceback (most recent call last):
+eigend: <pico_manager1>:  File "/Users/kodiak/projects/EigenD/tmp/modules/pi/utils.py", line 85, in __do_nothrow
+    return func(*args,**kwds)
+eigend: <pico_manager1>:  File "/Users/kodiak/projects/EigenD/tmp/modules/pisession/workspace.py", line 196, in __quit
+    self.module.on_quit(self.agent)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+eigend: <pico_manager1>:  File "/Users/kodiak/projects/EigenD/tmp/modules/pi/agent.py", line 82, in __on_quit
+    obj.quit()
+    ~~~~~~~~^^
+eigend: <pico_manager1>:  File "/Users/kodiak/projects/EigenD/tmp/modules/pi/agent.py", line 511, in quit
+    if hasattr(self,'on_quit'): self.on_quit()
+                                ~~~~~~~~~~~~^^
+eigend: <pico_manager1>:  File "/Users/kodiak/projects/EigenD/tmp/plugins/Eigenlabs/plg_pkbd/pico_manager_plg.py", line 148, in on_quit
+    for k in self.subsystem_keys():
+             ~~~~~~~~~~~~~~~~~~~^^
+eigend: <pico_manager1>:  RuntimeError: dictionary changed size during iteration
+
+
 ---
 
 ## 🎯 HIGH PRIORITY - Active Tasks
@@ -57,7 +81,24 @@
 
 ## 🔧 MEDIUM PRIORITY - Post-Migration Work
 
-### 4. Workbench Application Testing
+### 4. Cleanup and Performance Issues
+**Status**: Medium priority - affects UX
+- **Zombie Proxies and Slow Setup Switching** 🔴 **NEW** (2025-11-10)
+  - **Symptom**: RPC retransmit messages during agent deletion, slow setup switching
+  - **Root Cause**: Incomplete cleanup - filter wires not disconnecting synchronously
+  - **Impact**: Performance degradation, users restart app instead of switching setups
+  - **Analysis**: Retransmits timeout after 10 attempts but add latency, connections accumulate
+  - **Priority**: Medium - affects UX but has workaround (restart app)
+  - **Details**: See `dev_docs/prompts/gc_zombie_proxies.md`
+  - **Note**: Pre-existing issue exposed by Python 3 GC fixing memory leaks
+
+- **Minor Clock Cleanup Assertion** ⚠️ **LOW PRIORITY** (2025-11-10)
+  - **Symptom**: `assertion failure: entity_ from pia_glue.h:324` when deleting rigs
+  - **Impact**: Low - assertion caught and logged, no crash or corruption
+  - **Analysis**: Context accessed after release during clock sink cleanup
+  - **Note**: Always present but never triggered because Python 2 didn't clean up properly
+
+### 5. Workbench Application Testing
 **Status**: ✅ Functional with known issue (2025-11-10)
 - ✅ Fixed: No longer crashes on startup (PyCapsule issue resolved)
 - ✅ Fixed: Agent positioning now correct in GUI

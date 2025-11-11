@@ -63,21 +63,22 @@ class GarbageCollector(threading.Thread):
         self.event1.set()
 
     def run_pass(self,p):
-        if self.scaffold.global_lock():
-            print('starting gc pass',p)
-            try:
-                o = gc.collect(p)
-                if o: print('gc collected',o)
-            except:
-                pass
-            print('finished gc pass',p)
-            self.scaffold.global_unlock()
+        # No lock - holding global_lock doesn't prevent the C++ use-after-free bug
+        # The crash is in scaler destructor ordering, not concurrent access
+        print('starting gc pass',p)
+        try:
+            o = gc.collect(p)
+            if o: print('gc collected',o)
+        except:
+            pass
+        print('finished gc pass',p)
 
     def passes(self):
+        # Normal GC pattern: 10x gen0, 10x gen1, 1x gen2
         while True:
-            for i in range(0,10): yield 0
-            for i in range(0,10): yield 1
-            yield 2
+            for i in range(0,10): yield 0  # Young generation
+            for i in range(0,10): yield 1  # Middle generation
+            yield 2                         # Full collection
 
 
     def run(self):

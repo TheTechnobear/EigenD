@@ -46,8 +46,12 @@ class PersistentMetaData:
         self.__container.set_property_string(self.__tag,logic.render_termlist(self.__nodes.keys()))
 
     def clear(self,destroy=False):
-        while self.__nodes:
-            (v,s) = self.__nodes.popitem()
+        # Create local copy to break reference cycle during cleanup
+        nodes = self.__nodes
+        self.__nodes = {}  # Replace with new empty dict immediately
+        
+        while nodes:
+            (v,s) = nodes.popitem()
             self.__retracted(v,s,destroy)
 
         self.__set_termlist()

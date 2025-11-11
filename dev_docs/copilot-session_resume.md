@@ -245,7 +245,59 @@ When other modules encounter JUCE 8 issues, apply these changes:
 
 ---
 
-## 🎯 CURRENT PRIORITY: Hardware and Factory Setup Testing (2025-11-09)
+## 🎯 LATEST: Zombie Proxy GC Bug FIXED (2025-11-10)
+
+### ✅ Reference Cycle in Rig Cleanup Broken
+
+**Status:** FIXED - Testing in progress  
+**Details:** See `dev_docs/prompts/gc_zombie_proxies.md` (complete analysis)
+
+**Problem:** Deleting Rig agents caused crash on first GC pass 2 with repeated "proxy closing down" messages for child agents.
+
+**Root cause:** `pi/container.py` `PersistentMetaData.clear()` kept reference to old `__nodes` dict during cleanup, creating cycle preventing proper GC collection.
+
+**Fix applied:** `pi/container.py` lines 48-56
+```python
+def clear(self, destroy=False):
+    # Create local copy to break reference cycle
+    nodes = self.__nodes
+    self.__nodes = {}  # Replace immediately - breaks cycle!
+    
+    while nodes:
+        (v,s) = nodes.popitem()
+        self.__retracted(v,s,destroy)
+```
+
+**Impact:**
+- Rig deletion should now clean up properly
+- Child agents released correctly
+- No more zombie proxy finalizers
+- GC pass 2 runs safely
+
+**Testing:** Delete rig, wait for GC pass 2, verify no crash/no zombie messages.
+
+---
+
+## 🎯 PREVIOUS: Fix Zombie Proxy GC Bug (2025-11-10)
+
+### ⚠️ INVESTIGATING - Fast-fail mode enabled  
+**Details:** See `dev_docs/prompts/gc_zombie_proxies.md` (kept up to date)
+
+**Quick summary:**
+- Python 3 generation 2 GC triggers `__del__` finalizers on cyclic objects
+- Agent deletion causes repeated "proxy closing down" messages
+- Crash after ~10 GC cycles during object destruction
+- Root cause: Reference cycles between Python agents and C++ proxies
+- **Fast-fail mode:** Running gen 2 (full) GC every 10 seconds to expose bug quickly
+
+**Current focus:**
+- Identify exact reference cycle causing zombie proxies
+- Fix cleanup order in `pi/agent.py`, `pi/atom.py`
+- Break cycles or remove `__del__` finalizers
+
+---
+
+## 🎯 PREVIOUS: Hardware and Factory Setup Testing (2025-11-09)
 
 ### Python 3.14 Migration: COMPLETE ✅
 

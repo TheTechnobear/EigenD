@@ -447,6 +447,13 @@ struct piw::scaler_t::impl_t: piw::scaler_subscriber_t, piw::ufilterctl_t, piw::
 {
     impl_t(piw::scaler_controller_t *sc,const piw::cookie_t &c,const pic::f2f_t &b);
 
+    ~impl_t()
+    {
+        // Prevent any ufilterctl_delete() calls during base class destruction
+        // from accessing a potentially invalid controller pointer
+        controller_ = nullptr;
+    }
+
     ufilterfunc_t *ufilterctl_create(const piw::data_t &);
     virtual void ufilterctl_delete(ufilterfunc_t *f);
 
@@ -873,7 +880,12 @@ void piw::scaler_t::impl_t::ufilterctl_delete(ufilterfunc_t *f)
 {
     if(f)
     {
-        controller_->del_subscriber((scaler_subscriber_t *)f);
+        // Only call del_subscriber if controller is still valid
+        // During shutdown, controller_ is set to nullptr in ~impl_t()
+        if(controller_)
+        {
+            controller_->del_subscriber((scaler_subscriber_t *)f);
+        }
         delete f;
     }
 }
