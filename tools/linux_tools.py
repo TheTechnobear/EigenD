@@ -43,8 +43,8 @@ class PiLinuxEnvironment(unix_tools.PiUnixEnvironment):
         self.Append(LIBS=Split('dl m pthread rt'))
         self.Append(CXXFLAGS=Split('-std=c++17'))
         self.Append(CCFLAGS=Split('-D_XOPEN_SOURCE=600 -D_GNU_SOURCE -D_REENTRANT -g -O0 -Wall -Werror -Wno-unused-function -Wno-unused-but-set-variable -Wno-narrowing -Wno-deprecated-declarations -fmessage-length=0 -fno-strict-aliasing '))
-        self.Append(LINKFLAGS=Split('-g -z origin -Wl,--rpath-link=tmp/bin -Wl,--rpath=\\$$ORIGIN/../bin'))
-        self.Append(SHLINKFLAGS=Split('-g -z origin -Wl,--rpath-link=tmp/bin -Wl,--rpath=\\$$ORIGIN/../bin -Wl,-soname=lib${SHLIBNAME}.so'))
+        self.Append(LINKFLAGS=Split('-g -z origin -Wl,--rpath-link=tmp/bin -Wl,--rpath=\\$$ORIGIN -Wl,--rpath=\\$$ORIGIN/../bin'))
+        self.Append(SHLINKFLAGS=Split('-g -z origin -Wl,--rpath-link=tmp/bin -Wl,--rpath=\\$$ORIGIN -Wl,--rpath=\\$$ORIGIN/../bin -Wl,-soname=lib${SHLIBNAME}.so'))
         self.Replace(PI_PLATFORMTYPE='linux')
         self.Replace(IS_LINUX=True)
 
