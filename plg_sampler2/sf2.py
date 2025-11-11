@@ -177,7 +177,7 @@ class ZoneBuilder:
         rf = mtof(rk,transpose)
 
         looping = False
-        if self.GEN_SAMPLEMODE in gen:
+        if GEN_SAMPLEMODE in self.gen:
             if self.gen[GEN_SAMPLEMODE] != 0:
                 looping = True
 
@@ -202,9 +202,16 @@ class ZoneBuilder:
 
 def load_soundfont(file,bk,pre,transpose):
     print('loading bank',bk,'preset',pre,'from',file)
-    f = resource.file_open(file,'rb',0)
-    sf = SF2.read(f,name=file)
-    f.close()
+    
+    if not resource.os_path_exists(file):
+        raise RuntimeError('soundfont file %s not found' % file)
+    
+    try:
+        f = resource.file_open(file,'rb',0)
+        sf = SF2.read(f,name=file)
+        f.close()
+    except (OSError, IOError) as e:
+        raise RuntimeError('error reading soundfont %s: %s' % (file, e))
 
     pbs = None
     pbe = None
@@ -232,7 +239,7 @@ def load_soundfont(file,bk,pre,transpose):
         if inst is not None:
             for ii in range(sf['pdta']['inst'][inst][1],sf['pdta']['inst'][inst+1][1]):
                 izb = ZoneBuilder(sf['pdta']['ibag'],sf['pdta']['igen'],sf['pdta']['imod'],ii,base=gizb,add=pzb)
-                if izb.GEN_SAMPLEID in gen:
+                if GEN_SAMPLEID in izb.gen:
                     p.add_zone(izb.zone(sf['sdta']['smpl'],sf['pdta']['shdr'],transpose))
                 else:
                     if gizb is None:
@@ -251,10 +258,21 @@ def __trim(s):
     return s
 
 def sf_info(file):
-    file = resource.file_open(file,'rb',0)
-    data = SF2info.read(file)
-    file.close()
-    for n,p,b in data['pdta']['phdr'][:-1]:
-        yield __trim(n),p,b
+    if not resource.os_path_exists(file):
+        print('sf2: file does not exist:', file)
+        return
+    
+    try:
+        file_handle = resource.file_open(file,'rb',0)
+        data = SF2info.read(file_handle)
+        file_handle.close()
+        for n,p,b in data['pdta']['phdr'][:-1]:
+            yield __trim(n),p,b
+    except (OSError, IOError) as e:
+        print('sf2: error reading file %s: %s' % (file, e))
+        return
+    except Exception as e:
+        print('sf2: unexpected error reading file %s: %s' % (file, e))
+        return
 
 

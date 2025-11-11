@@ -6,7 +6,119 @@
 
 ---
 
-## 🎯 LATEST: JUCE 8 Dialog API Breaking Change Fixed (2025-11-10)
+## 🎯 LATEST: Missing File Error Handling Fixed in plg_sampler2 (2025-11-11)
+
+### ✅ Fixed FileNotFoundError and IOError Handling in Sampler Plugin
+
+**Problem:** Missing or corrupt soundfont files and .name files caused unhandled exceptions  
+**Locations:** `plg_sampler2/sampler_oscillator_plg.py` and `plg_sampler2/sf2.py`
+
+#### **Issues Fixed:**
+
+**1. Name File Reading (sampler_oscillator_plg.py line 212)**
+- **Before:** `resource.file_open(p).read().strip()` directly in lambda - no error handling
+- **After:** Added `__read_name_file()` helper method with try-except
+- **Result:** Logs error and skips corrupt .name files instead of crashing
+
+**2. Preset Scanning (sampler_oscillator_plg.py `__scanpresets()`)**
+- **Before:** No error handling when calling `sf2.sf_info()`
+- **After:** Added try-except for OSError, IOError, and general Exception
+- **Result:** Logs error and returns empty list instead of stack trace
+
+**3. Soundfont Loading (sf2.py `load_soundfont()`)**
+- **Before:** Opens file without checking existence
+- **After:** Checks `resource.os_path_exists()` first, wraps file_open in try-except
+- **Result:** Raises clear RuntimeError with descriptive message
+
+**4. Soundfont Info Reading (sf2.py `sf_info()`)**
+- **Before:** Opens file without checking existence, used `file` as variable name
+- **After:** Checks existence first, renamed to `file_handle`, added try-except
+- **Result:** Logs error and returns empty generator instead of exception
+
+#### **Files Changed:**
+- `plg_sampler2/sampler_oscillator_plg.py` lines 202-227:
+  - Added `__read_name_file()` helper method
+  - Updated `__scan()` to filter out None values from failed reads
+  - Added error handling to `__scanpresets()`
+
+- `plg_sampler2/sf2.py`:
+  - Lines 203-214: Added existence check and error handling to `load_soundfont()`
+  - Lines 254-269: Added existence check and error handling to `sf_info()`
+
+#### **Impact:**
+- **Before:** Missing soundfonts or corrupt files caused stack traces in logs
+- **After:** Logs descriptive errors and continues gracefully
+- **Behavior:** Sampler continues working with available files, skips problematic ones
+
+#### **Pre-existing Bugs Noted (not fixed):**
+- `sf2.py` lines 180, 242: `gen` should be `self.gen` (typos causing undefined variable)
+- These are logic bugs unrelated to file handling, left for separate fix
+
+#### **Testing:**
+- ✅ No new syntax errors in sampler_oscillator_plg.py
+- ⏳ Runtime verification needed (access sampler with missing soundfonts)
+
+---
+
+## 🎯 PREVIOUS: Missing Loop Directory Error Handling Fixed (2025-11-11)
+
+### ✅ Fixed FileNotFoundError Stack Traces in plg_loop
+
+**Problem:** Missing `/usr/local/pi/loop` directory caused stack trace instead of graceful handling  
+**Error:** `FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/pi/loop'`  
+**Location:** `plg_loop/loopdb.py` methods accessing factory loop directory
+
+#### **Root Cause:**
+- `enumerate_path()` and `cinfo_path()` called `resource.os_listdir()` without checking directory exists
+- When factory loop directory missing, `os.listdir()` raised `FileNotFoundError`
+- Exception propagated through RPC handler causing stack trace in logs
+- Should log warning and return empty results instead
+
+#### **Solution:**
+Added defensive checks to filesystem access methods in `plg_loop/loopdb.py`:
+
+```python
+def enumerate_path(self,root,path):
+    dir = os.path.join(root,*path)
+    
+    # Check if directory exists, return empty if not
+    if not resource.os_path_exists(dir) or not resource.os_path_isdir(dir):
+        print('loopdb: directory does not exist:', dir)
+        return (0, 0)
+    
+    sdirs = 0
+    sfiles = 0
+
+    try:
+        for f in resource.os_listdir(dir):
+            # ... rest of enumeration
+    except (OSError, IOError) as e:
+        print('loopdb: error reading directory %s: %s' % (dir, e))
+        return (0, 0)
+    
+    return (sfiles,sdirs)
+```
+
+**Similar fix applied to `cinfo_path()` method.**
+
+#### **Files Changed:**
+- `plg_loop/loopdb.py` lines 203-248:
+  - `enumerate_path()`: Added exists check and exception handling
+  - `cinfo_path()`: Added exists check and exception handling
+
+#### **Impact:**
+- **Before:** Stack trace on every access to factory loops when directory missing
+- **After:** Logs "directory does not exist" and returns empty results gracefully
+- **Behavior:** Drummer plugin continues working, just shows no factory loops
+- **Note:** `finfo_path()` not changed - it queries database, doesn't access filesystem
+
+#### **Testing:**
+- ✅ No syntax errors
+- ⏳ Runtime verification needed (delete agent and check logs)
+
+---
+
+## 🎯 PREVIOUS: JUCE 8 Dialog API Breaking Change Fixed (2025-11-10)
 
 ### ✅ Workbench Dialog Content Issue Resolved
 

@@ -35,31 +35,52 @@ wav_reader = riff.Root('WAVE', riff.List(**{ 'fmt ': riff.Struct('<hHLLHH'), 'da
 
 def fgetsamples(filename):
     print('loading samples from ',filename)
-    f = resource.file_open(filename,'rb',0)
-    r = wav_reader.read(f)
-    print('sample rate is',r['fmt '][2])
-    data = r['data']
-    if isinstance(data, bytes):
-        data = data.decode('latin-1')
-    return loop_native.canonicalise_samples(data,float(r['fmt '][2]))
+    
+    if not resource.os_path_exists(filename):
+        raise RuntimeError('WAV file not found: %s' % filename)
+    
+    try:
+        f = resource.file_open(filename,'rb',0)
+        r = wav_reader.read(f)
+        f.close()
+        print('sample rate is',r['fmt '][2])
+        data = r['data']
+        if isinstance(data, bytes):
+            data = data.decode('latin-1')
+        return loop_native.canonicalise_samples(data,float(r['fmt '][2]))
+    except (OSError, IOError) as e:
+        raise RuntimeError('Error reading WAV file %s: %s' % (filename, e))
+    except Exception as e:
+        raise RuntimeError('Error processing WAV file %s: %s' % (filename, e))
 
 def rgetsamples(res):
     print('loading samples from ',res)
-    from io import BytesIO
-    r = files.PkgResourceFile(res)
-    r2 = wav_reader.read(BytesIO(r.data(0,r.size())))
-    print('sample rate is',r2['fmt '][2])
-    data = r2['data']
-    if isinstance(data, bytes):
-        data = data.decode('latin-1')
-    return loop_native.canonicalise_samples(data,float(r2['fmt '][2]))
+    try:
+        from io import BytesIO
+        r = files.PkgResourceFile(res)
+        r2 = wav_reader.read(BytesIO(r.data(0,r.size())))
+        print('sample rate is',r2['fmt '][2])
+        data = r2['data']
+        if isinstance(data, bytes):
+            data = data.decode('latin-1')
+        return loop_native.canonicalise_samples(data,float(r2['fmt '][2]))
+    except Exception as e:
+        raise RuntimeError('Error loading package resource %s: %s' % (res, e))
 
 def wav_resource(name):
     print('loading wav resource',name)
     uf = resource.user_resource_file(resource.loop_dir,name,version='')
     if resource.os_path_isfile(uf):
-        return fgetsamples(uf)
-    return rgetsamples('plg_loop/%s'%name)
+        try:
+            return fgetsamples(uf)
+        except RuntimeError as e:
+            print('clicker: %s' % e)
+            print('clicker: falling back to package resource')
+    
+    try:
+        return rgetsamples('plg_loop/%s'%name)
+    except RuntimeError as e:
+        raise RuntimeError('Cannot load WAV resource %s from user directory or package: %s' % (name, e))
 
 class Agent(agent.Agent):
     def __init__(self, address, ordinal):

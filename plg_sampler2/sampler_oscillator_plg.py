@@ -205,11 +205,26 @@ class Sample(atom.Atom):
         b = lambda path: os.path.splitext(os.path.basename(path))[0]
         return map(b,paths), map(f,paths)
 
+    def __read_name_file(self, path):
+        """Safely read a .name file, returning None on error"""
+        try:
+            return resource.file_open(path).read().strip()
+        except (OSError, IOError) as e:
+            print('sampler2: error reading name file %s: %s' % (path, e))
+            return None
+
     def __scan(self):
         files,paths = self.__scan1('*.[sS][fF]2')
         self.__f2p = dict(zip(files,paths))
         self.__files = list(self.__f2p.keys())
-        names,cookies = self.__scan1('*.name', lambda p: resource.file_open(p).read().strip())
+        # Filter out None values from failed reads
+        names_raw, cookies_raw = self.__scan1('*.name', self.__read_name_file)
+        names = []
+        cookies = []
+        for n, c in zip(names_raw, cookies_raw):
+            if c is not None:  # Skip files that failed to read
+                names.append(n)
+                cookies.append(c)
         self.__n2c = dict(zip(names,cookies))
         self.__c2n = dict(zip(cookies,names))
 
@@ -223,9 +238,14 @@ class Sample(atom.Atom):
             return []
 
         ret = []
-        for n,p,b in sf2.sf_info(path):
-            cookie = self.__join(file,b,p)
-            ret.append((cookie,n,self.__c2n.get(cookie) or 'None'))
+        try:
+            for n,p,b in sf2.sf_info(path):
+                cookie = self.__join(file,b,p)
+                ret.append((cookie,n,self.__c2n.get(cookie) or 'None'))
+        except (OSError, IOError) as e:
+            print('sampler2: error reading soundfont %s: %s' % (path, e))
+        except Exception as e:
+            print('sampler2: unexpected error reading soundfont %s: %s' % (path, e))
         return ret
 
     def choose_cookie(self,c):

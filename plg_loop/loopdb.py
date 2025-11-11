@@ -202,30 +202,50 @@ class LoopDatabase:
 
     def enumerate_path(self,root,path):
         dir = os.path.join(root,*path)
+        
+        # Check if directory exists, return empty if not
+        if not resource.os_path_exists(dir) or not resource.os_path_isdir(dir):
+            print('loopdb: directory does not exist:', dir)
+            return (0, 0)
+        
         sdirs = 0
         sfiles = 0
 
-        for f in resource.os_listdir(dir):
-            ff = os.path.join(dir,f)
+        try:
+            for f in resource.os_listdir(dir):
+                ff = os.path.join(dir,f)
 
-            if resource.os_path_isdir(ff):
-                sdirs += 1
-                continue
+                if resource.os_path_isdir(ff):
+                    sdirs += 1
+                    continue
 
-            if not resource.os_path_isfile(ff):
-                continue
+                if not resource.os_path_isfile(ff):
+                    continue
 
-            fl = f.lower()
-            if fl.endswith('.aif') or fl.endswith('.aiff'):
-                sfiles += 1
-                continue
+                fl = f.lower()
+                if fl.endswith('.aif') or fl.endswith('.aiff'):
+                    sfiles += 1
+                    continue
+        except (OSError, IOError) as e:
+            print('loopdb: error reading directory %s: %s' % (dir, e))
+            return (0, 0)
 
         return (sfiles,sdirs)
 
     def cinfo_path(self,root,path):
         dir = os.path.join(root,*path)
-        files = resource.os_listdir(dir)
-        return [(f,) for f in files if resource.os_path_isdir(os.path.join(dir,f))]
+        
+        # Check if directory exists, return empty list if not
+        if not resource.os_path_exists(dir) or not resource.os_path_isdir(dir):
+            print('loopdb: directory does not exist:', dir)
+            return []
+        
+        try:
+            files = resource.os_listdir(dir)
+            return [(f,) for f in files if resource.os_path_isdir(os.path.join(dir,f))]
+        except (OSError, IOError) as e:
+            print('loopdb: error reading directory %s: %s' % (dir, e))
+            return []
 
     def finfo_path(self,root,path):
         dir = os.path.join(root,*path)
