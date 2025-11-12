@@ -40,7 +40,7 @@ jobs:
             if (context.payload.action === 'opened') labels.push('status: open');
 
             if (labels.length) {
-              await github.issues.addLabels({
+              await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number,
