@@ -1,7 +1,6 @@
 name: Bug report
-about: Create a report to help us debug a problem.
 description: Use this template to report bugs. Please fill in all required fields.
-title: '[BUG] {{summary}}'
+title: '[BUG] '
 labels:
 - bug
 body:
@@ -11,12 +10,14 @@ body:
     label: Short summary
     description: One-line summary of the problem
     placeholder: e.g. Crash when opening Workbench
+  validations:
     required: true
 - type: textarea
   id: description
   attributes:
     label: Steps to reproduce
     description: Describe the steps to reproduce, expected vs actual behaviour
+  validations:
     required: true
 - type: dropdown
   id: version
@@ -26,6 +27,7 @@ body:
     options:
     - 3.0.0-beta-1
     - 2.2.1-release
+  validations:
     required: true
 - type: dropdown
   id: component
@@ -39,6 +41,7 @@ body:
     - Agent
     - Hardware
     - Setup
+  validations:
     required: true
 - type: dropdown
   id: agent
@@ -57,6 +60,7 @@ body:
     - host
     - midi_device
     - midi_converter
+  validations:
     required: false
 - type: dropdown
   id: hardware
@@ -67,15 +71,12 @@ body:
     - alpha
     - tau
     - pico
+  validations:
     required: true
 - type: textarea
   id: logs
   attributes:
     label: Logs / additional info
     description: Paste logs, error messages, or add any other relevant info
-    required: false
-- type: attachments
-  id: attachments
-  attributes:
-    label: Attach files (screenshots, logs)
+  validations:
     required: false
