@@ -105,6 +105,7 @@ public:
     void foregroundOn();
     void foregroundOff();
     PropertyStore* getPropertyStore();
+    Connection* getConnection();
     void setChanged();
     void pathChanged();
     void routeChanged(bool srcChanged, bool dstChanged);
@@ -135,6 +136,7 @@ public:
     String getUsingSpId();
     int getSegmentHashAt(int x, int y);
     bool hasSegment(int hash);
+    void recalculateGrids();
 
 private:
     String id_;

@@ -945,48 +945,57 @@ class Backend(workbench_native.c2p):
 
     @piasync.coroutine('internal eror')
     def connect_test(self,srcid,dstid,u,f,c):
-        print("connect_test",srcid,dstid,u,f,c)
-        proxy=self.__database.find_item(dstid)
-        if proxy:
-            if u==0:
-                u=None
-            if f=='':
-                f=None
-            if c=='':
-                c=None
-            r=proxy.invoke_rpc('connect',logic.render_term(logic.make_term('conn',u,None,srcid,f,c)))
-            yield(r)
-            if not r.status():
-                print('connect failed', srcid,dstid,u,f,c)
-                self.__frontend.report_error('eigenD could not make connection '+ srcid + ':' + dstid,r.args()[0])
-                yield piasync.Coroutine.failure('rpc_connect failed') 
-
-            print('Backend connect_test',srcid,dstid,u,f)
-            yield piasync.Coroutine.success()
-        else:
-            print('proxy not found')
+        # Convert to qualified/usable IDs like plumber does
+        dst_qid = self.__database.to_usable_id(dstid)
+        src_qid = self.__database.to_usable_id(srcid)
+        src_relative = paths.to_relative(src_qid, scope=paths.id2scope(dst_qid))
+        
+        if u==0:
+            u=None
+        if f=='':
+            f=None
+        if c=='':
+            c=None
+        
+        term = logic.make_term('conn', u, None, src_relative, f, c)
+        rendered_term = logic.render_term(term)
+        
+        r = rpc.invoke_rpc(dst_qid, 'connect', rendered_term)
+        yield(r)
+        
+        if not r.status():
+            self.__frontend.report_error('eigenD could not make connection '+ srcid + ':' + dstid, r.args()[0])
+            yield piasync.Coroutine.failure('rpc_connect failed')
+        
+        yield piasync.Coroutine.success()
 
     @piasync.coroutine('internal eror')
     def disconnect(self,srcid,dstid,u,f,c):
-        proxy=self.__database.find_item(dstid)
-
-        if proxy:
-            if u==0:
-                u=None
-            if f=='':
-                f=None
-            if c=='':
-                c=None
-            r=proxy.invoke_rpc('disconnect',logic.render_term(logic.make_term('conn',u,None,srcid,f,c)))
-            yield(r)
-            if not r.status():
-                print('disconnect failed', srcid,dstid,u,f,c)
-                self.__frontend.report_error('eigenD could not disconnect wire '+ srcid + ':' + dstid,r.args()[0])
-                yield piasync.Coroutine.failure('rpc_disconnect failed') 
-
+        # Convert to qualified/usable IDs like plumber does
+        dst_qid = self.__database.to_usable_id(dstid)
+        src_qid = self.__database.to_usable_id(srcid)
+        
+        # Make source ID relative to destination scope (like Endpoint.connect does)
+        src_relative = paths.to_relative(src_qid, scope=paths.id2scope(dst_qid))
+        
+        if u==0:
+            u=None
+        if f=='':
+            f=None
+        if c=='':
+            c=None
+        
+        # Build the connection term
+        term = logic.make_term('conn',u,None,src_relative,f,c)
+        rendered_term = logic.render_term(term)
+        
+        # Use rpc.invoke_rpc like Endpoint.connect does
+        try:
+            rpc.invoke_rpc(dst_qid, 'disconnect', rendered_term)
             yield piasync.Coroutine.success()
-        else:
-            print('proxy not found')
+        except Exception as e:
+            self.__frontend.report_error('eigenD could not disconnect wire', str(e))
+            yield piasync.Coroutine.failure(f'disconnect RPC failed: {e}')
 
 
     def mediator(self):

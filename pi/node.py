@@ -293,7 +293,7 @@ class server(piw.server):
         return list(self.iterkeys())
 
     def __iter__(self):
-        return self.keys()
+        return self.iterkeys()
 
     def iterkeys(self):
         if self.__children is not None:
@@ -836,12 +836,12 @@ class client(piw.client):
 
     # fourth level uses definitions from lower levels
     def itervalues(self):
-        for _, v in self.items():
+        for _, v in self.iteritems():
             yield v
     def values(self):
-        return [v for _, v in self.items()]
+        return [v for _, v in self.iteritems()]
     def items(self):
-        return list(self.items())
+        return list(self.iteritems())
     def clear(self):
         for key in self.keys():
             del self[key]

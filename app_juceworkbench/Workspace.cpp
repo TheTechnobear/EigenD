@@ -1546,6 +1546,7 @@ void Workspace::delete_connection(String id, String u, String f, String c)
 {
     String sid=id.upToFirstOccurrenceOf(":",false,true);
     String did=id.fromFirstOccurrenceOf(":",false,true);
+    pic::logmsg()<<"Workspace::delete_connection id="<<std::string(id.toUTF8())<<" sid="<<std::string(sid.toUTF8())<<" did="<<std::string(did.toUTF8())<<" u="<<std::string(u.toUTF8())<<" f="<<std::string(f.toUTF8())<<" c="<<std::string(c.toUTF8());
     int ui;
     if (u.isEmpty())
     {

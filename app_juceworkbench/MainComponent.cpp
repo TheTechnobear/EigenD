@@ -5918,6 +5918,16 @@ void MainComponent::zoomChildren()
     {
         dragPin_->doZoom(zoomFactor_);
     }
+
+    // Recalculate wire grid maps when zoom changes
+    for (std::map<String,Wire*>::iterator iter=wires_.begin();iter!=wires_.end();iter++)
+    {
+        Wire* w=iter->second;
+        if (w!=0)
+        {
+            w->recalculateGrids();
+        }
+    }
 }
 
 float MainComponent::getZoomFactor()
@@ -5989,7 +5999,25 @@ void MainComponent::deleteWire(Wire* w)
     else
     {
         pic::logmsg()<<"MainComponent deleteWire "<<std::string(w->getId().toUTF8())<<" control="<<std::string(w->get_control().toUTF8());
-        model_->delete_connection(w->getId(),w->get_dstUsing(),w->get_srcFilter(),w->get_control());
+        // For non-loose wires, we need to delete via the backend connection
+        // The wire ID might be a visual representation (internal pins after box expansion)
+        // Use the connection's real atom IDs, not the wire's visual pin IDs
+        Connection* conn = w->getConnection();
+        if (conn != 0)
+        {
+            // Note: Connection naming is confusing - input() returns source, output() returns destination
+            String srcId = conn->input();  // Real source atom ID from eigend  
+            String dstId = conn->output(); // Real destination atom ID from eigend
+            String realId = srcId + ":" + dstId;
+            pic::logmsg()<<"  deleting connection: src="<<std::string(srcId.toUTF8())<<" dst="<<std::string(dstId.toUTF8());
+            model_->delete_connection(realId,w->get_dstUsing(),w->get_srcFilter(),w->get_control());
+        }
+        else
+        {
+            pic::logmsg()<<"  WARNING: wire has no connection object, using visual IDs";
+            String wireId = w->getId();
+            model_->delete_connection(wireId,w->get_dstUsing(),w->get_srcFilter(),w->get_control());
+        }
     }
 }
 

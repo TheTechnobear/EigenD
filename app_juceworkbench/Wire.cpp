@@ -418,6 +418,11 @@ PropertyStore* Wire::getPropertyStore()
     return props_;
 }
 
+Connection* Wire::getConnection()
+{
+    return connection_;
+}
+
 String Wire::getId()
 {
     return id_;
@@ -1355,11 +1360,12 @@ void Wire::calculateRoute()
 void Wire::calculateGrids()
 {
     clearGridMap();
-    int gn;
+    int gn=-1;
     std::set<int> gridsquares;
     for (std::vector<Segment*>::const_iterator j=fullSegments_.begin();j!=fullSegments_.end();++j)
     {
-        for(Path::Iterator i ((*j)->getPath());i.next();)
+        Path segPath=(*j)->getPath();
+        for(Path::Iterator i (segPath);i.next();)
         {
             // XXX If make simplification to PathCalculator for the linear (sticky hook) case this
             // requires modification, otherwise wire detection breaks: If its a linear path 
@@ -1373,18 +1379,32 @@ void Wire::calculateGrids()
             case Path::Iterator::lineTo:
                 gn=mc_->getGridNumber(i.x1,i.y1); 
                 break;
+            case Path::Iterator::quadraticTo:
+                gn=mc_->getGridNumber(i.x2,i.y2);
+                break;
+            case Path::Iterator::cubicTo:
+                gn=mc_->getGridNumber(i.x3,i.y3);
+                break;
             default:
                 break;
             }
-            std::set<int>::iterator iter;
-            iter=gridsquares.find(gn);
-            if(iter==gridsquares.end())
+            if(gn>=0)
             {
-                 updateGridMap(gn);
-                 gridsquares.insert(gn);
+                std::set<int>::iterator iter;
+                iter=gridsquares.find(gn);
+                if(iter==gridsquares.end())
+                {
+                     updateGridMap(gn);
+                     gridsquares.insert(gn);
+                }
             }
         }
     }
+}
+
+void Wire::recalculateGrids()
+{
+    calculateRoute();  // Rebuild path at current zoom, then recalculate grids
 }
 
 void Wire::clearGridMap()
