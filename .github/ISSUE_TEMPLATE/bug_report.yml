@@ -54,8 +54,11 @@ body:
     description: Select the earliest version you can reproduce the bug with (required)
     options:
     - 3.0.0-beta-1
-    - 2.2.1-release
-  validations:
+    - 2.2.1
+    - 2.1.7
+    - 2.1.x
+    - 2.0.x
+   validations:
     required: true
 - type: dropdown
   id: component
