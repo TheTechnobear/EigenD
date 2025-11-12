@@ -1,0 +1,49 @@
+name: Label issues from form
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issue_number = context.payload.issue.number;
+            const body = context.payload.issue.body || '';
+            const labels = [];
+
+            function extract(field) {
+              const re = new RegExp(field + '[:\\s]*([^\\n\\r]+)', 'i');
+              const m = body.match(re);
+              return m ? m[1].trim() : null;
+            }
+
+            const version = extract('Version');
+            if (version) labels.push(`version: ${version}`);
+
+            const component = extract('Component');
+            if (component) labels.push(`component: ${component}`);
+
+            const agent = extract('Agent');
+            if (agent) labels.push(`agent: ${agent}`);
+
+            const hardware = extract('Hardware');
+            if (hardware) labels.push(`hardware: ${hardware}`);
+
+            if (context.payload.action === 'opened') labels.push('status: triage');
+
+            if (labels.length) {
+              await github.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number,
+                labels
+              });
+            }

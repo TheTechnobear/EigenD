@@ -1,10 +1,22 @@
-# EigenD Python 3.14 Migration - Session Resume Context
+ EigenD 3.0 - Session Resume Context
 
-**Date:** 2025-11-10  
-**Branch:** py3-C17-juce8  
+**Date:** 2025-12-10  
+**Branch:** 3.0
 **Status:** ✅ **C++17 & JUCE 8 MIGRATION COMPLETE - TESTING PHASE**
 
 ---
+
+2025-11-12: Added issue form and labeler workflow on branches 2.2 and 3.0.
+
+Files added:
+- .github/ISSUE_TEMPLATE/bug_report.yml
+- .github/workflows/issue-labeler.yml
+- .github/issue-metadata/versions.yml
+
+Notes:
+- Agent field is optional in the form (GitHub forms do not support conditional fields). The workflow will only add an agent label when the field is filled.
+- Hardware is a required dropdown with fixed options.
+
 
 ## 🎯 LATEST: Missing File Error Handling Fixed in plg_sampler2 (2025-11-11)
 
@@ -1410,6 +1422,5 @@ Based on patterns so far, expect:
 **Base work:** TheTechnobear's python3 branch (but with fixes)  
 **Original:** EigenD 2.2.x (Python 2.7)
 
----
 
 
