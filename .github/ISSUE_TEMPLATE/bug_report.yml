@@ -58,7 +58,7 @@ body:
     - 2.1.7
     - 2.1.x
     - 2.0.x
-   validations:
+  validations:
     required: true
 - type: dropdown
   id: component
