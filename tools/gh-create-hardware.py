@@ -16,11 +16,12 @@ Requires:
 import os
 import sys
 import yaml
-from github import Github
+from github import Github, Auth
 
 REPO_OWNER = "thetechnobear"
 REPO_NAME = "EigenD"
 HARDWARE_FILE = ".github/issue-metadata/hardware.yml"
+BUG_REPORT_FILE = ".github/ISSUE_TEMPLATE/bug_report.yml"
 
 
 def load_hardware():
@@ -39,6 +40,27 @@ def save_hardware(hardware_list):
         yaml.dump({'hardware': hardware_list}, f, default_flow_style=False, sort_keys=False)
 
 
+def update_bug_report(hardware_list):
+    """Update bug_report.yml with the new hardware list."""
+    if not os.path.exists(BUG_REPORT_FILE):
+        print(f"Warning: {BUG_REPORT_FILE} not found, skipping update")
+        return
+    
+    with open(BUG_REPORT_FILE, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    # Find the hardware dropdown and update its options
+    for item in data.get('body', []):
+        if item.get('id') == 'hardware':
+            item['attributes']['options'] = hardware_list
+            break
+    
+    with open(BUG_REPORT_FILE, 'w') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    
+    print(f"Updated {BUG_REPORT_FILE} with new hardware list")
+
+
 def create_label(hardware):
     """Create a GitHub label for the hardware."""
     token = os.getenv('GITHUB_TOKEN')
@@ -46,7 +68,8 @@ def create_label(hardware):
         print("Error: GITHUB_TOKEN environment variable not set", file=sys.stderr)
         sys.exit(1)
     
-    g = Github(token)
+    auth = Auth.Token(token)
+    g = Github(auth=auth)
     repo = g.get_repo(f"{REPO_OWNER}/{REPO_NAME}")
     
     label_name = f"hardware: {hardware}"
@@ -81,12 +104,13 @@ def main():
         save_hardware(hardware_list)
         print(f"Added hardware '{hardware}' to {HARDWARE_FILE}")
     
+    # Update bug report template
+    update_bug_report(hardware_list)
+    
     # Create GitHub label
     create_label(hardware)
     
-    print(f"\nDone! Don't forget to:")
-    print(f"  1. Update .github/ISSUE_TEMPLATE/bug_report.yml to include '{hardware}' in the hardware dropdown")
-    print(f"  2. Commit and push changes")
+    print(f"\nDone! Don't forget to commit and push changes.")
 
 
 if __name__ == '__main__':

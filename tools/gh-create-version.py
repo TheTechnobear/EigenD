@@ -16,11 +16,12 @@ Requires:
 import os
 import sys
 import yaml
-from github import Github
+from github import Github, Auth
 
 REPO_OWNER = "thetechnobear"
 REPO_NAME = "EigenD"
 VERSIONS_FILE = ".github/issue-metadata/versions.yml"
+BUG_REPORT_FILE = ".github/ISSUE_TEMPLATE/bug_report.yml"
 
 
 def load_versions():
@@ -36,7 +37,28 @@ def save_versions(versions):
     """Save versions list to YAML file."""
     os.makedirs(os.path.dirname(VERSIONS_FILE), exist_ok=True)
     with open(VERSIONS_FILE, 'w') as f:
-        yaml.dump({'versions': versions}, f, default_flow_style=False)
+        yaml.dump({'versions': versions}, f, default_flow_style=False, sort_keys=False)
+
+
+def update_bug_report(versions):
+    """Update bug_report.yml with the new version list."""
+    if not os.path.exists(BUG_REPORT_FILE):
+        print(f"Warning: {BUG_REPORT_FILE} not found, skipping update")
+        return
+    
+    with open(BUG_REPORT_FILE, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    # Find the version dropdown and update its options
+    for item in data.get('body', []):
+        if item.get('id') == 'version':
+            item['attributes']['options'] = versions
+            break
+    
+    with open(BUG_REPORT_FILE, 'w') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    
+    print(f"Updated {BUG_REPORT_FILE} with new version list")
 
 
 def create_label(version):
@@ -46,7 +68,8 @@ def create_label(version):
         print("Error: GITHUB_TOKEN environment variable not set", file=sys.stderr)
         sys.exit(1)
     
-    g = Github(token)
+    auth = Auth.Token(token)
+    g = Github(auth=auth)
     repo = g.get_repo(f"{REPO_OWNER}/{REPO_NAME}")
     
     label_name = f"version: {version}"
@@ -81,12 +104,13 @@ def main():
         save_versions(versions)
         print(f"Added version '{version}' to {VERSIONS_FILE}")
     
+    # Update bug report template
+    update_bug_report(versions)
+    
     # Create GitHub label
     create_label(version)
     
-    print(f"\nDone! Don't forget to:")
-    print(f"  1. Update .github/ISSUE_TEMPLATE/bug_report.yml to include '{version}' in the version dropdown")
-    print(f"  2. Commit and push changes")
+    print(f"\nDone! Don't forget to commit and push changes.")
 
 
 if __name__ == '__main__':

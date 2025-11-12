@@ -37,7 +37,7 @@ jobs:
             const hardware = extract('Hardware');
             if (hardware) labels.push(`hardware: ${hardware}`);
 
-            if (context.payload.action === 'opened') labels.push('status: triage');
+            if (context.payload.action === 'opened') labels.push('status: open');
 
             if (labels.length) {
               await github.issues.addLabels({

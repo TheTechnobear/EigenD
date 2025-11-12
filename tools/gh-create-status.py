@@ -15,7 +15,7 @@ Requires:
 
 import os
 import sys
-from github import Github
+from github import Github, Auth
 
 REPO_OWNER = "thetechnobear"
 REPO_NAME = "EigenD"
@@ -28,7 +28,8 @@ def create_label(status):
         print("Error: GITHUB_TOKEN environment variable not set", file=sys.stderr)
         sys.exit(1)
     
-    g = Github(token)
+    auth = Auth.Token(token)
+    g = Github(auth=auth)
     repo = g.get_repo(f"{REPO_OWNER}/{REPO_NAME}")
     
     label_name = f"status: {status}"

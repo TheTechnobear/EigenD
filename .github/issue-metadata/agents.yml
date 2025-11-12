@@ -1,0 +1,12 @@
+agents:
+- audio
+- pico
+- alpha
+- tau
+- keygroup
+- scaler
+- talker
+- rig
+- host
+- midi_device
+- midi_converter

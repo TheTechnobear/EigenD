@@ -1,89 +1,81 @@
 name: Bug report
 about: Create a report to help us debug a problem.
 description: Use this template to report bugs. Please fill in all required fields.
-title: "[BUG] {{summary}}"
-labels: ["bug"]
+title: '[BUG] {{summary}}'
+labels:
+- bug
 body:
-  - type: input
-    id: summary
-    attributes:
-      label: Short summary
-      description: One-line summary of the problem
-      placeholder: e.g. Crash when opening Workbench
-      required: true
-
-  - type: textarea
-    id: description
-    attributes:
-      label: Steps to reproduce
-      description: Describe the steps to reproduce, expected vs actual behaviour
-      required: true
-
-  - type: dropdown
-    id: version
-    attributes:
-      label: Version
-      description: Select the version where you saw the bug (required)
-      options:
-        - 2.2.1-release
-        - 3.0.0-beta-1
-        - 3.0.0-release
-      required: true
-
-  - type: dropdown
-    id: component
-    attributes:
-      label: Component
-      description: Select the component that is affected
-      options:
-        - EigenD
-        - Workbench
-        - Stage
-        - Agent
-        - Hardware
-        - Setup
-        - Other
-      required: true
-
-  - type: dropdown
-    id: agent
-    attributes:
-      label: Agent
-      description: Only fill this if Component = Agent
-      options:
-        - audio
-        - pico
-        - alpha
-        - tau
-        - keygroup
-        - scaler
-        - talker
-        - rig
-        - host
-        - midi_device
-        - midi_converter
-      required: false
-
-  - type: dropdown
-    id: hardware
-    attributes:
-      label: Hardware
-      description: Select the hardware used (required)
-      options:
-        - Alpha
-        - Tau
-        - Pico
-      required: true
-
-  - type: textarea
-    id: logs
-    attributes:
-      label: Logs / additional info
-      description: Paste logs, error messages, or add any other relevant info
-      required: false
-
-  - type: attachments
-    id: attachments
-    attributes:
-      label: Attach files (screenshots, logs)
-      required: false
+- type: input
+  id: summary
+  attributes:
+    label: Short summary
+    description: One-line summary of the problem
+    placeholder: e.g. Crash when opening Workbench
+    required: true
+- type: textarea
+  id: description
+  attributes:
+    label: Steps to reproduce
+    description: Describe the steps to reproduce, expected vs actual behaviour
+    required: true
+- type: dropdown
+  id: version
+  attributes:
+    label: Version
+    description: Select the version where you saw the bug (required)
+    options:
+    - 3.0.0-beta-1
+    - 2.2.1-release
+    required: true
+- type: dropdown
+  id: component
+  attributes:
+    label: Component
+    description: Select the component that is affected
+    options:
+    - EigenD
+    - Workbench
+    - Stage
+    - Agent
+    - Hardware
+    - Setup
+    required: true
+- type: dropdown
+  id: agent
+  attributes:
+    label: Agent
+    description: Only fill this if Component = Agent
+    options:
+    - audio
+    - pico
+    - alpha
+    - tau
+    - keygroup
+    - scaler
+    - talker
+    - rig
+    - host
+    - midi_device
+    - midi_converter
+    required: false
+- type: dropdown
+  id: hardware
+  attributes:
+    label: Hardware
+    description: Select the hardware used (required)
+    options:
+    - alpha
+    - tau
+    - pico
+    required: true
+- type: textarea
+  id: logs
+  attributes:
+    label: Logs / additional info
+    description: Paste logs, error messages, or add any other relevant info
+    required: false
+- type: attachments
+  id: attachments
+  attributes:
+    label: Attach files (screenshots, logs)
+    required: false

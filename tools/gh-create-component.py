@@ -16,11 +16,12 @@ Requires:
 import os
 import sys
 import yaml
-from github import Github
+from github import Github, Auth
 
 REPO_OWNER = "thetechnobear"
 REPO_NAME = "EigenD"
 COMPONENTS_FILE = ".github/issue-metadata/components.yml"
+BUG_REPORT_FILE = ".github/ISSUE_TEMPLATE/bug_report.yml"
 
 
 def load_components():
@@ -39,6 +40,27 @@ def save_components(components):
         yaml.dump({'components': components}, f, default_flow_style=False, sort_keys=False)
 
 
+def update_bug_report(components):
+    """Update bug_report.yml with the new component list."""
+    if not os.path.exists(BUG_REPORT_FILE):
+        print(f"Warning: {BUG_REPORT_FILE} not found, skipping update")
+        return
+    
+    with open(BUG_REPORT_FILE, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    # Find the component dropdown and update its options
+    for item in data.get('body', []):
+        if item.get('id') == 'component':
+            item['attributes']['options'] = components
+            break
+    
+    with open(BUG_REPORT_FILE, 'w') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    
+    print(f"Updated {BUG_REPORT_FILE} with new component list")
+
+
 def create_label(component):
     """Create a GitHub label for the component."""
     token = os.getenv('GITHUB_TOKEN')
@@ -46,7 +68,8 @@ def create_label(component):
         print("Error: GITHUB_TOKEN environment variable not set", file=sys.stderr)
         sys.exit(1)
     
-    g = Github(token)
+    auth = Auth.Token(token)
+    g = Github(auth=auth)
     repo = g.get_repo(f"{REPO_OWNER}/{REPO_NAME}")
     
     label_name = f"component: {component}"
@@ -81,12 +104,13 @@ def main():
         save_components(components)
         print(f"Added component '{component}' to {COMPONENTS_FILE}")
     
+    # Update bug report template
+    update_bug_report(components)
+    
     # Create GitHub label
     create_label(component)
     
-    print(f"\nDone! Don't forget to:")
-    print(f"  1. Update .github/ISSUE_TEMPLATE/bug_report.yml to include '{component}' in the component dropdown")
-    print(f"  2. Commit and push changes")
+    print(f"\nDone! Don't forget to commit and push changes.")
 
 
 if __name__ == '__main__':

@@ -79,7 +79,6 @@ To create all default labels, run:
 # Versions
 python tools/gh-create-version.py 2.2.1-release
 python tools/gh-create-version.py 3.0.0-beta-1
-python tools/gh-create-version.py 3.0.0-release
 
 # Components
 python tools/gh-create-component.py EigenD

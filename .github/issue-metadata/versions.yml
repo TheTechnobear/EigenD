@@ -1,5 +1,3 @@
-# Curated versions list for the issue form
 versions:
-  - 2.2.1-release
-  - 3.0.0-beta-1
-  - 3.0.0-release
+- 3.0.0-beta-1
+- 2.2.1-release

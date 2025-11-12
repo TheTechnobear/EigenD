@@ -16,11 +16,12 @@ Requires:
 import os
 import sys
 import yaml
-from github import Github
+from github import Github, Auth
 
 REPO_OWNER = "thetechnobear"
 REPO_NAME = "EigenD"
 AGENTS_FILE = ".github/issue-metadata/agents.yml"
+BUG_REPORT_FILE = ".github/ISSUE_TEMPLATE/bug_report.yml"
 
 
 def load_agents():
@@ -39,6 +40,27 @@ def save_agents(agents):
         yaml.dump({'agents': agents}, f, default_flow_style=False, sort_keys=False)
 
 
+def update_bug_report(agents):
+    """Update bug_report.yml with the new agent list."""
+    if not os.path.exists(BUG_REPORT_FILE):
+        print(f"Warning: {BUG_REPORT_FILE} not found, skipping update")
+        return
+    
+    with open(BUG_REPORT_FILE, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    # Find the agent dropdown and update its options
+    for item in data.get('body', []):
+        if item.get('id') == 'agent':
+            item['attributes']['options'] = agents
+            break
+    
+    with open(BUG_REPORT_FILE, 'w') as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    
+    print(f"Updated {BUG_REPORT_FILE} with new agent list")
+
+
 def create_label(agent):
     """Create a GitHub label for the agent."""
     token = os.getenv('GITHUB_TOKEN')
@@ -46,7 +68,8 @@ def create_label(agent):
         print("Error: GITHUB_TOKEN environment variable not set", file=sys.stderr)
         sys.exit(1)
     
-    g = Github(token)
+    auth = Auth.Token(token)
+    g = Github(auth=auth)
     repo = g.get_repo(f"{REPO_OWNER}/{REPO_NAME}")
     
     label_name = f"agent: {agent}"
@@ -81,12 +104,13 @@ def main():
         save_agents(agents)
         print(f"Added agent '{agent}' to {AGENTS_FILE}")
     
+    # Update bug report template
+    update_bug_report(agents)
+    
     # Create GitHub label
     create_label(agent)
     
-    print(f"\nDone! Don't forget to:")
-    print(f"  1. Update .github/ISSUE_TEMPLATE/bug_report.yml to include '{agent}' in the agent dropdown")
-    print(f"  2. Commit and push changes")
+    print(f"\nDone! Don't forget to commit and push changes.")
 
 
 if __name__ == '__main__':
