@@ -13,6 +13,17 @@ body:
   validations:
     required: true
 - type: dropdown
+  id: severity
+  attributes:
+    label: Severity
+    description: How severe is this bug? e.g. critial - crash, major - functional issue , minor - cosmetic, feature - improvement
+    options:
+    - critical
+    - major
+    - minor
+  validations:
+    required: true
+- type: dropdown
   id: platform
   attributes:
     label: Platform
@@ -140,7 +151,8 @@ body:
   attributes:
     label: Steps to reproduce
     description: Describe the steps to reproduce, expected vs actual behaviour
-    placeholder: e.g. Crash when opening Workbench. if beta did you test on release version?
+    placeholder: e.g. Crash when opening Workbench. if beta did you test on release
+      version?
   validations:
     required: true
 - type: textarea
@@ -148,6 +160,7 @@ body:
   attributes:
     label: Logs / additional info
     description: Paste logs, error messages, or add any other relevant info
-    placeholder: e.g. attach eigend.0.log, workbench.0.log - use tools, open library directory 
+    placeholder: e.g. attach eigend.0.log, workbench.0.log - use tools, open library
+      directory
   validations:
     required: false

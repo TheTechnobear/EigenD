@@ -40,6 +40,9 @@ jobs:
             const hardware = extract('Hardware');
             if (hardware) labels.push(`hardware: ${hardware}`);
 
+            const severity = extract('Severity');
+            if (severity) labels.push(`severity: ${severity}`);
+
             if (context.payload.action === 'opened') labels.push('status: open');
 
             if (labels.length) {
