@@ -13,6 +13,17 @@ body:
   validations:
     required: true
 - type: dropdown
+  id: platform
+  attributes:
+    label: Platform
+    description: Select the platform/OS you are using (required)
+    options:
+    - macOS
+    - Windows
+    - Linux
+  validations:
+    required: true
+- type: dropdown
   id: hardware
   attributes:
     label: Hardware
@@ -31,17 +42,6 @@ body:
     options:
     - 3.0.0-beta-1
     - 2.2.1-release
-  validations:
-    required: true
-- type: dropdown
-  id: platform
-  attributes:
-    label: Platform
-    description: Select the platform/OS you are using (required)
-    options:
-    - macOS
-    - Windows
-    - Linux
   validations:
     required: true
 - type: dropdown
