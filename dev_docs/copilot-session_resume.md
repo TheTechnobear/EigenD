@@ -6,6 +6,73 @@
 
 ---
 
+## 🎯 LATEST: Wire Deletion Fixed in Workbench (2025-11-12)
+
+### ✅ Wire Deletion Now Working for All Nesting Levels
+
+**Problem:** Wire deletion showed confirmation dialog but wires weren't actually deleted from eigend database  
+**Root Cause:** `disconnect()` method in `workbench.py` was using `find_item()` which returns `None` for deeply nested atoms like `<console_mixer1>#3.1.1`
+
+#### **The Critical Discovery: Missing `main:` Scope Prefix**
+
+**Old log (failed):**
+```
+workbench: destination <console_mixer1>#3.1.1 not found, trying parent <console_mixer1>#3.1
+workbench: disconnect: calling RPC on proxy <console_mixer1>#3.1 with srcid=<rig1>#2.1
+```
+
+**New log (working):**
+```
+workbench: disconnect: calling RPC on <main:console_mixer1>#3.1.1 with term=conn(None,None,'<rig1>#2.1',None,None)
+workbench: disconnect: RPC succeeded
+```
+
+**Key difference:** `to_usable_id()` adds the `<main:` scope prefix, which is **required for RPC routing to deeply nested atoms**.
+
+#### **Solution: Use Plumber's Pattern**
+
+Changed both `disconnect()` and `connect_test()` to match the working pattern from `pi/plumber.py`:
+
+```python
+# OLD (broken):
+proxy = self.__database.find_item(dstid)  # Returns None for nested atoms!
+if proxy:
+    proxy.invoke_rpc('disconnect', term)
+
+# NEW (working):
+dst_qid = self.__database.to_usable_id(dstid)      # <main:console_mixer1>#3.1.1
+src_qid = self.__database.to_usable_id(srcid)      # <main:rig1>#2.1
+src_relative = paths.to_relative(src_qid, scope=paths.id2scope(dst_qid))
+rpc.invoke_rpc(dst_qid, 'disconnect', rendered_term)  # Works!
+```
+
+#### **Why This Matters:**
+
+1. **`find_item()` limitation:** Returns `None` for atoms more than 1-2 levels deep, even though they exist in the database
+2. **`to_usable_id()` advantage:** Converts bare IDs to fully qualified IDs with scope prefix (`<main:...>`)
+3. **RPC routing:** The scope prefix is necessary for eigend to route RPCs to deeply nested atoms
+4. **Plumber precedent:** `pi/plumber.py` uses this pattern successfully for all connections
+
+#### **Files Changed:**
+- `app_juceworkbench/workbench.py`:
+  - Lines 947-969: Updated `connect_test()` to use `rpc.invoke_rpc()` with qualified IDs
+  - Lines 971-995: Updated `disconnect()` to use `rpc.invoke_rpc()` with qualified IDs
+  - Removed all debug logging after verification
+
+#### **Testing Verified:**
+- ✅ Wire deletion works for agent-level connections
+- ✅ Wire deletion works for expanded box pins
+- ✅ Wire deletion works for deeply nested atoms (3+ levels)
+- ✅ Works in both main rig and sub-rigs
+- ✅ Manual wire creation also works (connect_test validated)
+
+#### **Impact:**
+- **Before:** Wire deletion silently failed for nested atoms, wire persisted after restart
+- **After:** All wire deletions work correctly regardless of nesting level
+- **Consistency:** Both `connect_test()` and `disconnect()` now use the same reliable pattern
+
+---
+
 2025-11-12: Added issue form and labeler workflow on branches 2.2 and 3.0.
 
 Files added:
