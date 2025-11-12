@@ -71,46 +71,4 @@ Creates label: `status: investigating` (yellow)
 2. Commit and push changes
 3. The issue-labeler workflow will automatically apply these labels based on form selections
 
-## Initial Setup
-
-To create all default labels, run:
-
-```bash
-# Versions
-python tools/gh-create-version.py 2.2.1-release
-python tools/gh-create-version.py 3.0.0-beta-1
-
-# Components
-python tools/gh-create-component.py EigenD
-python tools/gh-create-component.py Workbench
-python tools/gh-create-component.py Stage
-python tools/gh-create-component.py Agent
-python tools/gh-create-component.py Hardware
-python tools/gh-create-component.py Setup
-python tools/gh-create-component.py Other
-
-# Agents
-python tools/gh-create-agent.py audio
-python tools/gh-create-agent.py pico
-python tools/gh-create-agent.py alpha
-python tools/gh-create-agent.py tau
-python tools/gh-create-agent.py keygroup
-python tools/gh-create-agent.py scaler
-python tools/gh-create-agent.py talker
-python tools/gh-create-agent.py rig
-python tools/gh-create-agent.py host
-python tools/gh-create-agent.py midi_device
-python tools/gh-create-agent.py midi_converter
-
-# Hardware
-python tools/gh-create-hardware.py Alpha
-python tools/gh-create-hardware.py Tau
-python tools/gh-create-hardware.py Pico
-
-# Status
-python tools/gh-create-status.py triage
-python tools/gh-create-status.py confirmed
-python tools/gh-create-status.py in-progress
-python tools/gh-create-status.py fixed
-python tools/gh-create-status.py wont-fix
-```
+#

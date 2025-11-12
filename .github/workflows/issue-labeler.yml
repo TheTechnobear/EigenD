@@ -28,6 +28,9 @@ jobs:
             const version = extract('Version');
             if (version) labels.push(`version: ${version}`);
 
+            const platform = extract('Platform');
+            if (platform) labels.push(`platform: ${platform}`);
+
             const component = extract('Component');
             if (component) labels.push(`component: ${component}`);
 

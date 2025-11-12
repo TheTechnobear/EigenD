@@ -34,6 +34,17 @@ body:
   validations:
     required: true
 - type: dropdown
+  id: platform
+  attributes:
+    label: Platform
+    description: Select the platform/OS you are using (required)
+    options:
+    - macOS
+    - Windows
+    - Linux
+  validations:
+    required: true
+- type: dropdown
   id: component
   attributes:
     label: Component
@@ -53,17 +64,75 @@ body:
     label: Agent
     description: Only fill this if Component = Agent
     options:
+    - ableton_push
+    - ahdsr
+    - alpha_manager
+    - arranger
     - audio
-    - pico
-    - alpha
-    - tau
+    - audio_unit
+    - blownstring
+    - cello
+    - clarinet
+    - clicker
+    - clip_manager
+    - conductor
+    - console_mixer
+    - continuum
+    - controller
+    - convolver
+    - cycler
+    - delay
+    - drummer
+    - envelope
+    - finger
+    - gain
+    - illuminator
+    - keyboard
+    - keyboard_controller
     - keygroup
-    - scaler
-    - talker
-    - rig
-    - host
-    - midi_device
+    - labeler
+    - ladder_filter
+    - language
+    - latch
+    - livepad
+    - metronome
+    - midi_clock
     - midi_converter
+    - midi_device
+    - midi_input
+    - midi_monitor
+    - midi_output
+    - midi_pgm_chooser
+    - midi_processor
+    - osc_output
+    - orb
+    - panner
+    - panpipe
+    - pico_manager
+    - player
+    - polyphonic_summer
+    - ranger
+    - recorder
+    - rectangle_osc
+    - rig
+    - sampler
+    - sawtooth_osc
+    - scale_illuminator
+    - scale_manager
+    - scaler
+    - scheduler
+    - shaper
+    - sine_osc
+    - soundplane
+    - stringer
+    - strummer
+    - summer
+    - synth_filter
+    - t3d_device
+    - t3d_output
+    - tabulator
+    - talker
+    - triangle_osc
   validations:
     required: false
 - type: textarea
