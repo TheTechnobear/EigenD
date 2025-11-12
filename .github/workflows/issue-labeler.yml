@@ -11,10 +11,27 @@ jobs:
       issues: write
 
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .github/issue-metadata
+          sparse-checkout-cone-mode: false
+      
       - uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const fs = require('fs');
+            const yaml = require('js-yaml');
+            
+            // Load valid values from metadata files
+            const validVersions = yaml.load(fs.readFileSync('.github/issue-metadata/versions.yml', 'utf8')).versions;
+            const validPlatforms = yaml.load(fs.readFileSync('.github/issue-metadata/platforms.yml', 'utf8')).platforms;
+            const validComponents = yaml.load(fs.readFileSync('.github/issue-metadata/components.yml', 'utf8')).components;
+            const validAgents = yaml.load(fs.readFileSync('.github/issue-metadata/agents.yml', 'utf8')).agents;
+            const validHardware = yaml.load(fs.readFileSync('.github/issue-metadata/hardware.yml', 'utf8')).hardware;
+            const validSeverities = yaml.load(fs.readFileSync('.github/issue-metadata/severities.yml', 'utf8')).severities;
+            
             const issue_number = context.payload.issue.number;
             const body = context.payload.issue.body || '';
             const labels = [];
@@ -26,25 +43,64 @@ jobs:
             }
 
             const version = extract('Version');
-            if (version) labels.push(`version: ${version}`);
+            if (version && validVersions.includes(version)) {
+              labels.push(`version: ${version}`);
+            }
 
             const platform = extract('Platform');
-            if (platform) labels.push(`platform: ${platform}`);
+            if (platform && validPlatforms.includes(platform)) {
+              labels.push(`platform: ${platform}`);
+            }
 
             const component = extract('Component');
-            if (component) labels.push(`component: ${component}`);
+            if (component && validComponents.includes(component)) {
+              labels.push(`component: ${component}`);
+            }
 
             const agent = extract('Agent');
-            if (agent) labels.push(`agent: ${agent}`);
+            if (agent && validAgents.includes(agent)) {
+              labels.push(`agent: ${agent}`);
+            }
 
             const hardware = extract('Hardware');
-            if (hardware) labels.push(`hardware: ${hardware}`);
+            if (hardware && validHardware.includes(hardware)) {
+              labels.push(`hardware: ${hardware}`);
+            }
 
             const severity = extract('Severity');
-            if (severity) labels.push(`severity: ${severity}`);
+            if (severity && validSeverities.includes(severity)) {
+              labels.push(`severity: ${severity}`);
+            }
 
             if (context.payload.action === 'opened') labels.push('status: open');
 
+            // Get current labels
+            const currentLabels = context.payload.issue.labels.map(l => l.name);
+            
+            // Remove old labels of each type
+            const labelsToRemove = currentLabels.filter(label => {
+              return label.startsWith('version: ') ||
+                     label.startsWith('platform: ') ||
+                     label.startsWith('component: ') ||
+                     label.startsWith('agent: ') ||
+                     label.startsWith('hardware: ') ||
+                     label.startsWith('severity: ');
+            });
+            
+            for (const label of labelsToRemove) {
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number,
+                  name: label
+                });
+              } catch (e) {
+                // Label might not exist, ignore
+              }
+            }
+
+            // Add new labels
             if (labels.length) {
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
