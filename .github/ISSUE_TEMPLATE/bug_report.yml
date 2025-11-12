@@ -16,11 +16,13 @@ body:
   id: severity
   attributes:
     label: Severity
-    description: How severe is this bug? e.g. critial - crash, major - functional issue , minor - cosmetic, feature - improvement
+    description: How severe is this bug? e.g. critial - crash, major - functional
+      issue , minor - cosmetic, feature - improvement
     options:
     - critical
     - major
     - minor
+    - feature
   validations:
     required: true
 - type: dropdown

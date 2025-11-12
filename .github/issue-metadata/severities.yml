@@ -2,3 +2,4 @@ severities:
 - critical
 - major
 - minor
+- feature
