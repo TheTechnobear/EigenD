@@ -11,26 +11,36 @@ jobs:
       issues: write
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            .github/issue-metadata
-          sparse-checkout-cone-mode: false
-      
       - uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const fs = require('fs');
-            const yaml = require('js-yaml');
+            // Fetch and parse YAML metadata files from GitHub API
+            async function getYamlList(path) {
+              try {
+                const response = await github.rest.repos.getContent({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  path: path,
+                  ref: context.ref
+                });
+                const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+                // Simple YAML list parser - extracts lines starting with "- "
+                const matches = content.match(/^- (.+)$/gm);
+                return matches ? matches.map(m => m.substring(2).trim()) : [];
+              } catch (e) {
+                console.log(`Warning: Could not load ${path}: ${e.message}`);
+                return [];
+              }
+            }
             
             // Load valid values from metadata files
-            const validVersions = yaml.load(fs.readFileSync('.github/issue-metadata/versions.yml', 'utf8')).versions;
-            const validPlatforms = yaml.load(fs.readFileSync('.github/issue-metadata/platforms.yml', 'utf8')).platforms;
-            const validComponents = yaml.load(fs.readFileSync('.github/issue-metadata/components.yml', 'utf8')).components;
-            const validAgents = yaml.load(fs.readFileSync('.github/issue-metadata/agents.yml', 'utf8')).agents;
-            const validHardware = yaml.load(fs.readFileSync('.github/issue-metadata/hardware.yml', 'utf8')).hardware;
-            const validSeverities = yaml.load(fs.readFileSync('.github/issue-metadata/severities.yml', 'utf8')).severities;
+            const validVersions = await getYamlList('.github/issue-metadata/versions.yml');
+            const validPlatforms = await getYamlList('.github/issue-metadata/platforms.yml');
+            const validComponents = await getYamlList('.github/issue-metadata/components.yml');
+            const validAgents = await getYamlList('.github/issue-metadata/agents.yml');
+            const validHardware = await getYamlList('.github/issue-metadata/hardware.yml');
+            const validSeverities = await getYamlList('.github/issue-metadata/severities.yml');
             
             const issue_number = context.payload.issue.number;
             const body = context.payload.issue.body || '';
