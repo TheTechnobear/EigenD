@@ -12,11 +12,15 @@ body:
     placeholder: e.g. Crash when opening Workbench
   validations:
     required: true
-- type: textarea
-  id: description
+- type: dropdown
+  id: hardware
   attributes:
-    label: Steps to reproduce
-    description: Describe the steps to reproduce, expected vs actual behaviour
+    label: Hardware
+    description: Select the hardware used (required)
+    options:
+    - alpha
+    - tau
+    - pico
   validations:
     required: true
 - type: dropdown
@@ -62,15 +66,11 @@ body:
     - midi_converter
   validations:
     required: false
-- type: dropdown
-  id: hardware
+- type: textarea
+  id: description
   attributes:
-    label: Hardware
-    description: Select the hardware used (required)
-    options:
-    - alpha
-    - tau
-    - pico
+    label: Steps to reproduce
+    description: Describe the steps to reproduce, expected vs actual behaviour
   validations:
     required: true
 - type: textarea
