@@ -38,7 +38,7 @@ body:
   id: version
   attributes:
     label: Version
-    description: Select the version where you saw the bug (required)
+    description: Select the earliest version you reproduce the bug (required)
     options:
     - 3.0.0-beta-1
     - 2.2.1-release
@@ -140,6 +140,7 @@ body:
   attributes:
     label: Steps to reproduce
     description: Describe the steps to reproduce, expected vs actual behaviour
+    placeholder: e.g. Crash when opening Workbench. if beta did you test on release version?
   validations:
     required: true
 - type: textarea
@@ -147,5 +148,6 @@ body:
   attributes:
     label: Logs / additional info
     description: Paste logs, error messages, or add any other relevant info
+    placeholder: e.g. attach eigend.0.log, workbench.0.log - use tools.open library directory, 
   validations:
     required: false
