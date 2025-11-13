@@ -26,9 +26,9 @@ release = '3.0.0'
 compatible = '3.0'
 
 status = {
-    'windows': 'community',
-    'linux': 'community',
-    'macosx': 'community'
+    'windows': 'beta-1',
+    'linux': 'beta-1',
+    'macosx': 'beta-1'
 }
 
 tag = '%s-%s' % (release,status[master_env['PI_PLATFORMTYPE']])

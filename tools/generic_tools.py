@@ -891,6 +891,55 @@ class PiGenericEnvironment(SCons.Environment.Environment):
     def PiBinaryDLL(self,target,package=None):
         pass
 
+    def PiReleaseNotesLink(self,package,branch='main'):
+        """
+        Generate platform-specific URL shortcut to GitHub release notes.
+        Usage: env.PiReleaseNotesLink('eigend', branch='3.0')
+        """
+        url = 'https://github.com/TheTechnobear/EigenD/blob/%s/releasenotes.md' % branch
+        
+        def generate_webloc(target, source, env):
+            content = '''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>URL</key>
+	<string>%s</string>
+</dict>
+</plist>
+''' % env['RELEASE_NOTES_URL']
+            with open(str(target[0]), 'w') as f:
+                f.write(content)
+        
+        def generate_url(target, source, env):
+            content = '[InternetShortcut]\nURL=%s\n' % env['RELEASE_NOTES_URL']
+            with open(str(target[0]), 'w') as f:
+                f.write(content)
+        
+        def generate_desktop(target, source, env):
+            content = '[Desktop Entry]\nType=Link\nName=Release Notes\nURL=%s\nIcon=text-html\n' % env['RELEASE_NOTES_URL']
+            with open(str(target[0]), 'w') as f:
+                f.write(content)
+        
+        env = self.Clone()
+        env['RELEASE_NOTES_URL'] = url
+        env.set_package(package)
+        
+        if self['IS_MACOSX']:
+            target = env.File('Release Notes.webloc', env.subst('$ETCSTAGEDIR'))
+            node = env.Command(target, [], generate_webloc)
+            return node
+        elif self['IS_WINDOWS']:
+            target = env.File('Release Notes.url', env.subst('$ETCSTAGEDIR'))
+            node = env.Command(target, [], generate_url)
+            return node
+        elif self['IS_LINUX']:
+            target = env.File('Release Notes.desktop', env.subst('$ETCSTAGEDIR'))
+            node = env.Command(target, [], generate_desktop)
+            return node
+        
+        return []
+
 generic_py_template = """
 #ifdef _WIN32  
 #ifdef _DEBUG

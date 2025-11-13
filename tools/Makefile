@@ -92,4 +92,4 @@ endif
 	@echo "  ./run_tests.sh --quick --level foundation"
 	@echo ""
 	@echo "Note: run_tests.sh will auto-activate the venv"
-	@echo "========================================"
+	@echo "======================================="

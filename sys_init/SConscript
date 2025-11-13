@@ -20,6 +20,9 @@
 
 Import('env')
 
+# Generate platform-specific release notes URL shortcut
+env.PiReleaseNotesLink('eigend', branch='3.0')
+
 env.PiResources('rig','rigs/*',package='eigend')
 env.PiResources('upgrades','upgrades/*',package='eigend')
 env.PiResources('audiounit','aupresets/*',package='eigend')
@@ -47,7 +50,6 @@ if env['IS_WINDOWS']:
     env.PiResources('state','states/factory_win/*',package='eigend')
     env.PiResources('example','states/examples_win/*',package='eigend')
     env.PiResources('experimental','states/experimental_win/*',package='eigend')
-    env.PiReleaseFile('eigend','releasenotes.pdf','Release Notes')
     env.PiReleaseFile('eigend','pico-setup.pdf','Pico Setup Guide')
     env.PiReleaseFile('eigend','alpha-setup.pdf','Alpha Setup Guide')
     env.PiReleaseFile('eigend','tau-setup.pdf','Tau Setup Guide')
@@ -58,7 +60,6 @@ else:
 
 if env['IS_MACOSX']:
     env.PiEtc('eigend',Split('postflight-docs'))
-    env.PiEtc('eigend',Split('releasenotes.pdf'))
     env.PiEtc('eigend',Split('pico-setup.pdf'))
     env.PiEtc('eigend',Split('alpha-setup.pdf'))
     env.PiEtc('eigend',Split('tau-setup.pdf'))
