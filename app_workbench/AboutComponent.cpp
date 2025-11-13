@@ -71,6 +71,7 @@ AboutComponent::AboutComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
+    label->setText(PI_RELEASE,dontSendNotification);
     //[/Constructor]
 }
 
@@ -133,10 +134,6 @@ void AboutComponent::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void AboutComponent::setVersionText(String version)
-{
-    label->setText(version, dontSendNotification);
-}
 //[/MiscUserCode]
 
 

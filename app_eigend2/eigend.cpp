@@ -589,21 +589,6 @@ bool EigenMainWindow::perform (const InvocationInfo& info)
             JUCEApplication::getInstance()->systemRequestedQuit();
             break;
 
-        case commandDownload:
-            {
-                if(workbench_.isavailable())
-                {
-                    URL u("http://www.eigenlabs.com/downloads/latest/pro/");
-                    u.launchInDefaultBrowser();
-                }
-                else
-                {
-                    URL u("http://www.eigenlabs.com/downloads/latest/std/");
-                    u.launchInDefaultBrowser();
-                }
-            }
-            break;
-
         case commandResetWarnings:
             ignores_.clear();
             break;

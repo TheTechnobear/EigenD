@@ -283,7 +283,7 @@ void WidgetViewComponent :: mouseDown(const MouseEvent &e)
             framework.setContentComponent(&content);
             content.setFocusOrder(&framework);
 
-            int result = framework.runModalLoop();
+            int result = window.runModalLoop();
             
             if(result!=0)
             {

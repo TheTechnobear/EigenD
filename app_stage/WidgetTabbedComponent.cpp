@@ -403,7 +403,7 @@ void WidgetTabbedComponent::userRemoveTab(const int tabIndex, Component *compone
         framework.setContentComponent(&content);
         content.setFocusOrder(&framework);
         
-        result = framework.runModalLoop();
+        result = window.runModalLoop();
 
         doNotShowDeleteConfirm_ = content.getDoNotShowAgain();
         
@@ -467,7 +467,7 @@ void WidgetTabbedComponent::userSetTabProperties(int tabIndex)
     framework.setContentComponent(&dialogContent);
     dialogContent.setFocusOrder(&framework);
     
-    int result = framework.runModalLoop();
+    int result = window.runModalLoop();
     
     if(result!=0)
     {

@@ -61,7 +61,6 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-    void setVersionText(String version);
     //[/UserMethods]
 
     void paint (Graphics& g);

@@ -154,7 +154,6 @@ void MainWindow::handleCommandMessage(int commandId)
     if(commandId==1020)
     {
         AboutComponent* dc=new AboutComponent();
-        dc->setVersionText(WORKBENCH_VERSION);
         DialogWindow::showModalDialog("About",dc,this,Colour (0xffababab),true);
     }
 }
@@ -189,7 +188,7 @@ void JuceWorkbenchApp::initialise (const String& commandLine)
 
     python_backend0_ = new epython::PythonBackend(python_interp_);
 
-    if(python_backend0_->init_python("app_juceworkbench.workbench","main0"))
+    if(python_backend0_->init_python("app_workbench.workbench","main0"))
     {
         workbench::c2p0_t *backend = (workbench::c2p0_t *)python_backend0_->mediator();
         if(backend)
@@ -210,7 +209,7 @@ epython::PythonBackend* JuceWorkbenchApp::getBackend()
 {
     epython::PythonBackend *b0 = new epython::PythonBackend(python_interp_);
 
-    if(b0->init_python("app_juceworkbench.workbench","main"))
+    if(b0->init_python("app_workbench.workbench","main"))
     {
         return b0;
     }

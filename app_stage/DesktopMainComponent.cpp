@@ -937,7 +937,7 @@ bool MainComponent::perform (const InvocationInfo& info)
 
 
         case helpStageHelp:
-            juce::URL("http://www.eigenlabs.com/wiki/Stage/").launchInDefaultBrowser();
+            juce::URL("https://github.com/TheTechnobear/EigenD/wiki/Stage").launchInDefaultBrowser();
             break;
 
         default:

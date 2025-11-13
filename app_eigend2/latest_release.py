@@ -23,10 +23,7 @@ from app_eigend2 import version
 
 import piw
 import threading
-try:
-    import xmlrpc.client as xmlrpclib  # Python 3
-except ImportError:
-    import xmlrpclib  # Python 2
+import xmlrpc.client as xmlrpclib  # Python 3
 
 class HttpError(RuntimeError):
     pass

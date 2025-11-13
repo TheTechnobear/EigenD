@@ -1,33 +1,33 @@
 This is EigenD.
 
-The open source release includes all of EigenD except Stage.
+The open source release includes all of EigenD
 
 Contributing
 ------------
 
-If you would like to contribute to EigenD, we will gladly accept
-patches against this git repository.  You must sign the Eigenlabs
-Contributor Agreement before we can accept anything from you.
+If you would like to contribute to EigenD, we will gladly accept patches against this git repository.  
 
-Please go to the Developer Wiki for the Contributors Agreement.
-
-     http://www.eigenlabs.com/wiki/Developers/
+https://github.com/TheTechnobear/EigenD
 
      
-Issues
-------
-If you have any issues either building or running EigenD, 
-please report these on the eigenlabs forum
-     http://www.eigenlabs.com/forum/
-     
-The forum is read by many eigenharp players (as well as Eigenlabs),
-and you will get a faster response than, posting to issues on github
-which is only subscribed to by a small number.
-     
-     
+Issues & Suppot
+---------------
+
+This a fork of the open source project by EigenLabs.
+Please join the community at https://polyexpression.com for help, ideas and support.
+
+Issues can be raised on this repo here: 
+https://github.com/TheTechnobear/EigenD/issues
+
+however, as this is a community effort, please come and chat at polyexpression.com first.
+I will likely close issues, if I have no context issues.
+
+
 
 Building EigenD
 ---------------
+
+(this is being updated for 3.0)
 
 MAC OSX:
 to build application and eigend (tmp/app/EigenD.app)
@@ -60,24 +60,6 @@ You will need to have the stock EigenD installed to get the
 runtime support (which is a vanilla Python install) and the
 Windows device drivers.
 
-Steinberg SDK 
--------------
-obtains from : http://www.steinberg.net/en/company/developers.html
-you will need to register a developer account buts its free
-
-
-You will need to obtain the VST headers from the Steinberg site.  
-use latest version of VST SDK and copy VST2 headers, also for windows you will need asiosdk
-XThen, place these in a sub directory under the EigenD directory called 'steinberg' e.g.
-
-    ...
-    steinberg/pluginterfaces/base/*
-    steinberg/pluginterfaces/vst2.x/*
-    ...
-    steinberg/public.sdk/source/*
-    ...
-
-(under mac osx, its easier to create a symbolic link in the EigenD directory to the steinberg SDK directory)
 
 Windows
 -------
@@ -118,16 +100,6 @@ please note: linux build is highly experimental, and libs required may be subjec
 It would be very much appeciated if you build for linux,and have better instructions on requirements. 
 
 build/testing is done on Ubuntu (x86) and Raspbian (arm), the current GCC compiler for that distro is used.
-
-
-Upgrade JUCE
-------------
-
-juce is copied into the repo under lib_juce
-we do not generally make any changes to the JUCE source code 
-**EXCEPT**
-we sometimes find that the latest version of compilers might break juce,
-so we fix these issues, as a 'one-off' on the assumption that roli/juce will 'catch up'
 
 
 Compiler versions

@@ -18,7 +18,7 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from app_juceworkbench import version as workbench_version
+from app_workbench import version as workbench_version
 
 class Signature:
     plugin = 'workbench'

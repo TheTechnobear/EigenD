@@ -26,7 +26,7 @@ from pi import database,agent,logic,node,rpc,index,plumber,resource,paths, help_
 from pi import piasync
 from pisession import session
 #from pibelcanto import lexicon
-from app_juceworkbench import upgrade
+from app_workbench import upgrade
 
 class EigenOpts:
     def __init__(self):

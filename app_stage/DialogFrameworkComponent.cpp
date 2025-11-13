@@ -179,11 +179,11 @@ void DialogFrameworkComponent::buttonClicked (Button* buttonThatWasClicked)
 {
     if (buttonThatWasClicked == OKButton)
     {
-        exitModalState(1);
+        window_->exitModalState(1);
     }
     else if (buttonThatWasClicked == cancelButton)
     {
-        exitModalState(0);
+        window_->exitModalState(0);
     }
 
 }
