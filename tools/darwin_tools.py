@@ -108,7 +108,9 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
 
     def __init__(self,platform):
         # Use explicit Framework path - required for libepython.dylib to find Python runtime
-        unix_tools.PiUnixEnvironment.__init__(self,platform,'usr/local/pi','Library/Eigenlabs',python='/Library/Frameworks/Python.framework/Versions/3.14/bin/python3')
+        # Install to Applications so user can uninstall by deleting /Applications/Eigenlabs/<VERSION>
+        # Global resources (ImpulseResponse, Loop, Soundfont) remain at /usr/local/pi
+        unix_tools.PiUnixEnvironment.__init__(self,platform,'Applications/Eigenlabs','Library/Eigenlabs',python='/Library/Frameworks/Python.framework/Versions/3.14/bin/python3')
         os_major=uname()[2].split('.')[0]
 
         self.Append(LIBS=Split('dl m pthread'))
@@ -133,6 +135,24 @@ class PiDarwinEnvironment(unix_tools.PiUnixEnvironment):
         self.Replace(PI_MODLINKFLAGS=['$LINKFLAGS','-bundle','-Wl,-rpath,@loader_path/','-Wl,-rpath,@loader_path/../bin'])
         self.Append(SHLINKFLAGS=['-Wl,-install_name,@rpath/${SHLIBPREFIX}${SHLIBNAME}${SHLIBSUFFIX}','-Wl,-rpath,@loader_path/'])
         self.Replace(PI_PLATFORMTYPE='macosx')
+
+        # Override to use VERSION/pi/ structure instead of release-VERSION
+        self.Replace(RELEASESTAGEDIR=join('$RELEASESTAGEROOTDIR','$PI_RELEASE','pi'))
+        self.Replace(INSTALLDIR=join('$INSTALLROOTDIR','$PI_RELEASE','pi'))
+        
+        # Update all paths that depend on RELEASESTAGEDIR
+        self.Replace(MODSTAGEDIR_GLOBAL=join('$RELEASESTAGEDIR','modules','$PI_PYTHONPKG'))
+        self.Replace(MODSTAGEDIR_PLUGIN=join('$RELEASESTAGEDIR','plugins','$PI_ORGANISATION','$PI_AGENTGROUP'))
+        self.Replace(BINSTAGEDIR_GLOBAL=join('$RELEASESTAGEDIR','bin'))
+        self.Replace(BINSTAGEDIR_PLUGIN=join('$RELEASESTAGEDIR','plugins','$PI_ORGANISATION','$PI_AGENTGROUP'))
+        self.Replace(HDRSTAGEDIR=join('$RELEASESTAGEDIR','include'))
+        self.Replace(HDRINSTALLDIR=join('$INSTALLDIR','include'))
+        self.Replace(MODINSTALLDIR=join('$INSTALLDIR','modules'))
+        self.Replace(PYDINSTALLDIR=join('$INSTALLDIR','modules'))
+        self.Replace(BININSTALLDIR=join('$INSTALLDIR','bin'))
+        self.Replace(RESINSTALLDIR=join('$INSTALLDIR','resources'))
+        self.Replace(ETCINSTALLDIR=join('$INSTALLDIR','etc','$PI_PACKAGENAME'))
+        self.Replace(ETCROOTINSTALLDIR=join('$INSTALLDIR','etc'))
 
         self.Replace(APPRUNDIR=join('#tmp','app'))
         self.Replace(APPSTAGEDIR=join('$STAGEDIR','Applications','Eigenlabs','$PI_RELEASE'))

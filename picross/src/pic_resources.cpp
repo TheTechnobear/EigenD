@@ -150,11 +150,19 @@ namespace
         }
         else
         {
-            get_exe(buffer); // .../release-1.0/bin/xx.exe
-            dirname(buffer); // .../release-1.0/bin
-            dirname(buffer); // .../release-1.0
-            dirname(buffer); // ...
+            get_exe(buffer); // .../3.0.0-beta-1/pi/bin/eigend
+            dirname(buffer); // .../3.0.0-beta-1/pi/bin
+            dirname(buffer); // .../3.0.0-beta-1/pi
+            dirname(buffer); // .../3.0.0-beta-1
+            dirname(buffer); // .../Applications/Eigenlabs
         }
+    }
+
+    static void get_global_resources(char *buffer)
+    {
+        // Global resources (ImpulseResponse, Loop, Soundfont, VST) 
+        // stay at /usr/local/pi across all versions
+        strcpy(buffer,"/usr/local/pi");
     }
 
     static void get_lib(char *buffer)
@@ -311,7 +319,7 @@ char pic::platform_seperator()
 std::string pic::global_resource_dir()
 {
     char buffer[RES_PATH_MAX+1];
-    get_prefix(buffer);
+    get_global_resources(buffer);
     return buffer;
 }
 

@@ -20,9 +20,21 @@ version is something like : 3.0.0-beta-1
 
 ## 2.2.1 - macOS
 
-- **Application**: `/usr/local/pi/release-<VERSION>/` (binaries, plugins, resources)
-- **User Data**: `~/Library/Eigenlabs/<VERSION>/` (setups, recordings, instruments, scripts)
-- **Applications**: `/Applications/Eigenlabs/<VERSION>/` (Workbench, Commander, Browser apps)
+- **Application**: `/Applications/Eigenlabs/<VERSION>/` (apps: Workbench, Commander, Browser)
+- **Binaries/Plugins**: `/Applications/Eigenlabs/<VERSION>/pi/` (bin, plugins, modules, resources)
+- **Global Resources**: `/usr/local/pi/` (shared: ImpulseResponse, Loop, Soundfont, VST - preserved across versions)
+- **User Data**: `~/Library/Eigenlabs/<VERSION>/` (setups, recordings, instruments, scripts - preserved on uninstall)
+
+**Uninstall**: 
+```bash
+# Remove version-specific files
+sudo rm -rf /Applications/Eigenlabs/<VERSION>
+
+# Optionally remove user data for this version
+rm -rf ~/Library/Eigenlabs/<VERSION>
+
+# Global resources in /usr/local/pi/ are shared across versions - keep unless removing all EigenD versions
+```
 
 ## 2.2.2 - Windows
 
@@ -30,22 +42,14 @@ version is something like : 3.0.0-beta-1
 - **User Data**: `%USERPROFILE%\Documents\Eigenlabs\<VERSION>\` (setups, recordings, instruments, scripts - preserved on uninstall)
 - **Start Menu**: `%ProgramData%\Microsoft\Windows\Start Menu\Programs\EigenLabs\<VERSION>\` (shortcuts)
 
+**Uninstall** : use installer, user data manually.
+
 ## 2.2.3 - Linux
 
 - **Application**: `/usr/local/pi/release-<VERSION>/` (binaries, plugins, resources)
 - **User Data**: `~/.belcanto/<VERSION>/` (setups, recordings, instruments, scripts - preserved on uninstall)
 
-**Uninstall** (using package manager):
-```bash
-sudo apt remove pi-eigend
-# User data in ~/.belcanto/ is automatically preserved
-```
-
-**Complete removal** (including user data):
-```bash
-sudo apt remove pi-eigend
-rm -rf ~/.belcanto/<VERSION>
-```
+**Uninstall** : using package manager ```sudo apt remove pi-eigend``` , user data manually.
 
 # 4. Support
 
