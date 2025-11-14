@@ -110,7 +110,7 @@ jobs:
 
             const agent = extract('Agent');
             if (agent && validAgents.includes(agent)) {
-                labels.push(`agent: ${matched}`);
+                labels.push(`agent: ${agent}`);
             }
 
             const hardware = extract('Hardware');
