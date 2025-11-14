@@ -74,6 +74,7 @@ jobs:
               const normalized = agent.replace(/`/g, '').split('(')[0].trim();
               // Match case-insensitively against known agents and use the canonical entry if found
               const matched = validAgents.find(v => v.toLowerCase() === normalized.toLowerCase());
+              console.log(`DEBUG: raw agent='${agent}', normalized='${normalized}', matched='${matched || ''}'`);
               if (matched) {
                 labels.push(`agent: ${matched}`);
               }
@@ -104,6 +105,8 @@ jobs:
                      label.startsWith('severity: ');
             });
             
+            console.log(`DEBUG: computed labels to add-candidates: ${JSON.stringify(labels)}`);
+
             // Find labels to remove (current typed labels not in new labels list)
             const labelsToRemove = currentTypedLabels.filter(label => !labels.includes(label));
             
