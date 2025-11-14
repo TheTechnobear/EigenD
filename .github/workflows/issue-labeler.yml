@@ -46,23 +46,50 @@ jobs:
             const body = context.payload.issue.body || '';
             const labels = [];
 
+            function parseFields(bodyText) {
+              const lines = bodyText.split(/\r?\n/);
+              const fields = {};
+              for (let i = 0; i < lines.length; ++i) {
+                const raw = lines[i];
+                const line = raw.trim();
+                if (!line) continue;
+
+                // Heading-style: "### Field" on its own line, value on next non-empty line
+                let m = line.match(/^#{1,6}\s*(.+?)\s*$/);
+                if (m) {
+                  const name = m[1].trim();
+                  // Find next non-empty line as value
+                  let j = i + 1;
+                  while (j < lines.length && lines[j].trim() === '') j++;
+                  if (j < lines.length) fields[name] = lines[j].trim(); else fields[name] = '';
+                  continue;
+                }
+
+                // Colon-style: "Field: value" on same line
+                m = line.match(/^([^:]+):\s*(.*)$/);
+                if (m) {
+                  const name = m[1].trim();
+                  const val = m[2].trim();
+                  if (val) {
+                    fields[name] = val;
+                  } else {
+                    // If no value after colon, look ahead for next non-empty line
+                    let j = i + 1;
+                    while (j < lines.length && lines[j].trim() === '') j++;
+                    if (j < lines.length) fields[name] = lines[j].trim(); else fields[name] = '';
+                  }
+                  continue;
+                }
+              }
+              return fields;
+            }
+
             function extract(field) {
-              // Try inline pattern first: "Field: value" (same line)
-              const inlineRe = new RegExp('^' + field + '[:\\s]*([^\\n\\r]+)', 'im');
-              let m = body.match(inlineRe);
-              if (m && m[1] && m[1].trim()) return m[1].trim();
-
-              // Fallback: markdown heading-style fields (e.g. "### Agent" on its own line
-              // with the selected value on the next line). Capture the next non-empty line.
-              const headingRe = new RegExp('^#{1,6}\\s*' + field + '\\s*$[\\r\\n]+([^\\r\\n]+)', 'im');
-              m = body.match(headingRe);
-              if (m && m[1] && m[1].trim()) return m[1].trim();
-
-              // Another fallback: plain line with field name then newline then value
-              const nextLineRe = new RegExp('^' + field + '\\s*$[\\r\\n]+([^\\r\\n]+)', 'im');
-              m = body.match(nextLineRe);
-              if (m && m[1] && m[1].trim()) return m[1].trim();
-
+              const parsed = parseFields(body);
+              // Prefer exact-match field names from parsed map
+              if (Object.prototype.hasOwnProperty.call(parsed, field) && parsed[field].trim() !== '') {
+                return parsed[field].trim();
+              }
               return null;
             }
 
@@ -82,16 +109,9 @@ jobs:
             }
 
             const agent = extract('Agent');
+            if (agent && validAgents.includes(agent)) {
             if (agent) {
-              // Normalize extracted value: remove backticks, trim surrounding whitespace,
-              // drop any parenthesised helper text (e.g. "Pico Manager (pico_manager)")
-              const normalized = agent.replace(/`/g, '').split('(')[0].trim();
-              // Match case-insensitively against known agents and use the canonical entry if found
-              const matched = validAgents.find(v => v.toLowerCase() === normalized.toLowerCase());
-              console.log(`DEBUG: raw agent='${agent}', normalized='${normalized}', matched='${matched || ''}'`);
-              if (matched) {
                 labels.push(`agent: ${matched}`);
-              }
             }
 
             const hardware = extract('Hardware');
