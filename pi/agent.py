@@ -490,11 +490,15 @@ class Agent(atom.Atom):
         atom.Atom.server_opened(self)
         self.__rpc.rpc_open(self.servername())
 
-        for (k,v) in self.__subsystems.items():
+        # iterate over a static list copy to avoid RuntimeError if
+        # subsystems are added/removed during iteration
+        for (k,v) in list(self.__subsystems.items()):
             self.__ssopen(k,v)
 
     def close_server(self):
-        for (k,v) in self.__subsystems.items():
+        # iterate over a static list copy to avoid RuntimeError if
+        # subsystems modify the dict during shutdown
+        for (k,v) in list(self.__subsystems.items()):
             self.__ssclose(k,v)
         self.__rpc.rpc_close()
         atom.Atom.close_server(self)

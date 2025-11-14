@@ -1,5 +1,11 @@
  EigenD 3.0 - Session Resume Context
 
+## 🎯 LATEST: Audio Unit Double-Unload Guard (2025-11-14)
+
+- Done: Made `host_plg.Agent.close_server()` idempotent to prevent C++ exception on duplicate unloads.
+- File: `plg_host/host_plg.py` (guarded `host.close()` with `has_plugin()`; always calls base `Agent.close_server`).
+- Impact: Prevents crash seen in logs when `audio_unit1` unload is triggered twice during rig teardown.
+
 **Date:** 2025-12-10  
 **Branch:** 3.0
 **Status:** ✅ **C++17 & JUCE 8 MIGRATION COMPLETE - TESTING PHASE**

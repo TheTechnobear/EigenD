@@ -442,8 +442,11 @@ class Agent(agent.Agent):
         self.set_ordinal(ordinal)
 
     def close_server(self):
-        self.host.close();
-        agent.Agent.close_server(self)
+        try:
+            if self.host is not None and hasattr(self.host, 'has_plugin') and self.host.has_plugin():
+                self.host.close()
+        finally:
+            agent.Agent.close_server(self)
 
     def set_midi_channel(self,c):
         self[7].set_value(c)
