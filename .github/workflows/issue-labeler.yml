@@ -47,9 +47,23 @@ jobs:
             const labels = [];
 
             function extract(field) {
-              const re = new RegExp(field + '[:\\s]*([^\\n\\r]+)', 'i');
-              const m = body.match(re);
-              return m ? m[1].trim() : null;
+              // Try inline pattern first: "Field: value" (same line)
+              const inlineRe = new RegExp('^' + field + '[:\\s]*([^\\n\\r]+)', 'im');
+              let m = body.match(inlineRe);
+              if (m && m[1] && m[1].trim()) return m[1].trim();
+
+              // Fallback: markdown heading-style fields (e.g. "### Agent" on its own line
+              // with the selected value on the next line). Capture the next non-empty line.
+              const headingRe = new RegExp('^#{1,6}\\s*' + field + '\\s*$[\\r\\n]+([^\\r\\n]+)', 'im');
+              m = body.match(headingRe);
+              if (m && m[1] && m[1].trim()) return m[1].trim();
+
+              // Another fallback: plain line with field name then newline then value
+              const nextLineRe = new RegExp('^' + field + '\\s*$[\\r\\n]+([^\\r\\n]+)', 'im');
+              m = body.match(nextLineRe);
+              if (m && m[1] && m[1].trim()) return m[1].trim();
+
+              return null;
             }
 
             const version = extract('Version');
