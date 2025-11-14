@@ -68,8 +68,15 @@ jobs:
             }
 
             const agent = extract('Agent');
-            if (agent && validAgents.includes(agent)) {
-              labels.push(`agent: ${agent}`);
+            if (agent) {
+              // Normalize extracted value: remove backticks, trim surrounding whitespace,
+              // drop any parenthesised helper text (e.g. "Pico Manager (pico_manager)")
+              const normalized = agent.replace(/`/g, '').split('(')[0].trim();
+              // Match case-insensitively against known agents and use the canonical entry if found
+              const matched = validAgents.find(v => v.toLowerCase() === normalized.toLowerCase());
+              if (matched) {
+                labels.push(`agent: ${matched}`);
+              }
             }
 
             const hardware = extract('Hardware');
