@@ -18,7 +18,6 @@
 # along with EigenD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from functools import reduce
 from pibelcanto import lexicon
 
 def makecheat(lex,width=5):
@@ -44,8 +43,8 @@ def makecheat(lex,width=5):
             keys.remove(k)
 
     cols = [[] for c in range(0,width)]
-    sum = reduce(lambda x,y: x+y, [len(l) for l in lists.values()], 0)
-    collen = sum/len(cols)
+    total = sum(len(l) for l in lists.values())
+    collen = total/len(cols)
     cfmt = [0 for c in cols]
 
     for c in range(0,len(cols)):

@@ -22,7 +22,6 @@ from pi import agent,atom,action,domain,bundles,utils,logic,node,schedproxy,cons
 from pi import piasync
 from . import talker_version as version
 import piw
-import operator
 
 class PhraseBrowser(atom.Atom):
     def __init__(self,eventlist,keylist):
@@ -86,7 +85,7 @@ class PhraseBrowser(atom.Atom):
     def rpc_enumerate(self,a):
         path=logic.parse_clause(a)
         if len(path)==0:
-            k=reduce(operator.add,[len(self.__eventlist(k)) for k in self.__keylist()],0)
+            k=sum(len(self.__eventlist(k)) for k in self.__keylist())
             c=0
         else:
             k=0

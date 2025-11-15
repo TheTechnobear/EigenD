@@ -46,7 +46,7 @@ class Finder:
 
     def removed(self,p):
         if self.__current is p:
-            self.__current is None
+            self.__current = None
 
     def fetch(self):
         if self.__current:
@@ -55,8 +55,9 @@ class Finder:
         m = [ i for i in self.__index.members() ]
 
         if m:
-            self.__current = m
-            return m.name
+            first = m[0]
+            self.__current = first
+            return first.name
 
         return None
 

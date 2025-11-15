@@ -75,7 +75,9 @@ class Endpoint:
         for w in both:
             so = owords[w]
             si = iwords[w]
-            ws = cmp(so,0)*cmp(si,0)*(abs(so)+abs(si))
+            sgn_so = (so > 0) - (so < 0)
+            sgn_si = (si > 0) - (si < 0)
+            ws = sgn_so * sgn_si * (abs(so) + abs(si))
             s += ws
 
         return s
@@ -126,7 +128,7 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
             for ii2 in iim:
                 iixm = db.get_inputs(te.id,ii2)
                 iix = iix.union(iixm)
-            dst_chan = 1+reduce(max,iix,0)
+            dst_chan = 1 + max(iix, default=0)
             print('dst_chan',dst_chan,iix)
         if dst_chan == 0:
             dst_chan = None
@@ -188,7 +190,7 @@ def plumber(db,to_descriptor,from_descriptors,dst_chan=None,src_chan=None,check_
             for ii2 in iim:
                 iixm = db.get_inputs(ii.id,ii2)
                 iix = iix.union(iixm)
-        dst_chan = 1+reduce(max,iix,0)
+        dst_chan = 1 + max(iix, default=0)
         print('dst_chan',dst_chan,iix)
 
     if dst_chan == 0:

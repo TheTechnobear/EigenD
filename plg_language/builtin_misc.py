@@ -159,7 +159,7 @@ class Builtins:
             a = a.intersection(name_cache.get_idset(nn))
         a = a.difference(set(things))
         d = [int(o) for oo in a for o in ord_cache.get_valueset(oo)]
-        x=reduce(lambda a,b: a if a>b else b,d,0)
+        x = max(d, default=0)
 
         def co(x):
             for  thing in things:

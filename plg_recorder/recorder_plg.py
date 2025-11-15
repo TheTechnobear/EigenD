@@ -124,7 +124,9 @@ class TakeLibrary:
             self.__observer.library_deleted(cookie)
 
     def nextid(self):
-        return str(max([0]+self.__takes.keys())+1)
+        # Python 3: dict.keys() returns a view, cannot concatenate with list.
+        # Keys are integer cookies; pick max or 0 if empty, then add 1.
+        return str(max(self.__takes.keys(), default=0) + 1)
 
     def add_file(self,path):
         cookie,desc,name = self.__split(path)
