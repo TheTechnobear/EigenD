@@ -619,6 +619,7 @@ alpha2::active_t::impl_t::impl_t(pic::usbdevice_t *device, alpha2::active_t::del
 
 alpha2::active_t::impl_t::~impl_t()
 {
+    handler_ =nullptr;
     stop();
     device_->detach();
     delete pkey_in_pipe_;
@@ -1176,7 +1177,7 @@ unsigned alpha2::active_t::impl_t::decode_processed(const unsigned short *payloa
 void alpha2::active_t::impl_t::pipe_died(unsigned reason)
 {
     pipe_stopped();
-    handler_->kbd_dead(reason);
+    if(handler_) handler_->kbd_dead(reason);
 }
 
 void alpha2::active_t::impl_t::pipe_stopped()

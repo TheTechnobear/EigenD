@@ -1710,7 +1710,13 @@ struct kbd::kbd_impl_t: piw::clockdomain_ctl_t, piw::clocksink_t, piw::thing_t, 
         cancel_timer_slow();
         quit();
         tracked_invalidate();
+
+        // kind of strange... keyboard_ is whats getting notification...
         delete pkeyboard_;
+        // then we invalidate loop, which will delete alpha active implementation
+        // this stop usb, which calls dead(), trying to go to keyboard, so also 
+        // invalidating handle!
+        // perhaps we should reverse, delete pkeyboard after... but then it might see loop die and try to reconnect
         loop_.invalidate();
     }
 
