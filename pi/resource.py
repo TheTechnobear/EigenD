@@ -95,6 +95,8 @@ def os_rename(name1,name2):
     return os.rename(WC(name1),WC(name2))
 
 def os_path_exists(path):
+    if path is None:
+        return False
     return os.path.exists(WC(path))
 
 def os_path_getsize(path):

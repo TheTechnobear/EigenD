@@ -205,9 +205,14 @@ class Fingering(atom.Atom):
     def __load_factory(self):
         self.__factory_fingerings['simple whistle'] = simple_whistle
 
+        if not resource.os_path_exists(self.__factory_file_name):
+            print("missing factory fingerer file ", self.__factory_file_name)
+            return 
+
         (f,e) = self.__read_fingering(self.__factory_file_name)
 
-        if e:
+
+        if e is not None:
             piw.tsd_alert('BAD_FINGERING', 'Fingering File Error', e)
         else:
             self.__factory_fingerings.update(f)
@@ -248,20 +253,40 @@ class Fingering(atom.Atom):
                     fingering_name = fingering_name.strip()
                     fingerings_from_this_file[fingering_name] = [[],[],[],[],None]
 
+
                     for option in options:
                         line = config.get(fingering_name,option)
                         pattern = [[],[]]
                         keys, targets = line.split('*',2)
+                        # strip leading/trailing whitespace
                         targets = targets.strip()
+                        # remove trailing comment starting with ';'
+                        if ';' in targets:
+                            targets = targets.split(';',1)[0].strip()
+
+                        print(fingering_name , ':' , line)
 
                         if keys.count ('open'):
                             fingerings_from_this_file[fingering_name][4]=True
-                            pattern[0].append(float(targets.strip()))
+                            s = targets.strip()
+                            if not s:
+                                raise FingeringError("Missing target value for open option in '%s'" % fingering_name)
+                            try:
+                                pattern[0].append(float(s))
+                            except Exception as ex:
+                                raise FingeringError("Bad numeric target for '%s' in '%s': %r (%s)" % (option, fingering_name, s, ex))
                             pattern[1].append(('0', '0'))
                             i=0;
                         else:
-                            for target in targets.split(' '):
-                                pattern[0].append(float(target.strip()))
+                            # split() with no arg collapses runs of whitespace
+                            for target in targets.split():
+                                s = target.strip()
+                                if not s:
+                                    continue
+                                try:
+                                    pattern[0].append(float(s))
+                                except Exception as ex:
+                                    raise FingeringError("Bad numeric target for '%s' in '%s': %r (%s)" % (option, fingering_name, s, ex))
 
                             keys = keys.strip()
                             coords = keys.split(' ')
@@ -283,7 +308,8 @@ class Fingering(atom.Atom):
 
                 except FingeringError as e:
                     raise FingeringError("In fingering: '%s', %s" % (fingering_name,e.args[0]))
-                except:
+                except Exception as ue:
+                    print(ue)
                     raise FingeringError("In fingering: '%s', unknown error" % fingering_name)
 
                 print('added',fingering_name,'from',filename)
@@ -380,13 +406,33 @@ class Agent(agent.Agent):
         # If fingering is a callable (function), call it to get the data
         if callable(f):
             f = f()
+            print('...setting fingering to',f)
+
+        # Helper to safely convert pattern timing/value to float.
+        # Some fingerings (e.g. placeholders) may use empty strings or other
+        # non-numeric values for the timing. Coerce those to 0.0 rather
+        # than letting the native layer raise a TypeError.
+        def _pattern_value(pattern):
+            try:
+                # pattern[0] is expected to be a list like [1.0] or ['']
+                v = pattern[0][0]
+            except Exception:
+                return 0.0
+
+            if isinstance(v, (int, float)):
+                return float(v)
+
+            try:
+                return float(str(v).strip())
+            except Exception:
+                return 0.0
 
         current_fingering.clear_table()
         needed_polyphony = 1;
 
         pattern_number = 0
         for pattern in f[0]:
-            current_fingering.add_fingering_pattern(pattern_number,pattern[0][0])
+            current_fingering.add_fingering_pattern(pattern_number,_pattern_value(pattern))
             for k in pattern[1]:
                 course = int(k[0])
                 key = int(k[1])
@@ -395,7 +441,7 @@ class Agent(agent.Agent):
 
         pattern_number = 0
         for pattern in f[1]:
-            current_fingering.add_modifier_pattern(pattern_number,pattern[0][0])
+            current_fingering.add_modifier_pattern(pattern_number,_pattern_value(pattern))
             for k in pattern[1]:
                 course = int(k[0])
                 key = int(k[1])
@@ -404,7 +450,7 @@ class Agent(agent.Agent):
 
         pattern_number = 0
         for pattern in f[2]:
-            current_fingering.add_addition_pattern(pattern_number,pattern[0][0])
+            current_fingering.add_addition_pattern(pattern_number,_pattern_value(pattern))
             for k in pattern[1]:
                 course = int(k[0])
                 key = int(k[1])
@@ -413,13 +459,14 @@ class Agent(agent.Agent):
 
         pattern_number = 0
         for pattern in f[3]:
-            needed_polyphony += 1
-            current_fingering.add_polyphony_pattern(pattern_number,pattern[0][0])
-            for k in pattern[1]:
-                course = int(k[0])
-                key = int(k[1])
-                current_fingering.add_polyphony_key(pattern_number, course, key)
-            pattern_number += 1
+            if pattern and pattern[0] and str(pattern[0][0]).strip() != '':
+                needed_polyphony += 1
+                current_fingering.add_polyphony_pattern(pattern_number,_pattern_value(pattern))
+                for k in pattern[1]:
+                    course = int(k[0])
+                    key = int(k[1])
+                    current_fingering.add_polyphony_key(pattern_number, course, key)
+                pattern_number += 1
 
         if(f[4]):
             current_fingering.set_open()
