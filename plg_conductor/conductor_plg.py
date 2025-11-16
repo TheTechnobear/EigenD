@@ -19,10 +19,9 @@
 
 from pi import agent,atom,domain,policy,bundles,resource,collection,errors,action
 from pi import piasync
-from . import conductor_version as version
+from . import conductor_version as version, conductor_native
 
 import piw
-import conductor_native
 
 class ClipPoolWidget(atom.Atom):
     def __init__(self):

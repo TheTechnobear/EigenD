@@ -19,10 +19,9 @@
 
 from pi import agent,bundles,atom,action,domain,paths,upgrade,const,policy,node,utils,resource
 from pi import piasync
-from . import clip_manager_version as version
+from . import clip_manager_version as version, conductor_native
 
 import piw
-import conductor_native
 
 class ClipManagerWidget(atom.Atom):
     def __init__(self, manager):
