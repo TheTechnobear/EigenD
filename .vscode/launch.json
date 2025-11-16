@@ -56,7 +56,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/tmp/app/Workbench.app/Contents/MacOS/Workbench",
-            "args": [],
+            "args": ["--stdout"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

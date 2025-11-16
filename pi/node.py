@@ -133,6 +133,9 @@ class server(piw.server):
     def __nonzero__(self):
         return True
 
+    def __bool__(self):
+        return True
+
     def find_hole(self):
         """
         Find an unused index
@@ -503,6 +506,9 @@ class client(piw.client):
         self.set_change_handler(change)
 
     def __nonzero__(self):
+        return True
+
+    def __bool__(self):
         return True
 
     def __make_extension(self):
