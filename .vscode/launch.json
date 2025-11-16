@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run EigenD (Check Build)",
+            "name": "Run EigenD cmdline(Check Build)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/tmp/bin/eigend",
@@ -15,10 +15,22 @@
             "preLaunchTask": "CMake: Build Parallel"
         },
         {
-            "name": "Run EigenD (No Build Check)",
+            "name": "Run EigenD cmdline (No Build Check)",
             "type": "cppdbg", 
             "request": "launch",
             "program": "${workspaceFolder}/tmp/bin/eigend",
+            "args": ["--stdout"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb"
+        },
+        {
+            "name": "Run EigenD app (No Build Check)",
+            "type": "cppdbg", 
+            "request": "launch",
+            "program": "${workspaceFolder}/tmp/app/EigenD.app/Contents/MacOS/EigenD",
             "args": ["--stdout"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -155,6 +155,9 @@ void wnode_t::detach(int e)
     list_->count_--;
     window_->plg_state = PLG_STATE_DETACHED;
 
+    // notify UI that windows changed (so EigenD::handleWinch will be called)
+    entity_->glue()->winch("");
+        
     if(e)
     {
         job_close_.idle(entity_->appq(),close_callback,this,pia_data_t());
