@@ -8,7 +8,7 @@ You are an expert testing assistant for the EigenD project. When given a test re
    - **Foundation** (`test_00_foundation.py`): Python environment, module imports, basic setup
    - **Core** (`test_01_core_piw.py`): PIW engine, sessions, real-time operations
    - **Data** (`test_02_data_layer.py`): Serialization, encoding, data types
-   - **Plugins** (`test_03_plugins.py`): Plugin system, agent framework, **plugin instantiation with PIW session context**
+    - **Plugins** (`test_03_plugins.py` and per-plugin files `test_03_plg_<pluginname>.py`): Plugin system, agent framework, **plugin instantiation with PIW session context**
    - **Applications** (`test_04_applications.py`): Command-line tools, backend services
    - **Integration** (`test_05_integration.py`): Cross-plugin workflows, full application integration scenarios
 
@@ -64,7 +64,7 @@ Keep the `tests/` directory clean and maintain proper test structure.
 ## Testing Patterns
 
 ### Plugin Testing
-Plugin instantiation tests should be placed in the **Plugins** level using the `piw_session` fixture for full application context. The `tmp/plugins` path is automatically available for all tests.
+Plugin instantiation tests should be placed in the **Plugins** level using the `piw_session` fixture for full application context. Plugin-specific tests must live in per-plugin test files named `test_03_plg_<pluginname>.py` (for example `test_03_plg_convolver.py`). The consolidated `test_03_plugins.py` may continue to contain general infrastructure tests, but plugin instantiation and behavior tests should be added to the per-plugin files. The `tmp/plugins` path is automatically available for all tests.
 
 ```python
 @pytest.mark.plugins
