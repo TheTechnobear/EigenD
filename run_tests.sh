@@ -37,6 +37,7 @@ PYTHON_EXE=""
 PYTEST_EXTRA_ARGS=""
 DURATIONS=10  # Show 10 slowest tests by default
 QUICK=""  # Quick mode for faster TDD cycles
+SHOW_OUTPUT=""  # Show test output (print statements)
 
 # Colors for output
 RED='\033[0;31m'
@@ -98,8 +99,12 @@ while [[ $# -gt 0 ]]; do
             TIMEOUT=5  # Shorter timeout for quick mode
             shift
             ;;
+        --show-output|-s)
+            SHOW_OUTPUT="-s"
+            shift
+            ;;
         --help|-h)
-            echo "Usage: $0 [--level LEVEL] [--test TEST_PATTERN] [--timeout SECONDS] [--verbose] [--html] [--durations N] [--quick] [--pytest-args ARGS]"
+            echo "Usage: $0 [--level LEVEL] [--test TEST_PATTERN] [--timeout SECONDS] [--verbose] [--html] [--durations N] [--quick] [--show-output] [--pytest-args ARGS]"
             echo ""
             echo "Options:"
             echo "  --level LEVEL         Run specific test level (foundation|core|data|plugins|applications|integration|all)"
@@ -110,6 +115,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --durations N         Show N slowest tests (default: 10, use 0 to disable)"
             echo "  --no-durations        Disable duration reporting"
             echo "  --quick, -q           Quick mode: faster timeout, skip clean teardown (ideal for TDD)"
+            echo "  --show-output, -s     Show test output (print statements) in console"
             echo "  --pytest-args ARGS   Additional pytest arguments (e.g., --pytest-args='-s --tb=short')"
             echo "  --help, -h            Show this help"
             echo ""
@@ -182,7 +188,7 @@ fi
 
 # Build pytest command
 PYTEST_CMD="$PYTHON_EXE -m pytest"
-PYTEST_ARGS="--timeout=$TIMEOUT $VERBOSE"
+PYTEST_ARGS="--timeout=$TIMEOUT $VERBOSE $SHOW_OUTPUT"
 
 # Add quick mode if enabled
 if [[ -n "$QUICK" ]]; then

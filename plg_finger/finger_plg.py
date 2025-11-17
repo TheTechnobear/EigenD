@@ -19,7 +19,7 @@
 #
 
 from pi import agent,bundles,atom,action,domain,paths,upgrade,const,policy,node,resource,logic,utils,piasync
-from plg_finger import fingerer_version as version
+from . import fingerer_version as version
 
 import piw
 from . import finger_native

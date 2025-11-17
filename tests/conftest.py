@@ -36,6 +36,7 @@ def setup_eigend_environment():
     paths_to_add = [
         str(EIGEND_ROOT),
         str(TMP_MODULES),
+        str(EIGEND_ROOT / "tmp" / "plugins"),  # Plugin build directory for plugin tests
     ]
     
     for path in paths_to_add:

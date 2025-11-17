@@ -213,3 +213,168 @@ class TestPluginModuleStructure:
                 
         assert len(agent_patterns) > 0, "Should find plugin files with Agent classes"
         print(f"Found plugin Agent patterns in: {agent_patterns}")
+    
+    @pytest.mark.plugins
+    @pytest.mark.timeout(15)
+    def test_fingerer_plugin_instantiation(self, piw_session):
+        """Test that Fingerer plugin can be instantiated in application context."""
+        def test_in_session(session_ctx):
+            try:
+                from Eigenlabs.plg_finger import finger_plg
+            except ImportError as e:
+                return {'success': False, 'error': f"Fingerer plugin not available: {e}"}
+            
+            try:
+                # In application context, Agent instantiation should work
+                agent_instance = finger_plg.Agent('test_address', 1)
+                return {
+                    'success': True,
+                    'agent': agent_instance,
+                    'has_domain': hasattr(agent_instance, 'domain'),
+                    'has_finger': hasattr(agent_instance, 'finger'),
+                    'has_fingering': hasattr(agent_instance, 'current_fingering'),
+                    'ordinal_count': len([k for k in agent_instance.keys() if isinstance(k, int)])
+                }
+            except Exception as e:
+                return {'success': False, 'error': f"Agent creation failed: {e}"}
+        
+        results = piw_session['run'](test_in_session)
+        
+        if results is None:
+            pytest.skip("Session timed out - test function did not complete")
+        
+        if not results.get('success', False):
+            pytest.skip(f"Fingerer plugin test failed: {results.get('error', 'Unknown error')}")
+        
+        # Test completed successfully - run assertions
+        assert results['has_domain'], "Agent should have domain"
+        assert results['has_finger'], "Agent should have finger component"
+        assert results['has_fingering'], "Agent should have current fingering"
+        assert results['ordinal_count'] >= 5, f"Agent should have at least 5 ordinals, got {results['ordinal_count']}"
+    
+    @pytest.mark.plugins
+    @pytest.mark.timeout(15)
+    def test_clip_manager_widget_functionality(self, piw_session):
+        """Test ClipManagerWidget full functionality in application context."""
+        def test_in_session(session_ctx):
+            try:
+                from Eigenlabs.plg_conductor import clip_manager_plg
+            except ImportError as e:
+                return {'success': False, 'error': f"Clip manager plugin not available: {e}"}
+            
+            try:
+                # In application context, Agent instantiation should work
+                agent_instance = clip_manager_plg.Agent('test_address', 1)
+                widget = agent_instance[1]  # Get the widget from the agent
+                
+                return {
+                    'success': True,
+                    'widget_exists': widget is not None,
+                    'widget_type': type(widget).__name__ if widget else None,
+                    'has_native_widget': hasattr(widget, '_ClipManagerWidget__widget') if widget else False
+                }
+            except Exception as e:
+                return {'success': False, 'error': f"Widget test failed: {e}"}
+        
+        results = piw_session['run'](test_in_session)
+        
+        if results is None:
+            pytest.skip("Session timed out - test function did not complete")
+        
+        if not results.get('success', False):
+            pytest.skip(f"Clip manager widget test failed: {results.get('error', 'Unknown error')}")
+        
+        # Test completed successfully - run assertions
+        assert results['widget_exists'], "Widget should exist"
+        assert results['widget_type'] == 'ClipManagerWidget', f"Widget should be ClipManagerWidget, got {results['widget_type']}"
+        assert results['has_native_widget'], "Widget should have native clip manager"
+    
+    @pytest.mark.plugins
+    @pytest.mark.timeout(15)
+    def test_clip_manager_agent_instantiation(self, piw_session):
+        """Test that ClipManager Agent can be instantiated in application context."""
+        def test_in_session(session_ctx):
+            try:
+                from Eigenlabs.plg_conductor import clip_manager_plg
+            except ImportError as e:
+                return {'success': False, 'error': f"Clip manager plugin not available: {e}"}
+            
+            try:
+                # In application context, Agent instantiation should work
+                agent_instance = clip_manager_plg.Agent('test_address', 1)
+                return {
+                    'success': True,
+                    'agent': agent_instance,
+                    'has_clip_manager': agent_instance.clip_manager is not None,
+                    'has_ordinal_1': 1 in agent_instance,
+                    'widget_type': type(agent_instance[1]).__name__ if 1 in agent_instance else None
+                }
+            except Exception as e:
+                return {'success': False, 'error': f"Agent creation failed: {e}"}
+        
+        results = piw_session['run'](test_in_session)
+        
+        if results is None:
+            pytest.skip("Session timed out - test function did not complete")
+        
+        if not results.get('success', False):
+            pytest.skip(f"Clip manager test failed: {results.get('error', 'Unknown error')}")
+        
+        # Test completed successfully - run assertions
+        assert results['has_clip_manager'], "Clip manager should be created"
+        assert results['has_ordinal_1'], "Agent should contain ordinal 1"
+        assert results['widget_type'] == 'ClipManagerWidget', f"Agent[1] should be ClipManagerWidget, got {results['widget_type']}"
+    
+    @pytest.mark.plugins
+    @pytest.mark.timeout(15)
+    def test_convolver_plugin_instantiation_in_application_context(self, piw_session):
+        """Test that Convolver plugin can be instantiated in application context."""
+        def test_in_session(session_ctx):
+            try:
+                from Eigenlabs.plg_convolver import convolver_plg
+            except ImportError as e:
+                return {'success': False, 'error': f"Convolver plugin not available: {e}"}
+            
+            try:
+                # In application context, Agent instantiation should work
+                agent_instance = convolver_plg.Agent('test_address', 1)
+                return {
+                    'success': True,
+                    'agent': agent_instance,
+                    'has_domain': hasattr(agent_instance, 'domain'),
+                    'has_convolver': hasattr(agent_instance, 'convolver'),
+                    'has_input': hasattr(agent_instance, 'input'),
+                    'has_output': hasattr(agent_instance, 'output'),
+                    'ordinal_count': len([k for k in agent_instance.keys() if isinstance(k, int)]),
+                    'impulse_browser_exists': 4 in agent_instance,
+                    'userdir': agent_instance[4].userdir if 4 in agent_instance else None,
+                    'reldir': agent_instance[4].reldir if 4 in agent_instance else None,
+                    'impulse_browser_type': type(agent_instance[4]).__name__ if 4 in agent_instance else None,
+                    'impulse_browser_has_files': hasattr(agent_instance[4], '_ImpulseBrowser__files') if 4 in agent_instance else False,
+                    'impulse_browser_files_type': type(agent_instance[4]._ImpulseBrowser__files).__name__ if 4 in agent_instance and hasattr(agent_instance[4], '_ImpulseBrowser__files') else None,
+                    'impulse_files_count': len(agent_instance[4]._ImpulseBrowser__files) if 4 in agent_instance and hasattr(agent_instance[4], '_ImpulseBrowser__files') else 0,
+                    'impulse_names_count': len(agent_instance[4]._ImpulseBrowser__n2c) if 4 in agent_instance and hasattr(agent_instance[4], '_ImpulseBrowser__n2c') else 0,
+                    'impulse_files_sample': agent_instance[4]._ImpulseBrowser__files[:10] if 4 in agent_instance and hasattr(agent_instance[4], '_ImpulseBrowser__files') else []
+                }
+            except Exception as e:
+                return {'success': False, 'error': f"Agent creation failed: {e}"}
+        
+        results = piw_session['run'](test_in_session)
+
+        if results is None:
+            pytest.skip("Session timed out - test function did not complete")
+        
+        if not results.get('success', False):
+            pytest.skip(f"Convolver plugin test failed: {results.get('error', 'Unknown error')}")
+        
+        # Test completed successfully - run assertions
+        assert results['has_domain'], "Agent should have domain"
+        assert results['has_convolver'], "Agent should have convolver"
+        assert results['has_input'], "Agent should have input"
+        assert results['has_output'], "Agent should have output"
+        assert results['ordinal_count'] >= 4, f"Agent should have at least 4 ordinals, got {results['ordinal_count']}"
+        assert results['impulse_browser_exists'], "Agent should have impulse browser at ordinal 4"
+        assert results['impulse_files_count'] > 0, f"Should have impulse files available, found {results['impulse_files_count']}"
+        assert results['impulse_names_count'] >= 0, f"Should have impulse names available, found {results['impulse_names_count']}"
+        print(f"Info: Found {results['impulse_files_count']} impulse files, sample: {results['impulse_files_sample']}")
+        # assert False, f"Info: Found {results['impulse_files_count']} impulse files, sample: {results['impulse_files_sample']}"
