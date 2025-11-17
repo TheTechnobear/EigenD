@@ -26,6 +26,8 @@ from os.path import join,dirname
 
 EnsureSConsVersion(4,5,0)
 
+AddOption('--list-targets', dest='list_targets', action='store_true', help='List all available targets')
+
 master_env = select_tools.select()
 master_env.Initialise()
 
@@ -46,6 +48,12 @@ VariantDir(join(master_env.subst('$TMPDIR')),'.',duplicate=0)
 
 Export(master_env=master_env)
 
+# Collect all directories with SConscript for potential targets
+sconscript_dirs = []
+for root,dirs,files in os.walk('.'):
+    if 'SConscript' in files:
+        sconscript_dirs.append(root)
+
 for root,dirs,files in os.walk('.'):
     if 'SConscript.first' in files:
         env=master_env.Clone()
@@ -57,6 +65,18 @@ for root,dirs,files in os.walk('.'):
         SConscript(join(master_env.subst('$TMPDIR'),root,'SConscript'), exports='env')
 
 master_env.Finalise()
+
+if GetOption('list_targets'):
+    print("Available targets:")
+    targets = sorted(master_env.ans.keys())
+    # Add SConscript directories as potential targets
+    for d in sorted(sconscript_dirs):
+        if d != '.':  # Skip root
+            targets.append(d.lstrip('./'))
+    targets = sorted(set(targets))  # Remove duplicates
+    for t in targets:
+        print(f"  {t}")
+    Exit(0)
 
 ctags=None
 if master_env.Detect('ctags'): ctags='ctags'

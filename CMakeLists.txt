@@ -5,6 +5,13 @@
 cmake_minimum_required(VERSION 3.15)
 project(EigenD NONE)
 
+# Build configuration variables (similar to Makefile)
+set(JOBS 8 CACHE STRING "Number of parallel jobs")
+set(SCONS_OPTS "" CACHE STRING "Additional SCons options")
+set(TARGET "target-default" CACHE STRING "SCons target to build")
+set(VERBOSE "" CACHE STRING "Verbose environment prefix (e.g., PI_VERBOSE=1)")
+set(QUIET "" CACHE STRING "Quiet option for SCons")
+
 # Set paths
 set(TOOLS_DIR "${CMAKE_SOURCE_DIR}/tools")
 set(SCONS_DIR "${TOOLS_DIR}/packages/SCons4")
@@ -21,50 +28,19 @@ set(Python3_EXECUTABLE "/usr/local/bin/python3.14")
 set(SCONS_ENV PYTHONPATH=${SCONS_DIR})
 set(SCONS_BASE_CMD ${CMAKE_COMMAND} -E env ${SCONS_ENV} ${Python3_EXECUTABLE} ${SCONS_SCRIPT} -f ${SCONSTRUCT})
 
-# Default target (builds with -j1)
-add_custom_target(eigend-all
-    COMMAND ${SCONS_BASE_CMD} -j8 target-default
+# Default target (builds with configurable jobs)
+add_custom_target(eigend-all ALL
+    COMMAND ${CMAKE_COMMAND} -E env ${VERBOSE} ${SCONS_ENV} ${Python3_EXECUTABLE} ${SCONS_SCRIPT} -f ${SCONSTRUCT} ${QUIET} ${SCONS_OPTS} -j${JOBS} ${TARGET}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Building EigenD (parallel)"
+    COMMENT "Building EigenD (${TARGET} with ${JOBS} jobs)"
     USES_TERMINAL
 )
 
-# Parallel build target (builds with -j8)
-add_custom_target(parallel
-    COMMAND ${SCONS_BASE_CMD} -j8 target-default
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Building EigenD (parallel)"
-    USES_TERMINAL
-)
-
-# Single-threaded build target (same as 'all')
-add_custom_target(single
-    COMMAND ${SCONS_BASE_CMD} -j1 target-default
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Building EigenD (single-threaded)"
-    USES_TERMINAL
-)
-
-# Verbose build target
-add_custom_target(verbose
-    COMMAND ${CMAKE_COMMAND} -E env PI_VERBOSE=1 ${SCONS_ENV} ${Python3_EXECUTABLE} ${SCONS_SCRIPT} -f ${SCONSTRUCT} -j1 target-default
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Building EigenD (verbose)"
-    USES_TERMINAL
-)
-
-# Quiet build target
-add_custom_target(quiet
-    COMMAND ${SCONS_BASE_CMD} -j1 -s target-default
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Building EigenD (quiet)"
-    USES_TERMINAL
-)
 
 # Clean target
 add_custom_target(clean-all
     COMMAND ${SCONS_BASE_CMD} -c
-    COMMAND ${CMAKE_COMMAND} -E rm -rf tmp env.sh dbg.sh tags
+    COMMAND ${CMAKE_COMMAND} -E rm -rf tmp env.sh dbg.sh tags .sconsign*
     COMMAND find . -name "*.pyc" -type f -delete
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Cleaning EigenD build artifacts"
@@ -109,21 +85,25 @@ set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT eigend-all)
 # Print usage information
 message(STATUS "EigenD CMake wrapper for SCons build system")
 message(STATUS "Available targets:")
-message(STATUS "  eigend-all - Build EigenD (8 parallel default)")
-message(STATUS "  parallel   - Build EigenD (8 parallel jobs)")
-message(STATUS "  single     - Build EigenD (single-threaded)")
-message(STATUS "  verbose    - Build EigenD with verbose output")
-message(STATUS "  quiet      - Build EigenD with minimal output")
+message(STATUS "  eigend-all - Build EigenD (${TARGET} with ${JOBS} jobs)")
 message(STATUS "  clean-all  - Clean all build artifacts")
 message(STATUS "  tags       - Generate tags")
 message(STATUS "  stage      - Build EigenD stage")
 message(STATUS "  mpkg       - Build Mac package")
 message(STATUS "  pkg        - Build generic package")
 message(STATUS "")
+message(STATUS "Configuration variables (set with -DVAR=value):")
+message(STATUS "  JOBS=${JOBS} - Number of parallel jobs")
+message(STATUS "  TARGET=${TARGET} - SCons target to build")
+message(STATUS "  SCONS_OPTS=${SCONS_OPTS} - Additional SCons options")
+message(STATUS "  VERBOSE=${VERBOSE} - Verbose prefix e.g PI_VERBOSE=1")
+message(STATUS "  QUIET=${QUIET} - Quiet option")
+message(STATUS "")
 message(STATUS "Usage:")
-message(STATUS "  cmake -B build")
+message(STATUS "  cmake -B build -DJOBS=4 -DTARGET=target-stage")
 message(STATUS "  cmake --build build --target eigend-all")
 message(STATUS "  cmake --build build --target parallel")
 message(STATUS "")
-message(STATUS "Note: The actual build system is SCons. This CMakeLists.txt")
-message(STATUS "      is a wrapper to provide CMake/IDE integration.")
+message(STATUS "Note: For arbitrary SCons targets (e.g., plg_rig), use the Makefile:")
+message(STATUS "  make plg_rig")
+message(STATUS "  make TARGET=plg_rig JOBS=4")

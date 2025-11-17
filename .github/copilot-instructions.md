@@ -10,10 +10,20 @@ Agents are functional blocks with data and connection points. These agents are c
 
 ## Technologies Used
 
-- **C++**
-- **Python**
+**C++**
+- C++17
+**Juce** 
+- GUI and Audio framework, currently Juce 8.0.10
+**Python**
 - C++ interfaces to Python using CPython
 - PIP files are C++ to Python definitions; these are used to generate C++ bindings to Python
+- Runtime : use python3.14 from python.org
+- Buildtime : use virtual environment, setup in .venv_dev
+**Crossplatform**
+- support for macOS, Windows and Linux
+**Build tools**
+- SCons4 embedded within project tools/packages/SCons4
+- CMake and Make are wrappers to invoke Sons4
 
 ## Project Structure
 
@@ -87,6 +97,7 @@ Prefixes for folders:
 ### Behavior
 - Answer concisely. Use short bullets: done / discovered / next steps.
 - Keep replies neutral and brief.
+- use ripgrep in preference to grep
 
 ### Preferred Reply Format
 - 1–3 short bullets: (done, discovered, next steps).
@@ -102,9 +113,9 @@ Prefixes for folders:
 
 ## Tools - Building and Testing
 
-### Guidelines for Testing
+### Guidelines for Building
 - Use `make` in preference.
-- Use tee and pipe to retain build output, e.g., `make 2>&1 | tee build.log`.
+- Use tee and `|` to retain build output, e.g., `make 2>&1 | tee build.log`.
 - Build specific modules via SCons using Python path:
 
 ```bash
