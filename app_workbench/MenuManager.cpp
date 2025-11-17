@@ -152,14 +152,14 @@ PopupMenu MenuManager::getMenuForIndex(int topLevelMenuIndex,const String &menuN
     PopupMenu menu;
     if(topLevelMenuIndex==0)
     {
-        menu.addCommandItem(manager_,commandFileAbout);
         menu.addCommandItem(manager_,commandFilePreferences);
+        menu.addCommandItem(manager_,commandEditCloseTab);
+        menu.addCommandItem(manager_,commandFileAbout);
     }
 
     else if(topLevelMenuIndex==1)
     {
         menu.addCommandItem(manager_,commandEditFind);
-        menu.addCommandItem(manager_,commandEditCloseTab);
     }
     else if(topLevelMenuIndex==2)
     {

@@ -5826,6 +5826,7 @@ void MainComponent::showPreferencesDialog()
     options.dialogTitle = "Preferences";
     options.dialogBackgroundColour=Colour(0xffababab); 
     options.escapeKeyTriggersCloseButton=true;
+    options.resizable = false;
     dw_.reset (options.launchAsync());
     // DialogWindow::showModalDialog("Preferences",fc,vp_,Colour(0xffababab),true);
     ModalComponentManager::getInstance()->attachCallback (dw_.get(),
