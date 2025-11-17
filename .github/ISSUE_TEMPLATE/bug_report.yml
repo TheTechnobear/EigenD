@@ -53,6 +53,7 @@ body:
     label: Version
     description: Select the earliest version you can reproduce the bug with (required)
     options:
+    - 3.0.0-beta-2
     - 3.0.0-beta-1
     - 2.2.1
     - 2.1.7
