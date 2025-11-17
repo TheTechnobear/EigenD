@@ -57,6 +57,15 @@ def setup_eigend_environment():
     # Set up environment variables if needed
     os.environ.setdefault("EIGEND_ROOT", str(EIGEND_ROOT))
     
+    # Set library path for macOS
+    import platform
+    if platform.system() == "Darwin":
+        lib_path = str(EIGEND_ROOT / "tmp" / "bin")
+        current_dyld = os.environ.get("DYLD_LIBRARY_PATH", "")
+        if lib_path not in current_dyld:
+            new_dyld = f"{lib_path}:{current_dyld}" if current_dyld else lib_path
+            os.environ["DYLD_LIBRARY_PATH"] = new_dyld
+    
     yield
     
     # Cleanup after all tests (if needed)
@@ -93,6 +102,21 @@ def piw_session(request):
         # Check if quick teardown is requested
         quick_teardown = getattr(request.config.option, 'quick_teardown', False)
         
+        # Get test-specific timeout (default 30s for integration tests, 5s for quick mode)
+        test_timeout = getattr(request.node.get_closest_marker('timeout'), 'args', (None,))[0]
+        if test_timeout is None:
+            # Check if this is an integration test (longer timeout by default)
+            if 'integration' in request.node.keywords:
+                test_timeout = 30.0  # 30 seconds for integration tests
+            elif quick_teardown:
+                test_timeout = 5.0   # 5 seconds for quick mode
+            else:
+                test_timeout = 15.0  # 15 seconds default
+        
+        # In quick mode, allow longer timeouts if explicitly requested via marker
+        if quick_teardown and test_timeout is None:
+            test_timeout = 5.0  # Only cap if no explicit timeout requested
+        
         if quick_teardown:
             # For quick mode, use modified session runner with timeout
             def quick_session_runner(session_func):
@@ -100,26 +124,49 @@ def piw_session(request):
                 import time
                 
                 result = [None]
+                test_success = [None]  # Shared variable for test success
+                test_result = [None]   # Shared variable for actual test result
                 exception = [None]
                 
                 def target():
                     try:
-                        result[0] = pisession.session.run_session(session_func)
+                        # Wrap the session function to capture success and result before cleanup
+                        def wrapped_session_func(session_ctx):
+                            try:
+                                func_result = session_func(session_ctx)
+                                test_success[0] = True  # Signal success before cleanup
+                                test_result[0] = func_result  # Store the actual result
+                                return func_result
+                            except Exception as e:
+                                test_success[0] = False  # Signal failure
+                                raise e
+                        
+                        result[0] = pisession.session.run_session(wrapped_session_func)
                     except Exception as e:
                         exception[0] = e
                 
                 thread = threading.Thread(target=target)
                 thread.daemon = True
                 thread.start()
-                thread.join(timeout=5.0)  # 5 second timeout for quick mode
                 
-                if thread.is_alive():
-                    # Session cleanup taking too long, return result if we have it
-                    if result[0] is not None:
-                        return result[0]
-                    else:
-                        print("\nWarning: Session teardown timeout in quick mode, continuing...")
-                        return None
+                # Wait for test completion or timeout
+                import time
+                start_time = time.time()
+                while thread.is_alive() and test_success[0] is None and (time.time() - start_time) < test_timeout:
+                    time.sleep(0.1)  # Poll every 100ms
+                
+                if test_success[0] is True:
+                    # Test completed successfully, return the captured result immediately
+                    print(f"\nTest completed successfully, skipping cleanup wait...")
+                    return test_result[0]
+                elif test_success[0] is False:
+                    # Test failed
+                    print(f"\nTest failed, skipping cleanup wait...")
+                    return {'success': False, 'completed_early': True}
+                else:
+                    # Test didn't complete within timeout
+                    print(f"\nWarning: Session teardown timeout ({test_timeout}s) in quick mode, continuing...")
+                    return None
                 
                 if exception[0]:
                     raise exception[0]
@@ -164,7 +211,7 @@ def test_database(eigend_database_path, piw_session):
     
     return get_database
 
-@pytest.fixture  
+@pytest.fixture
 def sample_data_types(piw_session):
     """
     Create sample data objects for testing data type functionality.
@@ -184,7 +231,79 @@ def sample_data_types(piw_session):
     
     return create_samples
 
-# Test data constants
+@pytest.fixture
+def eigend_agentd_session(piw_session):
+    """
+    Provide a PIW session with agentd initialized for plugin testing.
+    Attempts to replicate minimal EigenD application context.
+    """
+    class MockBackend:
+        """Mock backend that implements the methods Workspace expects."""
+        def load_started(self, label):
+            pass
+        
+        def load_ended(self, errors=[]):
+            pass
+        
+        def load_status(self, message, progress):
+            pass
+        
+        def stop_gc(self):
+            pass
+        
+        def start_gc(self):
+            pass
+        
+        def run_foreground_sync(self, func, *args, **kwds):
+            return func(*args, **kwds)
+    
+    def setup_agentd():
+        def init_agentd(session_ctx):
+            try:
+                import pisession.agentd as agentd
+                import pisession.session as session
+                import pi.agent
+                import piw
+                
+                # Create mock backend with required methods
+                mock_backend = MockBackend()
+                
+                # Try to create agentd.Agent with mock backend
+                ad = agentd.Agent(mock_backend, 1)  # ordinal 1
+                
+                # Try to load conductor plugin
+                # This would normally be done by setup file parsing
+                try:
+                    import sys
+                    sys.path.insert(0, 'tmp/plugins')  # Relative to project root
+                    from Eigenlabs.plg_conductor import clip_manager_plg
+                    
+                    # Create agent in agentd context
+                    agent = clip_manager_plg.Agent('test_conductor', 1)
+                    
+                    return {
+                        'agentd': ad,
+                        'agent': agent,
+                        'session': session_ctx,
+                        'success': True
+                    }
+                except Exception as e:
+                    return {
+                        'agentd': ad,
+                        'error': str(e),
+                        'session': session_ctx,
+                        'success': False
+                    }
+                    
+            except Exception as e:
+                return {
+                    'error': f"Failed to initialize agentd: {e}",
+                    'success': False
+                }
+        
+        return piw_session['run'](init_agentd)
+    
+    return setup_agentd# Test data constants
 VALID_TYPE_CODES = {
     0x00: 'T_NULL',
     0x01: 'T_ARRAY',

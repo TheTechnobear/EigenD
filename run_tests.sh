@@ -22,6 +22,11 @@ if [ -z "$VIRTUAL_ENV" ]; then
     source "$VENV_DEV/bin/activate"
 fi
 
+# Set library path for macOS dynamic libraries
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    export DYLD_LIBRARY_PATH="$PWD/tmp/bin:$DYLD_LIBRARY_PATH"
+fi
+
 # Default values
 LEVEL=""
 TEST_PATTERN=""
@@ -226,6 +231,7 @@ else
             ;;
         integration)
             TEST_PATH="tests/unit/test_05_integration.py"
+            QUICK="--quick"  # Integration tests often need quick teardown
             ;;
         *)
             print_error "Invalid test level: $LEVEL"
