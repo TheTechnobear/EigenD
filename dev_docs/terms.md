@@ -240,9 +240,8 @@ class term:
 ```
 
 **String Handling:**
-- Python 2.7: Used `PyString_AsString()` for `const char*` parameters
-- Python 3.x: Uses `PyUnicode_AsUTF8()` for `const char*` parameters
-- Both immediately copy to `std::string` in C++ - no dangling pointer issues
+- Uses `PyUnicode_AsUTF8()` for `const char*` parameters
+- Immediately copies to `std::string` in C++ - no dangling pointer issues
 
 ---
 
@@ -464,7 +463,7 @@ The PIP template generates binding code that handles:
 - Memory management (reference counting)
 - Interpreter state tracking (multi-interpreter support)
 
-**String Conversion (Python 3.x):**
+**String Conversion:**
 ```cpp
 int fpcvt_str(PyObject *o, void *a)
 {

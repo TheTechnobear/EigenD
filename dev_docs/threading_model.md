@@ -1,4 +1,4 @@
-# EigenD Threading Model
+mv # EigenD Threading Model
 
 **Date:** 2025-11-09  
 **Status:** Under Investigation - Setup Loading Hang Issue
@@ -41,6 +41,11 @@ EigenD uses a multi-threaded architecture with careful separation between real-t
    - **Status:** ⚠️ **NEEDS INVESTIGATION**
    - **Potential:** May acquire locks during callbacks
 
+
+5. Threading & memory
+  - Use `piw.tsd_lock()` for thread safety.
+  - C++ objects often use `pic::tracked_t` for ownership tracking.
+  
 ## Areas Requiring Further Analysis
 
 - ❓ **Timer thread lock acquisition:** Does timer thread ever need WRITE lock?
@@ -178,78 +183,6 @@ Thread enters C++ (releases Python GIL)
 - ❌ Thread A: READ lock → waits for resource
 - ❌ Thread B: Holds resource → tries WRITE lock → blocked by A
 - ✅ **Mitigation:** Non-blocking write locks (`trywlock()`)
-
-## Migration Issues (Python 2 → 3)
-
-### Known Threading Changes
-
-**Python 2.7 vs 3.14:**
-- Python 3.2+: GIL uses timeout-based switching (not tick-based)
-- Python 3.14: Per-interpreter GIL (experimental free-threading)
-- Thread switching more predictable in Python 3
-
-**Potential Issues:**
-- ⚠️ Different GIL behavior may change lock contention patterns
-- ⚠️ Python 3 stricter about thread-local storage
-- ⚠️ Mutex ownership checking stricter in modern POSIX
-
-### Mutex-Related Migration Issues
-
-**Status:** ⚠️ **CRITICAL ISSUE IDENTIFIED**
-
-**Discovered Issue in `picross/src/pic_thread_posix.cpp`:**
-
-**Line 441 - Mutex Constructor Bug:**
-```cpp
-pic::mutex_t::mutex_t(bool recursive, bool inheritance) {
-    pthread_mutexattr_t a;
-    // ... configure attributes ...
-    pthread_mutex_init(&data_,&a);
-    pthread_mutexattr_destroy(&a);
-    pthread_mutex_unlock(&data_);  // ⚠️ UNLOCKING NEVER-LOCKED MUTEX!
-}
-```
-
-**This is WRONG!** Unlocking a mutex that was never locked violates POSIX semantics and causes undefined behavior. **fixed**
-
-
-**Lines 449-467 - Error Handling Workaround:**
-```cpp
-void pic::mutex_t::lock() { 
-    int result = pthread_mutex_lock(&data_);
-    if (result != 0) {
-        pic::logmsg() << "pthread_mutex_lock failed with error " << result;
-        // Don't assert - handle gracefully
-    }
-}
-
-void pic::mutex_t::unlock() { 
-    int result = pthread_mutex_unlock(&data_);
-    if (result != 0) {
-        // Python 3.14 has stricter thread ownership - log but don't fail
-        pic::logmsg() << "pthread_mutex_unlock failed with error " << result;
-        // This is expected behavior in Python 3.14 cross-thread scenarios
-    }
-}
-```
-
-**Comments claim "Python 3.14 has stricter thread ownership" but this is masking a real bug!**
-
-**Analysis:**
-- Python 2.7: Lax error checking, bug went unnoticed
-- Python 3.14: Stricter POSIX compliance, error now detected
-- Workaround: Log errors but continue (DANGEROUS!)
-- **Real fix needed:** Remove `pthread_mutex_unlock()` from constructor
-
-**Related Test:** `tests/unit/test_04_thread_ownership_debug.py`
-- Tests discovered mutex unlock failures (EPERM - Operation not permitted)
-- Indicates thread ownership violations
-
-**Impact on Current Issue:**
-- This bug may NOT be the root cause of setup loading hang
-- BUT it indicates threading/locking issues in the codebase
-- Error-check mutex attributes may expose other bugs
-- `rwmutex_t` appears unaffected (different code path)
 
 ## Fast Thread / Slow Thread Coordination (Fastcall Mechanism)
 

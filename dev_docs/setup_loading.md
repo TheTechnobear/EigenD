@@ -1,8 +1,5 @@
 # EigenD Setup Loading System
 
-**Date:** 2025-11-09  
-**Status:** Python 3 migration complete - system working correctly
-
 ## Executive Summary
 
 ### How Setup Loading Works
@@ -26,22 +23,6 @@ EigenD loads setups through a **sequential callback chain** using the custom `pi
 - `piasync` framework provides `Deferred`, `Coroutine`, and `Aggregate` primitives
 - Sequential loading ensures clean state transitions
 - Connection RPCs can target not-yet-loaded agents (forward references)
-
-### Python 3 Migration Status
-
-✅ **Successful Migration**
-- Setup loading works correctly on Python 3.14
-- `piasync` framework fully compatible (just renamed from `async`)
-- Callback chain mechanism verified working via unit tests
-- No changes needed to core loading logic
-
-**Root Cause of Previous Issues:**
-- Python 2→3 broke `piw.data` equality comparison (used identity instead of content)
-- This caused spurious domain change notifications in `proxy.py`
-- Controllers triggered expensive attach/detach loops during loading
-- **Fixed**: Updated PIP template to generate `tp_richcompare` from `__cmp__` method
-- All tests passing, setup loading confirmed working
-
 
 ---
 
@@ -472,30 +453,10 @@ def load_state(self, state, delegate, phase):
 
 2. ✅ **Integration tests** - ALL PASSED
    - `test_full_system_components_available` - Core components load
-   - `test_python_314_migration_regression` - Python 3.14 compatibility
+   - `test_python_314_migration_regression` - Core Python 3.14 functionality
    - `test_setup_tree_generation_sorting` - Setup sorting works
    - `test_menu_class_tree_generation` - Menu hierarchy builds correctly
    - `test_eigend_string_assertion_prevention` - PIW string handling works
-
-### Python 3 Migration Fix
-
-**Issue:** `piw.data` comparison used identity (`id()`) instead of content  
-**Cause:** Python 3 removed `__cmp__`, requires `tp_richcompare` protocol  
-**Fix:** Updated PIP template to generate `tp_richcompare` from existing `__cmp__` method  
-**Files Changed:**
-- `tools/pip_cmd/template` (lines 909-951, 1459) - Rich comparison generation
-- `tests/unit/test_02_data_layer.py` (lines 488-687) - Comprehensive comparison tests
-
-**Test Results:**
-```
-tests/unit/test_02_data_layer.py::TestPiwDataComparison::test_data_equality_basic PASSED
-tests/unit/test_02_data_layer.py::TestPiwDataComparison::test_data_equality_strings PASSED
-tests/unit/test_02_data_layer.py::TestPiwDataComparison::test_data_equality_dict_lookup PASSED
-tests/unit/test_02_data_layer.py::TestPiwDataComparison::test_data_richcompare_all_operators PASSED
-tests/unit/test_02_data_layer.py::TestPiwDataComparison::test_data_nb_inherits_comparison PASSED
-```
-
-**Impact:** This fixed spurious domain change notifications that caused controller attach/detach loops during loading.
 
 ### Forward-Reference Connections
 
@@ -535,12 +496,6 @@ EigenD uses a custom coroutine-based async framework (`pi/piasync.py`):
 - **Deferred**: Promise/future-like object with callback chains
 - **Coroutine**: Generator-based cooperative multitasking
 - **Aggregate**: Coordinate multiple parallel async operations
-
-**Python 3 Migration:**
-- Module renamed `async` → `piasync` (Python 3 keyword conflict)
-- No implementation changes - framework identical to Python 2 version
-- Fully compatible with Python 3.14
-- Unit tests confirm callback chain mechanism works correctly
 
 ### Threading Model
 

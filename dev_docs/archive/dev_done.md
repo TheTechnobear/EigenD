@@ -1,217 +1,60 @@
- EigenD 3.0 - Session Resume Context
+# Completed Development Items
 
-## 🎯 LATEST: Audio Unit Double-Unload Guard (2025-11-14)
+## 2025-11-16
+- Cleaned gc_zombie_proxies.md documentation by removing fixed scaler use-after-free issue details, leaving only ongoing zombie proxy analysis
 
-- Done: Made `host_plg.Agent.close_server()` idempotent to prevent C++ exception on duplicate unloads.
-- File: `plg_host/host_plg.py` (guarded `host.close()` with `has_plugin()`; always calls base `Agent.close_server`).
-- Impact: Prevents crash seen in logs when `audio_unit1` unload is triggered twice during rig teardown.
+## 2025-11-14
+- Made audio_unit plugin close_server() idempotent to prevent C++ exception on duplicate unloads
 
-**Date:** 2025-12-10  
-**Branch:** 3.0
-**Status:** ✅ **C++17 & JUCE 8 MIGRATION COMPLETE - TESTING PHASE**
+## 2025-11-12
+- Fixed wire deletion for all nesting levels in Workbench by using Plumber's pattern with to_usable_id()
+- Added issue form and labeler workflow on branches 2.2 and 3.0
 
----
+## 2025-11-11
+- Fixed FileNotFoundError and IOError handling in plg_sampler2 for missing soundfont files
+- Fixed FileNotFoundError stack traces in plg_loop by adding directory existence checks
 
-## 🎯 LATEST: Wire Deletion Fixed in Workbench (2025-11-12)
+## 2025-11-10
+- Completed C++17 and JUCE 8 migration with full clean rebuild on macOS ARM64
+- Replaced all std::auto_ptr with std::unique_ptr across 55 instances in 12 files
+- Resolved std::byte conflict by removing custom byte typedef and using unsigned char
+- Updated AudioPlayHead API for JUCE 8 compatibility in plg_host
+- Fixed multiple inheritance casting issues with explicit casts for C++17 stricter type checking
+- Removed deprecated register keyword from plg_stk source files
+- Enabled JUCE_MODAL_LOOPS_PERMITTED for modal dialog compatibility
+- Renamed DialogWindow::showModalDialog to showDialog across 32 instances
+- Added const qualifier to ResizableWindow::getBorderThickness() override
+- Removed unused variable in eigend.cpp build
+- Updated AudioIODeviceCallback API signature and casting for JUCE 8
+- Fixed JUCE 8 DialogWindow API change by replacing showDialog with showModalDialog
+- Fixed reference cycle in Rig cleanup preventing proper GC collection
+- Completed Python 3.14 migration with all major components working
 
-### ✅ Wire Deletion Now Working for All Nesting Levels
+## 2025-11-09
+- Fixed piw.data comparison to use content comparison instead of identity for Python 3 rich comparison protocol
+- Fixed Workbench application startup crash with PyCapsule_GetPointer issue
+- Completed setup loading system migration to Python 3.14
+- Upgraded FFTW library from 3.2.1 to 3.3.10 with hybrid build system for ARM64 support
 
-**Problem:** Wire deletion showed confirmation dialog but wires weren't actually deleted from eigend database  
-**Root Cause:** `disconnect()` method in `workbench.py` was using `find_item()` which returns `None` for deeply nested atoms like `<console_mixer1>#3.1.1`
+## 2025-11-08
+- Fixed Python source file installation by installing .py files instead of .pyc bytecode
+- Fixed UnicodeDecodeError in audio_unit blob handling by using bytes operations
+- Enabled single-precision FFTW build with ARM64/NEON support for plg_convolver
+- Resolved plg_convolver compilation issues with FFTW 3.3.10 upgrade
 
-#### **The Critical Discovery: Missing `main:` Scope Prefix**
+## 2025-11-07
+- Fixed RecursionError in dictionary methods by calling iter* methods
 
-**Old log (failed):**
-```
-workbench: destination <console_mixer1>#3.1.1 not found, trying parent <console_mixer1>#3.1
-workbench: disconnect: calling RPC on proxy <console_mixer1>#3.1 with srcid=<rig1>#2.1
-```
+## 2025-11-06
+- Fixed PIW string term corruption by using correct data constructor instead of predicate constructor
+- Fixed EigenD GUI empty string display by reverting defensive is_string() checks
+- Enhanced test runner with --quick mode for faster TDD workflow
 
-**New log (working):**
-```
-workbench: disconnect: calling RPC on <main:console_mixer1>#3.1.1 with term=conn(None,None,'<rig1>#2.1',None,None)
-workbench: disconnect: RPC succeeded
-```
-
-**Key difference:** `to_usable_id()` adds the `<main:` scope prefix, which is **required for RPC routing to deeply nested atoms**.
-
-#### **Solution: Use Plumber's Pattern**
-
-Changed both `disconnect()` and `connect_test()` to match the working pattern from `pi/plumber.py`:
-
-```python
-# OLD (broken):
-proxy = self.__database.find_item(dstid)  # Returns None for nested atoms!
-if proxy:
-    proxy.invoke_rpc('disconnect', term)
-
-# NEW (working):
-dst_qid = self.__database.to_usable_id(dstid)      # <main:console_mixer1>#3.1.1
-src_qid = self.__database.to_usable_id(srcid)      # <main:rig1>#2.1
-src_relative = paths.to_relative(src_qid, scope=paths.id2scope(dst_qid))
-rpc.invoke_rpc(dst_qid, 'disconnect', rendered_term)  # Works!
-```
-
-#### **Why This Matters:**
-
-1. **`find_item()` limitation:** Returns `None` for atoms more than 1-2 levels deep, even though they exist in the database
-2. **`to_usable_id()` advantage:** Converts bare IDs to fully qualified IDs with scope prefix (`<main:...>`)
-3. **RPC routing:** The scope prefix is necessary for eigend to route RPCs to deeply nested atoms
-4. **Plumber precedent:** `pi/plumber.py` uses this pattern successfully for all connections
-
-#### **Files Changed:**
-- `app_juceworkbench/workbench.py`:
-  - Lines 947-969: Updated `connect_test()` to use `rpc.invoke_rpc()` with qualified IDs
-  - Lines 971-995: Updated `disconnect()` to use `rpc.invoke_rpc()` with qualified IDs
-  - Removed all debug logging after verification
-
-#### **Testing Verified:**
-- ✅ Wire deletion works for agent-level connections
-- ✅ Wire deletion works for expanded box pins
-- ✅ Wire deletion works for deeply nested atoms (3+ levels)
-- ✅ Works in both main rig and sub-rigs
-- ✅ Manual wire creation also works (connect_test validated)
-
-#### **Impact:**
-- **Before:** Wire deletion silently failed for nested atoms, wire persisted after restart
-- **After:** All wire deletions work correctly regardless of nesting level
-- **Consistency:** Both `connect_test()` and `disconnect()` now use the same reliable pattern
-
----
-
-2025-11-12: Added issue form and labeler workflow on branches 2.2 and 3.0.
-
-Files added:
-- .github/ISSUE_TEMPLATE/bug_report.yml
-- .github/workflows/issue-labeler.yml
-- .github/issue-metadata/versions.yml
-
-Notes:
-- Agent field is optional in the form (GitHub forms do not support conditional fields). The workflow will only add an agent label when the field is filled.
-- Hardware is a required dropdown with fixed options.
-
-
-## 🎯 LATEST: Missing File Error Handling Fixed in plg_sampler2 (2025-11-11)
-
-### ✅ Fixed FileNotFoundError and IOError Handling in Sampler Plugin
-
-**Problem:** Missing or corrupt soundfont files and .name files caused unhandled exceptions  
-**Locations:** `plg_sampler2/sampler_oscillator_plg.py` and `plg_sampler2/sf2.py`
-
-#### **Issues Fixed:**
-
-**1. Name File Reading (sampler_oscillator_plg.py line 212)**
-- **Before:** `resource.file_open(p).read().strip()` directly in lambda - no error handling
-- **After:** Added `__read_name_file()` helper method with try-except
-- **Result:** Logs error and skips corrupt .name files instead of crashing
-
-**2. Preset Scanning (sampler_oscillator_plg.py `__scanpresets()`)**
-- **Before:** No error handling when calling `sf2.sf_info()`
-- **After:** Added try-except for OSError, IOError, and general Exception
-- **Result:** Logs error and returns empty list instead of stack trace
-
-**3. Soundfont Loading (sf2.py `load_soundfont()`)**
-- **Before:** Opens file without checking existence
-- **After:** Checks `resource.os_path_exists()` first, wraps file_open in try-except
-- **Result:** Raises clear RuntimeError with descriptive message
-
-**4. Soundfont Info Reading (sf2.py `sf_info()`)**
-- **Before:** Opens file without checking existence, used `file` as variable name
-- **After:** Checks existence first, renamed to `file_handle`, added try-except
-- **Result:** Logs error and returns empty generator instead of exception
-
-#### **Files Changed:**
-- `plg_sampler2/sampler_oscillator_plg.py` lines 202-227:
-  - Added `__read_name_file()` helper method
-  - Updated `__scan()` to filter out None values from failed reads
-  - Added error handling to `__scanpresets()`
-
-- `plg_sampler2/sf2.py`:
-  - Lines 203-214: Added existence check and error handling to `load_soundfont()`
-  - Lines 254-269: Added existence check and error handling to `sf_info()`
-
-#### **Impact:**
-- **Before:** Missing soundfonts or corrupt files caused stack traces in logs
-- **After:** Logs descriptive errors and continues gracefully
-- **Behavior:** Sampler continues working with available files, skips problematic ones
-
-#### **Pre-existing Bugs Noted (not fixed):**
-- `sf2.py` lines 180, 242: `gen` should be `self.gen` (typos causing undefined variable)
-- These are logic bugs unrelated to file handling, left for separate fix
-
-#### **Testing:**
-- ✅ No new syntax errors in sampler_oscillator_plg.py
-- ⏳ Runtime verification needed (access sampler with missing soundfonts)
-
----
-
-## 🎯 PREVIOUS: Missing Loop Directory Error Handling Fixed (2025-11-11)
-
-### ✅ Fixed FileNotFoundError Stack Traces in plg_loop
-
-**Problem:** Missing `/usr/local/pi/loop` directory caused stack trace instead of graceful handling  
-**Error:** `FileNotFoundError: [Errno 2] No such file or directory: '/usr/local/pi/loop'`  
-**Location:** `plg_loop/loopdb.py` methods accessing factory loop directory
-
-#### **Root Cause:**
-- `enumerate_path()` and `cinfo_path()` called `resource.os_listdir()` without checking directory exists
-- When factory loop directory missing, `os.listdir()` raised `FileNotFoundError`
-- Exception propagated through RPC handler causing stack trace in logs
-- Should log warning and return empty results instead
-
-#### **Solution:**
-Added defensive checks to filesystem access methods in `plg_loop/loopdb.py`:
-
-```python
-def enumerate_path(self,root,path):
-    dir = os.path.join(root,*path)
-    
-    # Check if directory exists, return empty if not
-    if not resource.os_path_exists(dir) or not resource.os_path_isdir(dir):
-        print('loopdb: directory does not exist:', dir)
-        return (0, 0)
-    
-    sdirs = 0
-    sfiles = 0
-
-    try:
-        for f in resource.os_listdir(dir):
-            # ... rest of enumeration
-    except (OSError, IOError) as e:
-        print('loopdb: error reading directory %s: %s' % (dir, e))
-        return (0, 0)
-    
-    return (sfiles,sdirs)
-```
-
-**Similar fix applied to `cinfo_path()` method.**
-
-#### **Files Changed:**
-- `plg_loop/loopdb.py` lines 203-248:
-  - `enumerate_path()`: Added exists check and exception handling
-  - `cinfo_path()`: Added exists check and exception handling
-
-#### **Impact:**
-- **Before:** Stack trace on every access to factory loops when directory missing
-- **After:** Logs "directory does not exist" and returns empty results gracefully
-- **Behavior:** Drummer plugin continues working, just shows no factory loops
-- **Note:** `finfo_path()` not changed - it queries database, doesn't access filesystem
-
-#### **Testing:**
-- ✅ No syntax errors
-- ⏳ Runtime verification needed (delete agent and check logs)
-
----
-
-## 🎯 PREVIOUS: JUCE 8 Dialog API Breaking Change Fixed (2025-11-10)
-
-### ✅ Workbench Dialog Content Issue Resolved
-
-**Problem:** All dialog boxes in Workbench showed empty content (DeleteAgentConfirmation, etc.)  
-**Root Cause:** JUCE 8 changed `DialogWindow::showDialog()` from synchronous to asynchronous  
-**Impact:** 32 dialog instances across app_juceworkbench
-
-#### **API Behavior Change:**
+## 2025-11-05
+- Fixed PIP template constructor exception handling by adding PyErr_Clear() calls
+- Fixed timer race condition causing additional crashes during constructor exceptions
+- Fixed cheatsheet command TypeError by converting range to list
+- Fixed multiple Python 2→3 compatibility issues in EigenD daemon startup
 
 **JUCE 6 (Old):**
 ```cpp
@@ -540,101 +383,7 @@ def clear(self, destroy=False):
 
 ---
 
-## ✅ COMPLETED: Setup Loading System (2025-11-09)
 
-### piw.data Comparison Fix - Python 3 Rich Comparison Protocol ✅
-
-**Problem:** Setup loading hung due to spurious domain change notifications triggering controller attach/detach loops  
-**Root Cause:** `piw.data.__eq__` used identity comparison instead of content comparison (Python 2's `__cmp__` removed in Python 3)
-
-**Solution:** Updated PIP template to generate `tp_richcompare` from existing `__cmp__` method
-- Added `special_richcompare_method_()` to PIP template (lines 909-951)
-- Updated `tp_richcompare` slot to conditional function pointer (line 1459)
-- Uses `PyType_IsSubtype(Py_TYPE(other), Py_TYPE(self))` for runtime type checking
-
-**Testing:** All 5 TestPiwDataComparison tests passing
-- test_data_equality_basic
-- test_data_equality_strings
-- test_data_equality_dict_lookup (proxy.py use case)
-- test_data_richcompare_all_operators (all 6: <, <=, ==, !=, >, >=)
-- test_data_nb_inherits_comparison (subtype inheritance)
-
-**Result:** Setup loading now works correctly, no spurious node_changed() calls  
-**Impact:** Fixed major Python 3 migration blocker - setup loading system fully functional
-
-**Files Changed:**
-- `tools/pip_cmd/template` - Rich comparison generation
-- `tests/unit/test_02_data_layer.py` (lines 488-687) - Comprehensive comparison tests
-
-**Documentation:**
-- Updated `dev_docs/setup_loading.md` - Removed failure analysis, documented how loading works
-- Updated `dev_docs/terms.md` - Refactored to explain terms/predicates with examples
-
-### Workbench Application Startup Fix ✅
-
-**Problem:** Workbench crashed on startup in `epython::PythonBackend::mediator()`  
-**Location:** `app_juceworkbench/epython.cpp:185` - PyCapsule_GetPointer failure  
-**Root Cause:** Python 3 migration issue in Workbench's Python integration  
-**Solution:** Fixed PyCapsule handling in workbench.pip binding  
-**Result:** Workbench now launches successfully  
-**Remaining:** Agent positioning issues in GUI (needs testing)
-
----
-
-## 🎯 PREVIOUS INVESTIGATION: Setup Loading Attach/Detach Loop (2025-11-09)
-
-### Investigation Phase: Controller Connection Loop (RESOLVED)
-
-**Status:** ✅ Root cause identified and fixed - was piw.data comparison issue
-
-**Status:** ❌ Disproved - No lock contention found
-
-**Initial Hypothesis (WRONG):** Setup loading deadlocked on read-write lock
-- Python RPC handlers acquire **READ lock** (blocking) 
-- UI/Fast threads acquire **WRITE lock** (non-blocking try)
-- When WRITE lock held, all READ lock attempts block
-- **72 agents hung waiting for READ lock during loading**
-
-**Evidence:**
-- Controller1 `RPC_LOADSTATE_DONE` logged (handler completed)
-- But `RELOAD_FINAL_OK` never logged (response not delivered)
-- Coroutine stuck at `yield r` waiting for RPC response
-- DSP thread still running ("audio dropouts 0" continuing)
-- **Hypothesis:** Another thread holds WRITE lock, blocking all Python execution
-
-**Critical Bug Found:**
-- `pic::mutex_t` constructor calls `pthread_mutex_unlock()` on never-locked mutex
-- Violates POSIX semantics, causes undefined behavior
-- Python 3.14 stricter checking exposed this
-- Error handling added as workaround, but real fix needed
-- See `dev_docs/threading_model.md` for details
-
-**Instrumentation Added (2025-11-09):**
-```cpp
-// pia_glue.cpp lines 1126-1144
-GLOBAL_LOCK: Write lock acquired by thread <tid>
-GLOBAL_LOCK: Write lock FAILED for thread <tid>
-GLOBAL_UNLOCK: Write lock released by thread <tid>
-
-RLOCK_WAIT: Context <grp> thread <tid> waiting for read lock
-RLOCK_ACQUIRED: Context <grp> thread <tid> acquired read lock
-RLOCK_RELEASE: Context <grp> thread <tid> releasing read lock
-```
-
-**New Documentation:**
-- `dev_docs/threading_model.md` - Complete threading architecture analysis
-- `tests/unit/test_06_threading_lock_stress.py` - Lock contention unit tests
-- Updated `dev_docs/setup_loading.md` with lock hypothesis
-
-**Next Actions:**
-1. Run instrumented eigend: `./tmp/bin/eigend --stdout 2>&1 | tee eigend_locks.log`
-2. Load failing setup: "pico 2 ~ 4 VST or Audio Unit and 4 Midi Out"
-3. Analyze lock log - identify thread holding WRITE lock
-4. Determine why lock not released
-5. Test fixes:
-   - Remove mutex constructor unlock bug
-   - Defer connections to post-load
-   - Enable `DISABLE_FAST_THREAD_AT_LOAD`
 
 ---
 
@@ -853,62 +602,7 @@ agents_sorted = dependency_sort(agents)
 
 ---
 
-## ✅ COMPLETED: FFTW 3.3.10 Upgrade with Hybrid Build System (2025-11-09)
 
-**Status:** ✅ Complete and working, subject to runtime testing  
-**Root Issue:** Build artifacts incorrectly placed in source tree  
-**Solution:** Hybrid path approach - relative for SCons tracking, absolute for glob operations
-
-### Final Working Solution
-
-**Problem Evolution:**
-1. **Initial approach (2025-11-08):** Absolute paths everywhere
-   - ✅ Glob worked correctly
-   - ❌ 613 build artifacts created in `lib_fftw/fftw-3.3.10/` source tree
-   
-2. **Second attempt (2025-11-09 AM):** Relative paths everywhere
-   - ✅ Artifacts correctly placed in `tmp/obj/`
-   - ❌ Glob failed to find 170+ SIMD codelet files
-   - ❌ Undefined symbols at link time
-
-3. **Final solution (2025-11-09 PM):** Hybrid approach
-   - ✅ Relative paths for SCons file tracking → builds to `tmp/obj/`
-   - ✅ Absolute paths for glob operations → finds all SIMD files
-   - ✅ All 170+ codelet files included
-   - ✅ Source tree clean, no build artifacts
-
-**Key Lesson:** SCons requires relative paths for variant directory tracking, but Python's `glob.glob()` needs absolute paths in SCons context. Solution: glob with absolute, convert results to relative.
-
-### Implementation Details
-
-```python
-# In lib_fftw/SConscript
-fftw_base = 'fftw-3.3.10'  # Relative for SCons
-fftw_base_abs = os.path.join(Dir('.').srcnode().abspath, fftw_base)  # Absolute for glob
-
-# Glob with absolute, store as relative
-for f in glob.glob(os.path.join(fftw_base_abs, 'dft/simd/neon/n*.c')):
-    neon_dft_files.append(os.path.relpath(f, Dir('.').srcnode().abspath))
-```
-
-**SIMD Codelet Patterns (must capture all three):**
-- `n*.c` - N-point transforms (67 files)
-- `t*.c` - Twiddle transforms (95 files)  
-- `q*.c` - Q transforms (8 files)
-- Plus: `codlist.c` and `genus.c` (solver registration)
-
-### Cleanup & Verification
-
-- ✅ Deleted 613 `.o`/`.os` files from source tree
-- ✅ Verified clean source: no build artifacts remain
-- ✅ Verified correct placement: all objects in `tmp/obj/lib_fftw/`
-- ✅ Build completes successfully
-- ⏳ Runtime testing pending
-
-### Documentation
-
-- Updated `dev_docs/convolver_update.md` with complete build system details
-- Removed `dev_docs/fftw_upgrade_3.3.10.md` (merged into convolver doc)
 
 ---
 
@@ -1424,76 +1118,3 @@ except ValueError as e:
 - Hundreds of .py files (print, except, dict methods, etc)
 - Many SConscript files
 - tools/*.py (build system)
-
-## Debugging Tips
-
-### Import Errors
-1. Check if module uses bare imports
-2. Change to `from pi import ...` or `from pi.logic import ...`
-3. Remove bytecode: `rm -f tmp/modules/path/to/module.pyc`
-4. Rebuild: `make -j8`
-
-### Module Not Found
-1. Check spelling and case
-2. Verify module exists in source tree
-3. Check if it's a Python 2→3 renamed module
-4. Search git history: `git log --all -S "module_name"`
-
-### Runtime Errors
-1. Check error traceback for line number
-2. Look for Python 2 API usage (cmp, long, xrange, etc)
-3. Compare with python3 branch (but be aware it has bugs)
-4. Test incrementally with small changes
-
-### Build Errors
-1. Make sure using Python 3.14: `which python3.14`
-2. Clean build: `make clean && make -j8`
-3. Check for C++ compilation errors (usually in PIP bindings)
-4. Verify SCons4 in path: `echo $PYTHONPATH`
-
-## Reference Documentation
-
-**In this repo:**
-- dev_docs/dev_notes.md - Detailed changelog
-- dev_docs/dev_todo.md - Task tracking
-- dev_docs/dev_howitworks.md - Quick reference
-- .github/copilot-instructions.md - System architecture
-
-**External:**
-- Python 3 What's New: https://docs.python.org/3/whatsnew/
-- Python 2→3 Porting: https://docs.python.org/3/howto/pyporting.html
-- C API Changes: https://docs.python.org/3/c-api/
-
-## Expected Issues in Daemon Testing
-
-Based on patterns so far, expect:
-
-1. **More import errors** in agent modules (plg_*/*)
-2. **Dictionary iteration** - .iteritems() → .items()
-3. **String/bytes confusion** - especially in MIDI/binary protocols
-4. **Unicode handling** - file paths, agent names
-5. **Threading issues** - GIL behavior changes
-6. **Plugin loading** - dynamic import changes
-
-## Success Criteria for This Phase
-
-**Daemon starts:** `./tmp/bin/eigend --cmdline` runs without crashes  
-**Base setup loads:** Can initialize minimal agent system  
-**RPC works:** Can execute commands via brexec  
-**No deadlocks:** System doesn't hang on startup  
-
-**NOT required yet:**
-- Hardware communication (Eigenharp devices)
-- Audio processing (real-time DSP)
-- All plugins working (test incrementally)å
-- GUI applications (Workbench, Stage)
-
-## Contact/Resources
-
-**Repository:** https://github.com/TheTechnobear/EigenD  
-**Branch:** python3  
-**Base work:** TheTechnobear's python3 branch (but with fixes)  
-**Original:** EigenD 2.2.x (Python 2.7)
-
-
-

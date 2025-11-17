@@ -12,22 +12,6 @@
 
 **Important:** piasync predates Python 3.5's `asyncio` module and does **not** use it. EigenD's event loop is implemented in C++ (`piw` layer), not Python.
 
-### Migration Context
-
-**Python 2.7 → Python 3.14:**
-- Module renamed: `pi.async` → `pi.piasync` (Python 3 made `async` a keyword)
-- **Implementation unchanged** - no code changes to piasync.py internals
-- Simple search/replace: `async.` → `piasync.` everywhere
-- All functionality preserved
-
-### Critical Question: Generator Behavior Changes?
-
-**Status:** ⚠️ **POTENTIAL ISSUE IDENTIFIED**
-
-While piasync implementation is unchanged, **Python 3 changed generator exception handling** in ways that could affect EigenD's async behavior.
-
----
-
 ## piasync Architecture
 
 ### 1. Deferred Class

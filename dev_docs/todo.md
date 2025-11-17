@@ -1,8 +1,4 @@
-# Python 3.14 Migration TODO
-
-**Status**: 🚀 Core Migration COMPLETE - Hardware Testing Phase
-
----
+# Active task
 
 ## 🎯 HIGH PRIORITY - Active Tasks
 
@@ -52,12 +48,12 @@
 
 ### 5. Cleanup and Performance Issues
 **Status**: Medium priority - affects UX
-- **Zombie Proxies and Slow Setup Switching** 🔴 (2025-11-10) 
+- **Zombie Proxies and Slow Setup Switching** 🔴 
   - **Symptom**: RPC retransmit messages during agent deletion, slow setup switching
   - **Root Cause**: Incomplete cleanup - filter wires not disconnecting synchronously
   - **Impact**: Performance degradation, users restart app instead of switching setups
   - **Priority**: Medium - affects UX but has workaround (restart app)
-  - **Details**: See `dev_docs/prompts/gc_zombie_proxies.md`
+  - **Details**: See `dev_docs/gc_zombie_proxies.md`
   - **Note**: Pre-existing 2.21 issue exposed by Python 3 GC fixing memory leaks
 
 - **Minor Clock Cleanup Assertion** ⚠️ (2025-11-10)
@@ -69,9 +65,7 @@
 **Status**: ✅ Functional with known issue (2025-11-10)
 - ✅ Fixed: No longer crashes on startup (PyCapsule issue resolved)
 - ✅ Fixed: Agent positioning now correct in GUI
-- ⚠️ Known Bug: Cannot add IO to rig and keygroup
-  - Appears to be existing bug in EigenD 2.2.1 as well
-  - Not a new Python 3 migration issue
+- ✅ Fixed Known Bug: Cannot add IO to rig and keygroup
 - **Core Functionality Working**:
   - ✅ Agent creation and deletion
   - ✅ Wire creation and deletion  
@@ -206,10 +200,7 @@
 - ⏭️ Update NOTES_MACOS.md with Python 3 build instructions (python.org installation)
 - ⏭️ Document installation process (python.org, not Homebrew)
 - ⏭️ Note breaking changes from Python 2.7 version
-- ⏭️ Document VST SDK as optional dependency
 - ⏭️ Create release notes for community
-- ⏭️ Update .github/copilot-instructions.md with Python 3 context
-- ⏭️ Note: VST 3 only
 
 ---
 
@@ -234,7 +225,7 @@
 
 ### 12. Advanced Application Testing
 **Status**: Lower priority - may not fix
-- ⏭️ Test Stage application
+- ✅ Test Stage application
 - ⏭️ Evaluate Browser/Commander (already broken, may deprecate)
 - ⏭️ Consider modernizing GUI tools vs maintaining legacy
 
@@ -242,7 +233,7 @@
 **Status**: No immediate need
 - ✅ Current: SCons 4.x working well
 - ⏭️ Future: Consider CMake migration (3-6 months effort)
-  - Only evaluate if SCons proves problematic
+  - evaluate if SCons proves problematic
   - Would require rewriting ~100+ build files
 
 ---
@@ -263,116 +254,7 @@
 - ✅ Workbench application launches (startup crash fixed)
 - ✅ All hardware tested and working (Pico, Tau, Alpha)
 
----
 
-## ✅ COMPLETED WORK
-
-### November 11, 2025 - plg_pkbd Shutdown Fix ✅
-**Problem**: Runtime error during eigend shutdown: "dictionary changed size during iteration"
-**Location**: `plg_pkbd/pico_manager_plg.py:148` - `on_quit()` method
-**Root Cause**: Iterating over `subsystem_keys()` dict view while `del_keyboard()` modified it
-**Solution**: Wrapped `self.subsystem_keys()` with `list()` to create snapshot before iteration
-**Result**: ✅ Clean shutdown without runtime errors
-**Files Changed**: `plg_pkbd/pico_manager_plg.py`
-
-### November 9, 2025 - Workbench Startup Fix ✅
-**Problem**: Workbench crashed on startup in `epython::PythonBackend::mediator()`
-**Location**: `app_juceworkbench/epython.cpp:185` - PyCapsule_GetPointer failure
-**Root Cause**: Python 3 migration issue in Workbench's Python integration
-**Solution**: Fixed PyCapsule handling in workbench.pip binding
-**Result**: ✅ Workbench now launches successfully
-**Files Changed**: `app_juceworkbench/workbench.pip`
-
-### November 9, 2025 - piw.data Comparison Fix ✅
-**Problem**: Setup loading hung due to spurious domain change notifications triggering controller attach/detach loops
-**Root Cause**: `piw.data.__eq__` used identity comparison instead of content comparison (Python 2's `__cmp__` removed in Python 3)
-**Solution**: Updated PIP template to generate `tp_richcompare` from existing `__cmp__` method
-**Implementation**: 
-- Added `special_richcompare_method_()` to PIP template (lines 909-951)
-- Updated `tp_richcompare` slot to conditional function pointer (line 1459)
-- Uses `PyType_IsSubtype(Py_TYPE(other), Py_TYPE(self))` for runtime type checking
-**Files Changed**:
-- `tools/pip_cmd/template` - Rich comparison generation
-- `tests/unit/test_02_data_layer.py` (lines 488-687) - Comprehensive comparison tests
-**Testing**: All 5 TestPiwDataComparison tests passing
-- test_data_equality_basic
-- test_data_equality_strings
-- test_data_equality_dict_lookup (proxy.py use case)
-- test_data_richcompare_all_operators (all 6: <, <=, ==, !=, >, >=)
-- test_data_nb_inherits_comparison (subtype inheritance)
-**Result**: Setup loading now works correctly, no spurious node_changed() calls
-**Impact**: Fixed major Python 3 migration blocker - setup loading system fully functional
-**Documentation**: Updated setup_loading.md and terms.md to reflect working system
-
-### November 6, 2025 - Test Infrastructure ✅
-**Test Runner Enhancement for TDD**:
-- Added `--quick/-q` mode with 5s timeout and session teardown skip
-- Enhanced `run_tests.sh` and `tests/conftest.py` with threading timeout
-- Performance: ~75% faster (6s vs 30s), enabling rapid iteration cycles
-
-**Test Structure**: 6-layer hierarchical test system (Foundation→Integration)  
-**Current Results**: 43 tests passing across all layers
-
-**VST3 SDK Integration**:
-- Fixed object files being created in vst3sdk submodule
-- Implemented hybrid approach using external headers + minimal utility compilation
-- Verified clean rebuild works without submodule pollution
-- Proper VariantDir usage for build artifacts in tmp/obj/vst3sdk/
-
-### November 5, 2025 - PIP Template Constructor Fix ✅
-**Issue**: Copy constructors failing with "function takes exactly 2 arguments (1 given)" 
-**Root Cause**: PIP template didn't clear exceptions between constructor attempts
-**Solution**: Added `PyErr_Clear()` after each failed constructor attempt
-**Testing**: All 12 term constructor tests passing
-**Deployment**: eigend successfully loads all Python modules and plugins
-**Impact**: Fixes all copy constructors (`piw.term(existing)`, `piw.data(existing)`, etc.)
-**Files**: tools/pip_cmd/template, tests/unit/test_term_constructors.py
-
-**EigenD Startup Progress**:
-- Before: eigend crashed immediately with "assertion failure: is_string()"
-- After: Python modules load successfully, all 50+ plugins discovered, GUI components created
-- Assessment: Core Python 3.14 migration complete
-
-### Earlier 2025 - Core Migration Work ✅
-**PyString_AsString Migration**:
-- Verified PIP bindings use `PyUnicode_AsUTF8AndSize()` correctly
-- Fixed related issues: `dict.keys().sort()`, `map()` iterator compatibility
-- Result: Unicode handling working properly, agentd module imports successfully
-
-**Command-Line Tools**:
-- Fixed cheatsheet: `[x] + range(y)` → `[x] + list(range(y))`
-- All tools functional: bcat, bls, bpaths, brexec, brpc, bscript, bdownload, capture, signature, upgrade34, annotate, cheatsheet
-
-**EigenD Daemon Startup**:
-- Fixed: `httplib` → `http.client`, `xmlrpclib` → `xmlrpc.client`
-- Fixed: `range().reverse()` → `list(range()).reverse()`
-- Fixed: `map()` iterator → `list(map())`
-- Fixed: `xrange` → `range`
-- Result: Daemon starts successfully, loads all modules and plugins
-
-**Build System**:
-- Full build completes (make, make mpkg)
-- PIP binding system (C++/Python integration) fully migrated
-- Belcanto logic system imports and initializes
-- Core pi/ modules load correctly
-- Session and agent management working
-
-### 2024 - Initial Migration Work ✅
-**Python 3 API Migration**:
-- All Python 2.7 APIs replaced with Python 3 equivalents
-- PIP template fully updated for Python 3
-- GIL management validated and working correctly
-- Code review completed: .has_key() → 'in', ConfigParser → configparser
-
-**Comparison with TheTechnobear's python3 Branch**:
-Our migration is MORE COMPLETE:
-- Fixed lock_c2p GIL API properly
-- Added bytearray support  
-- Fixed cmp(), long, string.maketrans (python3 branch has typos)
-- Fixed parser module (python3 branch incomplete)
-- Tested command-line tools (python3 branch untested)
-
----
 
 ## 🔍 KNOWN ISSUES TO MONITOR
 
@@ -380,7 +262,6 @@ Our migration is MORE COMPLETE:
 - GIL behavior under high load (audio dropout monitoring needed)
 - Memory allocator changes in Python 3 (watch for deadlocks)
 - Unicode/bytes handling in MIDI and binary protocols
-- Performance comparison vs Python 2.7 version needed
 
 ---
 
@@ -390,8 +271,8 @@ Our migration is MORE COMPLETE:
 - ✅ Committed build system fixes (commit 55a8e099)
 - ✅ Committed template fixes (commit 98f03aa8)  
 - ✅ Committed pi/logic and runtime fixes (commit d431988d)
-- ⏭️ Create 3.0 branch
-- ⏭️ Tag and create beta release for community testing
+- ✅ Create 3.0 branch
+- ✅ Tag and create beta release for community testing
 
 ---
 
@@ -404,10 +285,3 @@ Our migration is MORE COMPLETE:
 - Consider virtual environment approach for distribution
 - Modern Python best practices recommend venv usage
 
-### Comparison with TheTechnobear's python3 Branch
-Our migration is MORE COMPLETE:
-- Fixed lock_c2p GIL API properly
-- Added bytearray support  
-- Fixed cmp(), long, string.maketrans (python3 branch has typos)
-- Fixed parser module (python3 branch incomplete)
-- Tested command-line tools (python3 branch untested)

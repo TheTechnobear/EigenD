@@ -1,13 +1,8 @@
-# How the Python 3.14 Migration Works
-
-## ✅ Migration Status: COMPLETE
-
-This document describes the architecture of the successful Python 3.14 migration.
-The migration is functionally complete with identical behavior to Python 2.7.
+# How EigenD Python Integration Works
 
 ## Overview
-Quick reference for understanding the Python 3.14 migration architecture.
-Not comprehensive - just key concepts for debugging/maintenance.
+Quick reference for understanding the Python 3.14 integration architecture.
+Key concepts for debugging and maintenance.
 
 ## PIP Binding System
 
@@ -71,10 +66,6 @@ Used for MIDI messages, firmware uploads, raw USB data
 
 ## Module Initialization
 
-### Python 2 vs Python 3
-**Python 2:** `initmodulename()` function
-**Python 3:** `PyInit_modulename()` function returns `PyObject*`
-
 ### Module Structure
 ```cpp
 PyInit_modulename() {
@@ -88,41 +79,24 @@ PyInit_modulename() {
 
 ## String Handling
 
-### Python 2: PyString (bytes)
-All strings were byte strings (ASCII/bytes)
+Strings are Unicode text by default in Python 3.
+Use `PyBytes` for binary data (MIDI, firmware, etc).
+`PyUnicode_AsUTF8` returns `const char*` (temporary!)
 
-### Python 3: PyUnicode (text)
-Strings are Unicode text by default
-`PyBytes` for binary data
+The PIP binding template correctly uses `PyUnicode_AsUTF8AndSize()` for string conversion with proper Unicode → UTF-8 encoding for C++ interop.
 
-**Migration pattern:**
-- `PyString_*` → `PyUnicode_*` for text
-- Use `PyBytes_*` for binary data (MIDI, firmware, etc)
-- `PyUnicode_AsUTF8` returns `const char*` (temporary!)
-
-### PyString_AsString Migration ✅
-**Status**: RESOLVED - No migration issues found
-
-**Analysis**: The PIP binding template (`tools/pip_cmd/template`) already correctly uses:
-- `PyUnicode_AsUTF8AndSize()` for Python 3 string conversion
-- Proper Unicode → UTF-8 encoding for C++ interop
-- Binary protocol compatibility preserved for cross-version communication
-
-**Key Finding**: The `term(data)` constructor is broken due to `fpcvt_data` dispatcher issue, but `term(string, type)` constructor works correctly. The `data_to_term()` workaround in `pisession/agentd.py` bypasses this issue.
-
-**Binary Protocol**: Cross-version client-server communication (Python 2.7 ↔ Python 3.14) remains stable.
+**Binary Protocol**: Stable cross-version communication.
 
 ## Object Types (PyTypeObject)
 
-### Structure Changes in Python 3
+### Structure in Python 3
 - `ob_size` removed (now in `PyVarObject_HEAD_INIT`)
 - `tp_print` removed (debugging feature obsolete)
 - `tp_compare` removed (use `tp_richcompare`)
 - `tp_as_async` added (for `async`/`await` support)
 
 ### Member Access
-**Python 2:** `obj->ob_type->tp_free(obj)`
-**Python 3:** `Py_TYPE(obj)->tp_free(obj)` (macro for safety)
+Use `Py_TYPE(obj)->tp_free(obj)` (macro for safety)
 
 ## Session Management
 
@@ -153,8 +127,8 @@ MIDI/firmware code must use `bytes`/`bytearray`, not `str`
 Must use `list(dict.keys())` if you need list operations
 
 ### Integer Division
-`5/2` returns `2.5` in Python 3 (was `2` in Python 2)
-Use `5//2` for integer division
+`5/2` returns `2.5` (true division)
+Use `5//2` for integer division (floor division)
 
 ### Range Returns Iterator
 `range(10)` is iterator, not list
@@ -162,19 +136,19 @@ Use `list(range(10))` if you need list
 Affects concatenation: `[x] + range(y,z)` → `[x] + list(range(y,z))`
 
 ### Print is Function
-`print x, y` → `print(x, y)`
-Affects stderr redirect: `print >>sys.stderr, msg` → `print(msg, file=sys.stderr)`
+Use `print(x, y)` syntax
+For stderr: `print(msg, file=sys.stderr)`
 
 ### File Operations
-`file()` constructor removed, use `open()`
-`'rU'` mode deprecated, use `'r'` (universal newlines default)
+Use `open()` instead of `file()` constructor
+Use `'r'` mode (universal newlines default)
 
 ### Input Functions
-`raw_input()` unified into `input()` (Python 3 input returns string)
+Use `input()` (returns string)
 
 ### Comparison
 `cmp()` function removed
-Use `functools.cmp_to_key()` to wrap old comparison functions
+Use `functools.cmp_to_key()` to wrap comparison functions
 Sort key functions preferred over comparison functions
 
 ## Debugging Tips
@@ -185,7 +159,6 @@ Verify module name matches between .pip and SConscript
 
 ### GIL Deadlocks
 Check all C++ → Python calls use `lock_c2p`
-Verify no Python 2 locking APIs remain
 
 ### Type Errors
 Check PyUnicode vs PyBytes usage

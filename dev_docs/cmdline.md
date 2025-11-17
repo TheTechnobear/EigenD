@@ -66,7 +66,6 @@ forward references: 12
 **Use Cases:**
 - **Debug loading failures**: Identify which agents connect to not-yet-loaded agents
 - **Understand dependencies**: See connection graph and loading order
-- **Compare Python 2/3**: Verify same agent order between versions
 - **Identify forward references**: Find connections that may cause RPC failures
 
 **Example:**
@@ -553,18 +552,6 @@ signature ~/Setups/large_setup > dev_docs/logs/sig_after.txt
 diff dev_docs/logs/sig_before.txt dev_docs/logs/sig_after.txt
 ```
 
-**7. Cross-check Python 2 vs 3 decoding:**
-```bash
-# Dump same setup on Python 2.7
-bstdump --db ~/Setups/large_setup > dev_docs/logs/py27_dump.txt
-
-# Dump on Python 3
-bstdump --db ~/Setups/large_setup > dev_docs/logs/py3_dump.txt
-
-# Compare to find decoding differences
-diff dev_docs/logs/py27_dump.txt dev_docs/logs/py3_dump.txt
-```
-
 ---
 
 ## Connection Term Format
@@ -663,25 +650,14 @@ def cli():
    EOF
    ```
 
-2. **Compare Python 2.7 vs 3 state:**
-   ```bash
-   # On Python 2.7
-   bstdump --db setup > py27_state.txt
-   
-   # On Python 3
-   bstdump --db setup > py3_state.txt
-   
-   diff py27_state.txt py3_state.txt
-   ```
-
-3. **Monitor loading with debugging:**
+2. **Monitor loading with debugging:**
    ```bash
    # Add print statements to workspace.py
    # Watch which agent causes RPC exception
    mirror | tee loading_debug.txt
    ```
 
-4. **Test connection order hypothesis:**
+3. **Test connection order hypothesis:**
    - Use `bstdump` to find all connections
    - Map connections to agent load order
    - Identify forward references (agent N → agent M where M > N)

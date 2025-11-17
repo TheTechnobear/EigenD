@@ -2,28 +2,29 @@
 
 This directory contains developer-focused documentation for the EigenD project.
 
-## AI Development Documentation
+## Current Documentation Files
 
-### Primary Files for GitHub Copilot
-- `dev_notes.md` - Complete migration changelog and fixes applied
-- `dev_todo.md` - Current task tracking and priorities  
-- `copilot-session_resume.md` - Complete context for resuming work
-- `dev_howitworks.md` - Quick system reference
+### Core Development Files
+- `todo.md` - Current task tracking and development priorities
 
-### Technical Analysis
-- `binary_protocol.md` - Binary protocol compatibility analysis
-- `dev_howitworks.md` - System architecture notes
-- `dev_notes.md` - Migration progress notes  
-- `dev_todo.md` -  task tracking
-- `terms.md` - about terms and predicates
-- `setup_loading.md` - how started and setups work
-- `threading_model.md` - fast n' slow threads, how they talk, and other similar items
+### Technical Documentation
+- `binary_protocol.md` - Binary protocol compatibility and implementation details
+- `cmdline.md` - Command-line tools reference and usage guide
+- `gc_zombie_proxies.md` - Analysis of garbage collection zombie proxy issues
+- `piasync.md` - piasync framework documentation and usage
+- `pip_template.md` - PIP binding system templates and generation
+- `setup_loading.md` - Setup loading system and startup process
+- `terms.md` - Terms and predicates system documentation
+- `threading_model.md` - Threading architecture and inter-thread communication
 
+### Archive Directory
+useful whilst testing / debugging current release.
+will remove on completion.
 
 ## Organization
 
 - **User Documentation**: `/documentation/` - End-user manuals, setup guides, etc.
-- **Developer Documentation**: `/dev_docs/` - Internal development notes, migration docs, AI instructions
+- **Developer Documentation**: `/dev_docs/` - Internal development notes, technical docs, AI instructions
 - **System Documentation**: Various README files throughout codebase
 
 ## Note for AI Agents
