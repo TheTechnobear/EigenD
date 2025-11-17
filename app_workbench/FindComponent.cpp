@@ -58,6 +58,7 @@ FindComponent::FindComponent (std::vector<String> names)
     cancelButton->setColour (TextButton::buttonColourId, Colour (0xffaeaeae));
 
     addAndMakeVisible (listbox = new ListBox());
+    listbox->setColour (ListBox::backgroundColourId, Colours::white);
     listbox->setName ("listbox");
 
 
