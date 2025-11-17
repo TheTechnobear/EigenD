@@ -111,6 +111,36 @@ Prefixes for folders:
 - Do not add general top-level docs without consent.
 - Update existing `dev_docs/*` where required.
 
+### Session summarization and context window management
+- Purpose: avoid excessive context use by summarising long sessions into a compact session summary and keeping only recent active context.
+- Triggers (agent should auto-summarise when any condition met):
+	- > 30 messages exchanged in current session, OR
+	- Estimated tokens for conversation > 8000, OR
+	- > 10 file edits in workspace during session.
+- Summarisation behaviour:
+	- Produce a compact summary (6–10 bullets) containing: decisions made, open tasks, modified files, important parameters/thresholds, commands to re-run build/tests.
+	- Keep the last 5 full messages (most recent user + assistant exchanges) verbatim; compress older messages into the summary.
+	- Store summaries under `.github/session_summaries/{YYYY-MM-DD}_{session_id}.md` and append a one-line session_resume entry in `.github/copilot-session_resume.md` (date-stamped).
+	- Before dropping or pruning any user-provided code or large blocks, ask for confirmation if the code is flagged as "important" (e.g., test code, new feature code).
+- Format for stored summary (example):
+	- Date: YYYY-MM-DD
+	- Session ID: <auto-id>
+	- Key decisions: (short bullets)
+	- Open tasks: (short bullets with file paths)
+	- Files changed: (list)
+	- Commands to reproduce: (one-line make / scons command)
+- Compression rules:
+	- Convert long dialogues into numbered bullets with references to file paths and line ranges where applicable.
+	- Strip verbose conversational filler; retain explicit instructions, config values, and file paths.
+- Safety & provenance:
+	- Never auto-delete user files; only summarise conversation context.
+	- Keep at least the last 5 messages and the session summary in active context to preserve continuity.
+- Configuration:
+	- Default thresholds are editable by maintainers; list the current values in this file for transparency.
+- Minimal prompt to user when summarising:
+	- "Context limit reached; I'll summarise older messages to save tokens. Proceed? (yes / no / adjust threshold)"
+- Note: After major instruction/file changes, update `.github/copilot-session_resume.md` with a date-stamped note (YYYY-MM-DD).
+
 ## Tools - Building and Testing
 
 ### Guidelines for Building
