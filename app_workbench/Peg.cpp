@@ -527,22 +527,32 @@ void Peg::hookToolMouseClick(const MouseEvent& e)
 
 void Peg::deleteToolMouseClick(const MouseEvent& e)
 {
-    bool doDelete=true;
     if(getMainPanel()->requiresDeleteConfirmation("Peg"))
     {
         DeletePegConfirmation* da=new DeletePegConfirmation();
-        DialogWindow::showModalDialog("Delete hook",da,this,Colour(0xffababab),true);
-        if(da->dontShowAgain_&& da->okPressed_)
-        {
-           getMainPanel()->setDeleteConfirmationRequired("Peg"); 
-        }
-
-        doDelete=da->okPressed_;
-        delete da;
-    }
-
-    if(doDelete)
-    {
+        // DialogWindow::showModalDialog("Delete hook",da,this,Colour(0xffababab),true);
+        DialogWindow::LaunchOptions options;
+        options.content.setOwned(da);
+        options.componentToCentreAround =this;
+        options.dialogTitle = "Delete hook";
+        options.dialogBackgroundColour=Colour(0xffababab); 
+        options.escapeKeyTriggersCloseButton=true;
+        dw_.reset (options.launchAsync());
+        ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+            ModalCallbackFunction::create ([this, da] (int returnValue)
+            {
+                if(da->dontShowAgain_&& da->okPressed_)
+                {
+                    getMainPanel()->setDeleteConfirmationRequired("Peg"); 
+                }
+                if(da->okPressed_)
+                {
+                    getMainPanel()->deleteRoutingElement(this);
+                }
+                dw_.release();
+            })
+        );            
+    } else {
         getMainPanel()->deleteRoutingElement(this);
     }
 }

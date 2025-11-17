@@ -1569,24 +1569,34 @@ void Box::createButtonClicked()
 void Box::deleteButtonClicked()
 {
     pic::logmsg()<<"deleteInstance id="<<std::string(getId().toUTF8());
-    bool doDelete=true;
     if(getMainPanel()->requiresDeleteConfirmation("Instance"))
     {
         DeleteInstanceConfirmation* da=new DeleteInstanceConfirmation(getName());
-        DialogWindow::showModalDialog("Delete port",da,this,Colour(0xffababab),true);
-        if(da->dontShowAgain_&& da->okPressed_)
-        {
-           getMainPanel()->setDeleteConfirmationRequired("Instance"); 
-        }
-
-        doDelete=da->okPressed_;
-        delete da;
-    }
-
-    if(doDelete)
-    {
+        // DialogWindow::showModalDialog("Delete port",da,this,Colour(0xffababab),true);
+        DialogWindow::LaunchOptions options;
+        options.content.setOwned(da);
+        options.componentToCentreAround =this;
+        options.dialogTitle = "Delete port";
+        options.dialogBackgroundColour=Colour(0xffababab); 
+        options.escapeKeyTriggersCloseButton=true;
+        dw_.reset (options.launchAsync());
+        ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+            ModalCallbackFunction::create ([this,da] (int returnValue)
+            {
+                if(da->dontShowAgain_&& da->okPressed_)
+                {
+                    getMainPanel()->setDeleteConfirmationRequired("Instance"); 
+                }
+                if(da->okPressed_)
+                {
+                    getMainPanel()->deleteInstance(atom_);
+                }
+                dw_.release();
+            })
+        );
+    } else {
         getMainPanel()->deleteInstance(atom_);
-    }
+    } 
 }
 
 void Box::setForeground(bool shouldBeForegrounded,bool includeConnections)
@@ -2536,22 +2546,37 @@ void Box::deleteToolMouseClick(const MouseEvent& e)
 {
     if(isTopLevel())
     {
-        bool doDelete=true;
         if(getMainPanel()->requiresDeleteConfirmation("Agent"))
         {
             DeleteAgentConfirmation* da=new DeleteAgentConfirmation(getName());
-            DialogWindow::showModalDialog("Delete agent",da,this,Colour(0xffababab),true);
-            if(da->dontShowAgain_&& da->okPressed_)
-            {
-               getMainPanel()->setDeleteConfirmationRequired("Agent"); 
-            }
+            // DialogWindow::showModalDialog("Delete agent",da,this,Colour(0xffababab),true);
+            DialogWindow::LaunchOptions options;
+            options.content.setOwned(da);
+            options.componentToCentreAround =this;
+            options.dialogTitle = "Delete agent";
+            options.dialogBackgroundColour=Colour(0xffababab); 
+            options.escapeKeyTriggersCloseButton=true;
+            dw_.reset (options.launchAsync());
+            ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                ModalCallbackFunction::create ([this, da] (int returnValue)
+                {
+                    if(da->dontShowAgain_&& da->okPressed_)
+                    {
+                        getMainPanel()->setDeleteConfirmationRequired("Agent"); 
+                    }
 
-            doDelete=da->okPressed_;
-            delete da;
-        }
-
-        if(doDelete)
-        {
+                    if(da->okPressed_) {
+                        if (expanded)
+                        {
+                            expanded=!expanded;
+                            doContract(false);
+                        }
+                        getMainPanel()->deleteAgent(this);
+                    }
+                    dw_.release();
+                })
+            );
+        } else { 
             if (expanded)
             {
                 expanded=!expanded;
@@ -2567,29 +2592,38 @@ void Box::deleteToolMouseClick(const MouseEvent& e)
         {
             if(parentBox->canCreate())
             {
-                bool doDelete=true;
                 if(getMainPanel()->requiresDeleteConfirmation("Instance"))
                 {
                     DeleteInstanceConfirmation* da=new DeleteInstanceConfirmation(getName());
-                    DialogWindow::showModalDialog("Delete port",da,this,Colour(0xffababab),true);
-                    if(da->dontShowAgain_&& da->okPressed_)
-                    {
-                       getMainPanel()->setDeleteConfirmationRequired("Instance"); 
-                    }
-
-                    doDelete=da->okPressed_;
-                    delete da;
-                }
-
-                if(doDelete)
-                {
+                    // DialogWindow::showModalDialog("Delete port",da,this,Colour(0xffababab),true);
+                    DialogWindow::LaunchOptions options;
+                    options.content.setOwned(da);
+                    options.componentToCentreAround =this;
+                    options.dialogTitle = "Delete port";
+                    options.dialogBackgroundColour=Colour(0xffababab); 
+                    options.escapeKeyTriggersCloseButton=true;
+                    dw_.reset (options.launchAsync());
+                    ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                        ModalCallbackFunction::create ([this,da,parentBox] (int returnValue)
+                        {
+                            if(da->dontShowAgain_&& da->okPressed_)
+                            {
+                                getMainPanel()->setDeleteConfirmationRequired("Instance"); 
+                            }
+                            if(da->okPressed_) {
+                                Atom* parent=parentBox->getAtom();
+                                parent->delete_instance(atom_->get_id());
+                            }
+                            dw_.release();
+                        })
+                    );            
+                } else {
                     Atom* parent=parentBox->getAtom();
                     parent->delete_instance(atom_->get_id());
                 }
             }
         }
     }
-
 }
 
 void Box::editToolMouseClick(const MouseEvent& e)
@@ -3221,23 +3255,35 @@ void Box::showConnectionInfo()
                 title = "Input editor: "+fullname;
             }
 
-            DialogWindow::showModalDialog(title,editorPanel,this,Colour (0xffababab),true);
-            
-            if(editorPanel->changed())
-            {
-                pic::logmsg()<<"SingleInputEditor values were changed";
-                if(parentBox!=0)
+            // DialogWindow::showModalDialog(title,editorPanel,this,Colour (0xffababab),true);
+            DialogWindow::LaunchOptions options;
+            options.content.setOwned(editorPanel);
+            options.componentToCentreAround =this;
+            options.dialogTitle = title;
+            options.dialogBackgroundColour=Colour(0xffababab); 
+            options.escapeKeyTriggersCloseButton=true;
+            dw_.reset (options.launchAsync());
+            ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                ModalCallbackFunction::create ([this,editorPanel,parentBox,w] (int returnValue)
                 {
-                    parentBox->setUsingChanged(true);
-                }
+                    if(editorPanel->changed())
+                    {
+                        pic::logmsg()<<"SingleInputEditor values were changed";
+                        if(parentBox!=0)
+                        {
+                            parentBox->setUsingChanged(true);
+                        }
 
-                String u=editorPanel->getUsing();
-                String f=editorPanel->getFilter();
-                String c=editorPanel->getControl();
-                getMainPanel()->changeWire(w,u,f,c);
-            }
-           
-            delete editorPanel;
+                        String u=editorPanel->getUsing();
+                        String f=editorPanel->getFilter();
+                        String c=editorPanel->getControl();
+                        getMainPanel()->changeWire(w,u,f,c);
+                    }
+                    dw_.release();
+                })
+            );            
+
+            
         }
     }
 }

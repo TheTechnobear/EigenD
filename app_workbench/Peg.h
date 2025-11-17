@@ -85,6 +85,7 @@ public:
     virtual void bringToFront();
 
 private:
+    std::unique_ptr<DialogWindow> dw_;
     int mouseDownX;
     int mouseDownY;
     String testId_;

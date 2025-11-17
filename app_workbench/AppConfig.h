@@ -25,6 +25,10 @@
 #define JUCE_MODULE_AVAILABLE_juce_gui_basics           1
 
 // Enable modal loops for JUCE 8 compatibility
+// this is problematic, but Ive limited use to : 
+// MessageManager::getInstance()->runDispatchLoopUntil(40); // progress bar
+// juce::AlertWindow::showMessageBox(juce::AlertWindow::WarningIcon   // python check then exit
+// m_->getToolsMenu().show(); //???
 #define JUCE_MODAL_LOOPS_PERMITTED 1
 
 #define JUCE_ASIO 0

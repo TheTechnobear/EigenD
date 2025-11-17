@@ -83,6 +83,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+    std::unique_ptr<DialogWindow> dw_;
     bool disabled_;
     String warning_;
     void setOff();

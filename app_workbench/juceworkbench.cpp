@@ -63,6 +63,7 @@ class MainWindow  : public DocumentWindow,public BackendFactory
         MenuManager* menuManager_;
         pic::f_string_t logger_;
         JuceWorkbenchApp* app_;
+        std::unique_ptr<DialogWindow> dw_;
 };
 
 class JuceWorkbenchApp : public ejuce::Application, public BackendFactory, virtual public pic::tracked_t
@@ -154,7 +155,20 @@ void MainWindow::handleCommandMessage(int commandId)
     if(commandId==1020)
     {
         AboutComponent* dc=new AboutComponent();
-        DialogWindow::showModalDialog("About",dc,this,Colour (0xffababab),true);
+        // DialogWindow::showModalDialog("About",dc,this,Colour (0xffababab),true);
+        DialogWindow::LaunchOptions options;
+        options.content.setOwned(dc);
+        options.componentToCentreAround =this;
+        options.dialogTitle = "About";
+        options.dialogBackgroundColour=Colour(0xffababab); 
+        options.escapeKeyTriggersCloseButton=true;
+        dw_.reset (options.launchAsync());
+        ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+            ModalCallbackFunction::create ([this] (int returnValue)
+            {
+                dw_.release();
+            })
+        );            
     }
 }
 

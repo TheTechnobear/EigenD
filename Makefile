@@ -2,6 +2,8 @@
 
 FORCE:
 
+.DEFAULT_GOAL := all
+
 TOOLS = tools
 
 # Platform detection

@@ -146,10 +146,24 @@ void KeyToCoursePropertyEditor::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_editButton] -- add your button handler code here..
         String title="Edit " + atom_->get_fulldesc();
         mappingEditor_=new KeyToCourseEditor(atom_,name_,tm_);
-        DialogWindow::showModalDialog(title,mappingEditor_,this,Colour(0xffababab),true);
-        getTopLevelComponent()->toFront(true);
-        delete mappingEditor_;
-        mappingEditor_=0;
+        // DialogWindow::showModalDialog(title,mappingEditor_,this,Colour(0xffababab),true);
+
+        DialogWindow::LaunchOptions options;
+        options.content.setOwned(mappingEditor_);
+        options.componentToCentreAround =this;
+        options.dialogTitle = title;
+        options.dialogBackgroundColour=Colour(0xffababab); 
+        options.escapeKeyTriggersCloseButton=true;
+        dw_.reset (options.launchAsync());
+        ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+            ModalCallbackFunction::create ([this] (int returnValue)
+            {
+                mappingEditor_=0;
+                dw_.release();
+                getTopLevelComponent()->toFront(true);
+            })
+        );            
+
 
         //[/UserButtonCode_editButton]
     }
@@ -247,14 +261,24 @@ void KeyToCoursePropertyEditor::showWarning()
     if(!tm_->getPropertyValue(String("EditMapDirectly"),false))
     {
             EditMapConfirmation* da=new EditMapConfirmation();
-            DialogWindow::showModalDialog("Edit mapping directly",da,this,Colour(0xffababab),true);
-
-            if(da->dontShowAgain_&& da->okPressed_)
-            {
-               tm_->setPropertyValue(String("EditMapDirectly"),true);
-            }
-
-            delete da;
+            // DialogWindow::showModalDialog("Edit mapping directly",da,this,Colour(0xffababab),true);
+            DialogWindow::LaunchOptions options;
+            options.content.setOwned(da);
+            options.componentToCentreAround =this;
+            options.dialogTitle = "Edit mapping directly";
+            options.dialogBackgroundColour=Colour(0xffababab); 
+            options.escapeKeyTriggersCloseButton=true;
+            dw_.reset (options.launchAsync());
+            ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                ModalCallbackFunction::create ([this,da] (int returnValue)
+                {
+                    if(da->dontShowAgain_&& da->okPressed_)
+                    {
+                        tm_->setPropertyValue(String("EditMapDirectly"),true);
+                    }
+                    dw_.release();
+                })
+            );            
     }
 }
 

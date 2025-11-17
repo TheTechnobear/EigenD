@@ -246,6 +246,7 @@ void doSetPositionProps(int x, int y);
 void setScreenPos(int x, int y);
 
 private:
+    std::unique_ptr<DialogWindow> dw_;
 
     void doSetup(Atom* atom,String name, String id,float zoomFactor,int level);
     void doSetup(String name, String id,float zoomFactor,int level);

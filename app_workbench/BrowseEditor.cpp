@@ -184,11 +184,26 @@ void BrowseEditor::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_browseButton] -- add your button handler code here..
         String title="Browsing " + atom_->get_fulldesc();
-        DialogWindow::showModalDialog(title,treeContent_,this,Colour(0xffababab),true,true,true);
+        // DialogWindow::showModalDialog(title,treeContent_,this,Colour(0xffababab),true,true,true);
+
+        DialogWindow::LaunchOptions options;
+        options.content.setNonOwned(treeContent_);
+        options.componentToCentreAround =this;
+        options.dialogTitle = title;
+        options.dialogBackgroundColour=Colour(0xffababab); 
+        options.escapeKeyTriggersCloseButton=true;
+        options.useBottomRightCornerResizer = true;
+        dw_.reset (options.launchAsync());
+        ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+            ModalCallbackFunction::create ([this] (int returnValue)
+            {
+                dw_.release();
+                getTopLevelComponent()->toFront(true);
+            })
+        );         
 
 //        delete treeContent_;
 //        treeContent_=0;
-        getTopLevelComponent()->toFront(true);
         //[/UserButtonCode_browseButton]
     }
 

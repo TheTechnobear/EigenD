@@ -3428,8 +3428,20 @@ void MainComponent::connectionPossible(String sid,String did, bool possible)
         }
 
         ErrorReportComponent* e=new ErrorReportComponent("No matching inputs and outputs were found", "");
-        DialogWindow::showModalDialog(String("Connection not made"),e,getTopLevelComponent(),Colour (0xffababab),true);
-        delete e; 
+        // DialogWindow::showModalDialog(String("Connection not made"),e,getTopLevelComponent(),Colour (0xffababab),true);
+        DialogWindow::LaunchOptions options;
+        options.content.setOwned(e);
+        options.componentToCentreAround = getTopLevelComponent();
+        options.dialogTitle = "Connection not made";
+        options.dialogBackgroundColour=Colour(0xffababab); 
+        options.escapeKeyTriggersCloseButton=true;
+        dw_.reset (options.launchAsync());
+        ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+            ModalCallbackFunction::create ([this] (int returnValue)
+            {
+                dw_.release();
+            })
+        );            
     }
 }
 
@@ -5250,7 +5262,6 @@ void MainComponent::deleteToolMouseClick(const MouseEvent& e)
         Wire* w=selectedWire_;
         if (e.mods.isCommandDown())
         {
-            bool doDelete=true;
             if(requiresDeleteConfirmation("Route"))
             {
                 Anchor* anchor=new Anchor(e.x,e.y);
@@ -5266,28 +5277,40 @@ void MainComponent::deleteToolMouseClick(const MouseEvent& e)
 
 
                 DeleteRouteConfirmation* da=new DeleteRouteConfirmation(wireNames);
-                DialogWindow::showModalDialog("Delete route infomation",da,anchor,Colour(0xffababab),true);
-                if(da->dontShowAgain_&& da->okPressed_)
-                {
-                   setDeleteConfirmationRequired("Route"); 
-                }
+                // DialogWindow::showModalDialog("Delete route infomation",da,anchor,Colour(0xffababab),true);
 
-                doDelete=da->okPressed_;
-                delete da;
-                removeChildComponent(anchor);
-                delete anchor;
-            }
-
-            if(doDelete)
-            {
-              unRouteWiresLike(w);
-              repaint();
+                DialogWindow::LaunchOptions options;
+                options.content.setOwned(da);
+                options.componentToCentreAround = anchor;
+                options.dialogTitle = "Delete route infomation";
+                options.dialogBackgroundColour=Colour(0xffababab); 
+                options.escapeKeyTriggersCloseButton=true;
+                dw_.reset (options.launchAsync());
+                ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                    ModalCallbackFunction::create ([this,da,anchor,w] (int returnValue)
+                    {
+                        if(da->dontShowAgain_&& da->okPressed_)
+                        {
+                            setDeleteConfirmationRequired("Route"); 
+                        }
+                        removeChildComponent(anchor);
+                        delete anchor;
+                        if(da->okPressed_)
+                        {
+                            unRouteWiresLike(w);
+                            repaint();
+                        }
+                        dw_.release();
+                    })
+                );            
+            } else {
+                unRouteWiresLike(w);
+                repaint();
             }
         }
 
         else
         {
-            bool doDelete=true;
             if(requiresDeleteConfirmation("Wire"))
             {
                 Anchor* anchor=new Anchor(e.x,e.y);
@@ -5309,22 +5332,33 @@ void MainComponent::deleteToolMouseClick(const MouseEvent& e)
                 }
 
                 DeleteWireConfirmation* da=new DeleteWireConfirmation(wireNames);
-                DialogWindow::showModalDialog("Delete wire",da,anchor,Colour(0xffababab),true);
-                if(da->dontShowAgain_&& da->okPressed_)
-                {
-                   setDeleteConfirmationRequired("Wire"); 
-                }
+                // DialogWindow::showModalDialog("Delete wire",da,anchor,Colour(0xffababab),true);
+                DialogWindow::LaunchOptions options;
+                options.content.setOwned(da);
+                options.componentToCentreAround = anchor;
+                options.dialogTitle = "Delete wire";
+                options.dialogBackgroundColour=Colour(0xffababab); 
+                options.escapeKeyTriggersCloseButton=true;
+                dw_.reset (options.launchAsync());
+                ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                    ModalCallbackFunction::create ([this,da, anchor,w] (int returnValue)
+                    {
+                        if(da->dontShowAgain_&& da->okPressed_)
+                        {
+                            setDeleteConfirmationRequired("Wire"); 
+                        }
+                        removeChildComponent(anchor);
+                        delete anchor;
+                        if(da->okPressed_)
+                        {
+                          deleteWiresLike(w);
+                        }
 
-                doDelete=da->okPressed_;
-                delete da;
-                removeChildComponent(anchor);
-                delete anchor;
-            }
-
-            if(doDelete)
-            {
-
-              deleteWiresLike(w);
+                        dw_.release();
+                    })
+                );            
+            } else {
+                deleteWiresLike(w);
             }
         }
     }
@@ -5355,42 +5389,52 @@ void MainComponent::showWireProperties(Wire* w, int x, int y)
 
     int h=getDialogHeight(wpp);
     dc->setSize(600,h);
-    DialogWindow::showModalDialog("Connection details",dc,anchor,Colour (0xffababab),true);
+    // DialogWindow::showModalDialog("Connection details",dc,anchor,Colour (0xffababab),true);
 
-    if(dc->okPressed())
-    {
-        std::vector<WireEditor*> editors=wpp->getEditors();
-        for(std::vector<WireEditor*>::iterator i=editors.begin();i!=editors.end();i++)
+    DialogWindow::LaunchOptions options;
+    options.content.setOwned(dc);
+    options.componentToCentreAround = anchor;
+    options.dialogTitle = "Connection details";
+    options.dialogBackgroundColour=Colour(0xffababab); 
+    options.escapeKeyTriggersCloseButton=true;
+    dw_.reset (options.launchAsync());
+    ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+        ModalCallbackFunction::create ([this,dc, anchor,wpp,w] (int returnValue)
         {
-            WireEditor* ed=*i;
-            if(ed->changed())
+            if(dc->okPressed())
             {
-               DestinationPin* dp=w->getUsingDP();
-               if(dp!=0)
-               {
-                   Box* b=dp->findParentComponentOfClass<Box>();
-                   if(b!=0)
-                   {
-                        Box* pb =dynamic_cast <Box *>(b->getParentComponent());
-                        if(pb!=0)
+                std::vector<WireEditor*> editors=wpp->getEditors();
+                for(std::vector<WireEditor*>::iterator i=editors.begin();i!=editors.end();i++)
+                {
+                    WireEditor* ed=*i;
+                    if(ed->changed())
+                    {
+                        DestinationPin* dp=w->getUsingDP();
+                        if(dp!=0)
                         {
-                            pb->setUsingChanged(true);
+                            Box* b=dp->findParentComponentOfClass<Box>();
+                            if(b!=0)
+                            {
+                                Box* pb =dynamic_cast <Box *>(b->getParentComponent());
+                                if(pb!=0)
+                                {
+                                    pb->setUsingChanged(true);
+                                }
+                            }
                         }
-                   }
-               }
-             
-               changeWire(ed->getWire(),ed->getUsing(),ed->getFilter(),ed->getControl());
+                        changeWire(ed->getWire(),ed->getUsing(),ed->getFilter(),ed->getControl());
+                    }
+                    else
+                    {
+                        pic::logmsg()<<"wire editor not changed";
+                    }
+                }
             }
-            else
-            {
-                pic::logmsg()<<"wire editor not changed";
-            }
-        }
-    }
-
-    delete dc;
-    removeChildComponent(anchor);
-    delete anchor;
+            removeChildComponent(anchor);
+            delete anchor;
+            dw_.release();
+        })
+    );                       
 }
 
 int MainComponent::getDialogHeight(Component* displayComponent)
@@ -5423,15 +5467,27 @@ void MainComponent::showProperties(Box* b)
         if(atom!=0)
         {
             PropertyEditor* p=new PropertyEditor(new Atom(*atom),tm_, model_->getValueMonitor(),b->isRig());
+
             dc_=new DialogComponent(p,2);
             dc_->setId(atom->get_id());
             dc_->setSize(dc_->getWidth(),getDialogHeight(p));
-            DialogWindow::showModalDialog(atom->get_fulldesc(),dc_,b,Colour (0xffababab),true);
-            model_->getValueMonitor()->removeListener();
-            model_->getValueMonitor()->clear();
-            delete p;
-            delete dc_;
-            dc_=0;
+
+            // DialogWindow::showModalDialog(atom->get_fulldesc(),dc_,b,Colour (0xffababab),true);
+            DialogWindow::LaunchOptions options;
+            options.content.setOwned(dc_);
+            options.componentToCentreAround = b;
+            options.dialogTitle = atom->get_fulldesc();
+            options.dialogBackgroundColour=Colour(0xffababab); 
+            options.escapeKeyTriggersCloseButton=true;
+            dw_.reset (options.launchAsync());
+            ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                ModalCallbackFunction::create ([this] (int returnValue)
+                {
+                    model_->getValueMonitor()->removeListener();
+                    model_->getValueMonitor()->clear();
+                    dc_ = 0;
+                    dw_.release();
+                }));            
         }
         else
         {
@@ -5566,8 +5622,20 @@ void MainComponent::report_error(String err1, String err2)
 {
     ErrorReportComponent* e=new ErrorReportComponent(err1, err2);
 
-    DialogWindow::showModalDialog(String("Error"),e,getTopLevelComponent(),Colour (0xffababab),true);
-    delete e; 
+    // DialogWindow::showModalDialog(String("Error"),e,getTopLevelComponent(),Colour (0xffababab),true);
+    DialogWindow::LaunchOptions options;
+    options.content.setOwned(e);
+    options.componentToCentreAround = getTopLevelComponent();
+    options.dialogTitle = "Error";
+    options.dialogBackgroundColour=Colour(0xffababab); 
+    options.escapeKeyTriggersCloseButton=true;
+    dw_.reset (options.launchAsync());
+    ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+        ModalCallbackFunction::create ([this] (int returnValue)
+        {
+            dw_.release();
+        })
+    );          
 }
 
 void MainComponent::showCreateInstanceDialog(Atom* parent,const std::set<std::string> & ords) 
@@ -5575,16 +5643,27 @@ void MainComponent::showCreateInstanceDialog(Atom* parent,const std::set<std::st
     CreateInstanceComponent* ct =new CreateInstanceComponent(ords);
     Box* b = getBoxById(parent->get_id());
 
-    DialogWindow::showModalDialog(String("Create new ")+instanceName_,ct,b,Colour (0xffababab),true);
-    if(ct->okPressed_)
-    {
-        int ordinal=ct->getOrdinal();
-        if(parent!=0)
+    // DialogWindow::showModalDialog(String("Create new ")+instanceName_,ct,b,Colour (0xffababab),true);
+    DialogWindow::LaunchOptions options;
+    options.content.setOwned(ct);
+    options.componentToCentreAround = b;
+    options.dialogTitle = String("Create new ")+instanceName_;
+    options.dialogBackgroundColour=Colour(0xffababab); 
+    options.escapeKeyTriggersCloseButton=true;
+    dw_.reset (options.launchAsync());
+    ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+        ModalCallbackFunction::create ([this, ct,parent] (int returnValue)
         {
-            parent->create_instance(ordinal);
-        }
-    }
-    delete ct;
+            if(ct->okPressed_) {
+                int ordinal=ct->getOrdinal();
+                if(parent!=0)
+                {
+                    parent->create_instance(ordinal);
+                }
+            }
+            dw_.release();
+        })
+    );            
 }
 
 void MainComponent::agentsUpdated(const std::set<std::string> & agents)
@@ -5680,16 +5759,27 @@ void MainComponent::showCreateDialog(const std::set<std::string>& agentNames)
     pic::logmsg()<<"createDialogX_="<<createDialogX_<<"   createDialogY_="<<createDialogY_;
     addChildComponent(anchor);
 
-	DialogWindow::showModalDialog("Create an agent",ct,anchor,Colour (0xffababab),true);
-    if(ct->okPressed_)
-    {
-        currentCreateAgent_=ct->getSelection();
-        int ordinal=ct->getOrdinal();
-        createAgentBox(createDialogX_,createDialogY_,currentCreateAgent_,ordinal); 
-    }
-    delete ct;
-    removeChildComponent(anchor);
-    delete anchor;
+    // DialogWindow::showModalDialog("Create an agent",ct,anchor,Colour (0xffababab),true);
+    DialogWindow::LaunchOptions options;
+    options.content.setOwned(ct);
+    options.componentToCentreAround = anchor;
+    options.dialogTitle = "Create an agent";
+    options.dialogBackgroundColour=Colour(0xffababab); 
+    options.escapeKeyTriggersCloseButton=true;
+    dw_.reset (options.launchAsync());
+    ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+        ModalCallbackFunction::create ([this, ct, anchor] (int returnValue)
+        {
+            if(ct->okPressed_ ) {
+                currentCreateAgent_=ct->getSelection();
+                int ordinal=ct->getOrdinal();
+                createAgentBox(createDialogX_,createDialogY_,currentCreateAgent_,ordinal); 
+            }
+            dw_.release();
+            removeChildComponent(anchor);
+            delete anchor;
+        })
+    );            
 }
 
 void MainComponent::showFindDialog()
@@ -5697,38 +5787,59 @@ void MainComponent::showFindDialog()
     FindComponent* fc=new FindComponent(getTopLevelBoxNames());
 
     ProgressLayer* pl=findParentComponentOfClass<ProgressLayer>();
-    DialogWindow::showModalDialog("Find",fc,pl,Colour(0xffababab),true);
 
-    if(fc->okPressed_)
-    {
-        pic::logmsg()<< "highlight agent box with name"<<std::string(fc->getSelection().toUTF8());
-        Box* b = getBoxByName(fc->getSelection());
-        if(b!=0)
+    DialogWindow::LaunchOptions options;
+    options.content.setOwned(fc);
+    options.componentToCentreAround = pl;
+    options.dialogTitle = "Find";
+    options.dialogBackgroundColour=Colour(0xffababab); 
+    options.escapeKeyTriggersCloseButton=true;
+    dw_.reset (options.launchAsync());
+    // DialogWindow::showModalDialog("Find",fc,pl,Colour(0xffababab),true);
+    ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+        ModalCallbackFunction::create ([this, fc] (int returnValue)
         {
-            selectOnly(b);
-            if(!inViewPort(b->getX(),b->getY()))
+            if(fc->okPressed_)
             {
-                setViewPosition(b->getX()-0.5*vp_->getWidth(),b->getY()-0.5*vp_->getHeight(), true);
+                pic::logmsg()<< "highlight agent box with name"<<std::string(fc->getSelection().toUTF8());
+                Box* b = getBoxByName(fc->getSelection());
+                if(b!=0)
+                {
+                    selectOnly(b);
+                    if(!inViewPort(b->getX(),b->getY()))
+                    {
+                        setViewPosition(b->getX()-0.5*vp_->getWidth(),b->getY()-0.5*vp_->getHeight(), true);
+                    }
+                }
             }
-        }
-    }
-
-    delete fc;
+            dw_.release();
+        })
+    );            
 }
 
 void MainComponent::showPreferencesDialog()
 {
     PreferenceComponent* fc=new PreferenceComponent(this);
-    DialogWindow::showModalDialog("Preferences",fc,vp_,Colour(0xffababab),true);
-
-    if(fc->okPressed)
-    {
-        pic::logmsg()<< "Preferences ok pressed";
-        setProperty("selectOnExpand",fc->getValue("selectOnExpand"));
-        setProperty("enableMouseWheelZoom",fc->getValue("enableMouseWheelZoom"));
-    }
-
-    delete fc;
+    DialogWindow::LaunchOptions options;
+    options.content.setOwned(fc);
+    options.componentToCentreAround = vp_;
+    options.dialogTitle = "Preferences";
+    options.dialogBackgroundColour=Colour(0xffababab); 
+    options.escapeKeyTriggersCloseButton=true;
+    dw_.reset (options.launchAsync());
+    // DialogWindow::showModalDialog("Preferences",fc,vp_,Colour(0xffababab),true);
+    ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+        ModalCallbackFunction::create ([this, fc] (int returnValue)
+        {
+            if(fc->okPressed)
+            {
+                pic::logmsg()<< "Preferences ok pressed";
+                setProperty("selectOnExpand",fc->getValue("selectOnExpand"));
+                setProperty("enableMouseWheelZoom",fc->getValue("enableMouseWheelZoom"));
+            }
+            dw_.release();
+        })
+    );            
 }
 
 void MainComponent::mouseDoubleClick (const MouseEvent& e)

@@ -131,17 +131,29 @@ void BoolPropertyEditor::buttonClicked (Button* buttonThatWasClicked)
             {
                 HeadPhoneWarningComponent* e=new HeadPhoneWarningComponent(warning_);
 
-                DialogWindow::showModalDialog(String("Warning"),e,this,Colour (0xffababab),true);
-                if(e->okPressed())
-                {
-                    setOff();
-                }
-                else
-                {
-                    toggleButton->setToggleState(true,false);
-                    toggleButton->setButtonText ("On");
-                }
-                delete e;
+                // DialogWindow::showModalDialog(String("Warning"),e,this,Colour (0xffababab),true);
+                DialogWindow::LaunchOptions options;
+                options.content.setOwned(e);
+                options.componentToCentreAround =this;
+                options.dialogTitle = "Warning";
+                options.dialogBackgroundColour=Colour(0xffababab); 
+                options.escapeKeyTriggersCloseButton=true;
+                dw_.reset (options.launchAsync());
+                ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                    ModalCallbackFunction::create ([this,e] (int returnValue)
+                    {
+                        if(e->okPressed())
+                        {
+                            setOff();
+                        }
+                        else
+                        {
+                            toggleButton->setToggleState(true,false);
+                            toggleButton->setButtonText ("On");
+                        }
+                        dw_.release();
+                    })
+                );            
             }
             else
             {

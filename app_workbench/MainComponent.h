@@ -699,6 +699,7 @@ private:
     void showWireProperties(Wire* w, int, int);
     LassoComponent<Selectable*>* lassoComponent_;
     DialogComponent* dc_;
+    std::unique_ptr<DialogWindow> dw_;
     bool spaceKeyDown_;
     int storedTool_;
     int getDialogHeight(Component*);

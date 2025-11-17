@@ -169,27 +169,33 @@ void KeyToCourseEditor::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == clearButton)
     {
         //[UserButtonCode_clearButton] -- add your button handler code here..
-        bool doDelete=true;
-
         if(!tm_->getPropertyValue(String("KeyCourseMapDelete"),false))
         {
             DeleteMapConfirmation* da=new DeleteMapConfirmation();
-            DialogWindow::showModalDialog("Clear key mapping",da,this,Colour(0xffababab),true);
-            if(da->dontShowAgain_&& da->okPressed_)
-            {
-               tm_->setPropertyValue(String("KeyCourseMapDelete"),true);
-            }
-
-            doDelete=da->okPressed_;
-            delete da;
-        }
-
-        if(doDelete)
-        {
+            // DialogWindow::showModalDialog("Clear key mapping",da,this,Colour(0xffababab),true);
+            DialogWindow::LaunchOptions options;
+            options.content.setOwned(da);
+            options.componentToCentreAround =this;
+            options.dialogTitle = "Clear key mapping";
+            options.dialogBackgroundColour=Colour(0xffababab); 
+            options.escapeKeyTriggersCloseButton=true;
+            dw_.reset (options.launchAsync());
+            ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                ModalCallbackFunction::create ([this,da] (int returnValue)
+                {
+                    if(da->dontShowAgain_&& da->okPressed_)
+                    {
+                        tm_->setPropertyValue(String("KeyCourseMapDelete"),true);
+                    }
+                    if(da->okPressed_) {
+                        keyToCoursePanel_->clearMapping();
+                    }
+                    dw_.release();
+                })
+            );            
+        } else {
             keyToCoursePanel_->clearMapping();
         }
-
-
         //[/UserButtonCode_clearButton]
     }
 

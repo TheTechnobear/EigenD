@@ -148,6 +148,7 @@ public:
     static const int SOUTH_WEST=2;
 
 private:
+    std::unique_ptr<DialogWindow> dw_;
     int mouseDownX;
     int mouseDownY;
     int trueX_;
@@ -293,6 +294,8 @@ public:
     void doRevertForegrounded();
   
 private:
+    std::unique_ptr<DialogWindow> dw_;
+
     static const int MOVING=1;
     static const int RESIZINGLEFT=2;
     static const int RESIZINGRIGHT=3;

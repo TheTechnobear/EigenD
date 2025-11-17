@@ -218,25 +218,34 @@ void MappingEditor::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == clearButton)
     {
         //[UserButtonCode_clearButton] -- add your button handler code here..
-        bool doDelete=true;
         if(!tm_->getPropertyValue(String("MappingDelete"),false))
         {
             DeleteMapConfirmation* da=new DeleteMapConfirmation();
-            DialogWindow::showModalDialog("Clear key mapping",da,this,Colour(0xffababab),true);
-            if(da->dontShowAgain_&& da->okPressed_)
-            {
-               tm_->setPropertyValue(String("MappingDelete"),true);
-            }
+            // DialogWindow::showModalDialog("Clear key mapping",da,this,Colour(0xffababab),true);
+            DialogWindow::LaunchOptions options;
+            options.content.setOwned(da);
+            options.componentToCentreAround =this;
+            options.dialogTitle = "Clear key mapping";
+            options.dialogBackgroundColour=Colour(0xffababab); 
+            options.escapeKeyTriggersCloseButton=true;
+            dw_.reset (options.launchAsync());
+            ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                ModalCallbackFunction::create ([this,da] (int returnValue)
+                {
+                    if(da->dontShowAgain_&& da->okPressed_)
+                    {
+                        tm_->setPropertyValue(String("MappingDelete"),true);
+                    }
+                    if(da->okPressed_) {
+                        mmc_->clear();
+                    }
 
-            doDelete=da->okPressed_;
-            delete da;
-        }
-
-        if(doDelete)
-        {
+                    dw_.release();
+                })
+            );            
+        } else {
             mmc_->clear();
         }
-
         //[/UserButtonCode_clearButton]
     }
 

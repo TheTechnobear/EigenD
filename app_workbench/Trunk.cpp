@@ -922,22 +922,35 @@ void TrunkCorner::doMouseClick(const MouseEvent& e)
 
     else if(getMainPanel()->getTool()==ToolManager::DELETETOOL) 
     {
-        bool doDelete=true;
         if(getMainPanel()->requiresDeleteConfirmation("Trunk"))
         {
             DeleteTrunkConfirmation* da=new DeleteTrunkConfirmation();
-            DialogWindow::showModalDialog("Delete trunk",da,this,Colour(0xffababab),true);
-            if(da->dontShowAgain_&& da->okPressed_)
-            {
-               getMainPanel()->setDeleteConfirmationRequired("Trunk"); 
-            }
+            // DialogWindow::showModalDialog("Delete trunk",da,this,Colour(0xffababab),true);
 
-            doDelete=da->okPressed_;
-            delete da;
-        }
+            DialogWindow::LaunchOptions options;
+            options.content.setOwned(da);
+            options.componentToCentreAround =this;
+            options.dialogTitle = "Delete trunk";
+            options.dialogBackgroundColour=Colour(0xffababab); 
+            options.escapeKeyTriggersCloseButton=true;
+            dw_.reset (options.launchAsync());
+            ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                ModalCallbackFunction::create ([this,da] (int returnValue)
+                {
+                    if(da->dontShowAgain_&& da->okPressed_)
+                    {
+                        getMainPanel()->setDeleteConfirmationRequired("Trunk"); 
+                    }
 
-        if(doDelete)
-        {
+                    if(da->okPressed_) {
+                        getMainPanel()->deleteAssembly(props_->get_string("assemblyId"));
+                    }
+                    dw_.release();
+                })
+            );           
+
+
+        } else {
             getMainPanel()->deleteAssembly(props_->get_string("assemblyId"));
         }
     }
@@ -2125,22 +2138,32 @@ void Trunk::deleteToolMouseClick(const MouseEvent& e)
     }
     else
     {
-        bool doDelete=true;
         if(getMainPanel()->requiresDeleteConfirmation("Trunk"))
         {
             DeleteTrunkConfirmation* da=new DeleteTrunkConfirmation();
-            DialogWindow::showModalDialog("Delete trunk",da,this,Colour(0xffababab),true);
-            if(da->dontShowAgain_&& da->okPressed_)
-            {
-               getMainPanel()->setDeleteConfirmationRequired("Trunk"); 
-            }
+            // DialogWindow::showModalDialog("Delete trunk",da,this,Colour(0xffababab),true);
 
-            doDelete=da->okPressed_;
-            delete da;
-        }
-
-        if(doDelete)
-        {
+            DialogWindow::LaunchOptions options;
+            options.content.setOwned(da);
+            options.componentToCentreAround =this;
+            options.dialogTitle = "Delete trunk";
+            options.dialogBackgroundColour=Colour(0xffababab); 
+            options.escapeKeyTriggersCloseButton=true;
+            dw_.reset (options.launchAsync());
+            ModalComponentManager::getInstance()->attachCallback (dw_.get(),
+                ModalCallbackFunction::create ([this,da] (int returnValue)
+                {
+                    if(da->dontShowAgain_&& da->okPressed_)
+                    {
+                        getMainPanel()->setDeleteConfirmationRequired("Trunk"); 
+                    }
+                    if(da->okPressed_) {
+                        getMainPanel()->deleteRoutingElement(this);
+                    }
+                    dw_.release();
+                })
+            );            
+        } else {
             getMainPanel()->deleteRoutingElement(this);
         }
     }
