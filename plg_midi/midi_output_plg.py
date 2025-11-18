@@ -105,11 +105,11 @@ class OutputMidiPort(atom.Atom):
     def set_index(self,index):
         self.__index = index
         if self.open():
-            self.__midi_port.set_source('Eigenlabs %d' % self.__index)
+            self.__midi_port.set_source('EigenD Out %d' % self.__index)
 
     def server_opened(self):
         atom.Atom.server_opened(self)
-        self.__midi_port.set_source('Eigenlabs %d' % self.__index)
+        self.__midi_port.set_source('EigenD Out %d' % self.__index)
         self.set_port(self.get_value())
         self.__midi_port.run()
 

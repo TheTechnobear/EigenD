@@ -41,7 +41,7 @@ using namespace std;
 // number of MIDI keys on keyboard
 #define KEYS 128
 #define KBD_LATENCY 5000
-#define NULL_DEVICE "Null Device"
+#define NULL_DEVICE "None"
 
 struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
 {
@@ -74,16 +74,17 @@ struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
             running_= false;
             cancel_timer_slow();
 
+
             if(input_)
             {
                 input_->stop();
                 input_ = nullptr;
             }
-
-            if(virtual_input_)
-            {
-                virtual_input_->stop();
-                virtual_input_=nullptr;
+            if(virtual_input_) {
+                if(current_ == virtualHash_) {
+                    virtual_input_->stop();
+                }
+                virtual_input_ = nullptr;
             }
         }
     }
@@ -109,13 +110,8 @@ struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
 
     bool set_port(int uid)
     {
-        if(input_)
-        {
-            input_->stop();
-            input_ = nullptr;
-        }
-
-        current_ = (uid==0)?(-1):uid;
+        selectedHash_ = uid;
+        scan();
         return true;
     }
 
@@ -131,13 +127,34 @@ struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
 
     void scan()
     {
+        int fakeDeviceOffset = 1;
+#if JUCE_MAC || JUCE_LINUX
+
+        if(!virtual_input_ && virtual_name_.length()>0)
+        {
+            virtual_input_ = juce::MidiInput::createNewDevice(virtual_name_,this);
+            if(virtual_input_)
+            {
+                pic::logmsg() << "created input " << virtual_name_;
+                virtualHash_ = virtual_name_.hashCode();
+            }
+            else
+            {
+                pic::logmsg() << "couldn't create input " << virtual_name_;
+                virtual_name_ = "";
+            }
+        }
+#endif
+
         juce::StringArray old_devices(devices_);
         juce::StringArray new_devices = juce::MidiInput::getDevices();
 
+        if(virtual_name_.length() > 0) {
+            new_devices.insert(0,virtual_name_);
+            fakeDeviceOffset++;
+        }
         new_devices.insert(0,null_device_name_);
         devices_ = new_devices;
-
-        int current_index= -1;
 
         while(old_devices.size()>0)
         {
@@ -149,90 +166,96 @@ struct midi::midi_input_port_t::impl_t: piw::thing_t, juce::MidiInputCallback
             }
             else
             {
-                if(input_ && old_devices[0].hashCode()==current_)
-                {
-                    input_->stop();
-                    input_=nullptr;
+                if(old_devices[0].hashCode() == current_) {
+                    if(input_) {
+                        pic::logmsg() << "stop " << old_devices[0];
+                        input_->stop();
+                        input_=nullptr;
+                    }
+                    if(virtual_input_&& current_ == virtualHash_) {
+                        pic::logmsg() << "stop v" << old_devices[0];
+                        virtual_input_->stop();
+                        virtual_input_=nullptr;
+                    }
                     current_=-1;
                 }
-
+                pic::logmsg() << "source_removed " << old_devices[0] <<  " " << old_devices[0].hashCode();
                 delegate_->source_removed(old_devices[0].hashCode());
             }
-
             old_devices.remove(0);
         }
 
         for(int i=0;i<new_devices.size();i++)
         {
+            pic::logmsg() << "source_added " << new_devices[i] <<  " " << new_devices[i].hashCode();
             delegate_->source_added(new_devices[i].hashCode(),std::string(new_devices[i].getCharPointer()));
         }
 
-
-        for(int i=0;i<devices_.size();i++)
+        // are we changing devices ?
+        if(selectedHash_ != current_)
         {
-            if(devices_[i].hashCode()==current_)
-            {
-                current_index = i;
+            // yes, stop existing device
+            if(input_ ) {
+                pic::logmsg() << "stopping " << current_;
+                input_->stop();
+                input_ = nullptr;
             }
-        }
-
-        if(current_index<0)
-        {
-            current_index = 0;
-            current_ = devices_[current_index].hashCode();
-        }
-
-        if(!input_ && current_index<devices_.size())
-        {
-            if(current_index>0)
+            if(virtual_input_ && current_ == virtualHash_) 
             {
-                input_ = juce::MidiInput::openDevice(current_index-1,this);                    
-
-                if(input_)
-                {
-                    pic::logmsg() << "opening " << devices_[current_index];
-                    input_->start();
-                }
-                else
-                {
-                    pic::logmsg() << "could not open " << devices_[current_index];
-                }
+                pic::logmsg() << "stopping " << current_;
+                virtual_input_->stop();
             }
-        }
 
-#if JUCE_MAC || JUCE_LINUX
-        if(!virtual_input_ && virtual_name_.length()>0)
-        {
-            virtual_input_ = juce::MidiInput::createNewDevice(virtual_name_,this);
 
-            if(virtual_input_)
-            {
-                pic::logmsg() << "created input " << virtual_name_;
+            current_ = selectedHash_;
+
+            if (selectedHash_ == virtualHash_) {
+                pic::logmsg() << "starting  " << virtual_name_;
                 virtual_input_->start();
+            } else if (selectedHash_ == null_device_name_.hashCode()) {
+                // NOP - we already stopped other inputs, dont need to start another.
+                pic::logmsg() << "selected NONE  ";
+            } else {
+                // real device
+                for(int i = fakeDeviceOffset ; i < devices_.size();i++) {
+                    if(selectedHash_ == devices_[i].hashCode()) {
+                        input_ = juce::MidiInput::openDevice(i-fakeDeviceOffset,this);                    
+                        if(input_)
+                        {
+                            pic::logmsg() << "starting " << devices_[i] << " " << selectedHash_;
+                            input_->start();
+                        }
+                        else
+                        {
+                            pic::logmsg() << "could not open " << devices_[i];
+                        }
+                    }
+                }
             }
-            else
-            {
-                pic::logmsg() << "couldn't create input " << virtual_name_;
-            }
-        }
-#endif
+       }
     }
+
+
 
     void set_destination(const std::string &name)
     {
 #if JUCE_MAC || JUCE_LINUX
+        pic::logmsg() << "set destination  : virtual input" << " name " << name;
+        virtual_name_ = juce::String::fromUTF8(name.c_str());
         if(virtual_input_)
         {
             virtual_input_->stop();
             virtual_input_=nullptr;
         }
-
-        virtual_name_ = juce::String::fromUTF8(name.c_str());
+#else 
+        virtual_name = "";
 #endif
-
     }
 
-    int current_;
+    int current_ = 0;
+    int selectedHash_ = 0;
+    int virtualHash_ = 0 ;
+    int nullHash_ = 0;
     juce::StringArray devices_;
     piw::change_nb_t receiver_;
     midi::midi_input_port_t *delegate_;

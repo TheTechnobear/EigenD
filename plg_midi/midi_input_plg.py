@@ -202,11 +202,11 @@ class MidiPort(atom.Atom):
     def set_index(self,index):
         self.__index = index
         if self.open():
-            self.__midi.set_destination('Eigenlabs %d' % self.__index)
+            self.__midi.set_destination('EigenD In%d' % self.__index)
 
     def server_opened(self):
         atom.Atom.server_opened(self)
-        self.__midi.set_destination('Eigenlabs %d' % self.__index)
+        self.__midi.set_destination('EigenD In %d' % self.__index)
         self.__midi.run()
         self.set_port(self.get_value())
 
