@@ -81,7 +81,7 @@ namespace
 };
 void osc_error_handler(int num, const char *msg, const char *path)
 {
-    pic::logmsg() << "lib_lo error: " << num  << " : " << msg << " path  " << path;
+    pic::logmsg() << "lib_lo error: " << num  << " : " << msg << " path  " <<  ( path ? path : " ");
 }
 
 struct language::oscserver_t::impl_t: pic::thread_t
@@ -239,6 +239,7 @@ void language::oscserver_t::impl_t::thread_init()
     if(receiver_==0)
     {
          pic::logmsg() << "language::oscserver_t::failed to create receiver for osc on port : " << server_port_;
+         stop_ = true;
     }
 }
 
@@ -253,7 +254,7 @@ void language::oscserver_t::impl_t::thread_term()
         }
     }
 
-    lo_server_free(receiver_);
+    if(receiver_) lo_server_free(receiver_);
 }
 
 void language::oscserver_t::impl_t::thread_main()
@@ -263,6 +264,7 @@ void language::oscserver_t::impl_t::thread_main()
 #endif
 
     unsigned counter = 0;
+    if(receiver_==0) stop_=true;
 
     while (!stop_)
     {
