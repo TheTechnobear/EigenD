@@ -287,10 +287,12 @@ void osc_wire_t::send(unsigned long long t)
     // and not the data that's synthetically generated, for instance
     // at event end
     if(output_->server_->decimation_ &&
-       last_processed_ + output_->server_->decimation_ > t)
+       t - last_processed_  < output_->server_->decimation_ )
     {
         return;
     }
+    // store the last processing time for each wire
+    last_processed_ = t;
 
     // initialize a new OSC message
     lo_message msg = lo_message_new();
@@ -343,10 +345,7 @@ void osc_wire_t::send(unsigned long long t)
 
     // send the message
     output_->server_->osc_send_fast(osc_path_,msg);
-    lo_message_free(msg);
-    
-    // store the last processing time for each wire
-    last_processed_ = t;
+    lo_message_free(msg);   
 }
 
 //
