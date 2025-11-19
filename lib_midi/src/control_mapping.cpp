@@ -54,15 +54,16 @@ namespace
 
             bool valid_for_processing(const midi::mapping_data_t &data, const piw::data_nb_t &id, unsigned long long current_time)
             {
-                if(!data.decimation_)
+                if(data.decimation_< 1.0f)
                 {
                     return true;
                 }
 
-                if(last_processed_ + (data.decimation_*1000) > current_time)
+                unsigned long long dec = data.decimation_*1000L; 
+                if(current_time - last_processed_ < dec)
                 {
                     return false;
-                }
+                } 
 
                 last_processed_ = current_time;
                 return true;
@@ -92,7 +93,7 @@ namespace
         public:
             bool valid_for_processing(const midi::mapping_data_t &data, const piw::data_nb_t &id, unsigned long long current_time)
             {
-                if(!data.decimation_)
+                if(data.decimation_< 1.0f)
                 {
                     return true;
                 }
@@ -106,12 +107,13 @@ namespace
                 else
                 {
                     unsigned long long last = il->second;
-                    if(last + (data.decimation_*1000) > current_time)
+                    unsigned long long dec = data.decimation_*1000L; 
+                    if(current_time - last < dec)
                     {
                         return false;
                     }
-                    
-                    il->second = current_time;
+                
+                    il->second = current_time; 
                 }
 
                 return true;
