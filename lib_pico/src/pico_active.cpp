@@ -51,6 +51,7 @@ struct pico::active_t::impl_t: pic::usbdevice_t::iso_in_pipe_t, pic::usbdevice_t
     pico::active_t::delegate_t *handler_;
     bool raw_;
     unsigned ledmask_;
+    unsigned keyledmask_[18];
     pico_decoder_t decoder_;
     bool resync_;
 };
@@ -89,6 +90,7 @@ pico::active_t::impl_t::impl_t(const char *name, pico::active_t::delegate_t *del
     resync_(false)
 {
     pico_decoder_create(&decoder_,PICO_DECODER_PICO);
+    for(int i=0;i<18;i++) keyledmask_[i]=0;
 
     if(!kbds__)
     {
@@ -124,9 +126,12 @@ void pico::active_t::impl_t::start()
 void pico::active_t::impl_t::pipe_started()
 {
     control_out(TYPE_VENDOR,BCTPICO_USBCOMMAND_START,0,0,0,0);
-    pic::logmsg() << "restoring led mask:" << ledmask_;
     pic_microsleep(5000);
+    pic::logmsg() << "restoring led mask:" << ledmask_;
     control(TYPE_VENDOR,BCTPICO_USBCOMMAND_SETMODELED,ledmask_,0);
+    for(int i=0;i<18;i++) {
+        control(TYPE_VENDOR,BCTPICO_USBCOMMAND_SETLED,keyledmask_[i],i);
+    }
 }
 
 void pico::active_t::impl_t::stop()
@@ -208,6 +213,7 @@ void pico::active_t::impl_t::set_led(unsigned key, unsigned colour)
         unsigned green = (colour&1);
         unsigned red = (colour&2);
         unsigned mask = (green<<2) + (red<<4);
+        keyledmask_[key]=mask;
         control(TYPE_VENDOR,BCTPICO_USBCOMMAND_SETLED,mask,key);
     }
     else
