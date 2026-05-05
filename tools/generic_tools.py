@@ -162,8 +162,16 @@ class PiGenericEnvironment(SCons.Environment.Environment):
         self.safe_mkdir(path)
 
     def Initialise(self):
-        self.clear_dir('STAGEDIR')
-        self.clear_dir('PKGDIR')
+        from SCons.Script import COMMAND_LINE_TARGETS
+        targets = set(COMMAND_LINE_TARGETS or [])
+        package_targets = {'target-stage', 'target-pkg', 'target-mpkg', 'stage', 'pkg', 'mpkg'}
+        if targets.intersection(package_targets):
+            self.clear_dir('STAGEDIR')
+            self.clear_dir('PKGDIR')
+        else:
+            # Keep incremental builds fast by preserving stage/pkg between normal builds.
+            self.safe_mkdir(self.Dir(self['STAGEDIR']).abspath)
+            self.safe_mkdir(self.Dir(self['PKGDIR']).abspath)
 
     def Finalise(self):
         self.__libs_fixup()

@@ -138,6 +138,7 @@ Other useful targets:
 make clean               # remove build artifacts
 make picross             # build a single module
 make VERBOSE=PI_VERBOSE=1  # verbose SCons output
+make JOBS=2 # use 2 cores, 8 default
 ```
 
 ---
@@ -249,12 +250,47 @@ with the macOS USB implementation and portable to Windows.
 | `AR` | `llvm-lib` |
 | `LINK` / `SHLINK` | `lld-link` |
 | CRT | `/MD` (MSVC release CRT) |
-| Compile flags | `/EHsc /O2 /fp:fast /DWIN32 /D_WIN64 /D_WINDOWS` |
+| Compile flags | `/EHsc /O2 /fp:precise /std:c++17 /DWIN32 /D_WIN64 /D_WINDOWS` |
 | Lib suffix | `.lib` |
 | DLL suffix | `.dll` |
 | Python module suffix | `.pyd` |
 
 `LIBMAPPER` resolves `PILIBS` to `.lib` import libraries (not `.dll.a` as MinGW used).
+
+### JUCE Configuration (`lib_juce/AppConfig.h`)
+
+Key settings:
+
+| Setting | Value | Notes |
+|---------|-------|-------|
+| `JUCE_ASIO` | `0` | ASIO SDK (Steinberg) not vendored; WASAPI + DirectSound available |
+| `JUCE_WASAPI` | `1` | Modern Windows audio (Vista+, recommended) |
+| `JUCE_DIRECTSOUND` | `1` | Legacy fallback for older Windows |
+| Floating-point mode | `/fp:precise` | Allows `std::numeric_limits<double>::infinity()` usage |
+
+**About ASIO:**
+
+ASIO (low-latency audio driver interface from Steinberg) is disabled because the SDK is not included
+in the repository. JUCE can still provide audio via WASAPI (Windows Audio Session API, modern) and
+DirectSound (legacy). For most users, WASAPI is the preferred modern interface.
+
+To add ASIO support:
+
+1. Download the ASIO SDK from https://www.steinberg.net/developers/asio/
+2. Extract it to a known location, e.g. `C:\asio_sdk`
+3. Add the `common` subdirectory to the include path in `lib_juce/SConscript`:
+   ```python
+   if env['IS_WINDOWS']:
+       juce_env.Append(CPPPATH='C:/asio_sdk/common')
+   ```
+4. Enable in [lib_juce/AppConfig.h](lib_juce/AppConfig.h):
+   ```cpp
+   #define JUCE_ASIO 1
+   ```
+5. Rebuild: `make clean && make lib_juce`
+
+The floating-point mode is `/fp:precise` (not `/fp:fast`) to allow JUCE's use of infinity and NaN
+for double-precision float parsing; this trades minimal optimization for full IEEE 754 compliance.
 
 ### picross SConscript
 
@@ -298,6 +334,10 @@ if env['IS_WINDOWS']:
 - [x] USB layer consolidated to libusb (`pic_usb_libusb.cpp` on Linux + Windows)
 - [x] libusb vendored archive auto-unpack on `make`
 - [x] `clangcl_tools.py` adds libusb include/lib paths
+- [x] C++17 flags added to clang-cl and lib_juce SConscript
+- [x] `/arch:SSE2` removed (invalid on x64)
+- [x] Floating-point mode set to `/fp:precise` for JUCE compatibility
+- [x] JUCE_ASIO disabled (SDK not included; WASAPI/DirectSound available)
 - [ ] Full `make` build completes without errors
 - [ ] Build `lib_juce` -- key JUCE gate
 - [ ] Build `app_stage` / `app_workbench` end-to-end

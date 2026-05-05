@@ -47,6 +47,21 @@ from SCons.Util import Split
 
 class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
 
+    @staticmethod
+    def _touch_if_missing(target, source, env):
+        path = target[0].abspath
+        if not os.path.exists(path):
+            open(path, 'a').close()
+        return 0
+
+    @staticmethod
+    def _to_windows_tool_path(path):
+        p = path.replace('\\', '/')
+        # Convert MSYS-style /c/foo/bar to C:/foo/bar for MSVC-style tools.
+        if len(p) >= 3 and p[0] == '/' and p[2] == '/' and p[1].isalpha():
+            p = '%s:%s' % (p[1].upper(), p[2:])
+        return p.replace('/', '\\')
+
     def __init__(self):
         generic_tools.PiGenericEnvironment.__init__(
             self,
@@ -70,13 +85,13 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
         self.Replace(SHLINK='lld-link')
 
         py_dir = os.path.dirname(self['PI_PYTHON'])
-        py_inc = os.path.join(py_dir, 'Include')
-        py_libdir = os.path.join(py_dir, 'libs')
+        py_inc = self._to_windows_tool_path(os.path.join(py_dir, 'Include'))
+        py_libdir = self._to_windows_tool_path(os.path.join(py_dir, 'libs'))
 
         # libusb — unpacked from resources/libusb-1.0.*.7z by 'make libusb-setup'
         _proj_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        libusb_inc = os.path.join(_proj_root, 'tmp', 'libusb', 'include')
-        libusb_lib = os.path.join(_proj_root, 'tmp', 'libusb', 'lib')
+        libusb_inc = self._to_windows_tool_path(os.path.join(_proj_root, 'tmp', 'libusb', 'include'))
+        libusb_lib = self._to_windows_tool_path(os.path.join(_proj_root, 'tmp', 'libusb', 'lib'))
 
         # clang-cl does not use the MSVC response-file prefix (@) that SCons
         # inserts for long command lines; keep the default for now.
@@ -98,9 +113,10 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
 
         # ---- Compile flags (MSVC-style) -------------------------------------
         self.Append(CCFLAGS=Split(
-            '/EHsc /w34355 /MD /O2 /fp:fast /std:c++17'
+            '/EHsc /w34355 /MD /O2 /fp:precise'
             ' /DWIN32 /D_WIN64 /D_WINDOWS'
         ))
+        self.Append(CXXFLAGS=Split('/std:c++17'))
         self.Append(CCFLAGS=['/I%s' % py_inc])
         self.Append(CCFLAGS=['/I%s' % libusb_inc])
 
@@ -108,6 +124,8 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
         # Show the actual clang-cl command with all expanded flags
         self.Replace(CCCOMSTR='Compiling $SOURCE')
         self.Replace(CXXCOMSTR='Compiling $SOURCE')
+        # Print full lld-link command for debugging path issues
+        self.Replace(SHLINKCOMSTR='LINK_CMD: $SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $_SHLINK_SOURCES $_LIBDIRFLAGS $_LIBFLAGS')
 
         # ---- Link flags (lld-link style) ------------------------------------
         # /MANIFEST, /INCREMENTAL:NO are lld-link compatible.
@@ -153,6 +171,7 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
             else:
                 # libnode points to the installed .lib; replace suffix if DLL.
                 lib_path = os.path.splitext(ll.libnode.abspath)[0] + '.lib'
+                lib_path = self._to_windows_tool_path(lib_path)
                 parts.append('"%s"' % lib_path)
         return ' '.join(parts)
 
@@ -187,7 +206,7 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
         env.set_agent_group(per_agent)
 
         if deffile is not None:
-            deffile_win = env.File(deffile).abspath.replace('/', '\\')
+            deffile_win = self._to_windows_tool_path(env.File(deffile).abspath)
             env.Append(SHLINKFLAGS='/DEF:"%s"' % deffile_win)
 
         objects = env.SharedObject(sources)
@@ -198,6 +217,11 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
         bin_dll = outputs[0]
         # Locate the import lib among the outputs.
         bin_lib = next((o for o in outputs if str(o).endswith('.lib')), outputs[0])
+        bin_exp = next((o for o in outputs if str(o).endswith('.exp')), None)
+
+        # lld-link can omit .exp for some libraries; keep SCons from relinking forever.
+        if bin_exp is not None:
+            env.AddPostAction(bin_exp, env.Action(self._touch_if_missing, 'Ensuring $TARGET exists'))
 
         self.add_manifest(bin_dll)
 

@@ -35,7 +35,7 @@
 #define JUCE_MODULE_AVAILABLE_juce_gui_basics            1
 #define JUCE_MODULE_AVAILABLE_juce_gui_extra             1
 
-#define JUCE_ASIO 1
+#define JUCE_ASIO 0
 #define JUCE_WASAPI 1
 #define JUCE_DIRECTSOUND 1
 #define JUCE_ALSA 1

@@ -41,7 +41,11 @@ LIBUSB_DIR     = tmp/libusb
 LIBUSB_SENTINEL = $(LIBUSB_DIR)/include/libusb-1.0/libusb.h
 
 
+ifeq ($(OS),Windows_NT)
+SCONS ?= PYTHONPATH=$(TOOLS)/packages/SCons4 $(PYTHON_BUILD) $(TOOLS)/packages/SCons4/bin/scons
+else
 SCONS ?= PYTHONPATH=$(TOOLS)/packages/SCons4 python3 $(TOOLS)/packages/SCons4/bin/scons
+endif
 VENV_DEV = .venv_dev
 
 # VERBOSE example
@@ -49,9 +53,11 @@ VENV_DEV = .venv_dev
 
 ifeq ($(OS),Windows_NT)
 all: $(LIBUSB_SENTINEL)
-endif
+	@$(VERBOSE) $(SCONS) -f $(TOOLS)/SConstruct $(QUIET) $(SCONS_OPTS) -j$(JOBS) $(TARGET)
+else
 all:
 	@$(VERBOSE) $(SCONS) -f $(TOOLS)/SConstruct $(QUIET) $(SCONS_OPTS) -j$(JOBS) $(TARGET)
+endif
 
 clean:
 	@$(SCONS) -f $(TOOLS)/SConstruct -c
@@ -122,6 +128,7 @@ $(LIBUSB_SENTINEL): $(LIBUSB_ARCHIVE)
 	@7z e $(LIBUSB_ARCHIVE) include/libusb.h -o$(LIBUSB_DIR)/include/libusb-1.0 -y > /dev/null
 	@7z e $(LIBUSB_ARCHIVE) 'VS2022/MS64/dll/libusb-1.0.lib' -o$(LIBUSB_DIR)/lib -y > /dev/null
 	@7z e $(LIBUSB_ARCHIVE) 'VS2022/MS64/dll/libusb-1.0.dll' -o$(LIBUSB_DIR)/lib -y > /dev/null
+	@touch $(LIBUSB_SENTINEL)
 	@echo "libusb unpacked: include at $(LIBUSB_DIR)/include, lib at $(LIBUSB_DIR)/lib"
 
 % : FORCE
