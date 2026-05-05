@@ -89,11 +89,11 @@ dev-setup:
 	@$(PYTHON_BUILD) -m venv $(VENV_DEV)
 	@echo "Installing development dependencies..."
 ifeq ($(OS),Windows_NT)
-	@$(VENV_DEV)/Scripts/pip install --upgrade pip > /dev/null
-	@$(VENV_DEV)/Scripts/pip install -r py_requirements.txt
+	@$(VENV_DEV)/Scripts/python.exe -m pip install --upgrade pip > /dev/null
+	@$(VENV_DEV)/Scripts/python.exe -m pip install -r py_requirements.txt
 else
-	@$(VENV_DEV)/bin/pip install --upgrade pip > /dev/null
-	@$(VENV_DEV)/bin/pip install -r py_requirements.txt
+	@$(VENV_DEV)/bin/python -m pip install --upgrade pip > /dev/null
+	@$(VENV_DEV)/bin/python -m pip install -r py_requirements.txt
 endif
 	@echo ""
 	@echo "✅ Development environment ready!"
