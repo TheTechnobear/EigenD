@@ -185,9 +185,9 @@ void *pic_thread_lck_malloc(unsigned size)
 
 	// Prepare for locking. - NEED TO SORT QUOTA
 	DWORD pid = GetCurrentProcessId();
-	DWORD sz_min_curr, sz_max_curr;
-	unsigned long min,max;
-	unsigned long inc = 1024 * 1024 * 20;
+	SIZE_T sz_min_curr, sz_max_curr;
+	SIZE_T min,max;
+	SIZE_T inc = 1024 * 1024 * 20;
 	
 	//printf( "allocating mem block: %d processID: %d",size,pid );
 	if (ptr != NULL)

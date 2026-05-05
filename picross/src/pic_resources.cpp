@@ -132,6 +132,13 @@ namespace
         dirname(buffer);
     }
 
+    static void get_global_resources(char *buffer)
+    {
+        // Global resources (ImpulseResponse, Loop, Soundfont, VST) live at the
+        // Eigenlabs install root on Windows, mirroring /usr/local/pi on macOS.
+        get_prefix(buffer);
+    }
+
 #endif
 
 #ifdef PI_MACOSX
@@ -274,6 +281,11 @@ namespace
     {
         get_exe(buffer);
         dirname(buffer);
+    }
+
+    static void get_global_resources(char *buffer)
+    {
+        strcpy(buffer,"/usr/local/pi");
     }
 
 #endif

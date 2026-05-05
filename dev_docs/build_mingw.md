@@ -84,6 +84,9 @@ pacman -Syu
 # Install MinGW-w64 UCRT64 toolchain
 pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain
 
+# Install libusb (required for Eigenharp USB hardware support)
+pacman -S mingw-w64-ucrt-x86_64-libusb
+
 # Install make and git
 pacman -S make git
 ```

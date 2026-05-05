@@ -44,7 +44,7 @@ void *  pic::winloop_t::CreateAWindow()
 {
 	HWND hwndConsole = GetConsoleWindow();
 	
-	HINSTANCE hInstance = (HINSTANCE)GetWindowLong(hwndConsole, GWL_HINSTANCE);
+	HINSTANCE hInstance = (HINSTANCE)GetWindowLongPtr(hwndConsole, GWLP_HINSTANCE);
 
     WNDCLASS wc = {0};
     wc.hbrBackground =(HBRUSH)GetStockObject(WHITE_BRUSH);
@@ -217,7 +217,7 @@ void pic::winloop_t::thread_main()
 
         try
         {
-			void * handle = CreateAWindow();
+				CreateAWindow();
 			RunWindProc();
         }
         catch(...)

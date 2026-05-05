@@ -41,14 +41,7 @@
 #define PIA_TIMER_PRIORITY PIC_THREAD_PRIORITY_NORMAL
 
 #define RECV_FLAGS (MSG_PARTIAL)
-#ifndef HAVE_SSIZE_T
-#ifdef MS_WIN64
-typedef __int64 ssize_t;
-#else
-typedef _W64 int ssize_t;
-#endif
-#define HAVE_SSIZE_T 1
-#endif
+// ssize_t is provided by MinGW UCRT (corecrt.h) as __int64; no local typedef needed.
 
 #include "pia_data.h"
 #include "pia_glue.h"

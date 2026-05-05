@@ -7,7 +7,15 @@
 #include <string>
 #include <set>
 
+// libusb header path differs by platform/package:
+//   Linux (libusb-1.0-dev):          libusb-1.0/libusb.h
+//   MinGW-w64 UCRT64 (libusb):       libusb.h
+#if defined(PI_WINDOWS)
+#include <winsock2.h>  // must precede windows.h (libusb.h pulls it in)
+#include <libusb.h>
+#else
 #include <libusb-1.0/libusb.h>
+#endif
 
 #include <picross/pic_thread.h>
 #include <picross/pic_error.h>
@@ -1266,7 +1274,7 @@ void pic::usbenumerator_t::impl_t::thread_main()
     while(!stop_)
     {
         thread_pass();
-        sleep(1000);
+        pic_microsleep(1000000); // 1 second
     }
 }
 
