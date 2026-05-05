@@ -309,8 +309,8 @@ ARM64 Windows is therefore viable once the clang-cl x64 build is stable.
 
 ## Next Steps
 
-- [ ] Install VS Build Tools 2022 + LLVM; verify `clang-cl --version` from MSYS2 bash
-- [ ] Wire up `PATH` / environment so `lld-link` can find MSVC CRT and Windows SDK
+- [X] Install VS Build Tools 2022 + LLVM; verify `clang-cl --version` from MSYS2 bash
+- [X] Wire up `PATH` / environment so `lld-link` can find MSVC CRT and Windows SDK
 - [ ] Create `tools/clangcl_tools.py` (extend or fork `windows_tools.py`)
 - [ ] Update `tools/select_tools.py` to dispatch on `BUILD_TOOLCHAIN=clangcl`
 - [ ] Build `picross` as first target; confirm DLL + import lib produced correctly

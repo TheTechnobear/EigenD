@@ -117,9 +117,13 @@ def posix():
     raise RuntimeError("unsupported posix platform %s" % p)
 
 def win32():
-    import windows_tools
-    env = windows_tools.PiWindowsEnvironment()
-    return env
+    toolchain = os.environ.get('BUILD_TOOLCHAIN', 'clangcl')
+    if toolchain == 'msvc':
+        import windows_tools
+        return windows_tools.PiWindowsEnvironment()
+    else:
+        import clangcl_tools
+        return clangcl_tools.PiClangClEnvironment()
 
 darwin=posix
 linux2=posix
