@@ -38,14 +38,20 @@
 ** following #pragma disables the warning.
 */
 
+#ifdef _MSC_VER
 #pragma warning(disable: 4305)
+#endif
 
 /*----------------------------------------------------------------------------
 ** Normal #defines follow.
 */
 
 /* Set to 1 if the compile is GNU GCC. */
+#ifdef __GNUC__
+#define COMPILER_IS_GCC 1
+#else
 #define COMPILER_IS_GCC 0
+#endif
 
 /* Target processor clips on negative float to int conversion. */
 #define CPU_CLIPS_NEGATIVE 1
@@ -96,10 +102,11 @@
 /* #undef HAVE_LIBM */
 
 /* Define if you have C99's lrint function. */
-/* #undef HAVE_LRINT */
+/* MinGW-w64 / GCC provides lrint as a C99 function; skip the MSVC _asm fallback */
+#define HAVE_LRINT 1
 
 /* Define if you have C99's lrintf function. */
-/* #undef HAVE_LRINTF */
+#define HAVE_LRINTF 1
 
 /* Define to 1 if you have the `malloc' function. */
 #define HAVE_MALLOC 1

@@ -33,7 +33,7 @@ namespace
     typedef pic::lckvector_t<point_t>::nbtype column_t;
     typedef column_t::iterator citer_t;
 
-    struct PIARRANGER_DECLSPEC_CLASS grid_t: virtual pic::lckobject_t
+    struct grid_t: virtual pic::lckobject_t
     {
         void set_event(const arranger::colrow_t &cr,float f)
         {

@@ -40,7 +40,7 @@ if env['IS_LINUX_ARMV7L']:
     pia_env.Append(CCFLAGS='-DALIGN_32')
 if env['IS_WINDOWS']:
     pia_files=pia_files+Split('pia_udpnet_windows.cpp')
-    pia_env.Append(LINKFLAGS=' WS2_32.Lib ')
+    pia_env.Append(LIBS=Split('ws2_32'))
 
 pia_env.PiSharedLibrary('pia',pia_files,libraries=Split('pic pie'),package='eigend',public=True,locked=True)
 

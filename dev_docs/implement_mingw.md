@@ -232,30 +232,79 @@ less clean than having a dedicated import library.
 
 ---
 
-## JUCE on Windows with MinGW
+## JUCE on Windows with MinGW — BLOCKED
 
-JUCE 8.x compiles on MinGW-w64 with some caveats:
+> **2026-05-05: This section documents why the MinGW path cannot build JUCE 8.x
+> and what the forward path is. The MinGW build covers all non-JUCE components
+> successfully. A separate branch will investigate clang-cl as the JUCE compiler.**
 
-**Module extension:** `.cpp` (same as Linux). macOS uses `.mm` (Objective-C++).
-This is already handled in `lib_juce/SConscript`.
+### Hard blocker: JUCE 8 explicitly rejects MinGW
 
-**System libraries required:** `ws2_32 kernel32 user32 gdi32 winspool comdlg32 advapi32
-shell32 ole32 oleaut32 uuid wininet shlwapi version imm32 winmm dbghelp`
-Added via `-l` flags in the `IS_MINGW` branch of `lib_juce/SConscript`.
+`lib_juce/juce/modules/juce_core/system/juce_TargetPlatform.h` contains:
 
-**AppConfig.h:** JUCE requires this configuration header in the include path.
-Its absence will produce `#include <AppConfig.h>` not-found errors. The file must
-exist in `lib_juce/` (it is project-specific JUCE configuration).
+```cpp
+#ifdef __MINGW32__
+    #error "MinGW is not supported. Please use an alternative compiler."
+#endif
+```
 
-**Known JUCE/MinGW compatibility issues to watch for:**
-- `juce_audio_devices`: uses COM for audio device enumeration. MinGW-w64 ships
-  COM headers (`objbase.h`, `mmdeviceapi.h`) but they may have gaps vs MSVC SDK.
-  Expect potential compile errors here until tested.
-- `juce_gui_basics`: uses Win32 GDI extensively; this is well-supported in MinGW-w64.
-- `juce_core`: uses `windows.h`, `winsock2.h` — well-supported.
-- Exception handling: JUCE assumes SEH on Windows 64-bit. UCRT64's GCC uses SEH
-  (`-fexceptions` with SEH). This should be compatible, but stack unwinding through
-  Windows callbacks (e.g. audio callbacks) should be tested carefully.
+This is not a soft warning — it is a hard `#error` that terminates compilation of
+any translation unit that includes JUCE headers. `__MINGW32__` is defined by all
+MinGW-w64 GCC variants (including UCRT64).
+
+### Root cause: `__uuidof` / `__declspec(uuid)` are MSVC-only
+
+The real incompatibility behind the guard is that JUCE 8's Windows renderer
+(Direct2D, DirectComposition) and COM integration rely on:
+
+- `__declspec(uuid("..."))` — attaches a GUID to a type
+- `__uuidof(T)` — retrieves that GUID at compile time
+
+These are MSVC-specific language extensions. GCC ignores the `uuid` attribute
+(emitting a warning) and has no `__uuidof`. Any call to `__uuidof` produces an
+undefined reference at link time. UCRT64 ships the required headers (`d2d1.h`,
+`dwrite.h`, `dcomp.h`) but the extension language required to use them is absent.
+
+Confirmed by test:
+
+```bash
+# GCC UCRT64 — fails:
+echo '#include <windows.h>
+struct __declspec(uuid("12345678-1234-1234-1234-123456789abc")) Foo {};
+int main() { auto x = __uuidof(Foo); return 0; }' | g++ -x c++ - -o /tmp/test.exe
+# → warning: uuid attribute ignored
+# → undefined reference to `_GUID const& __mingw_uuidof<Foo>()'
+```
+
+### Scope of impact
+
+Components blocked by JUCE incompatibility:
+
+| Component | Uses JUCE | Status |
+|-----------|-----------|--------|
+| `plg_audio` | Yes (`audio_juce.cpp`) | Blocked |
+| `app_stage` | Yes (full JUCE GUI) | Blocked |
+| `app_workbench` | Yes (full JUCE GUI) | Blocked |
+| `app_eigend2` | Yes (JUCE audio backend) | Blocked |
+| All `plg_*` others | No | Build successfully |
+| `picross`, `piagent`, `piw` | No | Build successfully |
+| `lib_samplerate`, `lib_lo` etc. | No | Build successfully |
+
+### Forward path: clang-cl with VS Build Tools
+
+`clang-cl` is a Clang front-end that emulates the MSVC compiler interface and ABI.
+It supports `__declspec(uuid)` and `__uuidof`, satisfying JUCE's requirements, while
+using Clang's GCC-compatible dialect for non-Windows code.
+
+Requirements:
+- **VS Build Tools** (free from Microsoft): provides MSVC CRT headers, `link.exe`,
+  `lib.exe`. `clang-cl` cannot function without these.
+- **LLVM for Windows** (from llvm.org): provides `clang-cl.exe`.
+- SCons `msvc` tool scaffolding as the base (sets up `LIB`, `INCLUDE`, `PATH`
+  from a VS installation), with `CC`/`CXX` overridden to `clang-cl`.
+
+This will be investigated in a dedicated branch. See `build_mingw.md` for the
+recommended next steps and reference links.
 
 ---
 
@@ -308,40 +357,46 @@ Windows runner) or with `wine msiexec` / `innoextract` on Linux, providing the
 
 ---
 
-## What Still Needs Doing (Phase A Gaps)
+## Phase A Status (2026-05-05)
 
-Before Phase A can be declared working, the following need testing and likely fixing
-on an actual Windows machine with MSYS2 UCRT64:
+### Completed
 
-1. **Verify `Tool('mingw')` output format:** Confirm `env.SharedLibrary()` produces
-   `[foo.dll, libfoo.dll.a]` (two elements). If not, `PiMingwEnvironment.PiSharedLibrary`
-   needs its index adjusted.
+All non-JUCE components build and link successfully on Windows UCRT64 / GCC 16.1.0.
+Issues encountered and resolved:
 
-2. **Python linking:** Confirm `-lpython314` with `-LC:/Python314/libs` links successfully.
-   If MinGW's ld rejects the MSVC `.lib`, use `gendef` + `dlltool` to create `.dll.a`
-   (see `build_mingw.md` troubleshooting section).
+| Fix | File(s) |
+|-----|---------|
+| `ssize_t` redefinition conflict with UCRT | `piagent/src/pia_udpnet_windows.cpp` |
+| `get_global_resources()` missing on Windows/Linux | `picross/src/pic_resources.cpp` |
+| `DWORD` → `SIZE_T` for working set functions | `picross/src/pic_thread_win32.cpp` |
+| Signed/unsigned comparison in `InterlockedCompareExchange` | `picross/pic_atomic.h` |
+| `sleep()` → `pic_microsleep()` (cross-platform, correct units) | `picross/src/pic_usb_libusb.cpp` |
+| `GWL_HINSTANCE` → `GWLP_HINSTANCE` + `GetWindowLongPtr` (64-bit) | `picross/src/pic_winloop.cpp` |
+| `#pragma warning` guarded with `#ifdef _MSC_VER` | `lib_samplerate/src/win32/config.h` |
+| `HAVE_LRINT`/`HAVE_LRINTF` enabled (MinGW has C99 versions) | `lib_samplerate/src/win32/config.h` |
+| `libsamplerate.def` passed via `deffile=` not MSVC `/DEF:` | `lib_samplerate/SConscript` |
+| `WS2_32.Lib` → `ws2_32` via `LIBS` | `piagent/src/SConscript` |
+| `user32`, `gdi32` added for `pic_winloop` symbols | `picross/src/SConscript` |
+| `DECLSPEC_CLASS` removed from anonymous-namespace structs | `plg_arranger/src/arranger_model.cpp`, `arranger_view.cpp` |
+| USB: created shared `pic_usb_libusb.cpp` for Linux+Windows | `picross/src/pic_usb_libusb.cpp` |
+| USB: deleted `pic_usb_linux.cpp` (superseded) | deleted |
+| USB: SConscript updated; Windows links `usb-1.0` | `picross/src/SConscript` |
+| LIBMAPPER not called in shlib display string (VS Code open-with dialog) | `tools/packages/SCons4/SCons/Tool/mingw.py` |
+| `winsock2.h` included before `libusb.h` to fix include order warning | `picross/src/pic_usb_libusb.cpp` |
 
-3. **SHLINKCOM / LINKCOM appending:** Verify that appending `' $LIBMAPPER'` to the
-   command string works correctly with the MinGW tool's link commands. SCons' MinGW
-   tool may define `SHLINKCOM` differently from the default. Check with `env.Dump()`.
+### Blocked: JUCE components
 
-4. **JUCE compilation:** `juce_audio_devices` is the most likely source of
-   MinGW-specific compilation failures due to COM interface headers.
+`plg_audio`, `app_stage`, `app_workbench`, `app_eigend2` cannot build with MinGW.
+See the **JUCE on Windows with MinGW — BLOCKED** section above for full details.
 
-5. **`.pyd` extension modules:** Verify that `PiPipBinding` produces `.pyd` files that
-   Python can import. The suffix is set, but the DLL entry point (`PyInit_modulename`)
-   must also be correctly exported — check `__declspec(dllexport)` is being emitted
-   (it comes from `exports_template` in `generic_tools.py`, which already handles
-   `_WIN32` correctly for both MSVC and MinGW).
+### Next branch: clang-cl investigation
 
-6. **`guicon.cpp` (app_stage):** This file handles Windows console allocation for GUI
-   apps. Verify it compiles under MinGW.
+The `investigate-clang-cl` branch will explore:
+1. Installing VS Build Tools + LLVM `clang-cl`
+2. A new `clangcl_tools.py` SCons environment (or extending `windows_tools.py`)
+3. Building the JUCE components with `clang-cl` while keeping MinGW for the rest
 
-7. **Any remaining SConscripts with MSVC-only `IS_WINDOWS` flags:** Grep for
-   `IS_WINDOWS` in all SConscripts to find any not yet updated:
-   ```bash
-   grep -rn "IS_WINDOWS" --include="SConscript" .
-   ```
+Reference: https://clang.llvm.org/docs/UsersManual.html#clang-cl
 
 ---
 

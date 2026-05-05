@@ -1,8 +1,11 @@
 # EigenD Windows Build Guide: MinGW-w64
 
-> **Status: Phase A (active development, untested)**
-> This is the new default Windows build path. See `implement_mingw.md` for
-> the SCons integration details and known implementation issues.
+> **Status (2026-05-05): Non-JUCE components build successfully. JUCE components
+> (app_stage, app_workbench, app_eigend2, plg_audio) are blocked — see
+> [JUCE Compatibility Blocker](#juce-compatibility-blocker) below.**
+>
+> A follow-on branch will investigate `clang-cl` as the compiler for JUCE components.
+> See `implement_mingw.md` for the full technical findings.
 
 ---
 
@@ -322,6 +325,46 @@ Check that `BUILD_TOOLCHAIN` is not set to `msvc` in your environment:
 echo $BUILD_TOOLCHAIN
 unset BUILD_TOOLCHAIN
 ```
+
+---
+
+## JUCE Compatibility Blocker
+
+> **2026-05-05** — This section documents the current hard blocker for building
+> the GUI applications with MinGW.
+
+JUCE 8.x contains an explicit compile-time check that rejects MinGW:
+
+```cpp
+// juce_core/system/juce_TargetPlatform.h
+#ifdef __MINGW32__
+    #error "MinGW is not supported. Please use an alternative compiler."
+#endif
+```
+
+`__MINGW32__` is always defined by MinGW-w64 GCC (including UCRT64). This cannot
+be bypassed by patching: the underlying cause is that JUCE 8's Windows renderer uses
+Direct2D via COM interfaces (`__declspec(uuid(...))`, `__uuidof()`), which are
+MSVC-specific language extensions not supported by GCC.
+
+**Affected components:** `app_stage`, `app_workbench`, `app_eigend2`, `plg_audio`
+
+**Non-JUCE components build successfully:** all `plg_*` plugins, `picross`, `piagent`,
+`piw`, `lib_samplerate`, `lib_lo`, `lib_sqlite`, `lib_fftw`, etc.
+
+### Forward path: clang-cl
+
+`clang-cl` is a Clang front-end that emulates MSVC's compiler interface, including
+support for `__uuidof` and `__declspec(uuid)`. It satisfies JUCE's requirements while
+being a modern, free compiler.
+
+**Prerequisites:**
+- **VS Build Tools** (free): `https://aka.ms/vs/17/release/vs_BuildTools.exe`
+  (needed for MSVC CRT headers, `link.exe`, `lib.exe`)
+- **LLVM for Windows**: `https://github.com/llvm/llvm-project/releases`
+
+This will be explored in a dedicated branch. See `implement_mingw.md` for the full
+technical analysis and SCons integration design.
 
 ---
 

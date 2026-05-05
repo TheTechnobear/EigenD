@@ -46,7 +46,7 @@ if env['IS_LINUX']:
 
 if env['IS_WINDOWS']:
     pic_files=pic_files+Split('pic_thread_win32.cpp pic_usb_libusb.cpp pic_winloop.cpp pic_tool_win32.cpp pic_power_win32.cpp')
-    pic_env.Append(LIBS=Split('shell32 usb-1.0'))
+    pic_env.Append(LIBS=Split('shell32 usb-1.0 user32 gdi32'))
     pic_env.PiSharedLibrary('pic',pic_files,package='eigend',public=True,locked=True)
 
 pic_pip_env = env.Clone()

@@ -34,7 +34,7 @@ samplerate_env = env.Clone()
 samplerate_env.Append(CPPPATH=samplerate_dirs)
 
 if env['IS_WINDOWS']:
-   def_file = samplerate_env.File('src\\win32\\libsamplerate.def').srcnode().abspath
-   samplerate_env.Append(LINKFLAGS='/DEF:%s'%def_file)
-
-samplerate_env.PiSharedLibrary('pisamplerate',samplerate_files,package='eigend',hidden=False)
+   def_file = samplerate_env.File('src/win32/libsamplerate.def')
+   samplerate_env.PiSharedLibrary('pisamplerate',samplerate_files,package='eigend',hidden=False,deffile=def_file)
+else:
+   samplerate_env.PiSharedLibrary('pisamplerate',samplerate_files,package='eigend',hidden=False)

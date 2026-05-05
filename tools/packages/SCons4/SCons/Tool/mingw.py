@@ -63,6 +63,16 @@ def shlib_generator(target, source, env, for_signature):
     implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
     if implib: cmd.append('-Wl,--out-implib,' + implib.get_string(for_signature))
 
+    # Include EigenD internal libraries mapped via LIBMAPPER (PILIBS mechanism)
+    # Only expand when actually linking, not when computing the signature/display string,
+    # to avoid absolute paths appearing as clickable links in VS Code's terminal.
+    if not for_signature:
+        libmapper = env.get('LIBMAPPER')
+        if libmapper:
+            libmap = libmapper(target, source, env, for_signature)
+            if libmap:
+                cmd.extend(libmap.split())
+
     def_target = env.FindIxes(target, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
     insert_def = env.subst("$WINDOWS_INSERT_DEF")
     if insert_def not in ['', '0', 0] and def_target: \
