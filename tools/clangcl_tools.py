@@ -88,7 +88,7 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
 
         # ---- Compile flags (MSVC-style) -------------------------------------
         self.Append(CCFLAGS=Split(
-            '/EHsc /w34355 /MD /O2 /fp:fast /arch:SSE2'
+            '/EHsc /w34355 /MD /O2 /fp:fast'
             ' /DWIN32 /D_WIN64 /D_WINDOWS'
         ))
 
