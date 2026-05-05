@@ -22,7 +22,9 @@
 
 /* echo foo | gcc -dM -E - */
 #ifdef _WIN32
+#ifdef _MSC_VER
 #pragma warning (disable : 4251 4275 4355 4244 4800 4099 4996 4305 4200 4291 4018)
+#endif
 #define PI_WINDOWS
 #define PI_IS_LINUX 0
 #define PI_IS_MACOSX 0
@@ -31,7 +33,9 @@
 // #define lround(tt) floor((tt) + 0.5f)
 // #define lroundf(tt) floorf((tt) + 0.5f)
 
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #endif
 
 #ifdef __linux__

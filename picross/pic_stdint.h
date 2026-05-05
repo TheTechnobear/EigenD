@@ -21,7 +21,7 @@
 #include "pic_config.h"
 
 #ifdef PI_WINDOWS
-	#if (_MSC_VER < 1700)
+	#if defined(_MSC_VER) && (_MSC_VER < 1700)
 		#include "pic_winstdint.h"
 	#else
 		#include <stdint.h>

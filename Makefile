@@ -1,4 +1,4 @@
-.PHONY: all etc html clean tags save load stage pkg test dev-setup list-targets FORCE
+.PHONY: all single etc html clean tags save load stage pkg test dev-setup list-targets FORCE
 
 FORCE:
 
@@ -48,6 +48,9 @@ VENV_DEV = .venv_dev
 
 all:
 	@$(VERBOSE) $(SCONS) -f $(TOOLS)/SConstruct $(QUIET) $(SCONS_OPTS) -j$(JOBS) $(TARGET)
+
+single:
+	@$(VERBOSE) $(SCONS) -f $(TOOLS)/SConstruct $(QUIET) $(SCONS_OPTS) -j1 $(TARGET)
 
 clean:
 	@$(SCONS) -f $(TOOLS)/SConstruct -c

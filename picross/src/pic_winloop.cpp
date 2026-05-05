@@ -31,8 +31,10 @@
 #define	WINDOW_TITLE	"TestWindow"
 #define WINDOW_CLASS	"EigenlabsClass"
 
+#ifdef _MSC_VER
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "GDI32.lib")
+#endif
 
 static class pic::winloop_t * winproc = NULL;
 

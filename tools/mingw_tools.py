@@ -59,8 +59,19 @@ class PiMingwEnvironment(generic_tools.PiGenericEnvironment):
             python=python_path
         )
 
-        # Cross-compilation prefix (e.g. 'x86_64-w64-mingw32-')
-        self._cross_prefix = cross_prefix or os.environ.get('MINGW_PREFIX', '')
+        # Cross-compilation prefix (e.g. 'x86_64-w64-mingw32-').
+        # Note: MSYS2 sets MINGW_PREFIX to a path-like value (e.g. '/ucrt64'),
+        # which is not a compiler prefix and must be ignored for native builds.
+        raw_cross_prefix = (
+            cross_prefix
+            or os.environ.get('MINGW_CROSS_PREFIX', '')
+            or os.environ.get('MINGW_PREFIX', '')
+        )
+
+        if sys.platform == 'win32' and ('/' in raw_cross_prefix or '\\' in raw_cross_prefix):
+            self._cross_prefix = ''
+        else:
+            self._cross_prefix = raw_cross_prefix
 
         if sys.platform == 'win32' and not self._cross_prefix:
             # Native Windows build: let SCons locate MinGW from PATH.

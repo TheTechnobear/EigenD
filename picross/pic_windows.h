@@ -23,7 +23,9 @@
 #undef WRITE_RESTRICTED
 #pragma message ("Hiding winnt.h #DEFINE of WRITE_RESTRICTED")
 #endif
+#ifndef NOMINMAX
 #define NOMINMAX		// need if we use std::minmax - removes windows #define of the same name
+#endif
 #include "Ws2tcpip.h"
 #include <windows.h>
 #ifdef __COPY_WR__
