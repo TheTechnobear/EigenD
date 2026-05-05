@@ -8,11 +8,15 @@ TOOLS = tools
 
 # Platform detection
 ifeq ($(OS),Windows_NT)
-    # Windows/MSYS2
+    # Windows: MinGW-w64 via MSYS2 (default) or MSVC (BUILD_TOOLCHAIN=msvc).
+    # Run from MSYS2 MinGW64 or UCRT64 shell (no vcvars needed for MinGW).
+    # Python.org Python is used for both SCons and Python extension headers/libs.
     PYTHON_BUILD ?= /c/Python314/python.exe
     VENV_ACTIVATE = $(VENV_DEV)/Scripts/activate
     RM_RF = rm -rf
     FIND_PYC = find . -name "*.pyc" -type f -delete
+    # Override SCONS invocation to use Windows Python explicitly
+    SCONS = PYTHONPATH=$(TOOLS)/packages/SCons4 $(PYTHON_BUILD) $(TOOLS)/packages/SCons4/bin/scons
 else
     # macOS/Linux
     UNAME_S := $(shell uname -s)

@@ -1,4 +1,23 @@
 {
+    // --- Windows: MSYS2 UCRT64 terminal integration ---
+    // These keys are ignored on non-Windows platforms.
+    "terminal.integrated.profiles.windows": {
+        "MSYS2 UCRT64": {
+            "path": "C:\\msys64\\usr\\bin\\bash.exe",
+            "args": ["--login", "-i"],
+            "env": {
+                "MSYSTEM": "UCRT64",
+                "CHERE_INVOKING": "1"
+            },
+            "icon": "terminal-bash"
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "MSYS2 UCRT64",
+
+    // --- Windows: C/C++ IntelliSense ---
+    // Select "MinGW-w64 UCRT64" from the IntelliSense configuration picker (bottom bar).
+    // See .vscode/c_cpp_properties.json.
+
     "files.associations": {
         "*.svg": "xml",
         "*.mm": "cpp",

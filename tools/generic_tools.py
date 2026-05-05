@@ -337,6 +337,7 @@ class PiGenericEnvironment(SCons.Environment.Environment):
         self.Replace(IS_MACOS_ARM64=False)
         
         self.Replace(IS_WINDOWS=False)
+        self.Replace(IS_MINGW=False)
         
         self.Replace(IS_BIGENDIAN=False)
 

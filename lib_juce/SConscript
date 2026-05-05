@@ -71,8 +71,13 @@ juce_common_files = Split("""
 # Common compiler flags
 juce_common_flags = '-DNDEBUG -DJUCE_DLL_BUILD -DJUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1'
 
-if env['IS_WINDOWS']:
-    # Windows uses .cpp extension
+if env['IS_MINGW']:
+    # MinGW-w64: GCC-style flags, -l for system libs
+    juce_files = [f'juce/modules/{mod}/{mod}.cpp' for mod in juce_common_modules] + juce_common_files
+    juce_env.Append(CCFLAGS=f'-DWINDOWS=1 -D_LIB -DWIN32 -D_WINDOWS {juce_common_flags} -include AppConfig.h -msse2')
+    juce_env.Append(LIBS=Split('ws2_32 kernel32 user32 gdi32 winspool comdlg32 advapi32 shell32 ole32 oleaut32 uuid wininet shlwapi version imm32 winmm dbghelp'))
+elif env['IS_WINDOWS']:
+    # MSVC (legacy path, BUILD_TOOLCHAIN=msvc)
     juce_files = [f'juce/modules/{mod}/{mod}.cpp' for mod in juce_common_modules] + juce_common_files
     juce_env.Append(CCFLAGS=f'/D "WINDOWS=1" /D "_LIB" /D "WIN32" /D "_WINDOWS" {juce_common_flags} /FI AppConfig.h /arch:SSE2')
     juce_env.Append(LINKFLAGS="/nodefaultlib:libcmt.lib")

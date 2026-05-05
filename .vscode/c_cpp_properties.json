@@ -1,0 +1,60 @@
+{
+    "configurations": [
+        {
+            "name": "macOS (Clang)",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/Library/Frameworks/Python.framework/Versions/3.14/include/python3.14",
+                "${workspaceFolder}/lib_juce/juce/modules"
+            ],
+            "defines": [],
+            "macFrameworkPath": [
+                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang++",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-x64"
+        },
+        {
+            "name": "Linux (GCC)",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/include/python3.14",
+                "${workspaceFolder}/lib_juce/juce/modules"
+            ],
+            "defines": [
+                "_GNU_SOURCE",
+                "_REENTRANT"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "MinGW-w64 UCRT64 (Windows)",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/msys64/ucrt64/include/**",
+                "C:/msys64/ucrt64/x86_64-w64-mingw32/include",
+                "C:/Python314/include",
+                "${workspaceFolder}/lib_juce/juce/modules"
+            ],
+            "defines": [
+                "WIN32",
+                "_WIN32",
+                "WINDOWS",
+                "_REENTRANT",
+                "__MINGW32__",
+                "__MINGW64__"
+            ],
+            "compilerPath": "C:/msys64/ucrt64/bin/gcc.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64",
+            "windowsSdkVersion": ""
+        }
+    ],
+    "version": 4
+}

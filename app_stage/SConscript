@@ -73,7 +73,11 @@ env.Append(CPPDEFINES=[['STAGE_BUILD','DESKTOP']])
 env.Append(CPPPATH='.')
 env.Append(CPPPATH='../lib_juce/juce/modules')
 
-if env['IS_WINDOWS']:
+if env['IS_MINGW']:
+    env.Append(CCFLAGS='-D_WINDOWS -DNDEBUG -msse2')
+    env.Append(LIBS=['ws2_32'])
+    stage_files.append('guicon.cpp')
+elif env['IS_WINDOWS']:
     env.Append(CCFLAGS='/D_WINDOWS /DNDEBUG /arch:SSE2')
     env.Append(LINKFLAGS="/nodefaultlib:libcmt.lib")
     env.Append(LINKFLAGS=' WS2_32.Lib ')

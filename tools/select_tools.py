@@ -117,8 +117,14 @@ def posix():
     raise RuntimeError("unsupported posix platform %s" % p)
 
 def win32():
-    import windows_tools
-    env = windows_tools.PiWindowsEnvironment()
+    toolchain = os.environ.get('BUILD_TOOLCHAIN', 'mingw').lower()
+    if toolchain == 'msvc':
+        import windows_tools
+        env = windows_tools.PiWindowsEnvironment()
+    else:
+        import mingw_tools
+        cross_prefix = os.environ.get('MINGW_PREFIX', '')
+        env = mingw_tools.PiMingwEnvironment(cross_prefix=cross_prefix or None)
     return env
 
 darwin=posix

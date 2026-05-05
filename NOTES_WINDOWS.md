@@ -1,10 +1,20 @@
-# EigenD Windows Development with MSYS2
+# EigenD Windows Development — MSVC (Legacy)
 
-## Overview
+> **The primary Windows build approach has moved to MinGW-w64.**
+> See [dev_docs/build_mingw.md](dev_docs/build_mingw.md) for build setup instructions.
+> See [dev_docs/implement_mingw.md](dev_docs/implement_mingw.md) for SCons integration details.
+>
+> This file documents the legacy MSVC path, which remains available via
+> `BUILD_TOOLCHAIN=msvc make`. It is no longer the default.
 
-EigenD Windows development **requires MSYS2** for a unified Unix-like workflow across all platforms. This provides the same `make` commands on Windows, macOS, and Linux.
+## Overview (MSVC Legacy)
 
-**Important:** End users only need Python 3.14 from python.org. MSYS2 is only for developers.
+This approach uses MSVC (Microsoft Visual C++) as the compiler, invoked from MSYS2.
+It requires sourcing `vcvars64.bat` before each build session, which is fragile with
+modern Visual Studio installations.
+
+MSYS2 is still required as the development shell. End users only need Python 3.14 from
+python.org regardless of which build toolchain was used.
 
 ---
 
@@ -117,14 +127,19 @@ make pkg
 
 ---
 
-## Compiler Selection
+## Compiler Selection (MSVC Legacy)
 
-Currently **MSVC only**. MinGW support may be added later for comparison.
+This path uses MSVC. For MinGW-w64 (the new default), see [NOTES_MINGW.md](NOTES_MINGW.md).
+
+To use this MSVC path:
+```bash
+BUILD_TOOLCHAIN=msvc make
+```
 
 **MSVC (Microsoft Visual C++):**
-- Required for Windows builds
-- Provides best Windows API compatibility
-- Includes Windows SDK with DirectX headers
+- Provides best native Windows API compatibility
+- Requires Visual Studio Build Tools + sourcing vcvars64.bat
+- No cross-compilation possible from Linux/macOS
 
 ---
 

@@ -32,7 +32,9 @@ lo_files = Split("""
 lo_env = env.Clone()
 lo_env.Append(CPPPATH=lo_dirs)
 
-if env['IS_WINDOWS']:
+if env['IS_MINGW']:
+    lo_env.Append(LIBS=['ws2_32'])
+elif env['IS_WINDOWS']:
     lo_env.Append(LINKFLAGS=' WS2_32.Lib ')
 
 if env['IS_LINUX']:

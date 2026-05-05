@@ -29,7 +29,10 @@ env.Append(CPPPATH='.')
 env.Append(CPPPATH='../lib_juce/juce/modules')
 env.Append(CCFLAGS='-DPI_RELEASE=\\"$PI_RELEASE\\"')
 
-if env['IS_WINDOWS']:
+if env['IS_MINGW']:
+    env.Append(CCFLAGS='-D_WINDOWS -DNDEBUG -msse2')
+    env.Append(LIBS=['ws2_32'])
+elif env['IS_WINDOWS']:
     env.Append(CCFLAGS='/D_WINDOWS /DNDEBUG /arch:SSE2')
     env.Append(LINKFLAGS="/nodefaultlib:libcmt.lib")
     env.Append(LINKFLAGS=' WS2_32.Lib ')

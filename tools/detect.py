@@ -27,8 +27,14 @@ cv = sysconfig.get_config_vars()
 def do_win32():
     executable = sys.executable
     incpath = sysconfig.get_path('include')
-    libpath = os.path.join(sys.prefix,'libs')
-    return (executable,incpath,libpath,'Python26','',sys.prefix)
+    libpath = os.path.join(sys.prefix, 'libs')
+    # Build the versioned library name (e.g. 'python314' for Python 3.14).
+    # cv['VERSION'] on Windows returns e.g. '314'; fall back to version_info.
+    version = cv.get('VERSION', '')
+    if not version:
+        version = '%d%d' % (sys.version_info.major, sys.version_info.minor)
+    lib = 'python' + version
+    return (executable, incpath, libpath, lib, '', sys.prefix)
 
 def do_nonframework():
     executable = sys.executable
