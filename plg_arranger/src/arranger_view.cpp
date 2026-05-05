@@ -56,7 +56,7 @@
 
 namespace
 {
-    struct PIARRANGER_DECLSPEC_CLASS cell_t: virtual pic::lckobject_t
+    struct cell_t: virtual pic::lckobject_t
     {
         cell_t() { clear(); }
 

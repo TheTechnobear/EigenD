@@ -28,7 +28,10 @@ def do_win32():
     executable = sys.executable
     incpath = sysconfig.get_path('include')
     libpath = os.path.join(sys.prefix,'libs')
-    return (executable,incpath,libpath,'Python26','',sys.prefix)
+    # Build the import lib name from the actual version, e.g. python314 -> python314.lib
+    ver = sysconfig.get_config_var('VERSION') or (''.join(str(v) for v in sys.version_info[:2]))
+    lib = 'python' + ver
+    return (executable,incpath,libpath,lib,'',sys.prefix)
 
 def do_nonframework():
     executable = sys.executable

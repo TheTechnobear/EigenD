@@ -62,11 +62,16 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
         )
 
         # ---- Compiler / linker / archiver --------------------------------
+        # Keep MSVC tool active for path/lib generators, but override executables
         self.Replace(CC='clang-cl')
         self.Replace(CXX='clang-cl')
         self.Replace(AR='llvm-lib')
         self.Replace(LINK='lld-link')
         self.Replace(SHLINK='lld-link')
+
+        py_dir = os.path.dirname(self['PI_PYTHON'])
+        py_inc = os.path.join(py_dir, 'Include')
+        py_libdir = os.path.join(py_dir, 'libs')
 
         # clang-cl does not use the MSVC response-file prefix (@) that SCons
         # inserts for long command lines; keep the default for now.
@@ -91,11 +96,19 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
             '/EHsc /w34355 /MD /O2 /fp:fast'
             ' /DWIN32 /D_WIN64 /D_WINDOWS'
         ))
+        self.Append(CCFLAGS=['/I%s' % py_inc])
+
+        # ---- Enable verbose compile output ------------------------------------
+        # Show the actual clang-cl command with all expanded flags
+        self.Replace(CCCOMSTR='Compiling $SOURCE')
+        self.Replace(CXXCOMSTR='Compiling $SOURCE')
 
         # ---- Link flags (lld-link style) ------------------------------------
         # /MANIFEST, /INCREMENTAL:NO are lld-link compatible.
         self.Append(LINKFLAGS=Split('/INCREMENTAL:NO /LARGEADDRESSAWARE'))
         self.Append(SHLINKFLAGS=Split('/INCREMENTAL:NO'))
+        self.Append(LINKFLAGS=['/LIBPATH:%s' % py_libdir])
+        self.Append(SHLINKFLAGS=['/LIBPATH:%s' % py_libdir])
 
         # LIBMAPPER appends resolved .lib paths to linker command line.
         self.Append(SHLINK=' $LIBMAPPER')

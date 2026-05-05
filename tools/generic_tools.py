@@ -179,12 +179,13 @@ class PiGenericEnvironment(SCons.Environment.Environment):
 
 
     def __getpython(self):
-        status=os.popen('"%s" %s' % (self['PI_PYTHON'],join(os.path.dirname(__file__),'detect.py')),'r').read(1024)
-        (exe,incpath,libpath,libs,linkextra,prefix) = [s.strip() for s in status.split(';')]
+        cmd = '"%s" %s' % (self['PI_PYTHON'], join(os.path.dirname(__file__), 'detect.py'))
+        status = os.popen(cmd, 'r').read(1024)
+        (exe, incpath, libpath, libs, linkextra, prefix) = [s.strip() for s in status.split(';')]
 
         self.Append(CPPPATH=[incpath])
         self.Append(LIBS=libs)
-        self.Append(LIBPATH=libpath)
+        self.Append(LIBPATH=[libpath])
         self.Append(LINKFLAGS=linkextra)
         self.Replace(PI_PREFIX=prefix or None)
 
@@ -298,7 +299,8 @@ class PiGenericEnvironment(SCons.Environment.Environment):
 
         self.Replace(ETCSTAGEDIR=join('$RELEASESTAGEDIR','etc','$PI_PACKAGENAME'))
 
-        self.Append(CPPPATH='$EXPDIR')
+        # Use Dir node so $EXPDIR is expanded, not passed as literal string to compiler
+        self.Append(CPPPATH=[self.Dir('$EXPDIR')])
 
         if os.environ.get('PI_VERBOSE') is None:
             self.Replace(PRINT_CMD_LINE_FUNC=self.print_cmd)
