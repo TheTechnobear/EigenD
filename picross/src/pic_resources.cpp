@@ -105,13 +105,18 @@ namespace
         pic::mkdir(buffer);
     }
 
+    static void get_global_resources(char *buffer)
+    {
+        get_prefix(buffer);
+    }
+
     static void get_pyprefix(char *buffer)
     {
         get_prefix(buffer);
         strcat(buffer,RES_SEPERATOR_STR);
         strcat(buffer,"runtime-1.0.0");
         strcat(buffer,RES_SEPERATOR_STR);
-        strcat(buffer,"Python26");
+        strcat(buffer,"Python314");
     }
 
     static void get_pubtool(char *buffer)

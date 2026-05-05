@@ -575,8 +575,8 @@ usbpipe_in_t::usbpipe_in_t(pic::usbdevice_t::impl_t *dev, pic::usbdevice_t::iso_
 void pic::usbdevice_t::impl_t::thread_main()
 {
 	OVERLAPPED *overlapped;
-	unsigned long key;
-	unsigned long br;
+	ULONG_PTR key;
+	DWORD br;
 	int ok;
 
     for(;;)

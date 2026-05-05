@@ -73,6 +73,11 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
         py_inc = os.path.join(py_dir, 'Include')
         py_libdir = os.path.join(py_dir, 'libs')
 
+        # libusb — unpacked from resources/libusb-1.0.*.7z by 'make libusb-setup'
+        _proj_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        libusb_inc = os.path.join(_proj_root, 'tmp', 'libusb', 'include')
+        libusb_lib = os.path.join(_proj_root, 'tmp', 'libusb', 'lib')
+
         # clang-cl does not use the MSVC response-file prefix (@) that SCons
         # inserts for long command lines; keep the default for now.
 
@@ -93,10 +98,11 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
 
         # ---- Compile flags (MSVC-style) -------------------------------------
         self.Append(CCFLAGS=Split(
-            '/EHsc /w34355 /MD /O2 /fp:fast'
+            '/EHsc /w34355 /MD /O2 /fp:fast /std:c++17'
             ' /DWIN32 /D_WIN64 /D_WINDOWS'
         ))
         self.Append(CCFLAGS=['/I%s' % py_inc])
+        self.Append(CCFLAGS=['/I%s' % libusb_inc])
 
         # ---- Enable verbose compile output ------------------------------------
         # Show the actual clang-cl command with all expanded flags
@@ -109,6 +115,8 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
         self.Append(SHLINKFLAGS=Split('/INCREMENTAL:NO'))
         self.Append(LINKFLAGS=['/LIBPATH:%s' % py_libdir])
         self.Append(SHLINKFLAGS=['/LIBPATH:%s' % py_libdir])
+        self.Append(LINKFLAGS=['/LIBPATH:%s' % libusb_lib])
+        self.Append(SHLINKFLAGS=['/LIBPATH:%s' % libusb_lib])
 
         # LIBMAPPER appends resolved .lib paths to linker command line.
         self.Append(SHLINK=' $LIBMAPPER')

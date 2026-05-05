@@ -7,6 +7,12 @@
 #include <string>
 #include <set>
 
+#ifdef _WIN32
+// Must include winsock2 before windows.h (pulled in by libusb) to avoid
+// struct timeval redefinition conflicts.
+#include <winsock2.h>
+#endif
+
 #include <libusb-1.0/libusb.h>
 
 #include <picross/pic_thread.h>
@@ -766,7 +772,9 @@ pic::usbdevice_t::impl_t::impl_t(const char *name, unsigned iface, pic::usbdevic
     
     if(dhandle_== 0ULL) return;
     
+#ifndef _WIN32
 //	libusb_set_detach_kernel_driver(dhandle_,1);
+#endif
 	status = libusb_claim_interface(dhandle_, iface);
 	if (status != LIBUSB_SUCCESS) {
 		pic::logmsg() << "pic::usbdevice_t::impl_t  claim_interface failed: %s\n", libusb_error_name(status);
@@ -1266,7 +1274,7 @@ void pic::usbenumerator_t::impl_t::thread_main()
     while(!stop_)
     {
         thread_pass();
-        sleep(1000);
+        pic_microsleep(1000000);
     }
 }
 

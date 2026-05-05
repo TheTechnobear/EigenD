@@ -1,4 +1,4 @@
-.PHONY: all etc html clean tags save load stage pkg test dev-setup list-targets FORCE
+.PHONY: all etc html clean tags save load stage pkg test dev-setup libusb-setup list-targets FORCE
 
 FORCE:
 
@@ -35,6 +35,11 @@ TARGET ?= target-default
 VERBOSE ?=
 QUIET ?=
 
+# libusb unpacked location (Windows only)
+LIBUSB_ARCHIVE = resources/libusb-1.0.29.7z
+LIBUSB_DIR     = tmp/libusb
+LIBUSB_SENTINEL = $(LIBUSB_DIR)/include/libusb-1.0/libusb.h
+
 
 SCONS ?= PYTHONPATH=$(TOOLS)/packages/SCons4 python3 $(TOOLS)/packages/SCons4/bin/scons
 VENV_DEV = .venv_dev
@@ -42,6 +47,9 @@ VENV_DEV = .venv_dev
 # VERBOSE example
 # make plg_rig VERBOSE="PI_VERBOSE=1" 
 
+ifeq ($(OS),Windows_NT)
+all: $(LIBUSB_SENTINEL)
+endif
 all:
 	@$(VERBOSE) $(SCONS) -f $(TOOLS)/SConstruct $(QUIET) $(SCONS_OPTS) -j$(JOBS) $(TARGET)
 
@@ -101,6 +109,20 @@ endif
 	@echo "======================================="
 
 FORCE:
+
+# Unpack the libusb Windows binaries from the vendored archive.
+# Only needed on Windows; uses p7zip (pacman -S p7zip).
+# Re-runs automatically if the archive is newer than the sentinel.
+libusb-setup: $(LIBUSB_SENTINEL)
+
+$(LIBUSB_SENTINEL): $(LIBUSB_ARCHIVE)
+	@echo "Unpacking libusb from $(LIBUSB_ARCHIVE)..."
+	@mkdir -p $(LIBUSB_DIR)/include/libusb-1.0
+	@mkdir -p $(LIBUSB_DIR)/lib
+	@7z e $(LIBUSB_ARCHIVE) include/libusb.h -o$(LIBUSB_DIR)/include/libusb-1.0 -y > /dev/null
+	@7z e $(LIBUSB_ARCHIVE) 'VS2022/MS64/dll/libusb-1.0.lib' -o$(LIBUSB_DIR)/lib -y > /dev/null
+	@7z e $(LIBUSB_ARCHIVE) 'VS2022/MS64/dll/libusb-1.0.dll' -o$(LIBUSB_DIR)/lib -y > /dev/null
+	@echo "libusb unpacked: include at $(LIBUSB_DIR)/include, lib at $(LIBUSB_DIR)/lib"
 
 % : FORCE
 	@$(VERBOSE) $(SCONS) -f $(TOOLS)/SConstruct $(QUIET) $(SCONS_OPTS) -j$(JOBS) $@
