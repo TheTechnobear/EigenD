@@ -31,9 +31,14 @@ midilib_files=Split("""
 
 midilib_env=env.Clone()
 
+if env['IS_WINDOWS']:
+	midilib_env.Append(CCFLAGS='/DJUCE_DLL')
+
 
 midilib_env.Append(CPPPATH='../../lib_juce/juce/modules')
 midilib_env.PiSharedLibrary('midilib',midilib_files,libraries=Split('pia pic pie piw pijuce'),package='eigend',public=True,locked=True)
 midilib_py=env.Clone()
+if env['IS_WINDOWS']:
+	midilib_py.Append(CCFLAGS='/DJUCE_DLL')
 midilib_py.Append(CPPPATH='../../lib_juce/juce/modules')
 midilib_py.PiPipBinding('midilib_native',env.Pipfile('midilib.pip'),libraries=Split('midilib pic pia pie piw pijuce'),package='eigend')

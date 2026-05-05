@@ -124,8 +124,7 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
         # Show the actual clang-cl command with all expanded flags
         self.Replace(CCCOMSTR='Compiling $SOURCE')
         self.Replace(CXXCOMSTR='Compiling $SOURCE')
-        # Print full lld-link command for debugging path issues
-        self.Replace(SHLINKCOMSTR='LINK_CMD: $SHLINK $SHLINKFLAGS $_SHLINK_TARGETS $_SHLINK_SOURCES $_LIBDIRFLAGS $_LIBFLAGS')
+        # SHLINKCOMSTR left unset so full lld-link command is visible for debugging
 
         # ---- Link flags (lld-link style) ------------------------------------
         # /MANIFEST, /INCREMENTAL:NO are lld-link compatible.
@@ -173,6 +172,9 @@ class PiClangClEnvironment(generic_tools.PiGenericEnvironment):
                 lib_path = os.path.splitext(ll.libnode.abspath)[0] + '.lib'
                 lib_path = self._to_windows_tool_path(lib_path)
                 parts.append('"%s"' % lib_path)
+        if target and 'audio_native' in str(target[0]):
+            print('LIBMAPPER audio_native libs:', libs)
+            print('LIBMAPPER audio_native parts:', parts)
         return ' '.join(parts)
 
     # ------------------------------------------------------------------

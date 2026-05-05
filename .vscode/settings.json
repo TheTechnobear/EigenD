@@ -17,5 +17,6 @@
     "files.defaultLanguage": "markdown",
     "workbench.welcomePage.walkthroughs.openOnInstall": false,
     "workbench.editor.enablePreview": false,
-    "cmake.generator": "Unix Makefiles"
+    "cmake.generator": "Unix Makefiles",
+    "github.copilot.chat.commitMessageGeneration.instructions": []
 }

@@ -31,4 +31,6 @@ plg_libs = Split("""
 """)
 
 paenv.Append(CPPPATH='../../lib_juce/juce/modules')
+if env['IS_WINDOWS']:
+    paenv.Append(CCFLAGS='/DJUCE_DLL')
 paenv.PiPipBinding('audio_native','audio.pip',libraries=plg_libs,sources=plg_files,package='eigend',per_agent='plg_audio',locked=True)

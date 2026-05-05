@@ -22,6 +22,9 @@ Import('env')
 import os
 cenv = env.Clone()
 
+if env['IS_WINDOWS']:
+    cenv.Append(CCFLAGS='/DJUCE_DLL')
+
 conductor_files = Split("""
         aiff_format.cpp audio_channel.cpp audio_recording.cpp audio_wire.cpp
         clip_manager.cpp clip_manager_backend.cpp clip_manager_impl.cpp

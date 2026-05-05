@@ -50,6 +50,8 @@ if (env['IS_MACOSX_8664'] or env['IS_LINUX_8664'] or env['IS_MACOS_ARM64']):
 env.Append(CPPPATH='../lib_juce/juce/modules')
 env.Append(CCFLAGS='-DPI_RELEASE=\\"$PI_RELEASE\\"')
 env.Append(CCFLAGS='-DPI_COLLECTION=\\"$PI_COLLECTION\\"')
+if env['IS_WINDOWS']:
+    env.Append(CCFLAGS='/DJUCE_DLL')
 env.Append(PI_HIRES=True)
 
 env.PiGuiProgram('eigend',widget_files,libraries=widget_libs,appname='EigenD',package='eigend')

@@ -711,11 +711,19 @@ pi_audio::audioctl_t::impl_t::impl_t(const piw::cookie_t &o, piw::clockdomain_ct
     piw::tsd_thing(this);
     piw::tsd_clocksource(piw::makestring("juceaudio"),512,48000,this);
 
+#if JUCE_MAC
     add_type("Core Audio",juce::AudioIODeviceType::createAudioIODeviceType_CoreAudio());
+#endif
+#if JUCE_LINUX
     add_type("ALSA",juce::AudioIODeviceType::createAudioIODeviceType_ALSA());
     add_type("Jack",juce::AudioIODeviceType::createAudioIODeviceType_JACK());
+#endif
+#if JUCE_WINDOWS
     add_type("DirectX 10",juce::AudioIODeviceType::createAudioIODeviceType_WASAPI(false));
+#if JUCE_ASIO
     add_type("ASIO",juce::AudioIODeviceType::createAudioIODeviceType_ASIO());
+#endif
+#endif
     //add_type("DirectX 9",juce::AudioIODeviceType::createAudioIODeviceType_DirectSound());
 
     d->set_source(piw::makestring("juceaudio"));

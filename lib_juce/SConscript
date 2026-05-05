@@ -75,6 +75,7 @@ if env['IS_WINDOWS']:
     # Windows uses .cpp extension
     juce_files = [f'juce/modules/{mod}/{mod}.cpp' for mod in juce_common_modules] + juce_common_files
     juce_env.Append(CCFLAGS=f'/D "WINDOWS=1" /D "_LIB" /D "WIN32" /D "_WINDOWS" {juce_common_flags} /FI AppConfig.h')
+    juce_env.Append(CCFLAGS='/DJUCE_DLL')
     juce_env.Append(CXXFLAGS='/std:c++17')
     juce_env.Append(LINKFLAGS="/nodefaultlib:libcmt.lib")
     juce_env.Append(LINKFLAGS='WS2_32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib')

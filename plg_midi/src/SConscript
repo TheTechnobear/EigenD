@@ -21,6 +21,8 @@
 Import('env')
 
 pmhenv = env.Clone()
+if env['IS_WINDOWS']:
+    pmhenv.Append(CCFLAGS='/DJUCE_DLL')
 plg_files=Split(""" 
     midi_merge_output.cpp midi_input.cpp midi_clock.cpp midi_pgm_chooser.cpp midi_processor.cpp 
 """)

@@ -75,6 +75,7 @@ env.Append(CPPPATH='../lib_juce/juce/modules')
 
 if env['IS_WINDOWS']:
     env.Append(CCFLAGS='/D_WINDOWS /DNDEBUG /arch:SSE2')
+    env.Append(CCFLAGS='/DJUCE_DLL')
     env.Append(LINKFLAGS="/nodefaultlib:libcmt.lib")
     env.Append(LINKFLAGS=' WS2_32.Lib ')
     stage_files.append('guicon.cpp')
