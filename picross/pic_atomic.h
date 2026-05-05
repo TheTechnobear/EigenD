@@ -393,7 +393,8 @@ inline static uint32_t pic_atomicdec(pic_atomic_t *p)
 
 inline static int pic_atomiccas(pic_atomic_t *p, pic_atomic_t oval, pic_atomic_t nval)
 {
-    return (InterlockedCompareExchange((long *)p,nval,oval)==oval);
+    const long expected = (long)oval;
+    return (InterlockedCompareExchange((volatile long *)p,(long)nval,expected) == expected);
 }
 
 inline static int pic_atomicptrcas(void *p, void *oval, void *nval)
