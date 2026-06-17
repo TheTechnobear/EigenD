@@ -71,8 +71,9 @@ static void __shutdown()
         {
             for(unsigned k=0; k<22; ++k)
                 i->set_led(k,0);
-            i->control_out(TYPE_VENDOR,BCTPICO_USBCOMMAND_STOP,0,0,0,0);
-            i->stop();
+            // i->stop();
+            // i->detach();
+            // redundant close() = stop_pipes() + detach() + device.close().
             i->close();
         }
         catch(...)
@@ -107,14 +108,9 @@ pico::active_t::impl_t::impl_t(const char *name, pico::active_t::delegate_t *del
 
 pico::active_t::impl_t::~impl_t()
 {  
-    try
-    {
-        control_out(TYPE_VENDOR,BCTPICO_USBCOMMAND_STOP,0,0,0,0);
-    }
-    catch(...)
-    {
-    }
-    stop(); 
+    // stop();
+    // detach();
+    // redundant close() = stop_pipes() + detach() + device.close().
     close();
 }
 
