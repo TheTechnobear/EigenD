@@ -28,10 +28,10 @@ try:
 except ImportError:
     from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 
-MATCH_PHYSICAL = re.compile('^/column/(\d+)/row/(\d+)$',re.IGNORECASE)
-MATCH_MUSICAL = re.compile('^/course/(\d+)/key/(\d+)$',re.IGNORECASE)
-MATCH_MAP = re.compile('^\[(?:\[\[\d+,\d+\],\w+\](?:,\[\[\d+,\d+\],\w+\])*)?\]$',re.IGNORECASE)
-MATCH_BITMAP = re.compile('^[RGO \\n\\,\\.]*$',re.IGNORECASE|re.MULTILINE)
+MATCH_PHYSICAL = re.compile(r'^/column/(\d+)/row/(\d+)$',re.IGNORECASE)
+MATCH_MUSICAL = re.compile(r'^/course/(\d+)/key/(\d+)$',re.IGNORECASE)
+MATCH_MAP = re.compile(r'^\[(?:\[\[\d+,\d+\],\w+\](?:,\[\[\d+,\d+\],\w+\])*)?\]$',re.IGNORECASE)
+MATCH_BITMAP = re.compile(r'^[RGO \\n\\,\\.]*$',re.IGNORECASE|re.MULTILINE)
 
 class InterruptableHTTPServer(HTTPServer):
     allow_reuse_address = True
@@ -89,7 +89,7 @@ class IlluminatorRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", "text/plain")                     
         self.end_headers()
-        self.wfile.write(content)
+        self.wfile.write(content.encode())
 
     def output_get_xhtml(self, content):
         self.send_response(200)
@@ -125,7 +125,7 @@ class IlluminatorRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/':
-            xhtml = open(resource.find_release_resource('illuminator','illuminator_plg.xhtml'))
+            xhtml = open(resource.find_release_resource('illuminator','illuminator_plg.xhtml'), 'rb')
             self.output_get_xhtml(xhtml.read())
             xhtml.close()
             return
@@ -143,7 +143,7 @@ class IlluminatorRequestHandler(BaseHTTPRequestHandler):
 
     def do_PUT(self):
         if self.path == '/physical':
-            content = self.rfile.read(int(self.headers['Content-Length']))
+            content = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
             if MATCH_MAP.match(content):
                 self.send_success()
                 self.server.agent.set_physical_map(content)
@@ -156,7 +156,7 @@ class IlluminatorRequestHandler(BaseHTTPRequestHandler):
             return
 
         if self.path == '/musical':
-            content = self.rfile.read(int(self.headers['Content-Length']))
+            content = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
             if MATCH_MAP.match(content):
                 self.send_success()
                 self.server.agent.set_musical_map(content)
@@ -173,7 +173,7 @@ class IlluminatorRequestHandler(BaseHTTPRequestHandler):
             self.send_success()
             column = int(match.group(1))
             row = int(match.group(2))
-            colour = self.rfile.read(int(self.headers['Content-Length']))
+            colour = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
             self.server.agent.set_physical(column,row,colour)
             return
 
@@ -182,7 +182,7 @@ class IlluminatorRequestHandler(BaseHTTPRequestHandler):
             self.send_success()
             course = int(match.group(1))
             key = int(match.group(2))
-            colour = self.rfile.read(int(self.headers['Content-Length']))
+            colour = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
             self.server.agent.set_musical(course,key,colour)
             return
 
