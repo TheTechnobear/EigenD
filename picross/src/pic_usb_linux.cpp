@@ -765,6 +765,25 @@ pic::usbdevice_t::impl_t::impl_t(const char *name, unsigned iface, pic::usbdevic
     dhandle_=open_usb_device(name);
     
     if(dhandle_== 0ULL) return;
+
+	// handle may be stale, reset device similar to set config on mac etc.
+	// for more details
+	// https://github.com/amplogik/EigenD-Ubuntu/commit/d98f04b1c31ed49fe98bd10a1e240bb0a6b93a0e
+	status = libusb_reset_device(dhandle_);
+	if(status == LIBUSB_ERROR_NOT_FOUND)
+	{
+		// The reset caused the device to re-enumerate (descriptors changed
+		// or address moved). The handle is now stale; drop it and let the
+		// enumerator re-detect and reopen the device.
+		pic::logmsg() << "pic::usbdevice_t::impl_t : device re-enumerated after reset, reopening " << name;
+		libusb_close(dhandle_);
+		dhandle_ = open_usb_device(name);
+		if(dhandle_ == 0ULL) return;
+	}
+	else if(status != LIBUSB_SUCCESS)
+	{
+		pic::logmsg() << "pic::usbdevice_t::impl_t : reset_device failed: " << libusb_error_name(status) << " (" << status << ")";
+	}
     
 //	libusb_set_detach_kernel_driver(dhandle_,1);
 	status = libusb_claim_interface(dhandle_, iface);
