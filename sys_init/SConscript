@@ -53,6 +53,7 @@ if env['IS_WINDOWS']:
     env.PiReleaseFile('eigend','pico-setup.pdf','Pico Setup Guide')
     env.PiReleaseFile('eigend','alpha-setup.pdf','Alpha Setup Guide')
     env.PiReleaseFile('eigend','tau-setup.pdf','Tau Setup Guide')
+    env.PiReleaseFile('eigend','AlphaMicWiring.pdf','Alpha Mic Guide')
 else:
     env.PiResources('state','states/factory_mac/*',package='eigend')
     env.PiResources('example','states/examples_mac/*',package='eigend')
@@ -63,6 +64,7 @@ if env['IS_MACOSX']:
     env.PiEtc('eigend',Split('pico-setup.pdf'))
     env.PiEtc('eigend',Split('alpha-setup.pdf'))
     env.PiEtc('eigend',Split('tau-setup.pdf'))
+    env.PiEtc('eigend',Split('AlphaMicWiring.pdf'))
     env.PiEtc('eigend',Split('sfpatch'))
 
 if env['IS_LINUX']:
